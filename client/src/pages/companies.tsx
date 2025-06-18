@@ -188,27 +188,36 @@ export default function Companies() {
                       Upload a CSV file with the following columns:
                     </p>
                     <div className="bg-gray-50 p-4 rounded-lg">
-                      <div className="grid grid-cols-2 gap-4 text-sm">
+                      <p className="font-medium text-gray-900 mb-3">CSV Format Requirements:</p>
+                      <div className="space-y-4">
                         <div>
-                          <strong>Required Columns:</strong>
-                          <ul className="mt-2 space-y-1 text-gray-600">
-                            <li>• Name</li>
-                            <li>• HQ Location</li>
-                            <li>• AUM (in bil)</li>
-                            <li>• Type</li>
-                            <li>• Area</li>
-                          </ul>
+                          <strong>Required Headers (first row):</strong>
+                          <p className="text-sm text-gray-600 mt-1 font-mono bg-white p-2 rounded border">
+                            Company Name,HQ Location,AUM,Type,Area
+                          </p>
                         </div>
                         <div>
-                          <strong>Area Options:</strong>
-                          <ul className="mt-2 space-y-1 text-gray-600">
-                            <li>• US</li>
-                            <li>• EU</li>
-                            <li>• Hong Kong</li>
-                            <li>• Singapore</li>
-                            <li>• Korea</li>
-                            <li>• Other</li>
-                          </ul>
+                          <strong>Example Data Row:</strong>
+                          <p className="text-sm text-gray-600 mt-1 font-mono bg-white p-2 rounded border">
+                            HSBC Asset Management,Hong Kong,620,"Institutional, ESG",Hong Kong
+                          </p>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <strong>Notes:</strong>
+                            <ul className="mt-2 space-y-1 text-sm text-gray-600">
+                              <li>• AUM values should be in billions</li>
+                              <li>• Use quotes for multi-word types</li>
+                              <li>• Headers are case-insensitive</li>
+                            </ul>
+                          </div>
+                          <div>
+                            <strong>Area Options:</strong>
+                            <ul className="mt-2 space-y-1 text-sm text-gray-600">
+                              <li>• US • EU • Hong Kong</li>
+                              <li>• Singapore • Korea • Other</li>
+                            </ul>
+                          </div>
                         </div>
                       </div>
                     </div>

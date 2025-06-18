@@ -101,6 +101,9 @@ Changelog:
 - June 18, 2025. Added company dropdown integration for investor creation
 - June 18, 2025. Added share ownership tracking with conditional amount field
 - June 18, 2025. Improved form usability with collapsible sections and better organization
+- June 18, 2025. Fixed CSV upload validation with flexible header mapping and robust field detection
+- June 18, 2025. Updated sample CSV file with Hong Kong asset management companies data
+- June 18, 2025. Enhanced CSV upload UI with clear format examples and requirements
 ```
 
 ## User Preferences
