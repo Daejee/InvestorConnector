@@ -1,5 +1,8 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+import multer from "multer";
+import csvParser from "csv-parser";
+import { Readable } from "stream";
 import { storage } from "./storage";
 import { 
   insertInvestorSchema, 
@@ -10,6 +13,8 @@ import {
 } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Configure multer for file upload
+  const upload = multer({ storage: multer.memoryStorage() });
   // Investors routes
   app.get("/api/investors", async (req, res) => {
     const investors = await storage.getInvestors();
@@ -71,6 +76,124 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(company);
     } catch (error) {
       res.status(400).json({ message: "Invalid company data", error });
+    }
+  });
+
+  // CSV upload endpoint for companies
+  app.post("/api/companies/upload-csv", upload.single("csvFile"), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No CSV file uploaded" });
+      }
+
+      const results: any[] = [];
+      const errors: string[] = [];
+      let lineNumber = 1;
+
+      // Parse CSV data
+      await new Promise((resolve, reject) => {
+        const stream = Readable.from(req.file!.buffer.toString());
+        stream
+          .pipe(csvParser({
+            // Map CSV headers to our schema fields (case-insensitive)
+            mapHeaders: ({ header }) => {
+              const normalized = header.toLowerCase().trim();
+              switch (normalized) {
+                case 'name':
+                case 'company name':
+                  return 'name';
+                case 'hq location':
+                case 'hq':
+                case 'location':
+                case 'headquarters':
+                  return 'hqLocation';
+                case 'aum':
+                case 'assets under management':
+                case 'total aum':
+                  return 'aum';
+                case 'type':
+                case 'company type':
+                case 'fund type':
+                  return 'type';
+                default:
+                  return header;
+              }
+            }
+          }))
+          .on('data', (data) => {
+            lineNumber++;
+            try {
+              // Validate required fields
+              if (!data.name || !data.hqLocation || !data.aum || !data.type) {
+                errors.push(`Line ${lineNumber}: Missing required fields (name, hqLocation, aum, type)`);
+                return;
+              }
+
+              // Validate company type
+              const validTypes = ['VC', 'PE', 'Hedge Fund', 'Asset Management', 'Family Office', 'Investment Bank', 'Other'];
+              if (!validTypes.includes(data.type)) {
+                errors.push(`Line ${lineNumber}: Invalid company type "${data.type}". Must be one of: ${validTypes.join(', ')}`);
+                return;
+              }
+
+              // Validate AUM is a number
+              const aumValue = parseFloat(data.aum);
+              if (isNaN(aumValue) || aumValue < 0) {
+                errors.push(`Line ${lineNumber}: AUM must be a valid positive number, got "${data.aum}"`);
+                return;
+              }
+
+              const companyData = {
+                name: data.name.trim(),
+                hqLocation: data.hqLocation.trim(),
+                aum: aumValue.toString(),
+                type: data.type.trim()
+              };
+
+              // Validate with Zod schema
+              const validatedData = insertCompanySchema.parse(companyData);
+              results.push(validatedData);
+            } catch (error: any) {
+              errors.push(`Line ${lineNumber}: ${error.message}`);
+            }
+          })
+          .on('end', resolve)
+          .on('error', reject);
+      });
+
+      // If there are validation errors, return them
+      if (errors.length > 0) {
+        return res.status(400).json({
+          message: "CSV validation failed",
+          errors,
+          processedRows: lineNumber - 1
+        });
+      }
+
+      // Insert valid companies into database
+      const createdCompanies = [];
+      for (const companyData of results) {
+        try {
+          const company = await storage.createCompany(companyData);
+          createdCompanies.push(company);
+        } catch (error: any) {
+          errors.push(`Failed to create company "${companyData.name}": ${error.message}`);
+        }
+      }
+
+      res.status(201).json({
+        message: `Successfully imported ${createdCompanies.length} companies`,
+        importedCount: createdCompanies.length,
+        totalRows: results.length,
+        errors: errors.length > 0 ? errors : undefined,
+        companies: createdCompanies
+      });
+
+    } catch (error: any) {
+      res.status(500).json({ 
+        message: "Failed to process CSV file", 
+        error: error.message 
+      });
     }
   });
 

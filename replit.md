@@ -93,6 +93,9 @@ IR CRM is a comprehensive investor relations management system built with a mode
 ```
 Changelog:
 - June 18, 2025. Initial setup
+- June 18, 2025. Migrated from in-memory storage to PostgreSQL database
+- June 18, 2025. Updated company schema to simplified fields (Name, HQ Location, AUM, Type)
+- June 18, 2025. Added CSV upload functionality for bulk company import
 ```
 
 ## User Preferences

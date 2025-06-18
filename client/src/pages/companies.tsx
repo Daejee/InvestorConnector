@@ -1,16 +1,24 @@
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useState, useRef } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import CompanyForm from "@/components/companies/company-form";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, Upload, Download, FileText } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 import type { Company } from "@shared/schema";
 
 export default function Companies() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
+  const [uploadResult, setUploadResult] = useState<any>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   const { data: companies, isLoading } = useQuery<Company[]>({
     queryKey: ["/api/companies"],
@@ -21,6 +29,74 @@ export default function Companies() {
     company.hqLocation.toLowerCase().includes(searchQuery.toLowerCase()) ||
     company.type.toLowerCase().includes(searchQuery.toLowerCase())
   ) || [];
+
+  const uploadCSVMutation = useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append('csvFile', file);
+      
+      const response = await fetch('/api/companies/upload-csv', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Upload failed');
+      }
+      
+      return response.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/companies"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/dashboard/stats"] });
+      setUploadResult(data);
+      toast({
+        title: "Success",
+        description: data.message,
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Upload Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.type !== 'text/csv' && !file.name.endsWith('.csv')) {
+        toast({
+          title: "Invalid File",
+          description: "Please select a CSV file",
+          variant: "destructive",
+        });
+        return;
+      }
+      uploadCSVMutation.mutate(file);
+    }
+  };
+
+  const downloadSampleCSV = () => {
+    const sampleData = [
+      ['Name', 'HQ Location', 'AUM', 'Type'],
+      ['Sequoia Capital', 'Menlo Park, CA', '85000000000', 'VC'],
+      ['Blackstone', 'New York, NY', '975000000000', 'PE'],
+      ['Bridgewater Associates', 'Westport, CT', '140000000000', 'Hedge Fund'],
+    ];
+    
+    const csvContent = sampleData.map(row => row.join(',')).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'companies_sample.csv';
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
 
   if (isLoading) {
     return (
@@ -38,7 +114,105 @@ export default function Companies() {
             <h2 className="text-2xl font-bold text-gray-900">Companies</h2>
             <p className="text-gray-600 mt-1">Manage company information and fund details</p>
           </div>
-          <div className="mt-4 sm:mt-0">
+          <div className="mt-4 sm:mt-0 flex space-x-3">
+            <Button variant="outline" onClick={downloadSampleCSV}>
+              <Download className="mr-2 h-4 w-4" />
+              Sample CSV
+            </Button>
+            
+            <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline">
+                  <Upload className="mr-2 h-4 w-4" />
+                  Upload CSV
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Upload Companies from CSV</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-6">
+                  <div>
+                    <p className="text-sm text-gray-600 mb-4">
+                      Upload a CSV file with the following columns:
+                    </p>
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <strong>Required Columns:</strong>
+                          <ul className="mt-2 space-y-1 text-gray-600">
+                            <li>• Name</li>
+                            <li>• HQ Location</li>
+                            <li>• AUM (number)</li>
+                            <li>• Type</li>
+                          </ul>
+                        </div>
+                        <div>
+                          <strong>Valid Types:</strong>
+                          <ul className="mt-2 space-y-1 text-gray-600">
+                            <li>• VC</li>
+                            <li>• PE</li>
+                            <li>• Hedge Fund</li>
+                            <li>• Asset Management</li>
+                            <li>• Family Office</li>
+                            <li>• Investment Bank</li>
+                            <li>• Other</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                    <FileText className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                    <div className="space-y-2">
+                      <p className="text-sm text-gray-600">
+                        Click to select a CSV file or drag and drop
+                      </p>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept=".csv"
+                        onChange={handleFileUpload}
+                        className="hidden"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={uploadCSVMutation.isPending}
+                      >
+                        {uploadCSVMutation.isPending ? "Uploading..." : "Select CSV File"}
+                      </Button>
+                    </div>
+                  </div>
+
+                  {uploadResult && (
+                    <Alert>
+                      <AlertDescription>
+                        <div className="space-y-2">
+                          <p className="font-medium">{uploadResult.message}</p>
+                          {uploadResult.errors && uploadResult.errors.length > 0 && (
+                            <div>
+                              <p className="text-sm font-medium text-red-600 mb-1">Errors:</p>
+                              <ul className="text-sm text-red-600 space-y-1">
+                                {uploadResult.errors.slice(0, 5).map((error: string, index: number) => (
+                                  <li key={index}>• {error}</li>
+                                ))}
+                                {uploadResult.errors.length > 5 && (
+                                  <li>... and {uploadResult.errors.length - 5} more errors</li>
+                                )}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                </div>
+              </DialogContent>
+            </Dialog>
+
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
                 <Button>
