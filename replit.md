@@ -104,6 +104,8 @@ Changelog:
 - June 18, 2025. Fixed CSV upload validation with flexible header mapping and robust field detection
 - June 18, 2025. Updated sample CSV file with Hong Kong asset management companies data
 - June 18, 2025. Enhanced CSV upload UI with clear format examples and requirements
+- June 18, 2025. Created complete fund management system with CSV upload functionality
+- June 18, 2025. Added fund types: Value, Growth, GARP, Index, Other with color-coded badges
 ```
 
 ## User Preferences

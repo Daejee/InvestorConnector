@@ -539,7 +539,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
 
           // Validate fund type
-          const validTypes = ['Value', 'Growth', 'GARP', 'Other'];
+          const validTypes = ['Value', 'Growth', 'GARP', 'Index', 'Other'];
           if (!validTypes.includes(finalType)) {
             errors.push(`Line ${lineNumber}: Invalid fund type "${finalType}". Must be one of: ${validTypes.join(', ')}`);
             continue;

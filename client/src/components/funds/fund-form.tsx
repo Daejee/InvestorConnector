@@ -141,6 +141,7 @@ export default function FundForm({ onSuccess, onCancel }: FundFormProps) {
                     <SelectItem value="Value">Value</SelectItem>
                     <SelectItem value="Growth">Growth</SelectItem>
                     <SelectItem value="GARP">GARP</SelectItem>
+                    <SelectItem value="Index">Index</SelectItem>
                     <SelectItem value="Other">Other</SelectItem>
                   </SelectContent>
                 </Select>
