@@ -16,11 +16,9 @@ export const investors = pgTable("investors", {
 export const companies = pgTable("companies", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
-  description: text("description"),
-  industry: text("industry"),
-  website: text("website"),
-  totalAum: decimal("total_aum", { precision: 15, scale: 2 }),
-  founded: integer("founded"),
+  hqLocation: text("hq_location").notNull(),
+  aum: decimal("aum", { precision: 15, scale: 2 }).notNull(),
+  type: text("type").notNull(), // VC, PE, Hedge Fund, etc.
 });
 
 export const investments = pgTable("investments", {

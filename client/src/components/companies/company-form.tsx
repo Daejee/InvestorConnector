@@ -3,7 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -22,11 +22,9 @@ export default function CompanyForm({ onSuccess, onCancel }: CompanyFormProps) {
     resolver: zodResolver(insertCompanySchema),
     defaultValues: {
       name: "",
-      description: "",
-      industry: "",
-      website: "",
-      totalAum: "",
-      founded: undefined,
+      hqLocation: "",
+      aum: "",
+      type: "",
     },
   });
 
@@ -76,12 +74,12 @@ export default function CompanyForm({ onSuccess, onCancel }: CompanyFormProps) {
 
         <FormField
           control={form.control}
-          name="description"
+          name="hqLocation"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Description</FormLabel>
+              <FormLabel>HQ Location</FormLabel>
               <FormControl>
-                <Textarea placeholder="Enter company description" {...field} />
+                <Input placeholder="Enter headquarters location" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -90,12 +88,12 @@ export default function CompanyForm({ onSuccess, onCancel }: CompanyFormProps) {
 
         <FormField
           control={form.control}
-          name="industry"
+          name="aum"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Industry</FormLabel>
+              <FormLabel>AUM</FormLabel>
               <FormControl>
-                <Input placeholder="Enter industry" {...field} />
+                <Input type="number" placeholder="Enter assets under management" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -104,46 +102,26 @@ export default function CompanyForm({ onSuccess, onCancel }: CompanyFormProps) {
 
         <FormField
           control={form.control}
-          name="website"
+          name="type"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Website</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter website URL" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="totalAum"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Total AUM</FormLabel>
-              <FormControl>
-                <Input type="number" placeholder="Enter total AUM" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="founded"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Founded Year</FormLabel>
-              <FormControl>
-                <Input 
-                  type="number" 
-                  placeholder="Enter founded year" 
-                  {...field}
-                  onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
-                />
-              </FormControl>
+              <FormLabel>Type</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select company type" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="VC">Venture Capital</SelectItem>
+                  <SelectItem value="PE">Private Equity</SelectItem>
+                  <SelectItem value="Hedge Fund">Hedge Fund</SelectItem>
+                  <SelectItem value="Asset Management">Asset Management</SelectItem>
+                  <SelectItem value="Family Office">Family Office</SelectItem>
+                  <SelectItem value="Investment Bank">Investment Bank</SelectItem>
+                  <SelectItem value="Other">Other</SelectItem>
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}

@@ -146,8 +146,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const meetings = await storage.getMeetings();
     const upcomingMeetings = await storage.getUpcomingMeetings();
 
-    const totalAum = investments.reduce((sum, inv) => {
-      return sum + (parseFloat(inv.amount || "0"));
+    const companies = await storage.getCompanies();
+    const totalAum = companies.reduce((sum, company) => {
+      return sum + (parseFloat(company.aum || "0"));
     }, 0);
 
     const activeInvestments = investments.filter(inv => inv.status === "active").length;

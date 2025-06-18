@@ -18,7 +18,8 @@ export default function Companies() {
 
   const filteredCompanies = companies?.filter(company =>
     company.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (company.industry && company.industry.toLowerCase().includes(searchQuery.toLowerCase()))
+    company.hqLocation.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    company.type.toLowerCase().includes(searchQuery.toLowerCase())
   ) || [];
 
   if (isLoading) {
@@ -83,30 +84,11 @@ export default function Companies() {
                 <Card key={company.id}>
                   <CardContent className="p-4">
                     <h3 className="font-semibold text-lg">{company.name}</h3>
-                    {company.industry && (
-                      <p className="text-sm text-gray-600 mb-2">{company.industry}</p>
-                    )}
-                    {company.description && (
-                      <p className="text-sm text-gray-500 mb-2">{company.description}</p>
-                    )}
-                    {company.totalAum && (
-                      <p className="text-sm font-medium">
-                        AUM: ${parseFloat(company.totalAum).toLocaleString()}
-                      </p>
-                    )}
-                    {company.founded && (
-                      <p className="text-sm text-gray-500">Founded: {company.founded}</p>
-                    )}
-                    {company.website && (
-                      <a 
-                        href={company.website} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-sm text-blue-600 hover:underline"
-                      >
-                        Visit Website
-                      </a>
-                    )}
+                    <p className="text-sm text-gray-600 mb-2">{company.type}</p>
+                    <p className="text-sm text-gray-500 mb-2">📍 {company.hqLocation}</p>
+                    <p className="text-sm font-medium">
+                      AUM: ${parseFloat(company.aum).toLocaleString()}
+                    </p>
                   </CardContent>
                 </Card>
               ))}
