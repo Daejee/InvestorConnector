@@ -143,7 +143,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               // Validate AUM is a number (in billions)
               const aumValue = parseFloat(data.aum);
               if (isNaN(aumValue) || aumValue < 0) {
-                errors.push(`Line ${lineNumber}: AUM must be a valid positive number in billions, got "${data.aum}"`);
+                errors.push(`Line ${lineNumber}: AUM must be a valid positive number in bil, got "${data.aum}"`);
                 return;
               }
 

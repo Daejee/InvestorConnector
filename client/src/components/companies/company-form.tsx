@@ -91,7 +91,7 @@ export default function CompanyForm({ onSuccess, onCancel }: CompanyFormProps) {
           name="aum"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>AUM (Billion)</FormLabel>
+              <FormLabel>AUM (Bil)</FormLabel>
               <FormControl>
                 <Input type="number" placeholder="Enter AUM in billions (e.g., 9000 for $9T)" {...field} />
               </FormControl>

@@ -149,7 +149,7 @@ export default function Companies() {
                           <ul className="mt-2 space-y-1 text-gray-600">
                             <li>• Name</li>
                             <li>• HQ Location</li>
-                            <li>• AUM (in billions)</li>
+                            <li>• AUM (in bil)</li>
                             <li>• Type</li>
                           </ul>
                         </div>
