@@ -38,20 +38,20 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel }
   const form = useForm<InsertInvestor>({
     resolver: zodResolver(insertInvestorSchema),
     defaultValues: {
-      name: investor?.name || "",
-      email: investor?.email || "",
-      phone: investor?.phone || "",
-      company: investor?.company || "",
-      fund: investor?.fund || "",
-      position: investor?.position || "",
-      positionType: investor?.positionType || "",
-      specialtyType: investor?.specialtyType || "",
-      industryArea: investor?.industryArea || "",
-      region: investor?.region || "",
-      ownsOurShare: investor?.ownsOurShare || "",
-      shareAmount: investor?.shareAmount || "",
-      note: investor?.note || "",
-      avatarInitials: investor?.avatarInitials || "",
+      name: investor?.name ?? "",
+      email: investor?.email ?? "",
+      phone: investor?.phone ?? "",
+      company: investor?.company ?? "",
+      fund: investor?.fund ?? "",
+      position: investor?.position ?? "",
+      positionType: investor?.positionType ?? "",
+      specialtyType: investor?.specialtyType ?? "",
+      industryArea: investor?.industryArea ?? "",
+      region: investor?.region ?? "",
+      ownsOurShare: investor?.ownsOurShare ?? "",
+      shareAmount: investor?.shareAmount ?? "",
+      note: investor?.note ?? "",
+      avatarInitials: investor?.avatarInitials ?? "",
     },
   });
 
@@ -320,7 +320,7 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel }
                       <FormItem>
                         <FormLabel>Region</FormLabel>
                         <FormControl>
-                          <Input placeholder="Enter specific region" {...field} />
+                          <Input placeholder="Enter specific region" {...field} value={field.value ?? ""} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -362,7 +362,7 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel }
                     <FormItem>
                       <FormLabel>Share Amount</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., $100,000 or 5%" {...field} />
+                        <Input placeholder="e.g., $100,000 or 5%" {...field} value={field.value ?? ""} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -383,6 +383,7 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel }
                 <Textarea 
                   placeholder="Any additional notes about this investor..." 
                   {...field} 
+                  value={field.value ?? ""}
                   className="min-h-[80px]" 
                 />
               </FormControl>
