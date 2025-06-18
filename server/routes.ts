@@ -151,7 +151,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Parse CSV data
       let detectedHeaders: string[] = [];
-      let isFirstRow = true;
       
       await new Promise((resolve, reject) => {
         const stream = Readable.from(req.file!.buffer.toString());
@@ -159,9 +158,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           .pipe(csvParser({
             // Map CSV headers to our schema fields (case-insensitive)
             mapHeaders: ({ header }) => {
-              if (isFirstRow) {
-                detectedHeaders.push(header);
-              }
+              detectedHeaders.push(header);
               
               const normalized = header.toLowerCase().trim();
               switch (normalized) {
@@ -179,6 +176,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 case 'assets under management':
                 case 'total aum':
                 case 'aum (bil)':
+                case 'aum (billion usd)':
                 case 'aum_bil':
                   return 'aum';
                 case 'type':
@@ -197,13 +195,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }
           }))
           .on('data', (data) => {
-            if (isFirstRow) {
-              isFirstRow = false;
-              console.log('Detected CSV headers:', detectedHeaders);
+            lineNumber++;
+            
+            // Log first data row for debugging
+            if (lineNumber === 2) {
+              console.log('First data row:', data);
               console.log('Mapped data keys:', Object.keys(data));
             }
             
-            lineNumber++;
             try {
               // Check which required fields are missing
               const missingFields = [];
