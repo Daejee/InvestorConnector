@@ -31,6 +31,10 @@ export default function InvestorForm({ onSuccess, onCancel }: InvestorFormProps)
       phone: "",
       company: "",
       position: "",
+      positionType: "",
+      specialtyType: "",
+      industryArea: "",
+      region: "",
       status: "active",
       avatarInitials: "",
     },
@@ -156,6 +160,85 @@ export default function InvestorForm({ onSuccess, onCancel }: InvestorFormProps)
             </FormItem>
           )}
         />
+
+        <FormField
+          control={form.control}
+          name="positionType"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Position Type</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select position type" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="PM">PM</SelectItem>
+                  <SelectItem value="Buyside Analyst">Buyside Analyst</SelectItem>
+                  <SelectItem value="Other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {form.watch("positionType") === "Buyside Analyst" && (
+          <FormField
+            control={form.control}
+            name="specialtyType"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Specialty Type</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select specialty type" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="regional">Regional Specialist</SelectItem>
+                    <SelectItem value="industry">Industry Specialist</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
+        {form.watch("positionType") === "Buyside Analyst" && form.watch("specialtyType") === "industry" && (
+          <FormField
+            control={form.control}
+            name="industryArea"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Industry Area</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter industry area (e.g., Technology, Healthcare, Energy)" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
+        {form.watch("positionType") === "Buyside Analyst" && form.watch("specialtyType") === "regional" && (
+          <FormField
+            control={form.control}
+            name="region"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Region</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter region (e.g., Asia Pacific, Europe, North America)" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
 
         <FormField
           control={form.control}

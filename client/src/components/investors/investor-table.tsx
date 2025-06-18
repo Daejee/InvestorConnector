@@ -112,7 +112,24 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
                 <div className="text-sm text-gray-900">{investor.company}</div>
-                <div className="text-sm text-gray-500">{investor.position}</div>
+                <div className="text-sm text-gray-500">
+                  {investor.position}
+                  {investor.positionType && (
+                    <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                      {investor.positionType}
+                    </span>
+                  )}
+                </div>
+                {investor.positionType === "Buyside Analyst" && investor.specialtyType && (
+                  <div className="text-xs text-gray-400 mt-1">
+                    {investor.specialtyType === "industry" && investor.industryArea && (
+                      <span>Industry: {investor.industryArea}</span>
+                    )}
+                    {investor.specialtyType === "regional" && investor.region && (
+                      <span>Region: {investor.region}</span>
+                    )}
+                  </div>
+                )}
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
                 <Badge className={getStatusColor(investor.status)}>

@@ -96,6 +96,9 @@ Changelog:
 - June 18, 2025. Migrated from in-memory storage to PostgreSQL database
 - June 18, 2025. Updated company schema to simplified fields (Name, HQ Location, AUM, Type)
 - June 18, 2025. Added CSV upload functionality for bulk company import
+- June 18, 2025. Added complete CRUD operations for companies (edit, delete, archive)
+- June 18, 2025. Enhanced investor form with position types and specialty fields
+- June 18, 2025. Added company dropdown integration for investor creation
 ```
 
 ## User Preferences

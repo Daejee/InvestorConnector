@@ -9,6 +9,10 @@ export const investors = pgTable("investors", {
   phone: text("phone"),
   company: text("company").notNull(),
   position: text("position"),
+  positionType: text("position_type"), // PM, Buyside Analyst, Other
+  specialtyType: text("specialty_type"), // regional, industry (only for Buyside Analyst)
+  industryArea: text("industry_area"), // specific industry for industry specialist
+  region: text("region"), // specific region for regional specialist
   status: text("status").notNull().default("active"), // active, inactive, prospect
   avatarInitials: text("avatar_initials"),
 });
