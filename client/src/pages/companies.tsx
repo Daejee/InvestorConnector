@@ -241,8 +241,33 @@ export default function Companies() {
                   {uploadResult && (
                     <Alert>
                       <AlertDescription>
-                        <div className="space-y-2">
+                        <div className="space-y-3">
                           <p className="font-medium">{uploadResult.message}</p>
+                          
+                          {uploadResult.detectedHeaders && (
+                            <div className="bg-blue-50 p-3 rounded">
+                              <p className="text-sm font-medium text-blue-800 mb-2">Detected CSV Headers:</p>
+                              <p className="text-sm text-blue-700">{uploadResult.detectedHeaders.join(', ')}</p>
+                            </div>
+                          )}
+                          
+                          {uploadResult.expectedFormat && (
+                            <div className="bg-green-50 p-3 rounded">
+                              <p className="text-sm font-medium text-green-800 mb-2">Expected Format:</p>
+                              <p className="text-sm text-green-700 mb-2">Required columns: {uploadResult.expectedFormat.requiredColumns.join(', ')}</p>
+                              <details className="text-sm text-green-700">
+                                <summary className="cursor-pointer font-medium">Accepted column name variations</summary>
+                                <div className="mt-2 space-y-1">
+                                  {Object.entries(uploadResult.expectedFormat.acceptedVariations).map(([field, variations]: [string, any]) => (
+                                    <div key={field}>
+                                      <strong>{field}:</strong> {variations.join(', ')}
+                                    </div>
+                                  ))}
+                                </div>
+                              </details>
+                            </div>
+                          )}
+                          
                           {uploadResult.errors && uploadResult.errors.length > 0 && (
                             <div>
                               <p className="text-sm font-medium text-red-600 mb-1">Errors:</p>

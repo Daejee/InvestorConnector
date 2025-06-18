@@ -150,33 +150,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let lineNumber = 1;
 
       // Parse CSV data
+      let detectedHeaders: string[] = [];
+      let isFirstRow = true;
+      
       await new Promise((resolve, reject) => {
         const stream = Readable.from(req.file!.buffer.toString());
         stream
           .pipe(csvParser({
             // Map CSV headers to our schema fields (case-insensitive)
             mapHeaders: ({ header }) => {
+              if (isFirstRow) {
+                detectedHeaders.push(header);
+              }
+              
               const normalized = header.toLowerCase().trim();
               switch (normalized) {
                 case 'name':
                 case 'company name':
+                case 'company':
                   return 'name';
                 case 'hq location':
                 case 'hq':
                 case 'location':
                 case 'headquarters':
+                case 'hq_location':
                   return 'hqLocation';
                 case 'aum':
                 case 'assets under management':
                 case 'total aum':
+                case 'aum (bil)':
+                case 'aum_bil':
                   return 'aum';
                 case 'type':
                 case 'company type':
                 case 'fund type':
+                case 'investment_type':
                   return 'type';
                 case 'area':
                 case 'region':
                 case 'geography':
+                case 'investment_area':
                   return 'area';
                 default:
                   return header;
@@ -184,11 +197,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }
           }))
           .on('data', (data) => {
+            if (isFirstRow) {
+              isFirstRow = false;
+              console.log('Detected CSV headers:', detectedHeaders);
+              console.log('Mapped data keys:', Object.keys(data));
+            }
+            
             lineNumber++;
             try {
-              // Validate required fields
-              if (!data.name || !data.hqLocation || !data.aum || !data.type || !data.area) {
-                errors.push(`Line ${lineNumber}: Missing required fields (name, hqLocation, aum, type, area)`);
+              // Check which required fields are missing
+              const missingFields = [];
+              if (!data.name || data.name.toString().trim() === '') missingFields.push('name');
+              if (!data.hqLocation || data.hqLocation.toString().trim() === '') missingFields.push('hqLocation');
+              if (!data.aum || data.aum.toString().trim() === '') missingFields.push('aum');
+              if (!data.type || data.type.toString().trim() === '') missingFields.push('type');
+              if (!data.area || data.area.toString().trim() === '') missingFields.push('area');
+
+              if (missingFields.length > 0) {
+                console.log(`Line ${lineNumber} data:`, data);
+                errors.push(`Line ${lineNumber}: Missing required fields: ${missingFields.join(', ')}`);
                 return;
               }
 
@@ -233,13 +260,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
           .on('error', reject);
       });
 
-      // If there are validation errors, return them
+      // If there are validation errors, return them with helpful information
       if (errors.length > 0) {
         console.log('CSV validation errors:', errors);
         return res.status(400).json({
           message: "CSV validation failed",
           errors,
-          processedRows: lineNumber - 1
+          processedRows: lineNumber - 1,
+          detectedHeaders: detectedHeaders,
+          expectedFormat: {
+            requiredColumns: ["Name", "HQ Location", "AUM (in bil)", "Type", "Area"],
+            acceptedVariations: {
+              name: ["name", "company name", "company"],
+              hqLocation: ["hq location", "hq", "location", "headquarters", "hq_location"],
+              aum: ["aum", "assets under management", "total aum", "aum (bil)", "aum_bil"],
+              type: ["type", "company type", "fund type", "investment_type"],
+              area: ["area", "region", "geography", "investment_area"]
+            }
+          }
         });
       }
 
