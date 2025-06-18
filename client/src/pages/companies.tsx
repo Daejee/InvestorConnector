@@ -133,10 +133,10 @@ export default function Companies() {
 
   const downloadSampleCSV = () => {
     const sampleData = [
-      ['Name', 'HQ Location', 'AUM', 'Type', 'Area'],
-      ['Sequoia Capital', 'Menlo Park, CA', '85', 'VC', 'US'],
-      ['Blackstone', 'New York, NY', '975', 'PE', 'US'],
-      ['Bridgewater Associates', 'Westport, CT', '140', 'Hedge Fund', 'US'],
+      ['Company Name', 'HQ Location', 'AUM', 'Type', 'Area'],
+      ['BOCOM International Asset Management', 'Hong Kong', '85', 'China Fixed Income, Equity', 'Hong Kong'],
+      ['China Southern Asset Management (HK)', 'Hong Kong', '90', 'China Mutual Funds, ETFs', 'Hong Kong'],
+      ['CICC Asset Management (HK)', 'Hong Kong', '110', 'Institutional, China Equities', 'Hong Kong'],
     ];
     
     const csvContent = sampleData.map(row => row.join(',')).join('\n');
