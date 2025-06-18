@@ -129,10 +129,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 return;
               }
 
-              // Validate company type
-              const validTypes = ['VC', 'PE', 'Hedge Fund', 'Asset Management', 'Family Office', 'Investment Bank', 'Other'];
-              if (!validTypes.includes(data.type)) {
-                errors.push(`Line ${lineNumber}: Invalid company type "${data.type}". Must be one of: ${validTypes.join(', ')}`);
+              // Validate company type (allow any non-empty string)
+              if (!data.type.trim()) {
+                errors.push(`Line ${lineNumber}: Company type cannot be empty`);
                 return;
               }
 

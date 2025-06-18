@@ -148,7 +148,7 @@ export default function Companies() {
                           </ul>
                         </div>
                         <div>
-                          <strong>Valid Types:</strong>
+                          <strong>Type Examples:</strong>
                           <ul className="mt-2 space-y-1 text-gray-600">
                             <li>• VC</li>
                             <li>• PE</li>
@@ -156,7 +156,7 @@ export default function Companies() {
                             <li>• Asset Management</li>
                             <li>• Family Office</li>
                             <li>• Investment Bank</li>
-                            <li>• Other</li>
+                            <li>• Any other type you need</li>
                           </ul>
                         </div>
                       </div>

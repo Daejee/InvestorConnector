@@ -106,22 +106,9 @@ export default function CompanyForm({ onSuccess, onCancel }: CompanyFormProps) {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Type</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select company type" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="VC">Venture Capital</SelectItem>
-                  <SelectItem value="PE">Private Equity</SelectItem>
-                  <SelectItem value="Hedge Fund">Hedge Fund</SelectItem>
-                  <SelectItem value="Asset Management">Asset Management</SelectItem>
-                  <SelectItem value="Family Office">Family Office</SelectItem>
-                  <SelectItem value="Investment Bank">Investment Bank</SelectItem>
-                  <SelectItem value="Other">Other</SelectItem>
-                </SelectContent>
-              </Select>
+              <FormControl>
+                <Input placeholder="Enter company type (e.g., VC, PE, Hedge Fund)" {...field} />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
