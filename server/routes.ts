@@ -204,13 +204,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }
             
             try {
-              // Check which required fields are missing
+              // Check which required fields are missing (case-insensitive)
               const missingFields = [];
-              if (!data.name || data.name.toString().trim() === '') missingFields.push('name');
-              if (!data.hqLocation || data.hqLocation.toString().trim() === '') missingFields.push('hqLocation');
-              if (!data.aum || data.aum.toString().trim() === '') missingFields.push('aum');
-              if (!data.type || data.type.toString().trim() === '') missingFields.push('type');
-              if (!data.area || data.area.toString().trim() === '') missingFields.push('area');
+              
+              // Check for name field (various possible keys)
+              const nameValue = data.name || data.Name || data['Company Name'] || data['company name'];
+              if (!nameValue || nameValue.toString().trim() === '') missingFields.push('name');
+              
+              // Check for hqLocation field (various possible keys)
+              const hqLocationValue = data.hqLocation || data.Hqlocation || data['HQ Location'] || data['hq location'] || data.location || data.Location;
+              if (!hqLocationValue || hqLocationValue.toString().trim() === '') missingFields.push('hqLocation');
+              
+              // Check for aum field (various possible keys)
+              const aumFieldValue = data.aum || data.AUM || data['AUM (Billion USD)'] || data['aum (billion usd)'];
+              if (!aumFieldValue || aumFieldValue.toString().trim() === '') missingFields.push('aum');
+              
+              // Check for type field (various possible keys)
+              const typeValue = data.type || data.Type;
+              if (!typeValue || typeValue.toString().trim() === '') missingFields.push('type');
+              
+              // Check for area field (various possible keys)
+              const areaValue = data.area || data.Area || data.region || data.Region;
+              if (!areaValue || areaValue.toString().trim() === '') missingFields.push('area');
 
               if (missingFields.length > 0) {
                 console.log(`Line ${lineNumber} data:`, data);
@@ -218,34 +233,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 return;
               }
 
+              // Use the flexible field values we found
+              const finalName = nameValue.toString().trim();
+              const finalHqLocation = hqLocationValue.toString().trim();
+              const finalType = typeValue.toString().trim();
+              const finalArea = areaValue.toString().trim();
+              const finalAum = aumFieldValue.toString().trim();
+
               // Validate company type (allow any non-empty string)
-              if (!data.type.trim()) {
+              if (!finalType) {
                 errors.push(`Line ${lineNumber}: Company type cannot be empty`);
                 return;
               }
 
               // Validate area (allow any non-empty string)
-              if (!data.area.trim()) {
+              if (!finalArea) {
                 errors.push(`Line ${lineNumber}: Area cannot be empty`);
                 return;
               }
 
               // Validate AUM is a number (in billions)
-              const aumValue = parseFloat(data.aum);
-              if (isNaN(aumValue) || aumValue < 0) {
-                errors.push(`Line ${lineNumber}: AUM must be a valid positive number in bil, got "${data.aum}"`);
+              const aumNumericValue = parseFloat(finalAum);
+              if (isNaN(aumNumericValue) || aumNumericValue < 0) {
+                errors.push(`Line ${lineNumber}: AUM must be a valid positive number in billions, got "${finalAum}"`);
                 return;
               }
 
               // Convert billions to full amount for storage
-              const aumInFullAmount = (aumValue * 1000000000).toString();
+              const aumInFullAmount = (aumNumericValue * 1000000000).toString();
 
               const companyData = {
-                name: data.name.trim(),
-                hqLocation: data.hqLocation.trim(),
+                name: finalName,
+                hqLocation: finalHqLocation,
                 aum: aumInFullAmount,
-                type: data.type.trim(),
-                area: data.area.trim()
+                type: finalType,
+                area: finalArea
               };
 
               // Validate with Zod schema
