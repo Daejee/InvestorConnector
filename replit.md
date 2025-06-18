@@ -99,6 +99,8 @@ Changelog:
 - June 18, 2025. Added complete CRUD operations for companies (edit, delete, archive)
 - June 18, 2025. Enhanced investor form with position types and specialty fields
 - June 18, 2025. Added company dropdown integration for investor creation
+- June 18, 2025. Added share ownership tracking with conditional amount field
+- June 18, 2025. Improved form usability with collapsible sections and better organization
 ```
 
 ## User Preferences

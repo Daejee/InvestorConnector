@@ -39,11 +39,11 @@ export default function Investors() {
                   Add Investor
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-md">
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>Add New Investor</DialogTitle>
                 </DialogHeader>
-                <InvestorForm 
+                <InvestorFormSimplified 
                   onSuccess={() => setIsDialogOpen(false)}
                   onCancel={() => setIsDialogOpen(false)}
                 />
