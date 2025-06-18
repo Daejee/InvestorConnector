@@ -76,6 +76,9 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
               Company
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Ownership
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Note
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -119,6 +122,22 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
                     )}
                   </div>
                 )}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div className="text-sm text-gray-900">
+                  {investor.ownsOurShare === "Yes" ? (
+                    <div>
+                      <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Yes</span>
+                      {investor.shareAmount && (
+                        <div className="text-xs text-gray-500 mt-1">{investor.shareAmount}</div>
+                      )}
+                    </div>
+                  ) : investor.ownsOurShare === "No" ? (
+                    <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">No</span>
+                  ) : (
+                    <span className="text-gray-400 italic text-xs">Not specified</span>
+                  )}
+                </div>
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
                 <div className="text-sm text-gray-900 max-w-xs truncate">

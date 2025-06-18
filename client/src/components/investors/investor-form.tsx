@@ -36,6 +36,8 @@ export default function InvestorForm({ onSuccess, onCancel }: InvestorFormProps)
       specialtyType: "",
       industryArea: "",
       region: "",
+      ownsOurShare: "",
+      shareAmount: "",
       note: "",
       avatarInitials: "",
     },
@@ -234,6 +236,44 @@ export default function InvestorForm({ onSuccess, onCancel }: InvestorFormProps)
                 <FormLabel>Region</FormLabel>
                 <FormControl>
                   <Input placeholder="Enter region (e.g., Asia Pacific, Europe, North America)" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
+        <FormField
+          control={form.control}
+          name="ownsOurShare"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Own Our Share?</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select ownership status" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="Yes">Yes</SelectItem>
+                  <SelectItem value="No">No</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {form.watch("ownsOurShare") === "Yes" && (
+          <FormField
+            control={form.control}
+            name="shareAmount"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Share Amount</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter share amount (e.g., $100,000 or 5%)" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
