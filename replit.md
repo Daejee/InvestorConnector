@@ -110,6 +110,7 @@ Changelog:
 - June 18, 2025. Fixed CSV validation to make "Own Our Shares" and "Share Amount" truly optional fields
 - June 18, 2025. Removed "Investments" section from navigation menu and routing per user request
 - June 18, 2025. Added fund selection field to investor form, pulling from funds database
+- June 18, 2025. Added "N/A" option to "Own Our Share" field alongside Yes/No options
 ```
 
 ## User Preferences

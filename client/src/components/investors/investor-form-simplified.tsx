@@ -318,6 +318,7 @@ export default function InvestorFormSimplified({ onSuccess, onCancel }: Investor
                       <SelectContent>
                         <SelectItem value="Yes">Yes</SelectItem>
                         <SelectItem value="No">No</SelectItem>
+                        <SelectItem value="N/A">N/A</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
