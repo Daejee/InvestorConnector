@@ -1,10 +1,11 @@
 import { 
-  investors, companies, investments, communications, meetings,
+  investors, companies, investments, communications, meetings, funds,
   type Investor, type InsertInvestor,
   type Company, type InsertCompany,
   type Investment, type InsertInvestment,
   type Communication, type InsertCommunication,
-  type Meeting, type InsertMeeting
+  type Meeting, type InsertMeeting,
+  type Fund, type InsertFund
 } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
@@ -49,6 +50,14 @@ export interface IStorage {
   createMeeting(meeting: InsertMeeting): Promise<Meeting>;
   updateMeeting(id: number, meeting: Partial<InsertMeeting>): Promise<Meeting | undefined>;
   deleteMeeting(id: number): Promise<boolean>;
+
+  // Funds
+  getFunds(): Promise<Fund[]>;
+  getFund(id: number): Promise<Fund | undefined>;
+  getFundsByCompany(companyId: number): Promise<Fund[]>;
+  createFund(fund: InsertFund): Promise<Fund>;
+  updateFund(id: number, fund: Partial<InsertFund>): Promise<Fund | undefined>;
+  deleteFund(id: number): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -234,6 +243,42 @@ export class DatabaseStorage implements IStorage {
 
   async deleteMeeting(id: number): Promise<boolean> {
     const result = await db.delete(meetings).where(eq(meetings.id, id));
+    return result.rowCount! > 0;
+  }
+
+  // Funds
+  async getFunds(): Promise<Fund[]> {
+    return await db.select().from(funds);
+  }
+
+  async getFund(id: number): Promise<Fund | undefined> {
+    const [fund] = await db.select().from(funds).where(eq(funds.id, id));
+    return fund || undefined;
+  }
+
+  async getFundsByCompany(companyId: number): Promise<Fund[]> {
+    return await db.select().from(funds).where(eq(funds.companyId, companyId));
+  }
+
+  async createFund(insertFund: InsertFund): Promise<Fund> {
+    const [fund] = await db
+      .insert(funds)
+      .values(insertFund)
+      .returning();
+    return fund;
+  }
+
+  async updateFund(id: number, updateData: Partial<InsertFund>): Promise<Fund | undefined> {
+    const [fund] = await db
+      .update(funds)
+      .set(updateData)
+      .where(eq(funds.id, id))
+      .returning();
+    return fund || undefined;
+  }
+
+  async deleteFund(id: number): Promise<boolean> {
+    const result = await db.delete(funds).where(eq(funds.id, id));
     return result.rowCount! > 0;
   }
 }

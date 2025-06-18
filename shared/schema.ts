@@ -58,6 +58,17 @@ export const meetings = pgTable("meetings", {
   status: text("status").notNull().default("scheduled"), // scheduled, completed, cancelled
 });
 
+export const funds = pgTable("funds", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  companyId: integer("company_id").references(() => companies.id).notNull(),
+  aum: text("aum").notNull(), // Store as string to handle large numbers
+  type: text("type").notNull(), // Value, Growth, GARP, Other
+  ownOurShares: boolean("own_our_shares").notNull().default(false),
+  shareAmount: text("share_amount"), // Optional, only when ownOurShares is true
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const insertInvestorSchema = createInsertSchema(investors).omit({
   id: true,
 });
@@ -78,6 +89,11 @@ export const insertMeetingSchema = createInsertSchema(meetings).omit({
   id: true,
 });
 
+export const insertFundSchema = createInsertSchema(funds).omit({
+  id: true,
+  createdAt: true,
+});
+
 export type InsertInvestor = z.infer<typeof insertInvestorSchema>;
 export type Investor = typeof investors.$inferSelect;
 
@@ -92,3 +108,6 @@ export type Communication = typeof communications.$inferSelect;
 
 export type InsertMeeting = z.infer<typeof insertMeetingSchema>;
 export type Meeting = typeof meetings.$inferSelect;
+
+export type InsertFund = z.infer<typeof insertFundSchema>;
+export type Fund = typeof funds.$inferSelect;
