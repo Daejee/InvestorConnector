@@ -109,6 +109,7 @@ Changelog:
 - June 18, 2025. Added major US fund companies for CSV imports (Vanguard, Fidelity, American Funds, PIMCO, T. Rowe Price, Dodge & Cox, Franklin Templeton, J.P. Morgan, MFS, Invesco)
 - June 18, 2025. Fixed CSV validation to make "Own Our Shares" and "Share Amount" truly optional fields
 - June 18, 2025. Removed "Investments" section from navigation menu and routing per user request
+- June 18, 2025. Added fund selection field to investor form, pulling from funds database
 ```
 
 ## User Preferences

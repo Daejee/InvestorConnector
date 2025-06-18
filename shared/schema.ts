@@ -8,6 +8,7 @@ export const investors = pgTable("investors", {
   email: text("email").notNull().unique(),
   phone: text("phone"),
   company: text("company").notNull(),
+  fund: text("fund"), // Fund name from funds table
   position: text("position"),
   positionType: text("position_type"), // PM, Buyside Analyst, Other
   specialtyType: text("specialty_type"), // regional, industry (only for Buyside Analyst)

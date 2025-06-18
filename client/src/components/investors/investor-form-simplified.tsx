@@ -9,7 +9,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { insertInvestorSchema, type InsertInvestor, type Company } from "@shared/schema";
+import { insertInvestorSchema, type InsertInvestor, type Company, type Fund } from "@shared/schema";
 import { ChevronDown } from "lucide-react";
 import { useState } from "react";
 
@@ -27,7 +27,12 @@ export default function InvestorFormSimplified({ onSuccess, onCancel }: Investor
     queryKey: ["/api/companies"],
   });
 
+  const { data: funds } = useQuery<Fund[]>({
+    queryKey: ["/api/funds"],
+  });
+
   const sortedCompanies = companies?.sort((a, b) => a.name.localeCompare(b.name)) || [];
+  const sortedFunds = funds?.sort((a, b) => a.name.localeCompare(b.name)) || [];
 
   const form = useForm<InsertInvestor>({
     resolver: zodResolver(insertInvestorSchema),
@@ -36,6 +41,7 @@ export default function InvestorFormSimplified({ onSuccess, onCancel }: Investor
       email: "",
       phone: "",
       company: "",
+      fund: "",
       position: "",
       positionType: "",
       specialtyType: "",
@@ -134,8 +140,33 @@ export default function InvestorFormSimplified({ onSuccess, onCancel }: Investor
                   </FormControl>
                   <SelectContent>
                     {sortedCompanies.map((company) => (
-                      <SelectItem key={company.id} value={company.name}>
+                      <SelectItem key={`company-${company.id}`} value={company.name}>
                         {company.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="fund"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Fund</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a fund (optional)" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {sortedFunds.map((fund) => (
+                      <SelectItem key={`fund-${fund.id}`} value={fund.name}>
+                        {fund.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
