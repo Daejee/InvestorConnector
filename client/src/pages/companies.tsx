@@ -139,7 +139,17 @@ export default function Companies() {
       ['CICC Asset Management (HK)', 'Hong Kong', '110', 'Institutional, China Equities', 'Hong Kong'],
     ];
     
-    const csvContent = sampleData.map(row => row.join(',')).join('\n');
+    // Properly escape CSV fields that contain commas
+    const escapeCsvField = (field: string) => {
+      if (field.includes(',') || field.includes('"') || field.includes('\n')) {
+        return `"${field.replace(/"/g, '""')}"`;
+      }
+      return field;
+    };
+    
+    const csvContent = sampleData.map(row => 
+      row.map(field => escapeCsvField(field)).join(',')
+    ).join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
