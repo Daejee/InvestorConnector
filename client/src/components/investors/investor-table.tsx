@@ -37,18 +37,7 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
     },
   });
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "active":
-        return "bg-green-100 text-green-800";
-      case "in-review":
-        return "bg-yellow-100 text-yellow-800";
-      case "inactive":
-        return "bg-gray-100 text-gray-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
+
 
   const getInitials = (name: string) => {
     return name
@@ -132,9 +121,9 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
                 )}
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
-                <Badge className={getStatusColor(investor.status)}>
-                  {investor.status}
-                </Badge>
+                <div className="text-sm text-gray-900 max-w-xs truncate">
+                  {investor.note || <span className="text-gray-400 italic">No notes</span>}
+                </div>
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                 <div className="flex space-x-2">
