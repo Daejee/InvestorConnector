@@ -16,6 +16,8 @@ export default function Companies() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingCompany, setEditingCompany] = useState<Company | null>(null);
   const [uploadResult, setUploadResult] = useState<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
@@ -306,13 +308,54 @@ export default function Companies() {
               {filteredCompanies.map((company) => (
                 <Card key={company.id}>
                   <CardContent className="p-4">
-                    <h3 className="font-semibold text-lg">{company.name}</h3>
-                    <p className="text-sm text-gray-600 mb-2">{company.type}</p>
-                    <p className="text-sm text-gray-500 mb-1">📍 {company.hqLocation}</p>
-                    <p className="text-sm text-gray-500 mb-2">🌍 {company.area || 'US'}</p>
-                    <p className="text-sm font-medium">
-                      AUM (Bil): ${(parseFloat(company.aum) / 1000000000).toFixed(1)}
-                    </p>
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-lg">{company.name}</h3>
+                        <p className="text-sm text-gray-600 mb-2">{company.type}</p>
+                        <p className="text-sm text-gray-500 mb-1">📍 {company.hqLocation}</p>
+                        <p className="text-sm text-gray-500 mb-2">🌍 {company.area || 'US'}</p>
+                        <p className="text-sm font-medium">
+                          AUM (Bil): ${(parseFloat(company.aum) / 1000000000).toFixed(1)}
+                        </p>
+                      </div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem 
+                            onClick={() => {
+                              setEditingCompany(company);
+                              setIsEditDialogOpen(true);
+                            }}
+                          >
+                            <Edit className="mr-2 h-4 w-4" />
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => archiveCompanyMutation.mutate(company.id)}
+                            disabled={archiveCompanyMutation.isPending}
+                          >
+                            <Archive className="mr-2 h-4 w-4" />
+                            Archive
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => {
+                              if (confirm("Are you sure you want to delete this company? This action cannot be undone.")) {
+                                deleteCompanyMutation.mutate(company.id);
+                              }
+                            }}
+                            disabled={deleteCompanyMutation.isPending}
+                            className="text-red-600 focus:text-red-600"
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                   </CardContent>
                 </Card>
               ))}
@@ -320,6 +363,28 @@ export default function Companies() {
           )}
         </CardContent>
       </Card>
+
+      {/* Edit Company Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Company</DialogTitle>
+          </DialogHeader>
+          {editingCompany && (
+            <CompanyForm 
+              company={editingCompany}
+              onSuccess={() => {
+                setIsEditDialogOpen(false);
+                setEditingCompany(null);
+              }}
+              onCancel={() => {
+                setIsEditDialogOpen(false);
+                setEditingCompany(null);
+              }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

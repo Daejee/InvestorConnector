@@ -53,8 +53,34 @@ export default function CompanyForm({ company, onSuccess, onCancel }: CompanyFor
     },
   });
 
+  const updateCompanyMutation = useMutation({
+    mutationFn: async (data: InsertCompany) => {
+      const response = await apiRequest("PUT", `/api/companies/${company!.id}`, data);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/companies"] });
+      toast({
+        title: "Success",
+        description: "Company updated successfully",
+      });
+      onSuccess?.();
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update company",
+        variant: "destructive",
+      });
+    },
+  });
+
   const onSubmit = (data: InsertCompany) => {
-    createCompanyMutation.mutate(data);
+    if (company) {
+      updateCompanyMutation.mutate(data);
+    } else {
+      createCompanyMutation.mutate(data);
+    }
   };
 
   return (
@@ -150,9 +176,13 @@ export default function CompanyForm({ company, onSuccess, onCancel }: CompanyFor
           )}
           <Button 
             type="submit" 
-            disabled={createCompanyMutation.isPending}
+            disabled={createCompanyMutation.isPending || updateCompanyMutation.isPending}
           >
-            {createCompanyMutation.isPending ? "Creating..." : "Create Company"}
+            {company ? (
+              updateCompanyMutation.isPending ? "Updating..." : "Update Company"
+            ) : (
+              createCompanyMutation.isPending ? "Creating..." : "Create Company"
+            )}
           </Button>
         </div>
       </form>
