@@ -24,7 +24,6 @@ const navigation = [
   { name: "Dashboard", href: "/", icon: BarChart3 },
   { name: "Investors", href: "/investors", icon: Users },
   { name: "Companies", href: "/companies", icon: Building },
-  { name: "Investments", href: "/investments", icon: PieChart },
   { name: "Funds", href: "/funds", icon: Wallet },
   { name: "Communications", href: "/communications", icon: MessageSquare },
   { name: "Documents", href: "/documents", icon: FileText },

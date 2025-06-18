@@ -7,7 +7,6 @@ import Layout from "@/components/layout/layout";
 import Dashboard from "@/pages/dashboard";
 import Investors from "@/pages/investors";
 import Companies from "@/pages/companies";
-import Investments from "@/pages/investments";
 import Communications from "@/pages/communications";
 import Documents from "@/pages/documents";
 import Reports from "@/pages/reports";
@@ -21,7 +20,6 @@ function Router() {
         <Route path="/" component={Dashboard} />
         <Route path="/investors" component={Investors} />
         <Route path="/companies" component={Companies} />
-        <Route path="/investments" component={Investments} />
         <Route path="/communications" component={Communications} />
         <Route path="/funds" component={Funds} />
         <Route path="/documents" component={Documents} />

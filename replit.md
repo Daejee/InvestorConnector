@@ -108,6 +108,7 @@ Changelog:
 - June 18, 2025. Added fund types: Value, Growth, GARP, Index, Other with color-coded badges
 - June 18, 2025. Added major US fund companies for CSV imports (Vanguard, Fidelity, American Funds, PIMCO, T. Rowe Price, Dodge & Cox, Franklin Templeton, J.P. Morgan, MFS, Invesco)
 - June 18, 2025. Fixed CSV validation to make "Own Our Shares" and "Share Amount" truly optional fields
+- June 18, 2025. Removed "Investments" section from navigation menu and routing per user request
 ```
 
 ## User Preferences
