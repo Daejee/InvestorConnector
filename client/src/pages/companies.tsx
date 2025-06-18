@@ -28,7 +28,7 @@ export default function Companies() {
     company.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     company.hqLocation.toLowerCase().includes(searchQuery.toLowerCase()) ||
     company.type.toLowerCase().includes(searchQuery.toLowerCase())
-  ) || [];
+  ).sort((a, b) => parseFloat(b.aum) - parseFloat(a.aum)) || [];
 
   const uploadCSVMutation = useMutation({
     mutationFn: async (file: File) => {
