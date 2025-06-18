@@ -106,6 +106,8 @@ Changelog:
 - June 18, 2025. Enhanced CSV upload UI with clear format examples and requirements
 - June 18, 2025. Created complete fund management system with CSV upload functionality
 - June 18, 2025. Added fund types: Value, Growth, GARP, Index, Other with color-coded badges
+- June 18, 2025. Added major US fund companies for CSV imports (Vanguard, Fidelity, American Funds, PIMCO, T. Rowe Price, Dodge & Cox, Franklin Templeton, J.P. Morgan, MFS, Invesco)
+- June 18, 2025. Fixed CSV validation to make "Own Our Shares" and "Share Amount" truly optional fields
 ```
 
 ## User Preferences
