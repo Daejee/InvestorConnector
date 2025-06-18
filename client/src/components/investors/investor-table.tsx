@@ -73,7 +73,7 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
               Investor
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Company
+              Company & Fund
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Ownership
@@ -104,6 +104,9 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
                 <div className="text-sm text-gray-900">{investor.company}</div>
+                {investor.fund && (
+                  <div className="text-xs text-purple-600 font-medium">{investor.fund}</div>
+                )}
                 <div className="text-sm text-gray-500">
                   {investor.position}
                   {investor.positionType && (
@@ -134,6 +137,8 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
                     </div>
                   ) : investor.ownsOurShare === "No" ? (
                     <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">No</span>
+                  ) : investor.ownsOurShare === "N/A" ? (
+                    <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">N/A</span>
                   ) : (
                     <span className="text-gray-400 italic text-xs">Not specified</span>
                   )}
@@ -146,10 +151,28 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                 <div className="flex space-x-2">
-                  <Button variant="ghost" size="sm">
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => {
+                      toast({
+                        title: "View Investor",
+                        description: `Viewing details for ${investor.name}`,
+                      });
+                    }}
+                  >
                     <Eye className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="sm">
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => {
+                      toast({
+                        title: "Edit Investor",
+                        description: `Edit functionality for ${investor.name} coming soon`,
+                      });
+                    }}
+                  >
                     <Edit className="h-4 w-4" />
                   </Button>
                   <Button 
