@@ -7,9 +7,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { insertInvestorSchema, type InsertInvestor, type Company } from "@shared/schema";
+import { ChevronDown } from "lucide-react";
+import { useState } from "react";
 
 interface InvestorFormProps {
   onSuccess?: () => void;
@@ -19,6 +22,7 @@ interface InvestorFormProps {
 export default function InvestorForm({ onSuccess, onCancel }: InvestorFormProps) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   const { data: companies } = useQuery<Company[]>({
     queryKey: ["/api/companies"],

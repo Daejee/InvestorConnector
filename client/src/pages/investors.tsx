@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import InvestorTable from "@/components/investors/investor-table";
-import InvestorForm from "@/components/investors/investor-form";
+import InvestorFormSimplified from "@/components/investors/investor-form-simplified";
 import { Plus, Search } from "lucide-react";
 import type { Investor } from "@shared/schema";
 
