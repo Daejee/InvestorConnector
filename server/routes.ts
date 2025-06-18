@@ -189,10 +189,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Insert valid companies into database
+      // Insert valid companies into database, checking for duplicates
       const createdCompanies = [];
       for (const companyData of results) {
         try {
+          // Check if company already exists
+          const existingCompany = await storage.getCompanies();
+          const duplicate = existingCompany.find(c => c.name.toLowerCase() === companyData.name.toLowerCase());
+          
+          if (duplicate) {
+            errors.push(`Company "${companyData.name}" already exists in database`);
+            continue;
+          }
+          
           const company = await storage.createCompany(companyData);
           createdCompanies.push(company);
         } catch (error: any) {
