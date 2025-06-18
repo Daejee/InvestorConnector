@@ -162,6 +162,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // If there are validation errors, return them
       if (errors.length > 0) {
+        console.log('CSV validation errors:', errors);
         return res.status(400).json({
           message: "CSV validation failed",
           errors,

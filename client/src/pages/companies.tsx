@@ -42,7 +42,11 @@ export default function Companies() {
       
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || 'Upload failed');
+        console.error('Server error details:', error);
+        // Pass the full error object for better error handling
+        const errorObj = new Error(error.message || 'Upload failed');
+        (errorObj as any).details = error;
+        throw errorObj;
       }
       
       return response.json();
@@ -57,6 +61,8 @@ export default function Companies() {
       });
     },
     onError: (error: any) => {
+      console.error('CSV upload error:', error);
+      setUploadResult(error.details || { message: error.message, errors: [] });
       toast({
         title: "Upload Failed",
         description: error.message,
