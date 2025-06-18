@@ -512,9 +512,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const typeValue = data.type || data.Type || data['Fund Type'] || data['fund type'];
           if (!typeValue || typeValue.toString().trim() === '') missingFields.push('type');
           
-          // Check for ownOurShares field (various possible keys)
+          // Check for ownOurShares field (various possible keys) - make this optional
           const ownSharesValue = data.ownOurShares || data['Own Our Shares'] || data['own our shares'] || data.ownShares;
-          if (ownSharesValue === undefined || ownSharesValue === null || ownSharesValue.toString().trim() === '') missingFields.push('ownOurShares');
 
           if (missingFields.length > 0) {
             console.log(`Line ${lineNumber} data:`, data);
@@ -527,7 +526,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const finalCompanyName = companyValue.toString().trim();
           const finalType = typeValue.toString().trim();
           const finalAum = aumFieldValue.toString().trim();
-          const finalOwnShares = ownSharesValue.toString().toLowerCase() === 'yes' || ownSharesValue.toString().toLowerCase() === 'true';
+          // Default to false if ownOurShares is not provided
+          const finalOwnShares = ownSharesValue ? (ownSharesValue.toString().toLowerCase() === 'yes' || ownSharesValue.toString().toLowerCase() === 'true') : false;
           const finalShareAmount = (data.shareAmount || data['Share Amount'] || data['share amount'] || "").toString().trim();
 
           // Find company by name

@@ -193,7 +193,10 @@ export default function Funds() {
                         <div>
                           <strong>Required Headers (first row):</strong>
                           <p className="text-sm text-gray-600 mt-1 font-mono bg-white p-2 rounded border">
-                            Fund Name,Company,AUM,Type,Own Our Shares,Share Amount
+                            Fund Name,Company,AUM,Type
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            Optional: Own Our Shares,Share Amount
                           </p>
                         </div>
                         <div>
