@@ -9,16 +9,17 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { insertInvestorSchema, type InsertInvestor, type Company, type Fund } from "@shared/schema";
+import { insertInvestorSchema, type InsertInvestor, type Investor, type Company, type Fund } from "@shared/schema";
 import { ChevronDown } from "lucide-react";
 import { useState } from "react";
 
 interface InvestorFormProps {
+  investor?: Investor;
   onSuccess?: () => void;
   onCancel?: () => void;
 }
 
-export default function InvestorFormSimplified({ onSuccess, onCancel }: InvestorFormProps) {
+export default function InvestorFormSimplified({ investor, onSuccess, onCancel }: InvestorFormProps) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const [showDetails, setShowDetails] = useState(false);
@@ -37,20 +38,20 @@ export default function InvestorFormSimplified({ onSuccess, onCancel }: Investor
   const form = useForm<InsertInvestor>({
     resolver: zodResolver(insertInvestorSchema),
     defaultValues: {
-      name: "",
-      email: "",
-      phone: "",
-      company: "",
-      fund: "",
-      position: "",
-      positionType: "",
-      specialtyType: "",
-      industryArea: "",
-      region: "",
-      ownsOurShare: "",
-      shareAmount: "",
-      note: "",
-      avatarInitials: "",
+      name: investor?.name || "",
+      email: investor?.email || "",
+      phone: investor?.phone || "",
+      company: investor?.company || "",
+      fund: investor?.fund || "",
+      position: investor?.position || "",
+      positionType: investor?.positionType || "",
+      specialtyType: investor?.specialtyType || "",
+      industryArea: investor?.industryArea || "",
+      region: investor?.region || "",
+      ownsOurShare: investor?.ownsOurShare || "",
+      shareAmount: investor?.shareAmount || "",
+      note: investor?.note || "",
+      avatarInitials: investor?.avatarInitials || "",
     },
   });
 

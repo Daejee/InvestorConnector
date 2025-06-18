@@ -2,9 +2,11 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Eye, Edit, Trash2 } from "lucide-react";
+import InvestorFormSimplified from "@/components/investors/investor-form-simplified";
 import type { Investor } from "@shared/schema";
 
 interface InvestorTableProps {
@@ -15,6 +17,7 @@ interface InvestorTableProps {
 export default function InvestorTable({ investors, isLoading }: InvestorTableProps) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const [editingInvestor, setEditingInvestor] = useState<Investor | null>(null);
 
   const deleteInvestorMutation = useMutation({
     mutationFn: async (id: number) => {
@@ -166,12 +169,7 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
                   <Button 
                     variant="ghost" 
                     size="sm"
-                    onClick={() => {
-                      toast({
-                        title: "Edit Investor",
-                        description: `Edit functionality for ${investor.name} coming soon`,
-                      });
-                    }}
+                    onClick={() => setEditingInvestor(investor)}
                   >
                     <Edit className="h-4 w-4" />
                   </Button>
@@ -189,6 +187,22 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
           ))}
         </tbody>
       </table>
+
+      {/* Edit Dialog */}
+      <Dialog open={!!editingInvestor} onOpenChange={() => setEditingInvestor(null)}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Investor</DialogTitle>
+          </DialogHeader>
+          {editingInvestor && (
+            <InvestorFormSimplified 
+              investor={editingInvestor}
+              onSuccess={() => setEditingInvestor(null)}
+              onCancel={() => setEditingInvestor(null)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
