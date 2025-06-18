@@ -9,7 +9,8 @@ import {
   insertCompanySchema, 
   insertInvestmentSchema, 
   insertCommunicationSchema,
-  insertMeetingSchema 
+  insertMeetingSchema,
+  insertFundSchema
 } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -401,6 +402,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       res.status(400).json({ message: "Invalid meeting data", error });
     }
+  });
+
+  // Funds routes
+  app.get("/api/funds", async (req, res) => {
+    const funds = await storage.getFunds();
+    res.json(funds);
+  });
+
+  app.get("/api/funds/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    const fund = await storage.getFund(id);
+    if (!fund) {
+      return res.status(404).json({ message: "Fund not found" });
+    }
+    res.json(fund);
+  });
+
+  app.get("/api/funds/company/:companyId", async (req, res) => {
+    const companyId = parseInt(req.params.companyId);
+    const funds = await storage.getFundsByCompany(companyId);
+    res.json(funds);
+  });
+
+  app.post("/api/funds", async (req, res) => {
+    try {
+      const data = insertFundSchema.parse(req.body);
+      const fund = await storage.createFund(data);
+      res.status(201).json(fund);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid fund data", error });
+    }
+  });
+
+  app.put("/api/funds/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const data = insertFundSchema.parse(req.body);
+      const fund = await storage.updateFund(id, data);
+      if (!fund) {
+        return res.status(404).json({ message: "Fund not found" });
+      }
+      res.json(fund);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid fund data", error });
+    }
+  });
+
+  app.delete("/api/funds/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    const success = await storage.deleteFund(id);
+    if (!success) {
+      return res.status(404).json({ message: "Fund not found" });
+    }
+    res.status(204).send();
   });
 
   // Dashboard stats
