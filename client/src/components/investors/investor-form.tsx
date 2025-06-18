@@ -131,7 +131,7 @@ export default function InvestorForm({ onSuccess, onCancel }: InvestorFormProps)
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {companies?.map((company) => (
+                  {companies?.sort((a, b) => a.name.localeCompare(b.name)).map((company) => (
                     <SelectItem key={company.id} value={company.name}>
                       {company.name}
                     </SelectItem>
