@@ -89,9 +89,9 @@ export default function Companies() {
   const downloadSampleCSV = () => {
     const sampleData = [
       ['Name', 'HQ Location', 'AUM', 'Type'],
-      ['Sequoia Capital', 'Menlo Park, CA', '85000000000', 'VC'],
-      ['Blackstone', 'New York, NY', '975000000000', 'PE'],
-      ['Bridgewater Associates', 'Westport, CT', '140000000000', 'Hedge Fund'],
+      ['Sequoia Capital', 'Menlo Park, CA', '85', 'VC'],
+      ['Blackstone', 'New York, NY', '975', 'PE'],
+      ['Bridgewater Associates', 'Westport, CT', '140', 'Hedge Fund'],
     ];
     
     const csvContent = sampleData.map(row => row.join(',')).join('\n');
@@ -149,7 +149,7 @@ export default function Companies() {
                           <ul className="mt-2 space-y-1 text-gray-600">
                             <li>• Name</li>
                             <li>• HQ Location</li>
-                            <li>• AUM (number)</li>
+                            <li>• AUM (in billions)</li>
                             <li>• Type</li>
                           </ul>
                         </div>
@@ -267,7 +267,7 @@ export default function Companies() {
                     <p className="text-sm text-gray-600 mb-2">{company.type}</p>
                     <p className="text-sm text-gray-500 mb-2">📍 {company.hqLocation}</p>
                     <p className="text-sm font-medium">
-                      AUM: ${parseFloat(company.aum).toLocaleString()}
+                      AUM (Bil): ${(parseFloat(company.aum) / 1000000000).toFixed(1)}
                     </p>
                   </CardContent>
                 </Card>

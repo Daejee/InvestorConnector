@@ -72,6 +72,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/companies", async (req, res) => {
     try {
       const data = insertCompanySchema.parse(req.body);
+      // Convert AUM from billions to full amount for storage
+      if (data.aum) {
+        const aumInBillions = parseFloat(data.aum);
+        data.aum = (aumInBillions * 1000000000).toString();
+      }
       const company = await storage.createCompany(data);
       res.status(201).json(company);
     } catch (error) {
@@ -135,17 +140,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 return;
               }
 
-              // Validate AUM is a number
+              // Validate AUM is a number (in billions)
               const aumValue = parseFloat(data.aum);
               if (isNaN(aumValue) || aumValue < 0) {
-                errors.push(`Line ${lineNumber}: AUM must be a valid positive number, got "${data.aum}"`);
+                errors.push(`Line ${lineNumber}: AUM must be a valid positive number in billions, got "${data.aum}"`);
                 return;
               }
+
+              // Convert billions to full amount for storage
+              const aumInFullAmount = (aumValue * 1000000000).toString();
 
               const companyData = {
                 name: data.name.trim(),
                 hqLocation: data.hqLocation.trim(),
-                aum: aumValue.toString(),
+                aum: aumInFullAmount,
                 type: data.type.trim()
               };
 
