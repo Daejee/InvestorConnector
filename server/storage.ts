@@ -91,7 +91,7 @@ export class DatabaseStorage implements IStorage {
 
   // Companies
   async getCompanies(): Promise<Company[]> {
-    return await db.select().from(companies);
+    return await db.select().from(companies).where(eq(companies.status, 'active'));
   }
 
   async getCompany(id: number): Promise<Company | undefined> {

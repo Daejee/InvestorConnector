@@ -112,6 +112,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.status(204).send();
   });
 
+  app.put("/api/companies/:id/archive", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const company = await storage.updateCompany(id, { status: 'archived' });
+      if (!company) {
+        return res.status(404).json({ message: "Company not found" });
+      }
+      res.json({ message: "Company archived successfully" });
+    } catch (error) {
+      res.status(400).json({ message: "Failed to archive company", error });
+    }
+  });
+
+  app.put("/api/companies/:id/restore", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const company = await storage.updateCompany(id, { status: 'active' });
+      if (!company) {
+        return res.status(404).json({ message: "Company not found" });
+      }
+      res.json({ message: "Company restored successfully" });
+    } catch (error) {
+      res.status(400).json({ message: "Failed to restore company", error });
+    }
+  });
+
   // CSV upload endpoint for companies
   app.post("/api/companies/upload-csv", upload.single("csvFile"), async (req, res) => {
     try {
