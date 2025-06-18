@@ -152,7 +152,7 @@ export default function InvestorForm({ onSuccess, onCancel }: InvestorFormProps)
           name="position"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Position</FormLabel>
+              <FormLabel>Position (Title)</FormLabel>
               <FormControl>
                 <Input placeholder="Enter position/title" {...field} />
               </FormControl>
