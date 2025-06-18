@@ -265,7 +265,8 @@ export default function Companies() {
                   <CardContent className="p-4">
                     <h3 className="font-semibold text-lg">{company.name}</h3>
                     <p className="text-sm text-gray-600 mb-2">{company.type}</p>
-                    <p className="text-sm text-gray-500 mb-2">📍 {company.hqLocation}</p>
+                    <p className="text-sm text-gray-500 mb-1">📍 {company.hqLocation}</p>
+                    <p className="text-sm text-gray-500 mb-2">🌍 {company.area || 'US'}</p>
                     <p className="text-sm font-medium">
                       AUM (Bil): ${(parseFloat(company.aum) / 1000000000).toFixed(1)}
                     </p>

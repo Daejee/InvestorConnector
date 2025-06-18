@@ -114,6 +114,31 @@ export default function CompanyForm({ onSuccess, onCancel }: CompanyFormProps) {
           )}
         />
 
+        <FormField
+          control={form.control}
+          name="area"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Area</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value || undefined}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select area" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="US">US</SelectItem>
+                  <SelectItem value="EU">EU</SelectItem>
+                  <SelectItem value="Hong Kong">Hong Kong</SelectItem>
+                  <SelectItem value="Singapore">Singapore</SelectItem>
+                  <SelectItem value="Other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <div className="flex justify-end space-x-4">
           {onCancel && (
             <Button type="button" variant="outline" onClick={onCancel}>
