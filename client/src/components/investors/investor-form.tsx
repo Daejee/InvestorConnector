@@ -4,6 +4,7 @@ import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { apiRequest } from "@/lib/queryClient";
@@ -35,7 +36,7 @@ export default function InvestorForm({ onSuccess, onCancel }: InvestorFormProps)
       specialtyType: "",
       industryArea: "",
       region: "",
-      status: "active",
+      note: "",
       avatarInitials: "",
     },
   });
@@ -242,22 +243,17 @@ export default function InvestorForm({ onSuccess, onCancel }: InvestorFormProps)
 
         <FormField
           control={form.control}
-          name="status"
+          name="note"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Status</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select status" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="inactive">Inactive</SelectItem>
-                  <SelectItem value="prospect">Prospect</SelectItem>
-                </SelectContent>
-              </Select>
+              <FormLabel>Note</FormLabel>
+              <FormControl>
+                <Textarea 
+                  placeholder="Enter any notes about this investor..." 
+                  className="min-h-[100px]"
+                  {...field} 
+                />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}

@@ -13,7 +13,7 @@ export const investors = pgTable("investors", {
   specialtyType: text("specialty_type"), // regional, industry (only for Buyside Analyst)
   industryArea: text("industry_area"), // specific industry for industry specialist
   region: text("region"), // specific region for regional specialist
-  status: text("status").notNull().default("active"), // active, inactive, prospect
+  note: text("note"), // free text field for any notes
   avatarInitials: text("avatar_initials"),
 });
 
