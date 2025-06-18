@@ -84,6 +84,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.put("/api/companies/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const data = insertCompanySchema.partial().parse(req.body);
+      // Convert AUM from billions to full amount for storage
+      if (data.aum) {
+        const aumInBillions = parseFloat(data.aum);
+        data.aum = (aumInBillions * 1000000000).toString();
+      }
+      const company = await storage.updateCompany(id, data);
+      if (!company) {
+        return res.status(404).json({ message: "Company not found" });
+      }
+      res.json(company);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid company data", error });
+    }
+  });
+
+  app.delete("/api/companies/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    const deleted = await storage.deleteCompany(id);
+    if (!deleted) {
+      return res.status(404).json({ message: "Company not found" });
+    }
+    res.status(204).send();
+  });
+
   // CSV upload endpoint for companies
   app.post("/api/companies/upload-csv", upload.single("csvFile"), async (req, res) => {
     try {

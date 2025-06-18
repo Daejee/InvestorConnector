@@ -7,24 +7,26 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { insertCompanySchema, type InsertCompany } from "@shared/schema";
+import { insertCompanySchema, type InsertCompany, type Company } from "@shared/schema";
 
 interface CompanyFormProps {
+  company?: Company;
   onSuccess?: () => void;
   onCancel?: () => void;
 }
 
-export default function CompanyForm({ onSuccess, onCancel }: CompanyFormProps) {
+export default function CompanyForm({ company, onSuccess, onCancel }: CompanyFormProps) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
   const form = useForm<InsertCompany>({
     resolver: zodResolver(insertCompanySchema),
     defaultValues: {
-      name: "",
-      hqLocation: "",
-      aum: "",
-      type: "",
+      name: company?.name || "",
+      hqLocation: company?.hqLocation || "",
+      aum: company ? (parseFloat(company.aum) / 1000000000).toString() : "",
+      type: company?.type || "",
+      area: company?.area || "",
     },
   });
 
