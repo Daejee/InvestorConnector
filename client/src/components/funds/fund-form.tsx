@@ -186,7 +186,13 @@ export default function FundForm({ onSuccess, onCancel }: FundFormProps) {
                 <FormItem>
                   <FormLabel>Share Amount</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter share amount or percentage" {...field} />
+                    <Input 
+                      placeholder="Enter share amount or percentage" 
+                      value={field.value || ""} 
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                      name={field.name}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
