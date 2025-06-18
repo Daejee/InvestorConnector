@@ -6,6 +6,8 @@ import {
   type Communication, type InsertCommunication,
   type Meeting, type InsertMeeting
 } from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
 export interface IStorage {
   // Investors
@@ -49,198 +51,191 @@ export interface IStorage {
   deleteMeeting(id: number): Promise<boolean>;
 }
 
-export class MemStorage implements IStorage {
-  private investors: Map<number, Investor>;
-  private companies: Map<number, Company>;
-  private investments: Map<number, Investment>;
-  private communications: Map<number, Communication>;
-  private meetings: Map<number, Meeting>;
-  private currentInvestorId: number;
-  private currentCompanyId: number;
-  private currentInvestmentId: number;
-  private currentCommunicationId: number;
-  private currentMeetingId: number;
-
-  constructor() {
-    this.investors = new Map();
-    this.companies = new Map();
-    this.investments = new Map();
-    this.communications = new Map();
-    this.meetings = new Map();
-    this.currentInvestorId = 1;
-    this.currentCompanyId = 1;
-    this.currentInvestmentId = 1;
-    this.currentCommunicationId = 1;
-    this.currentMeetingId = 1;
-  }
-
+export class DatabaseStorage implements IStorage {
   // Investors
   async getInvestors(): Promise<Investor[]> {
-    return Array.from(this.investors.values());
+    return await db.select().from(investors);
   }
 
   async getInvestor(id: number): Promise<Investor | undefined> {
-    return this.investors.get(id);
+    const [investor] = await db.select().from(investors).where(eq(investors.id, id));
+    return investor || undefined;
   }
 
   async getInvestorByEmail(email: string): Promise<Investor | undefined> {
-    return Array.from(this.investors.values()).find(investor => investor.email === email);
+    const [investor] = await db.select().from(investors).where(eq(investors.email, email));
+    return investor || undefined;
   }
 
   async createInvestor(insertInvestor: InsertInvestor): Promise<Investor> {
-    const id = this.currentInvestorId++;
-    const investor: Investor = { ...insertInvestor, id };
-    this.investors.set(id, investor);
+    const [investor] = await db
+      .insert(investors)
+      .values(insertInvestor)
+      .returning();
     return investor;
   }
 
   async updateInvestor(id: number, updateData: Partial<InsertInvestor>): Promise<Investor | undefined> {
-    const investor = this.investors.get(id);
-    if (!investor) return undefined;
-    
-    const updated = { ...investor, ...updateData };
-    this.investors.set(id, updated);
-    return updated;
+    const [investor] = await db
+      .update(investors)
+      .set(updateData)
+      .where(eq(investors.id, id))
+      .returning();
+    return investor || undefined;
   }
 
   async deleteInvestor(id: number): Promise<boolean> {
-    return this.investors.delete(id);
+    const result = await db.delete(investors).where(eq(investors.id, id));
+    return result.rowCount! > 0;
   }
 
   // Companies
   async getCompanies(): Promise<Company[]> {
-    return Array.from(this.companies.values());
+    return await db.select().from(companies);
   }
 
   async getCompany(id: number): Promise<Company | undefined> {
-    return this.companies.get(id);
+    const [company] = await db.select().from(companies).where(eq(companies.id, id));
+    return company || undefined;
   }
 
   async createCompany(insertCompany: InsertCompany): Promise<Company> {
-    const id = this.currentCompanyId++;
-    const company: Company = { ...insertCompany, id };
-    this.companies.set(id, company);
+    const [company] = await db
+      .insert(companies)
+      .values(insertCompany)
+      .returning();
     return company;
   }
 
   async updateCompany(id: number, updateData: Partial<InsertCompany>): Promise<Company | undefined> {
-    const company = this.companies.get(id);
-    if (!company) return undefined;
-    
-    const updated = { ...company, ...updateData };
-    this.companies.set(id, updated);
-    return updated;
+    const [company] = await db
+      .update(companies)
+      .set(updateData)
+      .where(eq(companies.id, id))
+      .returning();
+    return company || undefined;
   }
 
   async deleteCompany(id: number): Promise<boolean> {
-    return this.companies.delete(id);
+    const result = await db.delete(companies).where(eq(companies.id, id));
+    return result.rowCount! > 0;
   }
 
   // Investments
   async getInvestments(): Promise<Investment[]> {
-    return Array.from(this.investments.values());
+    return await db.select().from(investments);
   }
 
   async getInvestment(id: number): Promise<Investment | undefined> {
-    return this.investments.get(id);
+    const [investment] = await db.select().from(investments).where(eq(investments.id, id));
+    return investment || undefined;
   }
 
   async getInvestmentsByInvestor(investorId: number): Promise<Investment[]> {
-    return Array.from(this.investments.values()).filter(inv => inv.investorId === investorId);
+    return await db.select().from(investments).where(eq(investments.investorId, investorId));
   }
 
   async createInvestment(insertInvestment: InsertInvestment): Promise<Investment> {
-    const id = this.currentInvestmentId++;
-    const investment: Investment = { ...insertInvestment, id };
-    this.investments.set(id, investment);
+    const [investment] = await db
+      .insert(investments)
+      .values(insertInvestment)
+      .returning();
     return investment;
   }
 
   async updateInvestment(id: number, updateData: Partial<InsertInvestment>): Promise<Investment | undefined> {
-    const investment = this.investments.get(id);
-    if (!investment) return undefined;
-    
-    const updated = { ...investment, ...updateData };
-    this.investments.set(id, updated);
-    return updated;
+    const [investment] = await db
+      .update(investments)
+      .set(updateData)
+      .where(eq(investments.id, id))
+      .returning();
+    return investment || undefined;
   }
 
   async deleteInvestment(id: number): Promise<boolean> {
-    return this.investments.delete(id);
+    const result = await db.delete(investments).where(eq(investments.id, id));
+    return result.rowCount! > 0;
   }
 
   // Communications
   async getCommunications(): Promise<Communication[]> {
-    return Array.from(this.communications.values());
+    return await db.select().from(communications);
   }
 
   async getCommunication(id: number): Promise<Communication | undefined> {
-    return this.communications.get(id);
+    const [communication] = await db.select().from(communications).where(eq(communications.id, id));
+    return communication || undefined;
   }
 
   async getCommunicationsByInvestor(investorId: number): Promise<Communication[]> {
-    return Array.from(this.communications.values()).filter(comm => comm.investorId === investorId);
+    return await db.select().from(communications).where(eq(communications.investorId, investorId));
   }
 
   async createCommunication(insertCommunication: InsertCommunication): Promise<Communication> {
-    const id = this.currentCommunicationId++;
-    const communication: Communication = { ...insertCommunication, id };
-    this.communications.set(id, communication);
+    const [communication] = await db
+      .insert(communications)
+      .values(insertCommunication)
+      .returning();
     return communication;
   }
 
   async updateCommunication(id: number, updateData: Partial<InsertCommunication>): Promise<Communication | undefined> {
-    const communication = this.communications.get(id);
-    if (!communication) return undefined;
-    
-    const updated = { ...communication, ...updateData };
-    this.communications.set(id, updated);
-    return updated;
+    const [communication] = await db
+      .update(communications)
+      .set(updateData)
+      .where(eq(communications.id, id))
+      .returning();
+    return communication || undefined;
   }
 
   async deleteCommunication(id: number): Promise<boolean> {
-    return this.communications.delete(id);
+    const result = await db.delete(communications).where(eq(communications.id, id));
+    return result.rowCount! > 0;
   }
 
   // Meetings
   async getMeetings(): Promise<Meeting[]> {
-    return Array.from(this.meetings.values());
+    return await db.select().from(meetings);
   }
 
   async getMeeting(id: number): Promise<Meeting | undefined> {
-    return this.meetings.get(id);
+    const [meeting] = await db.select().from(meetings).where(eq(meetings.id, id));
+    return meeting || undefined;
   }
 
   async getMeetingsByInvestor(investorId: number): Promise<Meeting[]> {
-    return Array.from(this.meetings.values()).filter(meeting => meeting.investorId === investorId);
+    return await db.select().from(meetings).where(eq(meetings.investorId, investorId));
   }
 
   async getUpcomingMeetings(): Promise<Meeting[]> {
     const now = new Date();
-    return Array.from(this.meetings.values())
+    const allMeetings = await db.select().from(meetings);
+    return allMeetings
       .filter(meeting => meeting.scheduledDate && new Date(meeting.scheduledDate) > now)
       .sort((a, b) => new Date(a.scheduledDate!).getTime() - new Date(b.scheduledDate!).getTime());
   }
 
   async createMeeting(insertMeeting: InsertMeeting): Promise<Meeting> {
-    const id = this.currentMeetingId++;
-    const meeting: Meeting = { ...insertMeeting, id };
-    this.meetings.set(id, meeting);
+    const [meeting] = await db
+      .insert(meetings)
+      .values(insertMeeting)
+      .returning();
     return meeting;
   }
 
   async updateMeeting(id: number, updateData: Partial<InsertMeeting>): Promise<Meeting | undefined> {
-    const meeting = this.meetings.get(id);
-    if (!meeting) return undefined;
-    
-    const updated = { ...meeting, ...updateData };
-    this.meetings.set(id, updated);
-    return updated;
+    const [meeting] = await db
+      .update(meetings)
+      .set(updateData)
+      .where(eq(meetings.id, id))
+      .returning();
+    return meeting || undefined;
   }
 
   async deleteMeeting(id: number): Promise<boolean> {
-    return this.meetings.delete(id);
+    const result = await db.delete(meetings).where(eq(meetings.id, id));
+    return result.rowCount! > 0;
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
