@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Edit, Trash2, Building2, DollarSign, TrendingUp } from "lucide-react";
+import { Plus, Edit, Trash2, Building2, DollarSign, TrendingUp, Upload, Download, FileText } from "lucide-react";
 import FundForm from "@/components/funds/fund-form";
 import { type Fund, type Company } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 export default function Funds() {
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
 
   const { data: funds = [], isLoading } = useQuery<Fund[]>({
     queryKey: ["/api/funds"],
@@ -44,6 +45,41 @@ export default function Funds() {
     },
   });
 
+  const uploadCSVMutation = useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const response = await fetch('/api/funds/upload-csv', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Upload failed');
+      }
+      
+      return response.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/funds"] });
+      toast({
+        title: "Success",
+        description: data.message,
+      });
+      setIsUploadDialogOpen(false);
+    },
+    onError: (error: Error) => {
+      console.error('CSV upload error:', error);
+      toast({
+        title: "Upload Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   const getCompanyName = (companyId: number) => {
     const company = companies.find(c => c.id === companyId);
     return company?.name || "Unknown Company";
@@ -69,6 +105,49 @@ export default function Funds() {
     setIsDialogOpen(false);
   };
 
+  const downloadSampleCSV = () => {
+    const sampleData = [
+      ['Fund Name', 'Company', 'AUM', 'Type', 'Own Our Shares', 'Share Amount'],
+      ['HSBC Asia Pacific Equity Fund', 'HSBC Global Asset Management', '5.2', 'Growth', 'Yes', '2.5%'],
+      ['Value Partners China Fund', 'Value Partners Group', '3.8', 'Value', 'No', ''],
+      ['Harvest China Bond Fund', 'Harvest Global Investments', '2.1', 'Other', 'Yes', '1.2%'],
+    ];
+    
+    // Properly escape CSV fields that contain commas
+    const escapeCsvField = (field: string) => {
+      if (field.includes(',') || field.includes('"') || field.includes('\n')) {
+        return `"${field.replace(/"/g, '""')}"`;
+      }
+      return field;
+    };
+    
+    const csvContent = sampleData.map(row => 
+      row.map(field => escapeCsvField(field)).join(',')
+    ).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'funds_sample.csv';
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.type !== 'text/csv' && !file.name.endsWith('.csv')) {
+        toast({
+          title: "Invalid file type",
+          description: "Please select a CSV file",
+          variant: "destructive",
+        });
+        return;
+      }
+      uploadCSVMutation.mutate(file);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="p-6">
@@ -85,7 +164,86 @@ export default function Funds() {
             <h2 className="text-2xl font-bold text-gray-900">Funds</h2>
             <p className="text-gray-600 mt-1">Manage fund portfolios and investment strategies</p>
           </div>
-          <div className="mt-4 sm:mt-0">
+          <div className="mt-4 sm:mt-0 flex space-x-3">
+            <Button variant="outline" onClick={downloadSampleCSV}>
+              <Download className="mr-2 h-4 w-4" />
+              Sample CSV
+            </Button>
+            
+            <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline">
+                  <Upload className="mr-2 h-4 w-4" />
+                  Upload CSV
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Upload Funds from CSV</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-6">
+                  <div>
+                    <p className="text-sm text-gray-600 mb-4">
+                      Upload a CSV file with the following columns:
+                    </p>
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <p className="font-medium text-gray-900 mb-3">CSV Format Requirements:</p>
+                      <div className="space-y-4">
+                        <div>
+                          <strong>Required Headers (first row):</strong>
+                          <p className="text-sm text-gray-600 mt-1 font-mono bg-white p-2 rounded border">
+                            Fund Name,Company,AUM,Type,Own Our Shares,Share Amount
+                          </p>
+                        </div>
+                        <div>
+                          <strong>Example Data Row:</strong>
+                          <p className="text-sm text-gray-600 mt-1 font-mono bg-white p-2 rounded border">
+                            HSBC Asia Fund,HSBC Global Asset Management,5.2,Growth,Yes,2.5%
+                          </p>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <strong>Notes:</strong>
+                            <ul className="mt-2 space-y-1 text-sm text-gray-600">
+                              <li>• Company must exist in your company list</li>
+                              <li>• AUM values should be in billions</li>
+                              <li>• Own Our Shares: Yes/No</li>
+                            </ul>
+                          </div>
+                          <div>
+                            <strong>Type Options:</strong>
+                            <ul className="mt-2 space-y-1 text-sm text-gray-600">
+                              <li>• Value • Growth</li>
+                              <li>• GARP • Other</li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                    <FileText className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                    <div className="space-y-2">
+                      <p className="text-sm text-gray-600">
+                        Choose a CSV file to upload
+                      </p>
+                      <input
+                        type="file"
+                        accept=".csv"
+                        onChange={handleFileUpload}
+                        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                        disabled={uploadCSVMutation.isPending}
+                      />
+                      {uploadCSVMutation.isPending && (
+                        <p className="text-sm text-blue-600">Uploading...</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
                 <Button>

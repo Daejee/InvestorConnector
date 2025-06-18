@@ -458,6 +458,148 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.status(204).send();
   });
 
+  // Funds CSV upload
+  app.post("/api/funds/upload-csv", upload.single('file'), async (req, res) => {
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
+
+    try {
+      const csvData: any[] = [];
+      const errors: string[] = [];
+      const results: any[] = [];
+      let lineNumber = 1;
+
+      // Parse CSV from buffer
+      const stream = Readable.from(req.file.buffer.toString());
+      
+      await new Promise((resolve, reject) => {
+        stream
+          .pipe(csvParser())
+          .on('data', (data) => {
+            csvData.push(data);
+          })
+          .on('end', () => {
+            resolve(csvData);
+          })
+          .on('error', reject);
+      });
+
+      console.log('First data row:', csvData[0]);
+      console.log('Mapped data keys:', Object.keys(csvData[0] || {}));
+
+      // Process each row
+      for (const data of csvData) {
+        lineNumber++;
+        
+        try {
+          // Check which required fields are missing (case-insensitive)
+          const missingFields = [];
+          
+          // Check for name field (various possible keys)
+          const nameValue = data.name || data.Name || data['Fund Name'] || data['fund name'];
+          if (!nameValue || nameValue.toString().trim() === '') missingFields.push('name');
+          
+          // Check for company field (various possible keys)
+          const companyValue = data.company || data.Company || data['Company Name'] || data['company name'];
+          if (!companyValue || companyValue.toString().trim() === '') missingFields.push('company');
+          
+          // Check for aum field (various possible keys)
+          const aumFieldValue = data.aum || data.AUM || data['AUM (Billion USD)'] || data['aum (billion usd)'];
+          if (!aumFieldValue || aumFieldValue.toString().trim() === '') missingFields.push('aum');
+          
+          // Check for type field (various possible keys)
+          const typeValue = data.type || data.Type || data['Fund Type'] || data['fund type'];
+          if (!typeValue || typeValue.toString().trim() === '') missingFields.push('type');
+          
+          // Check for ownOurShares field (various possible keys)
+          const ownSharesValue = data.ownOurShares || data['Own Our Shares'] || data['own our shares'] || data.ownShares;
+          if (ownSharesValue === undefined || ownSharesValue === null || ownSharesValue.toString().trim() === '') missingFields.push('ownOurShares');
+
+          if (missingFields.length > 0) {
+            console.log(`Line ${lineNumber} data:`, data);
+            errors.push(`Line ${lineNumber}: Missing required fields: ${missingFields.join(', ')}`);
+            continue;
+          }
+
+          // Use the flexible field values we found
+          const finalName = nameValue.toString().trim();
+          const finalCompanyName = companyValue.toString().trim();
+          const finalType = typeValue.toString().trim();
+          const finalAum = aumFieldValue.toString().trim();
+          const finalOwnShares = ownSharesValue.toString().toLowerCase() === 'yes' || ownSharesValue.toString().toLowerCase() === 'true';
+          const finalShareAmount = (data.shareAmount || data['Share Amount'] || data['share amount'] || "").toString().trim();
+
+          // Find company by name
+          const companies = await storage.getCompanies();
+          const company = companies.find(c => c.name.toLowerCase() === finalCompanyName.toLowerCase());
+          if (!company) {
+            errors.push(`Line ${lineNumber}: Company "${finalCompanyName}" not found`);
+            continue;
+          }
+
+          // Validate fund type
+          const validTypes = ['Value', 'Growth', 'GARP', 'Other'];
+          if (!validTypes.includes(finalType)) {
+            errors.push(`Line ${lineNumber}: Invalid fund type "${finalType}". Must be one of: ${validTypes.join(', ')}`);
+            continue;
+          }
+
+          // Validate AUM is a number (in billions)
+          const aumNumericValue = parseFloat(finalAum);
+          if (isNaN(aumNumericValue) || aumNumericValue < 0) {
+            errors.push(`Line ${lineNumber}: AUM must be a valid positive number in billions, got "${finalAum}"`);
+            continue;
+          }
+
+          const fundData = {
+            name: finalName,
+            companyId: company.id,
+            aum: finalAum,
+            type: finalType,
+            ownOurShares: finalOwnShares,
+            shareAmount: finalOwnShares && finalShareAmount ? finalShareAmount : ""
+          };
+
+          // Validate with Zod schema
+          const validatedData = insertFundSchema.parse(fundData);
+          results.push(validatedData);
+
+        } catch (error) {
+          console.error(`Error processing line ${lineNumber}:`, error);
+          errors.push(`Line ${lineNumber}: ${error instanceof Error ? error.message : 'Invalid data format'}`);
+        }
+      }
+
+      if (errors.length > 0) {
+        console.log('CSV validation errors:', errors);
+        return res.status(400).json({ 
+          message: "CSV validation failed", 
+          errors: errors.slice(0, 10) // Limit to first 10 errors
+        });
+      }
+
+      // If validation passed, create all funds
+      const createdFunds = [];
+      for (const fundData of results) {
+        const fund = await storage.createFund(fundData);
+        createdFunds.push(fund);
+      }
+
+      res.status(201).json({ 
+        message: `Successfully imported ${createdFunds.length} funds`,
+        funds: createdFunds 
+      });
+
+    } catch (error) {
+      console.error('CSV upload error:', error);
+      res.status(500).json({ 
+        message: "Failed to process CSV file", 
+        error: error instanceof Error ? error.message : 'Unknown error' 
+      });
+    }
+  });
+
   // Dashboard stats
   app.get("/api/dashboard/stats", async (req, res) => {
     const investors = await storage.getInvestors();
