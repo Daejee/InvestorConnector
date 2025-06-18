@@ -120,7 +120,7 @@ export default function CompanyForm({ onSuccess, onCancel }: CompanyFormProps) {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Area</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value || undefined}>
+              <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select area" />
@@ -131,6 +131,7 @@ export default function CompanyForm({ onSuccess, onCancel }: CompanyFormProps) {
                   <SelectItem value="EU">EU</SelectItem>
                   <SelectItem value="Hong Kong">Hong Kong</SelectItem>
                   <SelectItem value="Singapore">Singapore</SelectItem>
+                  <SelectItem value="Korea">Korea</SelectItem>
                   <SelectItem value="Other">Other</SelectItem>
                 </SelectContent>
               </Select>

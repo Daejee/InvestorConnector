@@ -88,10 +88,10 @@ export default function Companies() {
 
   const downloadSampleCSV = () => {
     const sampleData = [
-      ['Name', 'HQ Location', 'AUM', 'Type'],
-      ['Sequoia Capital', 'Menlo Park, CA', '85', 'VC'],
-      ['Blackstone', 'New York, NY', '975', 'PE'],
-      ['Bridgewater Associates', 'Westport, CT', '140', 'Hedge Fund'],
+      ['Name', 'HQ Location', 'AUM', 'Type', 'Area'],
+      ['Sequoia Capital', 'Menlo Park, CA', '85', 'VC', 'US'],
+      ['Blackstone', 'New York, NY', '975', 'PE', 'US'],
+      ['Bridgewater Associates', 'Westport, CT', '140', 'Hedge Fund', 'US'],
     ];
     
     const csvContent = sampleData.map(row => row.join(',')).join('\n');
@@ -151,18 +151,18 @@ export default function Companies() {
                             <li>• HQ Location</li>
                             <li>• AUM (in bil)</li>
                             <li>• Type</li>
+                            <li>• Area</li>
                           </ul>
                         </div>
                         <div>
-                          <strong>Type Examples:</strong>
+                          <strong>Area Options:</strong>
                           <ul className="mt-2 space-y-1 text-gray-600">
-                            <li>• VC</li>
-                            <li>• PE</li>
-                            <li>• Hedge Fund</li>
-                            <li>• Asset Management</li>
-                            <li>• Family Office</li>
-                            <li>• Investment Bank</li>
-                            <li>• Any other type you need</li>
+                            <li>• US</li>
+                            <li>• EU</li>
+                            <li>• Hong Kong</li>
+                            <li>• Singapore</li>
+                            <li>• Korea</li>
+                            <li>• Other</li>
                           </ul>
                         </div>
                       </div>

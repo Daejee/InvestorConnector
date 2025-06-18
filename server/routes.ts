@@ -120,6 +120,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 case 'company type':
                 case 'fund type':
                   return 'type';
+                case 'area':
+                case 'region':
+                case 'geography':
+                  return 'area';
                 default:
                   return header;
               }
@@ -129,14 +133,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
             lineNumber++;
             try {
               // Validate required fields
-              if (!data.name || !data.hqLocation || !data.aum || !data.type) {
-                errors.push(`Line ${lineNumber}: Missing required fields (name, hqLocation, aum, type)`);
+              if (!data.name || !data.hqLocation || !data.aum || !data.type || !data.area) {
+                errors.push(`Line ${lineNumber}: Missing required fields (name, hqLocation, aum, type, area)`);
                 return;
               }
 
               // Validate company type (allow any non-empty string)
               if (!data.type.trim()) {
                 errors.push(`Line ${lineNumber}: Company type cannot be empty`);
+                return;
+              }
+
+              // Validate area (allow any non-empty string)
+              if (!data.area.trim()) {
+                errors.push(`Line ${lineNumber}: Area cannot be empty`);
                 return;
               }
 
@@ -154,7 +164,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 name: data.name.trim(),
                 hqLocation: data.hqLocation.trim(),
                 aum: aumInFullAmount,
-                type: data.type.trim()
+                type: data.type.trim(),
+                area: data.area.trim()
               };
 
               // Validate with Zod schema

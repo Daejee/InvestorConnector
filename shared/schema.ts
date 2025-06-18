@@ -19,7 +19,7 @@ export const companies = pgTable("companies", {
   hqLocation: text("hq_location").notNull(),
   aum: decimal("aum", { precision: 15, scale: 2 }).notNull(),
   type: text("type").notNull(), // VC, PE, Hedge Fund, etc.
-  area: text("area"), // US, EU, Hong Kong, Singapore, Other
+  area: text("area"), // US, EU, Hong Kong, Singapore, Korea, Other
 });
 
 export const investments = pgTable("investments", {
