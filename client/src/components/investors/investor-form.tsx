@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { insertInvestorSchema, type InsertInvestor } from "@shared/schema";
+import { insertInvestorSchema, type InsertInvestor, type Company } from "@shared/schema";
 
 interface InvestorFormProps {
   onSuccess?: () => void;
@@ -18,6 +18,10 @@ interface InvestorFormProps {
 export default function InvestorForm({ onSuccess, onCancel }: InvestorFormProps) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+
+  const { data: companies } = useQuery<Company[]>({
+    queryKey: ["/api/companies"],
+  });
 
   const form = useForm<InsertInvestor>({
     resolver: zodResolver(insertInvestorSchema),
@@ -120,9 +124,20 @@ export default function InvestorForm({ onSuccess, onCancel }: InvestorFormProps)
           render={({ field }) => (
             <FormItem>
               <FormLabel>Company</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter company name" {...field} />
-              </FormControl>
+              <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a company" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {companies?.map((company) => (
+                    <SelectItem key={company.id} value={company.name}>
+                      {company.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}
