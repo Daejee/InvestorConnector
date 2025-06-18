@@ -77,6 +77,28 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel }
     },
   });
 
+  const updateInvestorMutation = useMutation({
+    mutationFn: async (data: InsertInvestor) => {
+      const response = await apiRequest("PATCH", `/api/investors/${investor!.id}`, data);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/investors"] });
+      toast({
+        title: "Success",
+        description: "Investor has been updated successfully.",
+      });
+      onSuccess?.();
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update investor.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const onSubmit = (data: InsertInvestor) => {
     // Generate initials if not provided
     if (!data.avatarInitials) {
@@ -87,7 +109,12 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel }
         .toUpperCase()
         .slice(0, 2);
     }
-    createInvestorMutation.mutate(data);
+    
+    if (investor) {
+      updateInvestorMutation.mutate(data);
+    } else {
+      createInvestorMutation.mutate(data);
+    }
   };
 
   return (
@@ -200,7 +227,7 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel }
                   <FormItem>
                     <FormLabel>Position</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter position/title" {...field} />
+                      <Input placeholder="Enter position/title" {...field} value={field.value ?? ""} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -214,7 +241,7 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel }
                   <FormItem>
                     <FormLabel>Phone</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter phone number" {...field} />
+                      <Input placeholder="Enter phone number" {...field} value={field.value ?? ""} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -277,7 +304,7 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel }
                       <FormItem>
                         <FormLabel>Industry Area</FormLabel>
                         <FormControl>
-                          <Input placeholder="Enter specific industry area" {...field} />
+                          <Input placeholder="Enter specific industry area" {...field} value={field.value ?? ""} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -368,8 +395,11 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel }
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancel
           </Button>
-          <Button type="submit" disabled={createInvestorMutation.isPending}>
-            {createInvestorMutation.isPending ? "Creating..." : "Create Investor"}
+          <Button type="submit" disabled={createInvestorMutation.isPending || updateInvestorMutation.isPending}>
+            {investor 
+              ? (updateInvestorMutation.isPending ? "Updating..." : "Update Investor")
+              : (createInvestorMutation.isPending ? "Creating..." : "Create Investor")
+            }
           </Button>
         </div>
       </form>
