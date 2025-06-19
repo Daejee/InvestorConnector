@@ -44,7 +44,7 @@ const navigation = [
 
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const [location] = useLocation();
-  const [expandedItems, setExpandedItems] = useState<string[]>([]);
+  const [expandedItems, setExpandedItems] = useState<string[]>(["Companies / 회사"]);
 
   const toggleExpanded = (itemName: string) => {
     setExpandedItems(prev => 

@@ -128,6 +128,8 @@ Changelog:
 - June 19, 2025. Updated all page headers, navigation items, buttons, search fields, and dialog titles with Korean/English text
 - June 19, 2025. Applied bilingual support to Dashboard, Investors, Companies, Funds, Meetings, NDR/Conferences, Communications, Reports, and Documents pages
 - June 19, 2025. Enhanced header component with bilingual branding and search functionality
+- June 19, 2025. Restructured navigation menu with Funds/펀드 as expandable submenu under Companies/회사
+- June 19, 2025. Set Companies/회사 menu to expand by default for better Funds/펀드 accessibility
 ```
 
 ## User Preferences
