@@ -130,6 +130,11 @@ Changelog:
 - June 19, 2025. Enhanced header component with bilingual branding and search functionality
 - June 19, 2025. Restructured navigation menu with Funds/펀드 as expandable submenu under Companies/회사
 - June 19, 2025. Set Companies/회사 menu to expand by default for better Funds/펀드 accessibility
+- June 19, 2025. Created comprehensive email system with SendGrid integration for Earnings Report campaigns
+- June 19, 2025. Added regional targeting system - Korean templates for Korean investors, English for overseas investors
+- June 19, 2025. Implemented email templates and campaigns database with professional email delivery capabilities
+- June 19, 2025. Enhanced Communications page with three-tab interface: Communications Log, Email Templates, Earnings Reports
+- June 19, 2025. Moved NDR/Conferences as visible submenu under Meetings/회의 for better navigation organization
 ```
 
 ## User Preferences
