@@ -120,6 +120,10 @@ Changelog:
 - June 19, 2025. Fixed backend API validation for proper date handling in meeting creation and updates
 - June 19, 2025. Updated terminology from "Meeting Logs" to "Meetings" throughout navigation and UI components
 - June 19, 2025. Implemented full CRUD operations for meetings with proper TypeScript types and form validation
+- June 19, 2025. Created complete NDR/Conference database system with fields: event name, start/end dates, place, city, host company, participating companies
+- June 19, 2025. Added NDR/Conference API routes with full CRUD operations and proper date handling
+- June 19, 2025. Built NDR/Conference frontend with form validation, company management, and status tracking
+- June 19, 2025. Added NDR/Conferences to navigation menu with dedicated page and form components
 ```
 
 ## User Preferences
