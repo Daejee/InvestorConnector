@@ -1,5 +1,5 @@
 import { 
-  investors, companies, investments, communications, meetings, funds, meetingLogs, ndrConferences,
+  investors, companies, investments, communications, meetings, funds, meetingLogs, ndrConferences, emailTemplates, emailCampaigns,
   type Investor, type InsertInvestor,
   type Company, type InsertCompany,
   type Investment, type InsertInvestment,
@@ -7,7 +7,9 @@ import {
   type Meeting, type InsertMeeting,
   type Fund, type InsertFund,
   type MeetingLog, type InsertMeetingLog,
-  type NdrConference, type InsertNdrConference
+  type NdrConference, type InsertNdrConference,
+  type EmailTemplate, type InsertEmailTemplate,
+  type EmailCampaign, type InsertEmailCampaign
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc } from "drizzle-orm";
@@ -75,6 +77,20 @@ export interface IStorage {
   createNdrConference(ndrConference: InsertNdrConference): Promise<NdrConference>;
   updateNdrConference(id: number, ndrConference: Partial<InsertNdrConference>): Promise<NdrConference | undefined>;
   deleteNdrConference(id: number): Promise<boolean>;
+
+  // Email Templates
+  getEmailTemplates(): Promise<EmailTemplate[]>;
+  getEmailTemplate(id: number): Promise<EmailTemplate | undefined>;
+  getEmailTemplatesByLanguage(language: string): Promise<EmailTemplate[]>;
+  createEmailTemplate(template: InsertEmailTemplate): Promise<EmailTemplate>;
+  updateEmailTemplate(id: number, template: Partial<InsertEmailTemplate>): Promise<EmailTemplate | undefined>;
+  deleteEmailTemplate(id: number): Promise<boolean>;
+
+  // Email Campaigns
+  getEmailCampaigns(): Promise<EmailCampaign[]>;
+  getEmailCampaign(id: number): Promise<EmailCampaign | undefined>;
+  createEmailCampaign(campaign: InsertEmailCampaign): Promise<EmailCampaign>;
+  updateEmailCampaign(id: number, campaign: Partial<InsertEmailCampaign>): Promise<EmailCampaign | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -365,6 +381,69 @@ export class DatabaseStorage implements IStorage {
   async deleteNdrConference(id: number): Promise<boolean> {
     const result = await db.delete(ndrConferences).where(eq(ndrConferences.id, id));
     return result.rowCount! > 0;
+  }
+
+  // Email Template methods
+  async getEmailTemplates(): Promise<EmailTemplate[]> {
+    return await db.select().from(emailTemplates).orderBy(desc(emailTemplates.createdAt));
+  }
+
+  async getEmailTemplate(id: number): Promise<EmailTemplate | undefined> {
+    const [template] = await db.select().from(emailTemplates).where(eq(emailTemplates.id, id));
+    return template || undefined;
+  }
+
+  async getEmailTemplatesByLanguage(language: string): Promise<EmailTemplate[]> {
+    return await db.select().from(emailTemplates).where(eq(emailTemplates.language, language));
+  }
+
+  async createEmailTemplate(insertTemplate: InsertEmailTemplate): Promise<EmailTemplate> {
+    const [template] = await db
+      .insert(emailTemplates)
+      .values(insertTemplate)
+      .returning();
+    return template;
+  }
+
+  async updateEmailTemplate(id: number, updateData: Partial<InsertEmailTemplate>): Promise<EmailTemplate | undefined> {
+    const [template] = await db
+      .update(emailTemplates)
+      .set(updateData)
+      .where(eq(emailTemplates.id, id))
+      .returning();
+    return template || undefined;
+  }
+
+  async deleteEmailTemplate(id: number): Promise<boolean> {
+    const result = await db.delete(emailTemplates).where(eq(emailTemplates.id, id));
+    return result.rowCount! > 0;
+  }
+
+  // Email Campaign methods
+  async getEmailCampaigns(): Promise<EmailCampaign[]> {
+    return await db.select().from(emailCampaigns).orderBy(desc(emailCampaigns.createdAt));
+  }
+
+  async getEmailCampaign(id: number): Promise<EmailCampaign | undefined> {
+    const [campaign] = await db.select().from(emailCampaigns).where(eq(emailCampaigns.id, id));
+    return campaign || undefined;
+  }
+
+  async createEmailCampaign(insertCampaign: InsertEmailCampaign): Promise<EmailCampaign> {
+    const [campaign] = await db
+      .insert(emailCampaigns)
+      .values(insertCampaign)
+      .returning();
+    return campaign;
+  }
+
+  async updateEmailCampaign(id: number, updateData: Partial<InsertEmailCampaign>): Promise<EmailCampaign | undefined> {
+    const [campaign] = await db
+      .update(emailCampaigns)
+      .set(updateData)
+      .where(eq(emailCampaigns.id, id))
+      .returning();
+    return campaign || undefined;
   }
 }
 

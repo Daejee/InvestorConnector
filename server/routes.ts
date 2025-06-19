@@ -12,8 +12,11 @@ import {
   insertMeetingSchema,
   insertFundSchema,
   insertMeetingLogSchema,
-  insertNdrConferenceSchema
+  insertNdrConferenceSchema,
+  insertEmailTemplateSchema,
+  insertEmailCampaignSchema
 } from "@shared/schema";
+import { EmailService } from "./email-service";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Configure multer for file upload
@@ -763,6 +766,138 @@ export async function registerRoutes(app: Express): Promise<Server> {
       activeInvestments: activeInvestments,
       meetingsThisWeek: upcomingMeetings.length
     });
+  });
+
+  // Email Templates routes
+  app.get("/api/email-templates", async (req, res) => {
+    const templates = await storage.getEmailTemplates();
+    res.json(templates);
+  });
+
+  app.get("/api/email-templates/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    const template = await storage.getEmailTemplate(id);
+    if (!template) {
+      return res.status(404).json({ message: "Email template not found" });
+    }
+    res.json(template);
+  });
+
+  app.get("/api/email-templates/language/:language", async (req, res) => {
+    const language = req.params.language;
+    const templates = await storage.getEmailTemplatesByLanguage(language);
+    res.json(templates);
+  });
+
+  app.post("/api/email-templates", async (req, res) => {
+    try {
+      const data = insertEmailTemplateSchema.parse(req.body);
+      const template = await storage.createEmailTemplate(data);
+      res.status(201).json(template);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid email template data", error });
+    }
+  });
+
+  app.put("/api/email-templates/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const data = insertEmailTemplateSchema.partial().parse(req.body);
+      const template = await storage.updateEmailTemplate(id, data);
+      if (!template) {
+        return res.status(404).json({ message: "Email template not found" });
+      }
+      res.json(template);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid email template data", error });
+    }
+  });
+
+  app.delete("/api/email-templates/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    const success = await storage.deleteEmailTemplate(id);
+    if (!success) {
+      return res.status(404).json({ message: "Email template not found" });
+    }
+    res.status(204).send();
+  });
+
+  // Email Campaigns routes
+  app.get("/api/email-campaigns", async (req, res) => {
+    const campaigns = await storage.getEmailCampaigns();
+    res.json(campaigns);
+  });
+
+  app.get("/api/email-campaigns/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    const campaign = await storage.getEmailCampaign(id);
+    if (!campaign) {
+      return res.status(404).json({ message: "Email campaign not found" });
+    }
+    res.json(campaign);
+  });
+
+  app.post("/api/email-campaigns", async (req, res) => {
+    try {
+      const data = insertEmailCampaignSchema.parse(req.body);
+      const campaign = await storage.createEmailCampaign(data);
+      res.status(201).json(campaign);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid email campaign data", error });
+    }
+  });
+
+  // Send Earnings Report endpoint
+  app.post("/api/email-campaigns/:id/send", async (req, res) => {
+    try {
+      const campaignId = parseInt(req.params.id);
+      const { targetLanguage, targetRegion } = req.body;
+
+      const campaign = await storage.getEmailCampaign(campaignId);
+      if (!campaign) {
+        return res.status(404).json({ message: "Email campaign not found" });
+      }
+
+      const template = await storage.getEmailTemplate(campaign.templateId);
+      if (!template) {
+        return res.status(404).json({ message: "Email template not found" });
+      }
+
+      // Get investors based on targeting criteria
+      const allInvestors = await storage.getInvestors();
+      const targetInvestors = allInvestors.filter(investor => {
+        if (targetLanguage && investor.language !== targetLanguage) return false;
+        if (targetRegion && investor.country !== targetRegion) return false;
+        return true;
+      });
+
+      if (targetInvestors.length === 0) {
+        return res.status(400).json({ message: "No investors match the targeting criteria" });
+      }
+
+      const result = await EmailService.sendEarningsReport({
+        template,
+        investors: targetInvestors,
+        campaignName: campaign.name,
+      });
+
+      // Update campaign with results
+      await storage.updateEmailCampaign(campaignId, {
+        status: result.success ? 'completed' : 'failed',
+        sentCount: result.sentCount,
+        failedCount: result.failedCount,
+      });
+
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to send campaign", error });
+    }
+  });
+
+  // Get available template variables endpoint
+  app.get("/api/email-templates/variables", async (req, res) => {
+    const variables = EmailService.getAvailableVariables();
+    res.json({ variables });
   });
 
   const httpServer = createServer(app);
