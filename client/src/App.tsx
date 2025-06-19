@@ -11,6 +11,7 @@ import Communications from "@/pages/communications";
 import Documents from "@/pages/documents";
 import Reports from "@/pages/reports";
 import Funds from "@/pages/funds";
+import MeetingLogs from "@/pages/meeting-logs";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -22,6 +23,7 @@ function Router() {
         <Route path="/companies" component={Companies} />
         <Route path="/communications" component={Communications} />
         <Route path="/funds" component={Funds} />
+        <Route path="/meeting-logs" component={MeetingLogs} />
         <Route path="/documents" component={Documents} />
         <Route path="/reports" component={Reports} />
         <Route component={NotFound} />
