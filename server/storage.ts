@@ -1,15 +1,16 @@
 import { 
-  investors, companies, investments, communications, meetings, funds, meetingLogs,
+  investors, companies, investments, communications, meetings, funds, meetingLogs, ndrConferences,
   type Investor, type InsertInvestor,
   type Company, type InsertCompany,
   type Investment, type InsertInvestment,
   type Communication, type InsertCommunication,
   type Meeting, type InsertMeeting,
   type Fund, type InsertFund,
-  type MeetingLog, type InsertMeetingLog
+  type MeetingLog, type InsertMeetingLog,
+  type NdrConference, type InsertNdrConference
 } from "@shared/schema";
 import { db } from "./db";
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 
 export interface IStorage {
   // Investors
@@ -331,6 +332,38 @@ export class DatabaseStorage implements IStorage {
 
   async deleteMeetingLog(id: number): Promise<boolean> {
     const result = await db.delete(meetingLogs).where(eq(meetingLogs.id, id));
+    return result.rowCount! > 0;
+  }
+
+  // NDR/Conference methods
+  async getNdrConferences(): Promise<NdrConference[]> {
+    return await db.select().from(ndrConferences).orderBy(desc(ndrConferences.startDate));
+  }
+
+  async getNdrConference(id: number): Promise<NdrConference | undefined> {
+    const [conference] = await db.select().from(ndrConferences).where(eq(ndrConferences.id, id));
+    return conference || undefined;
+  }
+
+  async createNdrConference(insertConference: InsertNdrConference): Promise<NdrConference> {
+    const [conference] = await db
+      .insert(ndrConferences)
+      .values(insertConference)
+      .returning();
+    return conference;
+  }
+
+  async updateNdrConference(id: number, updateData: Partial<InsertNdrConference>): Promise<NdrConference | undefined> {
+    const [conference] = await db
+      .update(ndrConferences)
+      .set(updateData)
+      .where(eq(ndrConferences.id, id))
+      .returning();
+    return conference || undefined;
+  }
+
+  async deleteNdrConference(id: number): Promise<boolean> {
+    const result = await db.delete(ndrConferences).where(eq(ndrConferences.id, id));
     return result.rowCount! > 0;
   }
 }

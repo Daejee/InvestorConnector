@@ -682,6 +682,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // NDR/Conference routes
+  app.get("/api/ndr-conferences", async (req, res) => {
+    const conferences = await storage.getNdrConferences();
+    res.json(conferences);
+  });
+
+  app.get("/api/ndr-conferences/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    const conference = await storage.getNdrConference(id);
+    if (!conference) {
+      return res.status(404).json({ message: "Conference not found" });
+    }
+    res.json(conference);
+  });
+
+  app.post("/api/ndr-conferences", async (req, res) => {
+    try {
+      const requestData = {
+        ...req.body,
+        startDate: req.body.startDate ? new Date(req.body.startDate) : undefined,
+        endDate: req.body.endDate ? new Date(req.body.endDate) : undefined
+      };
+      const data = insertNdrConferenceSchema.parse(requestData);
+      const conference = await storage.createNdrConference(data);
+      res.status(201).json(conference);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid conference data", error });
+    }
+  });
+
+  app.patch("/api/ndr-conferences/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const requestData = {
+        ...req.body,
+        startDate: req.body.startDate ? new Date(req.body.startDate) : undefined,
+        endDate: req.body.endDate ? new Date(req.body.endDate) : undefined
+      };
+      const data = insertNdrConferenceSchema.partial().parse(requestData);
+      const conference = await storage.updateNdrConference(id, data);
+      if (conference) {
+        res.json(conference);
+      } else {
+        res.status(404).json({ message: "Conference not found" });
+      }
+    } catch (error) {
+      res.status(400).json({ message: "Invalid conference data", error });
+    }
+  });
+
+  app.delete("/api/ndr-conferences/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    const success = await storage.deleteNdrConference(id);
+    if (success) {
+      res.status(204).send();
+    } else {
+      res.status(404).json({ message: "Conference not found" });
+    }
+  });
+
   // Dashboard stats
   app.get("/api/dashboard/stats", async (req, res) => {
     const investors = await storage.getInvestors();
