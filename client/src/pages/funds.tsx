@@ -163,7 +163,7 @@ export default function Funds() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-2xl font-bold text-gray-900">Funds / 펀드</h2>
-            <p className="text-gray-600 mt-1">Manage fund portfolios and investment strategies / 펀드 포트폴리오 및 투자 전략 관리</p>
+
           </div>
           <div className="mt-4 sm:mt-0 flex space-x-3">
             <Button variant="outline" onClick={downloadSampleCSV}>
