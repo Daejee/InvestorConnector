@@ -54,9 +54,12 @@ export default function MeetingLogForm({ meetingLog, onSuccess, onCancel }: Meet
       const response = await fetch("/api/meeting-logs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formattedData),
+        body: JSON.stringify({
+          ...formattedData,
+          date: formattedData.date.toISOString(),
+        }),
       });
-      if (!response.ok) throw new Error("Failed to create meeting log");
+      if (!response.ok) throw new Error("Failed to create meeting");
       return response.json();
     },
     onSuccess: () => {
@@ -74,9 +77,12 @@ export default function MeetingLogForm({ meetingLog, onSuccess, onCancel }: Meet
       const response = await fetch(`/api/meeting-logs/${meetingLog?.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formattedData),
+        body: JSON.stringify({
+          ...formattedData,
+          date: formattedData.date.toISOString(),
+        }),
       });
-      if (!response.ok) throw new Error("Failed to update meeting log");
+      if (!response.ok) throw new Error("Failed to update meeting");
       return response.json();
     },
     onSuccess: () => {

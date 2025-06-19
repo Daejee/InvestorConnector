@@ -91,7 +91,7 @@ export default function Meetings() {
               <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>
-                    {editingMeetingLog ? "Edit Meeting Log" : "Add New Meeting Log"}
+                    {editingMeetingLog ? "Edit Meeting" : "Add New Meeting"}
                   </DialogTitle>
                 </DialogHeader>
                 <MeetingLogForm 

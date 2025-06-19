@@ -639,26 +639,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/meeting-logs", async (req, res) => {
     try {
-      const data = insertMeetingLogSchema.parse(req.body);
+      // Transform date string to Date object before validation
+      const requestData = {
+        ...req.body,
+        date: req.body.date ? new Date(req.body.date) : undefined
+      };
+      const data = insertMeetingLogSchema.parse(requestData);
       const meetingLog = await storage.createMeetingLog(data);
       res.status(201).json(meetingLog);
     } catch (error) {
-      res.status(400).json({ message: "Invalid meeting log data", error });
+      res.status(400).json({ message: "Invalid meeting data", error });
     }
   });
 
   app.patch("/api/meeting-logs/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const data = insertMeetingLogSchema.partial().parse(req.body);
+      // Transform date string to Date object before validation
+      const requestData = {
+        ...req.body,
+        date: req.body.date ? new Date(req.body.date) : undefined
+      };
+      const data = insertMeetingLogSchema.partial().parse(requestData);
       const meetingLog = await storage.updateMeetingLog(id, data);
       if (meetingLog) {
         res.json(meetingLog);
       } else {
-        res.status(404).json({ message: "Meeting log not found" });
+        res.status(404).json({ message: "Meeting not found" });
       }
     } catch (error) {
-      res.status(400).json({ message: "Invalid meeting log data", error });
+      res.status(400).json({ message: "Invalid meeting data", error });
     }
   });
 
