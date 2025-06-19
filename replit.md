@@ -135,6 +135,11 @@ Changelog:
 - June 19, 2025. Implemented email templates and campaigns database with professional email delivery capabilities
 - June 19, 2025. Enhanced Communications page with three-tab interface: Communications Log, Email Templates, Earnings Reports
 - June 19, 2025. Moved NDR/Conferences as visible submenu under Meetings/회의 for better navigation organization
+- June 19, 2025. Created comprehensive Calendly-style scheduling system with interactive calendar interface
+- June 19, 2025. Added weekly calendar view with time slot booking similar to Calendly.com functionality
+- June 19, 2025. Implemented real-time availability checking and meeting conflict prevention
+- June 19, 2025. Built scheduling page with investor pre-selection and meeting statistics dashboard
+- June 19, 2025. Integrated scheduling system into navigation as "Schedule/일정 예약" under Meetings submenu
 ```
 
 ## User Preferences
