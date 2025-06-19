@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -13,7 +14,9 @@ import {
   Calendar,
   CalendarDays,
   X,
-  Wallet
+  Wallet,
+  ChevronDown,
+  ChevronRight
 } from "lucide-react";
 
 interface SidebarProps {
@@ -24,8 +27,14 @@ interface SidebarProps {
 const navigation = [
   { name: "Dashboard / 대시보드", href: "/", icon: BarChart3 },
   { name: "Investors / 투자자", href: "/investors", icon: Users },
-  { name: "Companies / 회사", href: "/companies", icon: Building },
-  { name: "Funds / 펀드", href: "/funds", icon: Wallet },
+  { 
+    name: "Companies / 회사", 
+    href: "/companies", 
+    icon: Building,
+    submenu: [
+      { name: "Funds / 펀드", href: "/funds", icon: Wallet }
+    ]
+  },
   { name: "Meetings / 회의", href: "/meeting-logs", icon: Calendar },
   { name: "NDR/Conferences / 컨퍼런스", href: "/ndr-conferences", icon: CalendarDays },
   { name: "Communications / 소통", href: "/communications", icon: MessageSquare },
@@ -35,6 +44,17 @@ const navigation = [
 
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const [location] = useLocation();
+  const [expandedItems, setExpandedItems] = useState<string[]>([]);
+
+  const toggleExpanded = (itemName: string) => {
+    setExpandedItems(prev => 
+      prev.includes(itemName) 
+        ? prev.filter(name => name !== itemName)
+        : [...prev, itemName]
+    );
+  };
+
+  const isExpanded = (itemName: string) => expandedItems.includes(itemName);
 
   return (
     <>
@@ -62,21 +82,80 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
           <div className="space-y-1">
             {navigation.map((item) => {
               const isActive = location === item.href;
+              const hasSubmenu = item.submenu && item.submenu.length > 0;
+              const expanded = isExpanded(item.name);
+              
               return (
-                <Link key={item.name} href={item.href}>
-                  <a
-                    className={cn(
-                      "group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors",
-                      isActive
-                        ? "bg-primary text-white"
-                        : "text-gray-700 hover:bg-gray-50"
-                    )}
-                    onClick={() => onClose()}
-                  >
-                    <item.icon className="mr-3 h-5 w-5" />
-                    {item.name}
-                  </a>
-                </Link>
+                <div key={item.name}>
+                  {hasSubmenu ? (
+                    <>
+                      <div className="flex items-center">
+                        <Link href={item.href} className="flex-1">
+                          <a
+                            className={cn(
+                              "group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors",
+                              isActive
+                                ? "bg-primary text-white"
+                                : "text-gray-700 hover:bg-gray-50"
+                            )}
+                            onClick={() => onClose()}
+                          >
+                            <item.icon className="mr-3 h-5 w-5" />
+                            {item.name}
+                          </a>
+                        </Link>
+                        <button
+                          className="p-1 text-gray-500 hover:text-gray-700"
+                          onClick={() => toggleExpanded(item.name)}
+                        >
+                          {expanded ? (
+                            <ChevronDown className="h-4 w-4" />
+                          ) : (
+                            <ChevronRight className="h-4 w-4" />
+                          )}
+                        </button>
+                      </div>
+                      {expanded && (
+                        <div className="ml-6 mt-1 space-y-1">
+                          {item.submenu.map((subItem) => {
+                            const subIsActive = location === subItem.href;
+                            return (
+                              <Link key={subItem.name} href={subItem.href}>
+                                <a
+                                  className={cn(
+                                    "group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors",
+                                    subIsActive
+                                      ? "bg-primary text-white"
+                                      : "text-gray-600 hover:bg-gray-50"
+                                  )}
+                                  onClick={() => onClose()}
+                                >
+                                  <subItem.icon className="mr-3 h-4 w-4" />
+                                  {subItem.name}
+                                </a>
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <Link href={item.href}>
+                      <a
+                        className={cn(
+                          "group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors",
+                          isActive
+                            ? "bg-primary text-white"
+                            : "text-gray-700 hover:bg-gray-50"
+                        )}
+                        onClick={() => onClose()}
+                      >
+                        <item.icon className="mr-3 h-5 w-5" />
+                        {item.name}
+                      </a>
+                    </Link>
+                  )}
+                </div>
               );
             })}
           </div>
