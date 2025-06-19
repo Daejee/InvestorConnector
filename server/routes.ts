@@ -11,7 +11,8 @@ import {
   insertCommunicationSchema,
   insertMeetingSchema,
   insertFundSchema,
-  insertMeetingLogSchema
+  insertMeetingLogSchema,
+  insertNdrConferenceSchema
 } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {

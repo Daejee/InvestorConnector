@@ -11,6 +11,7 @@ import {
   BarChart,
   Plus,
   Calendar,
+  CalendarDays,
   X,
   Wallet
 } from "lucide-react";
@@ -26,6 +27,7 @@ const navigation = [
   { name: "Companies", href: "/companies", icon: Building },
   { name: "Funds", href: "/funds", icon: Wallet },
   { name: "Meetings", href: "/meeting-logs", icon: Calendar },
+  { name: "NDR/Conferences", href: "/ndr-conferences", icon: CalendarDays },
   { name: "Communications", href: "/communications", icon: MessageSquare },
   { name: "Documents", href: "/documents", icon: FileText },
   { name: "Reports", href: "/reports", icon: BarChart },
