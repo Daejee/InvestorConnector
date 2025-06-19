@@ -885,7 +885,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await storage.updateEmailCampaign(campaignId, {
         status: result.success ? 'completed' : 'failed',
         sentCount: result.sentCount,
-        failedCount: result.failedCount,
+        sentAt: new Date(),
       });
 
       res.json(result);

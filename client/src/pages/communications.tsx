@@ -48,7 +48,7 @@ export default function Communications() {
       investorId: undefined,
       type: "email" as const,
       subject: "",
-      content: "",
+      description: "",
       status: "completed" as const,
     },
   });
@@ -121,7 +121,7 @@ export default function Communications() {
       queryClient.invalidateQueries({ queryKey: ["/api/email-campaigns"] });
       toast({
         title: "Campaign sent successfully",
-        description: `Sent to ${result.sentCount} investors. ${result.failedCount} failed.`,
+        description: `Sent to ${result.sentCount} investors. ${result.failedCount || 0} failed.`,
       });
     },
   });
@@ -148,7 +148,7 @@ export default function Communications() {
 
   const filteredCommunications = communications.filter(comm => {
     const matchesSearch = comm.subject?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         comm.content?.toLowerCase().includes(searchTerm.toLowerCase());
+                         comm.description?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesType = selectedType === "all" || comm.type === selectedType;
     return matchesSearch && matchesType;
   });
@@ -276,7 +276,7 @@ export default function Communications() {
                     />
                     <FormField
                       control={communicationForm.control}
-                      name="content"
+                      name="description"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Content / 내용</FormLabel>
@@ -361,7 +361,7 @@ export default function Communications() {
                       <CardTitle className="text-lg">{communication.subject}</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-muted-foreground">{communication.content}</p>
+                      <p className="text-muted-foreground">{communication.description}</p>
                     </CardContent>
                   </Card>
                 );
@@ -481,7 +481,7 @@ export default function Communications() {
                       <CardTitle>{template.name}</CardTitle>
                       <div className="flex items-center space-x-2">
                         <Badge variant="outline">{template.language}</Badge>
-                        <Badge variant="outline">{template.type}</Badge>
+                        <Badge variant="outline">{template.templateType}</Badge>
                       </div>
                     </div>
                     <CardDescription>{template.subject}</CardDescription>
@@ -660,10 +660,10 @@ export default function Communications() {
                             {campaign.sentCount} sent / 발송됨
                           </div>
                         )}
-                        {campaign.failedCount && campaign.failedCount > 0 && (
-                          <div className="flex items-center text-red-600">
+                        {campaign.deliveredCount && (
+                          <div className="flex items-center text-green-600">
                             <MessageSquare className="mr-1 h-4 w-4" />
-                            {campaign.failedCount} failed / 실패
+                            {campaign.deliveredCount} delivered / 전달됨
                           </div>
                         )}
                       </div>
