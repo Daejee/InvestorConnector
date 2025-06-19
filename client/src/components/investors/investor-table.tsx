@@ -72,19 +72,19 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
       <table className="w-full min-w-[800px]">
         <thead className="bg-gray-50">
           <tr>
-            <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[22%]">
+            <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[20%]">
               Investor
             </th>
-            <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[25%]">
+            <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[22%]">
               Company & Fund
             </th>
-            <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[15%]">
+            <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[13%]">
               Ownership
             </th>
-            <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[23%]">
+            <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[20%]">
               Note
             </th>
-            <th className="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-[15%]">
+            <th className="px-2 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-[25%]">
               Actions
             </th>
           </tr>
@@ -92,28 +92,28 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
         <tbody className="bg-white divide-y divide-gray-200">
           {investors.map((investor) => (
             <tr key={investor.id} className="hover:bg-gray-50">
-              <td className="px-3 py-4 whitespace-nowrap">
+              <td className="px-2 py-4 whitespace-nowrap">
                 <div className="flex items-center">
-                  <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
-                    <span className="text-gray-600 font-medium text-sm">
+                  <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
+                    <span className="text-gray-600 font-medium text-xs">
                       {investor.avatarInitials || getInitials(investor.name)}
                     </span>
                   </div>
-                  <div className="ml-3">
+                  <div className="ml-2">
                     <div className="text-sm font-medium text-gray-900">{investor.name}</div>
-                    <div className="text-sm text-gray-500">{investor.email}</div>
+                    <div className="text-xs text-gray-500">{investor.email}</div>
                   </div>
                 </div>
               </td>
-              <td className="px-3 py-4 whitespace-nowrap">
+              <td className="px-2 py-4 whitespace-nowrap">
                 <div className="text-sm text-gray-900">{investor.company}</div>
                 {investor.fund && (
                   <div className="text-xs text-purple-600 font-medium">{investor.fund}</div>
                 )}
-                <div className="text-sm text-gray-500">
+                <div className="text-xs text-gray-500">
                   {investor.position}
                   {investor.positionType && (
-                    <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                    <span className="ml-1 text-xs bg-blue-100 text-blue-800 px-1 py-1 rounded">
                       {investor.positionType}
                     </span>
                   )}
@@ -129,30 +129,30 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
                   </div>
                 )}
               </td>
-              <td className="px-3 py-4 whitespace-nowrap">
+              <td className="px-2 py-4 whitespace-nowrap">
                 <div className="text-sm text-gray-900">
                   {investor.ownsOurShare === "Yes" ? (
                     <div>
-                      <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Yes</span>
+                      <span className="text-xs bg-green-100 text-green-800 px-1 py-1 rounded">Yes</span>
                       {investor.shareAmount && (
                         <div className="text-xs text-gray-500 mt-1">{investor.shareAmount}</div>
                       )}
                     </div>
                   ) : investor.ownsOurShare === "No" ? (
-                    <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">No</span>
+                    <span className="text-xs bg-gray-100 text-gray-600 px-1 py-1 rounded">No</span>
                   ) : investor.ownsOurShare === "N/A" ? (
-                    <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">N/A</span>
+                    <span className="text-xs bg-yellow-100 text-yellow-800 px-1 py-1 rounded">N/A</span>
                   ) : (
                     <span className="text-gray-400 italic text-xs">Not specified</span>
                   )}
                 </div>
               </td>
-              <td className="px-3 py-4 whitespace-nowrap">
+              <td className="px-2 py-4 whitespace-nowrap">
                 <div className="text-sm text-gray-900 max-w-xs truncate">
                   {investor.note || <span className="text-gray-400 italic">No notes</span>}
                 </div>
               </td>
-              <td className="px-3 py-4 whitespace-nowrap text-sm font-medium">
+              <td className="px-2 py-4 whitespace-nowrap text-sm font-medium">
                 <div className="flex space-x-1 justify-end">
                   <Button 
                     variant="ghost" 
