@@ -14,8 +14,8 @@ export default function Layout({ children }: LayoutProps) {
       <Header onMenuToggle={() => setSidebarOpen(!sidebarOpen)} />
       <div className="flex">
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-        <main className="flex-1 overflow-x-hidden lg:ml-56">
-          <div className="py-6 pr-6 pl-4">
+        <main className="flex-1 overflow-x-hidden lg:ml-48">
+          <div className="py-6 pr-6 pl-1">
             {children}
           </div>
         </main>
