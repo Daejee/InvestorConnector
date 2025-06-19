@@ -24,7 +24,7 @@ export default function Investors() {
   ) || [];
 
   return (
-    <div>
+    <div className="-ml-6">
       <div className="mb-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -53,8 +53,8 @@ export default function Investors() {
         </div>
       </div>
 
-      <Card>
-        <CardHeader>
+      <Card className="-ml-4">
+        <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle>All Investors</CardTitle>
             <div className="relative">
@@ -68,7 +68,7 @@ export default function Investors() {
             </div>
           </div>
         </CardHeader>
-        <CardContent className="p-0">
+        <CardContent className="p-0 -ml-2">
           <InvestorTable 
             investors={filteredInvestors} 
             isLoading={isLoading} 
