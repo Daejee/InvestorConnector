@@ -55,6 +55,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.patch("/api/investors/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const data = insertInvestorSchema.partial().parse(req.body);
+      const investor = await storage.updateInvestor(id, data);
+      if (!investor) {
+        return res.status(404).json({ message: "Investor not found" });
+      }
+      res.json(investor);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid investor data", error });
+    }
+  });
+
   app.delete("/api/investors/:id", async (req, res) => {
     const id = parseInt(req.params.id);
     const deleted = await storage.deleteInvestor(id);
