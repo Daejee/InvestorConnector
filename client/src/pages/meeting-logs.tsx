@@ -17,19 +17,21 @@ export default function MeetingLogs() {
   const [editingMeetingLog, setEditingMeetingLog] = useState<MeetingLog | null>(null);
   const queryClient = useQueryClient();
 
-  const { data: meetingLogs = [], isLoading } = useQuery({
+  const { data: meetingLogs = [], isLoading } = useQuery<MeetingLog[]>({
     queryKey: ["/api/meeting-logs"],
   });
 
-  const { data: investors = [] } = useQuery({
+  const { data: investors = [] } = useQuery<Investor[]>({
     queryKey: ["/api/investors"],
   });
 
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      await apiRequest(`/api/meeting-logs/${id}`, {
+      const response = await fetch(`/api/meeting-logs/${id}`, {
         method: "DELETE",
       });
+      if (!response.ok) throw new Error("Failed to delete meeting log");
+      return response;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/meeting-logs"] });

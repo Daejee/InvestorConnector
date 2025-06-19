@@ -32,7 +32,7 @@ type FormData = z.infer<typeof formSchema>;
 export default function MeetingLogForm({ meetingLog, onSuccess, onCancel }: MeetingLogFormProps) {
   const queryClient = useQueryClient();
 
-  const { data: investors = [] } = useQuery({
+  const { data: investors = [] } = useQuery<Investor[]>({
     queryKey: ["/api/investors"],
   });
 
@@ -46,15 +46,18 @@ export default function MeetingLogForm({ meetingLog, onSuccess, onCancel }: Meet
   });
 
   const createMutation = useMutation({
-    mutationFn: async (data: InsertMeetingLog) => {
-      const formattedData = {
+    mutationFn: async (data: FormData) => {
+      const formattedData: InsertMeetingLog = {
         ...data,
-        date: new Date(data.date).toISOString(),
+        date: new Date(data.date),
       };
-      return await apiRequest("/api/meeting-logs", {
+      const response = await fetch("/api/meeting-logs", {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formattedData),
       });
+      if (!response.ok) throw new Error("Failed to create meeting log");
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/meeting-logs"] });
@@ -63,15 +66,18 @@ export default function MeetingLogForm({ meetingLog, onSuccess, onCancel }: Meet
   });
 
   const updateMutation = useMutation({
-    mutationFn: async (data: InsertMeetingLog) => {
-      const formattedData = {
+    mutationFn: async (data: FormData) => {
+      const formattedData: InsertMeetingLog = {
         ...data,
-        date: new Date(data.date).toISOString(),
+        date: new Date(data.date),
       };
-      return await apiRequest(`/api/meeting-logs/${meetingLog?.id}`, {
+      const response = await fetch(`/api/meeting-logs/${meetingLog?.id}`, {
         method: "PATCH",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formattedData),
       });
+      if (!response.ok) throw new Error("Failed to update meeting log");
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/meeting-logs"] });
@@ -79,7 +85,7 @@ export default function MeetingLogForm({ meetingLog, onSuccess, onCancel }: Meet
     },
   });
 
-  const onSubmit = (data: InsertMeetingLog) => {
+  const onSubmit = (data: FormData) => {
     if (meetingLog) {
       updateMutation.mutate(data);
     } else {
