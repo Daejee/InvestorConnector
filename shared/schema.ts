@@ -18,6 +18,9 @@ export const investors = pgTable("investors", {
   shareAmount: text("share_amount"), // amount owned if ownsOurShare is Yes
   note: text("note"), // free text field for any notes
   avatarInitials: text("avatar_initials"),
+  country: text("country").default("Korea"), // Korea, US, UK, Japan, Singapore, Other
+  language: text("language").default("Korean"), // Korean, English, Japanese
+  timezone: text("timezone").default("Asia/Seoul"),
 });
 
 export const companies = pgTable("companies", {
@@ -90,6 +93,32 @@ export const ndrConferences = pgTable("ndr_conferences", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const emailTemplates = pgTable("email_templates", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  language: text("language").notNull(), // Korean, English, Japanese
+  subject: text("subject").notNull(),
+  content: text("content").notNull(),
+  variables: text("variables").array(), // {{investorName}}, {{companyName}}, etc.
+  templateType: text("template_type").notNull(), // earnings_report, announcement, newsletter
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const emailCampaigns = pgTable("email_campaigns", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  templateId: integer("template_id").notNull(),
+  targetRegion: text("target_region"), // Korea, International, All
+  targetLanguage: text("target_language"), // Korean, English, All
+  sentCount: integer("sent_count").default(0),
+  deliveredCount: integer("delivered_count").default(0),
+  status: text("status").default("draft"), // draft, sending, completed, failed
+  scheduledAt: timestamp("scheduled_at"),
+  sentAt: timestamp("sent_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const insertInvestorSchema = createInsertSchema(investors).omit({
   id: true,
 });
@@ -125,6 +154,16 @@ export const insertNdrConferenceSchema = createInsertSchema(ndrConferences).omit
   createdAt: true,
 });
 
+export const insertEmailTemplateSchema = createInsertSchema(emailTemplates).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertEmailCampaignSchema = createInsertSchema(emailCampaigns).omit({
+  id: true,
+  createdAt: true,
+});
+
 export type InsertInvestor = z.infer<typeof insertInvestorSchema>;
 export type Investor = typeof investors.$inferSelect;
 
@@ -148,3 +187,9 @@ export type MeetingLog = typeof meetingLogs.$inferSelect;
 
 export type InsertNdrConference = z.infer<typeof insertNdrConferenceSchema>;
 export type NdrConference = typeof ndrConferences.$inferSelect;
+
+export type InsertEmailTemplate = z.infer<typeof insertEmailTemplateSchema>;
+export type EmailTemplate = typeof emailTemplates.$inferSelect;
+
+export type InsertEmailCampaign = z.infer<typeof insertEmailCampaignSchema>;
+export type EmailCampaign = typeof emailCampaigns.$inferSelect;
