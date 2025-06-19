@@ -72,19 +72,19 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
       <table className="w-full min-w-[800px]">
         <thead className="bg-gray-50">
           <tr>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
+            <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[22%]">
               Investor
             </th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
+            <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[25%]">
               Company & Fund
             </th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
+            <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[15%]">
               Ownership
             </th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
+            <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[23%]">
               Note
             </th>
-            <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-24">
+            <th className="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-[15%]">
               Actions
             </th>
           </tr>
@@ -92,20 +92,20 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
         <tbody className="bg-white divide-y divide-gray-200">
           {investors.map((investor) => (
             <tr key={investor.id} className="hover:bg-gray-50">
-              <td className="px-4 py-4 whitespace-nowrap">
+              <td className="px-3 py-4 whitespace-nowrap">
                 <div className="flex items-center">
                   <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
                     <span className="text-gray-600 font-medium text-sm">
                       {investor.avatarInitials || getInitials(investor.name)}
                     </span>
                   </div>
-                  <div className="ml-4">
+                  <div className="ml-3">
                     <div className="text-sm font-medium text-gray-900">{investor.name}</div>
                     <div className="text-sm text-gray-500">{investor.email}</div>
                   </div>
                 </div>
               </td>
-              <td className="px-4 py-4 whitespace-nowrap">
+              <td className="px-3 py-4 whitespace-nowrap">
                 <div className="text-sm text-gray-900">{investor.company}</div>
                 {investor.fund && (
                   <div className="text-xs text-purple-600 font-medium">{investor.fund}</div>
@@ -129,7 +129,7 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
                   </div>
                 )}
               </td>
-              <td className="px-4 py-4 whitespace-nowrap">
+              <td className="px-3 py-4 whitespace-nowrap">
                 <div className="text-sm text-gray-900">
                   {investor.ownsOurShare === "Yes" ? (
                     <div>
@@ -147,12 +147,12 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
                   )}
                 </div>
               </td>
-              <td className="px-4 py-4 whitespace-nowrap">
+              <td className="px-3 py-4 whitespace-nowrap">
                 <div className="text-sm text-gray-900 max-w-xs truncate">
                   {investor.note || <span className="text-gray-400 italic">No notes</span>}
                 </div>
               </td>
-              <td className="px-4 py-4 whitespace-nowrap text-sm font-medium">
+              <td className="px-3 py-4 whitespace-nowrap text-sm font-medium">
                 <div className="flex space-x-1 justify-end">
                   <Button 
                     variant="ghost" 
