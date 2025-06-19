@@ -8,13 +8,13 @@ export default function Reports() {
       <div className="mb-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Reports</h2>
-            <p className="text-gray-600 mt-1">Analytics and reporting dashboard</p>
+            <h2 className="text-2xl font-bold text-gray-900">Reports / 보고서</h2>
+            <p className="text-gray-600 mt-1">Analytics and reporting dashboard / 분석 및 보고서 대시보드</p>
           </div>
           <div className="mt-4 sm:mt-0">
             <Button>
               <Download className="mr-2 h-4 w-4" />
-              Export Report
+              Export Report / 보고서 내보내기
             </Button>
           </div>
         </div>

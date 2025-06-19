@@ -8,13 +8,13 @@ export default function Documents() {
       <div className="mb-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Documents</h2>
-            <p className="text-gray-600 mt-1">Manage investor documents and attachments</p>
+            <h2 className="text-2xl font-bold text-gray-900">Documents / 문서</h2>
+            <p className="text-gray-600 mt-1">Manage investor documents and attachments / 투자자 문서 및 첨부파일 관리</p>
           </div>
           <div className="mt-4 sm:mt-0">
             <Button>
               <Upload className="mr-2 h-4 w-4" />
-              Upload Document
+              Upload Document / 문서 업로드
             </Button>
           </div>
         </div>
@@ -22,7 +22,7 @@ export default function Documents() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Document Library</CardTitle>
+          <CardTitle>Document Library / 문서 라이브러리</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="text-center py-12">

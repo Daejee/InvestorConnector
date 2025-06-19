@@ -124,6 +124,10 @@ Changelog:
 - June 19, 2025. Added NDR/Conference API routes with full CRUD operations and proper date handling
 - June 19, 2025. Built NDR/Conference frontend with form validation, company management, and status tracking
 - June 19, 2025. Added NDR/Conferences to navigation menu with dedicated page and form components
+- June 19, 2025. Implemented comprehensive bilingual Korean/English interface throughout entire application
+- June 19, 2025. Updated all page headers, navigation items, buttons, search fields, and dialog titles with Korean/English text
+- June 19, 2025. Applied bilingual support to Dashboard, Investors, Companies, Funds, Meetings, NDR/Conferences, Communications, Reports, and Documents pages
+- June 19, 2025. Enhanced header component with bilingual branding and search functionality
 ```
 
 ## User Preferences
