@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, decimal, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, decimal, timestamp, date } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -70,6 +70,14 @@ export const funds = pgTable("funds", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const meetingLogs = pgTable("meeting_logs", {
+  id: serial("id").primaryKey(),
+  date: timestamp("date").notNull(),
+  investorId: integer("investor_id").references(() => investors.id).notNull(),
+  place: text("place").notNull(), // NDR/Conference, InOffice, Other
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const insertInvestorSchema = createInsertSchema(investors).omit({
   id: true,
 });
@@ -95,6 +103,11 @@ export const insertFundSchema = createInsertSchema(funds).omit({
   createdAt: true,
 });
 
+export const insertMeetingLogSchema = createInsertSchema(meetingLogs).omit({
+  id: true,
+  createdAt: true,
+});
+
 export type InsertInvestor = z.infer<typeof insertInvestorSchema>;
 export type Investor = typeof investors.$inferSelect;
 
@@ -112,3 +125,6 @@ export type Meeting = typeof meetings.$inferSelect;
 
 export type InsertFund = z.infer<typeof insertFundSchema>;
 export type Fund = typeof funds.$inferSelect;
+
+export type InsertMeetingLog = z.infer<typeof insertMeetingLogSchema>;
+export type MeetingLog = typeof meetingLogs.$inferSelect;

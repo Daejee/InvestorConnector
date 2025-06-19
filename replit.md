@@ -115,6 +115,7 @@ Changelog:
 - June 18, 2025. Enhanced investor table to display fund information and N/A ownership status
 - June 18, 2025. Implemented complete edit functionality for investors with PATCH API route
 - June 18, 2025. Fixed table layout to ensure action buttons are fully visible with proper column spacing
+- June 19, 2025. Optimized main layout spacing by reducing left margin from ml-64 to ml-28 for tighter content alignment
 ```
 
 ## User Preferences
