@@ -1,11 +1,12 @@
 import { 
-  investors, companies, investments, communications, meetings, funds,
+  investors, companies, investments, communications, meetings, funds, meetingLogs,
   type Investor, type InsertInvestor,
   type Company, type InsertCompany,
   type Investment, type InsertInvestment,
   type Communication, type InsertCommunication,
   type Meeting, type InsertMeeting,
-  type Fund, type InsertFund
+  type Fund, type InsertFund,
+  type MeetingLog, type InsertMeetingLog
 } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
@@ -58,6 +59,14 @@ export interface IStorage {
   createFund(fund: InsertFund): Promise<Fund>;
   updateFund(id: number, fund: Partial<InsertFund>): Promise<Fund | undefined>;
   deleteFund(id: number): Promise<boolean>;
+
+  // Meeting Logs
+  getMeetingLogs(): Promise<MeetingLog[]>;
+  getMeetingLog(id: number): Promise<MeetingLog | undefined>;
+  getMeetingLogsByInvestor(investorId: number): Promise<MeetingLog[]>;
+  createMeetingLog(meetingLog: InsertMeetingLog): Promise<MeetingLog>;
+  updateMeetingLog(id: number, meetingLog: Partial<InsertMeetingLog>): Promise<MeetingLog | undefined>;
+  deleteMeetingLog(id: number): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -279,6 +288,42 @@ export class DatabaseStorage implements IStorage {
 
   async deleteFund(id: number): Promise<boolean> {
     const result = await db.delete(funds).where(eq(funds.id, id));
+    return result.rowCount! > 0;
+  }
+
+  // Meeting Logs
+  async getMeetingLogs(): Promise<MeetingLog[]> {
+    return await db.select().from(meetingLogs);
+  }
+
+  async getMeetingLog(id: number): Promise<MeetingLog | undefined> {
+    const [meetingLog] = await db.select().from(meetingLogs).where(eq(meetingLogs.id, id));
+    return meetingLog || undefined;
+  }
+
+  async getMeetingLogsByInvestor(investorId: number): Promise<MeetingLog[]> {
+    return await db.select().from(meetingLogs).where(eq(meetingLogs.investorId, investorId));
+  }
+
+  async createMeetingLog(insertMeetingLog: InsertMeetingLog): Promise<MeetingLog> {
+    const [meetingLog] = await db
+      .insert(meetingLogs)
+      .values(insertMeetingLog)
+      .returning();
+    return meetingLog;
+  }
+
+  async updateMeetingLog(id: number, updateData: Partial<InsertMeetingLog>): Promise<MeetingLog | undefined> {
+    const [meetingLog] = await db
+      .update(meetingLogs)
+      .set(updateData)
+      .where(eq(meetingLogs.id, id))
+      .returning();
+    return meetingLog || undefined;
+  }
+
+  async deleteMeetingLog(id: number): Promise<boolean> {
+    const result = await db.delete(meetingLogs).where(eq(meetingLogs.id, id));
     return result.rowCount! > 0;
   }
 }

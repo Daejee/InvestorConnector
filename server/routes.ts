@@ -10,7 +10,8 @@ import {
   insertInvestmentSchema, 
   insertCommunicationSchema,
   insertMeetingSchema,
-  insertFundSchema
+  insertFundSchema,
+  insertMeetingLogSchema
 } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -611,6 +612,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
         message: "Failed to process CSV file", 
         error: error instanceof Error ? error.message : 'Unknown error' 
       });
+    }
+  });
+
+  // Meeting Logs routes
+  app.get("/api/meeting-logs", async (req, res) => {
+    const meetingLogs = await storage.getMeetingLogs();
+    res.json(meetingLogs);
+  });
+
+  app.get("/api/meeting-logs/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    const meetingLog = await storage.getMeetingLog(id);
+    if (meetingLog) {
+      res.json(meetingLog);
+    } else {
+      res.status(404).json({ message: "Meeting log not found" });
+    }
+  });
+
+  app.get("/api/meeting-logs/investor/:investorId", async (req, res) => {
+    const investorId = parseInt(req.params.investorId);
+    const meetingLogs = await storage.getMeetingLogsByInvestor(investorId);
+    res.json(meetingLogs);
+  });
+
+  app.post("/api/meeting-logs", async (req, res) => {
+    try {
+      const data = insertMeetingLogSchema.parse(req.body);
+      const meetingLog = await storage.createMeetingLog(data);
+      res.status(201).json(meetingLog);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid meeting log data", error });
+    }
+  });
+
+  app.patch("/api/meeting-logs/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const data = insertMeetingLogSchema.partial().parse(req.body);
+      const meetingLog = await storage.updateMeetingLog(id, data);
+      if (meetingLog) {
+        res.json(meetingLog);
+      } else {
+        res.status(404).json({ message: "Meeting log not found" });
+      }
+    } catch (error) {
+      res.status(400).json({ message: "Invalid meeting log data", error });
+    }
+  });
+
+  app.delete("/api/meeting-logs/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    const success = await storage.deleteMeetingLog(id);
+    if (success) {
+      res.status(204).send();
+    } else {
+      res.status(404).json({ message: "Meeting log not found" });
     }
   });
 
