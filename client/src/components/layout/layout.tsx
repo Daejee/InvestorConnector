@@ -15,7 +15,7 @@ export default function Layout({ children }: LayoutProps) {
       <div className="flex">
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
         <main className="flex-1 overflow-x-hidden lg:ml-64">
-          <div className="py-6 pr-6 pl-1">
+          <div className="py-6 pr-6 -ml-4">
             {children}
           </div>
         </main>
