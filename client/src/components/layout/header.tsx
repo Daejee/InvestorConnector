@@ -31,7 +31,7 @@ export default function Header({ onMenuToggle }: HeaderProps) {
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900">IR CRM</h1>
-                <p className="text-xs text-gray-500">Investor Relations</p>
+                <p className="text-xs text-gray-500">Investor Relations / 투자자 관계</p>
               </div>
             </div>
           </div>
@@ -41,7 +41,7 @@ export default function Header({ onMenuToggle }: HeaderProps) {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
                 type="text"
-                placeholder="Search investors, companies..."
+                placeholder="Search investors, companies... / 투자자, 회사 검색..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10 w-80"

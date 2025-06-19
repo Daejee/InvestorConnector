@@ -72,15 +72,15 @@ export default function NdrConferences() {
       <div className="mb-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">NDR/Conferences</h2>
-            <p className="text-gray-600 mt-1">Manage non-deal roadshows and conference events</p>
+            <h2 className="text-2xl font-bold text-gray-900">NDR/Conferences / NDR/컨퍼런스</h2>
+            <p className="text-gray-600 mt-1">Manage non-deal roadshows and conference events / 비거래 로드쇼 및 컨퍼런스 이벤트 관리</p>
           </div>
           <div className="mt-4 sm:mt-0">
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
                 <Button onClick={() => setEditingConference(null)}>
                   <Plus className="mr-2 h-4 w-4" />
-                  Add Conference
+                  Add Conference / 컨퍼런스 추가
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">

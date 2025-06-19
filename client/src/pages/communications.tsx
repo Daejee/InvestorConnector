@@ -72,20 +72,20 @@ export default function Communications() {
       <div className="mb-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Communications</h2>
-            <p className="text-gray-600 mt-1">Track all interactions with investors</p>
+            <h2 className="text-2xl font-bold text-gray-900">Communications / 커뮤니케이션</h2>
+            <p className="text-gray-600 mt-1">Track all interactions with investors / 투자자와의 모든 상호작용 추적</p>
           </div>
           <div className="mt-4 sm:mt-0">
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
                 <Button>
                   <Plus className="mr-2 h-4 w-4" />
-                  Add Communication
+                  Add Communication / 커뮤니케이션 추가
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-md">
                 <DialogHeader>
-                  <DialogTitle>Add New Communication</DialogTitle>
+                  <DialogTitle>Add New Communication / 새 커뮤니케이션 추가</DialogTitle>
                 </DialogHeader>
                 <CommunicationForm 
                   onSuccess={() => setIsDialogOpen(false)}
@@ -100,11 +100,11 @@ export default function Communications() {
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>All Communications</CardTitle>
+            <CardTitle>All Communications / 전체 커뮤니케이션</CardTitle>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
-                placeholder="Search communications..."
+                placeholder="Search communications... / 커뮤니케이션 검색..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10 w-64"
