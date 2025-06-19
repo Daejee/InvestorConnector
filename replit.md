@@ -116,6 +116,10 @@ Changelog:
 - June 18, 2025. Implemented complete edit functionality for investors with PATCH API route
 - June 18, 2025. Fixed table layout to ensure action buttons are fully visible with proper column spacing
 - June 19, 2025. Optimized main layout spacing by reducing left margin from ml-64 to ml-28 for tighter content alignment
+- June 19, 2025. Created complete Meetings system with date, investor selection, and place tracking (NDR/Conference, In Office, Other)
+- June 19, 2025. Fixed backend API validation for proper date handling in meeting creation and updates
+- June 19, 2025. Updated terminology from "Meeting Logs" to "Meetings" throughout navigation and UI components
+- June 19, 2025. Implemented full CRUD operations for meetings with proper TypeScript types and form validation
 ```
 
 ## User Preferences
