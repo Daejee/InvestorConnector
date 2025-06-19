@@ -129,4 +129,5 @@ Changelog:
 ## User Preferences
 ```
 Preferred communication style: Simple, everyday language.
+UI Language: Korean/English bilingual display - show both Korean and English text throughout the interface.
 ```

@@ -28,20 +28,20 @@ export default function Investors() {
       <div className="mb-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Investors</h2>
-            <p className="text-gray-600 mt-1">Manage your investor contacts and relationships</p>
+            <h2 className="text-2xl font-bold text-gray-900">Investors / 투자자</h2>
+            <p className="text-gray-600 mt-1">Manage your investor contacts and relationships / 투자자 연락처 및 관계 관리</p>
           </div>
           <div className="mt-4 sm:mt-0">
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
                 <Button>
                   <Plus className="mr-2 h-4 w-4" />
-                  Add Investor
+                  Add Investor / 투자자 추가
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                  <DialogTitle>Add New Investor</DialogTitle>
+                  <DialogTitle>Add New Investor / 새 투자자 추가</DialogTitle>
                 </DialogHeader>
                 <InvestorFormSimplified 
                   onSuccess={() => setIsDialogOpen(false)}
@@ -56,11 +56,11 @@ export default function Investors() {
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>All Investors</CardTitle>
+            <CardTitle>All Investors / 전체 투자자</CardTitle>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
-                placeholder="Search investors..."
+                placeholder="Search investors... / 투자자 검색..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10 w-64"

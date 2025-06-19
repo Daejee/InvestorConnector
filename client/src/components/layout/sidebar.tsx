@@ -22,15 +22,15 @@ interface SidebarProps {
 }
 
 const navigation = [
-  { name: "Dashboard", href: "/", icon: BarChart3 },
-  { name: "Investors", href: "/investors", icon: Users },
-  { name: "Companies", href: "/companies", icon: Building },
-  { name: "Funds", href: "/funds", icon: Wallet },
-  { name: "Meetings", href: "/meeting-logs", icon: Calendar },
-  { name: "NDR/Conferences", href: "/ndr-conferences", icon: CalendarDays },
-  { name: "Communications", href: "/communications", icon: MessageSquare },
-  { name: "Documents", href: "/documents", icon: FileText },
-  { name: "Reports", href: "/reports", icon: BarChart },
+  { name: "Dashboard / 대시보드", href: "/", icon: BarChart3 },
+  { name: "Investors / 투자자", href: "/investors", icon: Users },
+  { name: "Companies / 회사", href: "/companies", icon: Building },
+  { name: "Funds / 펀드", href: "/funds", icon: Wallet },
+  { name: "Meetings / 회의", href: "/meeting-logs", icon: Calendar },
+  { name: "NDR/Conferences / 컨퍼런스", href: "/ndr-conferences", icon: CalendarDays },
+  { name: "Communications / 소통", href: "/communications", icon: MessageSquare },
+  { name: "Documents / 문서", href: "/documents", icon: FileText },
+  { name: "Reports / 보고서", href: "/reports", icon: BarChart },
 ];
 
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
@@ -83,19 +83,19 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
           
           <div className="mt-8">
             <h3 className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-              Quick Actions
+              Quick Actions / 빠른 작업
             </h3>
             <div className="mt-2 space-y-1">
               <Link href="/investors">
                 <a className="w-full text-left text-gray-700 hover:bg-gray-50 group flex items-center px-3 py-2 text-sm font-medium rounded-lg">
                   <Plus className="mr-3 h-4 w-4" />
-                  Add Investor
+                  Add Investor / 투자자 추가
                 </a>
               </Link>
               <Link href="/communications">
                 <a className="w-full text-left text-gray-700 hover:bg-gray-50 group flex items-center px-3 py-2 text-sm font-medium rounded-lg">
                   <Calendar className="mr-3 h-4 w-4" />
-                  Schedule Meeting
+                  Schedule Meeting / 회의 일정
                 </a>
               </Link>
             </div>
