@@ -168,19 +168,19 @@ export default function Funds() {
           <div className="mt-4 sm:mt-0 flex space-x-3">
             <Button variant="outline" onClick={downloadSampleCSV}>
               <Download className="mr-2 h-4 w-4" />
-              Sample CSV
+              Sample CSV / 샘플 CSV
             </Button>
             
             <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
               <DialogTrigger asChild>
                 <Button variant="outline">
                   <Upload className="mr-2 h-4 w-4" />
-                  Upload CSV
+                  Upload CSV / CSV 업로드
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-2xl">
                 <DialogHeader>
-                  <DialogTitle>Upload Funds from CSV</DialogTitle>
+                  <DialogTitle>Upload Funds from CSV / CSV로 펀드 업로드</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-6">
                   <div>
