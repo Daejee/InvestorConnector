@@ -69,22 +69,22 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full">
+      <table className="w-full min-w-[800px]">
         <thead className="bg-gray-50">
           <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
               Investor
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
               Company & Fund
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
               Ownership
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
               Note
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-24">
               Actions
             </th>
           </tr>
@@ -92,7 +92,7 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
         <tbody className="bg-white divide-y divide-gray-200">
           {investors.map((investor) => (
             <tr key={investor.id} className="hover:bg-gray-50">
-              <td className="px-6 py-4 whitespace-nowrap">
+              <td className="px-4 py-4 whitespace-nowrap">
                 <div className="flex items-center">
                   <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
                     <span className="text-gray-600 font-medium text-sm">
@@ -105,7 +105,7 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
                   </div>
                 </div>
               </td>
-              <td className="px-6 py-4 whitespace-nowrap">
+              <td className="px-4 py-4 whitespace-nowrap">
                 <div className="text-sm text-gray-900">{investor.company}</div>
                 {investor.fund && (
                   <div className="text-xs text-purple-600 font-medium">{investor.fund}</div>
@@ -129,7 +129,7 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
                   </div>
                 )}
               </td>
-              <td className="px-6 py-4 whitespace-nowrap">
+              <td className="px-4 py-4 whitespace-nowrap">
                 <div className="text-sm text-gray-900">
                   {investor.ownsOurShare === "Yes" ? (
                     <div>
@@ -147,13 +147,13 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
                   )}
                 </div>
               </td>
-              <td className="px-6 py-4 whitespace-nowrap">
+              <td className="px-4 py-4 whitespace-nowrap">
                 <div className="text-sm text-gray-900 max-w-xs truncate">
                   {investor.note || <span className="text-gray-400 italic">No notes</span>}
                 </div>
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                <div className="flex space-x-2">
+              <td className="px-4 py-4 whitespace-nowrap text-sm font-medium">
+                <div className="flex space-x-1 justify-end">
                   <Button 
                     variant="ghost" 
                     size="sm"

@@ -113,6 +113,8 @@ Changelog:
 - June 18, 2025. Added "N/A" option to "Own Our Share" field alongside Yes/No options
 - June 18, 2025. Fixed non-responsive action buttons in investor table (view, edit, delete)
 - June 18, 2025. Enhanced investor table to display fund information and N/A ownership status
+- June 18, 2025. Implemented complete edit functionality for investors with PATCH API route
+- June 18, 2025. Fixed table layout to ensure action buttons are fully visible with proper column spacing
 ```
 
 ## User Preferences
