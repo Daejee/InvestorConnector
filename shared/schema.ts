@@ -78,6 +78,18 @@ export const meetingLogs = pgTable("meeting_logs", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const ndrConferences = pgTable("ndr_conferences", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  startDate: timestamp("start_date").notNull(),
+  endDate: timestamp("end_date").notNull(),
+  place: text("place").notNull(),
+  cityHeld: text("city_held").notNull(),
+  hostCompany: text("host_company").notNull(),
+  participatingCompanies: text("participating_companies").array().notNull().default([]),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const insertInvestorSchema = createInsertSchema(investors).omit({
   id: true,
 });
@@ -108,6 +120,11 @@ export const insertMeetingLogSchema = createInsertSchema(meetingLogs).omit({
   createdAt: true,
 });
 
+export const insertNdrConferenceSchema = createInsertSchema(ndrConferences).omit({
+  id: true,
+  createdAt: true,
+});
+
 export type InsertInvestor = z.infer<typeof insertInvestorSchema>;
 export type Investor = typeof investors.$inferSelect;
 
@@ -128,3 +145,6 @@ export type Fund = typeof funds.$inferSelect;
 
 export type InsertMeetingLog = z.infer<typeof insertMeetingLogSchema>;
 export type MeetingLog = typeof meetingLogs.$inferSelect;
+
+export type InsertNdrConference = z.infer<typeof insertNdrConferenceSchema>;
+export type NdrConference = typeof ndrConferences.$inferSelect;

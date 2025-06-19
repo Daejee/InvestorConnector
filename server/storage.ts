@@ -67,6 +67,13 @@ export interface IStorage {
   createMeetingLog(meetingLog: InsertMeetingLog): Promise<MeetingLog>;
   updateMeetingLog(id: number, meetingLog: Partial<InsertMeetingLog>): Promise<MeetingLog | undefined>;
   deleteMeetingLog(id: number): Promise<boolean>;
+
+  // NDR/Conferences
+  getNdrConferences(): Promise<NdrConference[]>;
+  getNdrConference(id: number): Promise<NdrConference | undefined>;
+  createNdrConference(ndrConference: InsertNdrConference): Promise<NdrConference>;
+  updateNdrConference(id: number, ndrConference: Partial<InsertNdrConference>): Promise<NdrConference | undefined>;
+  deleteNdrConference(id: number): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
