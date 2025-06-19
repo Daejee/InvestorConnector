@@ -13,6 +13,7 @@ import Reports from "@/pages/reports";
 import Funds from "@/pages/funds";
 import MeetingLogs from "@/pages/meeting-logs";
 import NdrConferences from "@/pages/ndr-conferences";
+import Scheduling from "@/pages/scheduling";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -26,6 +27,7 @@ function Router() {
         <Route path="/funds" component={Funds} />
         <Route path="/meeting-logs" component={MeetingLogs} />
         <Route path="/ndr-conferences" component={NdrConferences} />
+        <Route path="/scheduling" component={Scheduling} />
         <Route path="/documents" component={Documents} />
         <Route path="/reports" component={Reports} />
         <Route component={NotFound} />
