@@ -11,7 +11,7 @@ import { apiRequest } from "@/lib/queryClient";
 import type { MeetingLog, InsertMeetingLog, Investor } from "@shared/schema";
 import MeetingLogForm from "@/components/meeting-logs/meeting-log-form";
 
-export default function MeetingLogs() {
+export default function Meetings() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingMeetingLog, setEditingMeetingLog] = useState<MeetingLog | null>(null);
@@ -77,7 +77,7 @@ export default function MeetingLogs() {
       <div className="mb-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Meeting Logs</h2>
+            <h2 className="text-2xl font-bold text-gray-900">Meetings</h2>
             <p className="text-gray-600 mt-1">Track and manage meeting records with investors</p>
           </div>
           <div className="mt-4 sm:mt-0">
@@ -85,7 +85,7 @@ export default function MeetingLogs() {
               <DialogTrigger asChild>
                 <Button onClick={() => setEditingMeetingLog(null)}>
                   <Plus className="mr-2 h-4 w-4" />
-                  Add Meeting Log
+                  Add Meeting
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">

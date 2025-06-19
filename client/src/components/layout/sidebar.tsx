@@ -25,7 +25,7 @@ const navigation = [
   { name: "Investors", href: "/investors", icon: Users },
   { name: "Companies", href: "/companies", icon: Building },
   { name: "Funds", href: "/funds", icon: Wallet },
-  { name: "Meeting Logs", href: "/meeting-logs", icon: Calendar },
+  { name: "Meetings", href: "/meeting-logs", icon: Calendar },
   { name: "Communications", href: "/communications", icon: MessageSquare },
   { name: "Documents", href: "/documents", icon: FileText },
   { name: "Reports", href: "/reports", icon: BarChart },
