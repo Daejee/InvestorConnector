@@ -257,6 +257,7 @@ export default function Analysts() {
                 <TableHead>Company / 회사</TableHead>
                 <TableHead>Position / 직책</TableHead>
                 <TableHead>Specialization / 담당분야</TableHead>
+                <TableHead>Phone / 전화번호</TableHead>
                 <TableHead>Email / 이메일</TableHead>
                 <TableHead>Coverage / 커버리지여부</TableHead>
                 <TableHead className="w-[120px]">Actions / 작업</TableHead>
@@ -265,7 +266,7 @@ export default function Analysts() {
             <TableBody>
               {filteredAnalysts.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8">
+                  <TableCell colSpan={8} className="text-center py-8">
                     No analysts found / 애널리스트를 찾을 수 없습니다
                   </TableCell>
                 </TableRow>
@@ -276,6 +277,7 @@ export default function Analysts() {
                     <TableCell>{analyst.company}</TableCell>
                     <TableCell>{analyst.position || "N/A"}</TableCell>
                     <TableCell>{analyst.specialization || "N/A"}</TableCell>
+                    <TableCell>{analyst.phone || "N/A"}</TableCell>
                     <TableCell>{analyst.email || "N/A"}</TableCell>
                     <TableCell>{getCoverageBadge(analyst.status || "No")}</TableCell>
                     <TableCell>
