@@ -216,7 +216,7 @@ export default function Analysts() {
               <div>
                 <strong>Optional / 선택사항:</strong>
                 <ul className="list-disc list-inside mt-1 text-muted-foreground">
-                  <li>담당산업 (Specialization)</li>
+                  <li>Specialization / 담당분야</li>
                   <li>이메일주소 (Email)</li>
                 </ul>
               </div>

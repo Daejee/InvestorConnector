@@ -156,6 +156,7 @@ Changelog:
 - June 20, 2025. Updated field terminology from "담당산업" to "Specialization / 담당분야" in analyst table and view dialog
 - June 20, 2025. Added 4 new industry specialization options to analyst form: 반도체 (Semiconductor), 방산 (Defense), 기계 (Machinery), 조선 (Shipbuilding)
 - June 20, 2025. Removed Country/국가 field from analyst form interface while maintaining database compatibility with default "Korea" value
+- June 20, 2025. Updated CSV upload format documentation to reflect "Specialization / 담당분야" terminology change
 ```
 
 ## User Preferences
