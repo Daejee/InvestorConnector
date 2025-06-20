@@ -186,13 +186,55 @@ export default function Analysts() {
               </DialogHeader>
               <AnalystForm
                 analyst={selectedAnalyst}
-                onSuccess={handleFormClose}
-                onCancel={handleFormClose}
+                onClose={handleFormClose}
               />
             </DialogContent>
           </Dialog>
         </div>
       </div>
+
+      {/* CSV Format Information */}
+      <Card>
+        <CardHeader>
+          <CardTitle>CSV Upload Format / CSV 업로드 형식</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Upload a CSV file with the following columns (only Name and Company are required):
+              <br />
+              다음 열이 포함된 CSV 파일을 업로드하세요 (이름과 회사만 필수):
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+              <div>
+                <strong>Required / 필수:</strong>
+                <ul className="list-disc list-inside mt-1 text-muted-foreground">
+                  <li>이름 (Name)</li>
+                  <li>회사 (Company)</li>
+                </ul>
+              </div>
+              <div>
+                <strong>Optional / 선택사항:</strong>
+                <ul className="list-disc list-inside mt-1 text-muted-foreground">
+                  <li>담당산업 (Specialization)</li>
+                  <li>이메일주소 (Email)</li>
+                </ul>
+              </div>
+              <div>
+                <strong>Optional / 선택사항:</strong>
+                <ul className="list-disc list-inside mt-1 text-muted-foreground">
+                  <li>전화번호 (Phone)</li>
+                  <li>Coverage 여부 (Yes/No)</li>
+                </ul>
+              </div>
+            </div>
+            <div className="bg-muted p-3 rounded-md">
+              <p className="text-sm font-medium mb-2">Sample CSV header / 샘플 CSV 헤더:</p>
+              <code className="text-xs">이름,회사,담당산업,Coverage 여부,이메일주소,전화번호</code>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
