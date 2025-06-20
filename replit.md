@@ -159,7 +159,7 @@ Changelog:
 - June 20, 2025. Updated CSV upload format documentation to reflect "Specialization / 담당분야" terminology change
 - June 20, 2025. Added Phone / 전화번호 column to analyst table display between Specialization and Email fields
 - June 20, 2025. Moved Analysts / 애널리스트 from submenu under Investors to main navigation menu item
-- June 20, 2025. Changed navigation menu from "Companies / 회사" to "AMC / 운영사" (Asset Management Companies)
+- June 20, 2025. Changed navigation menu from "Companies / 회사" to "AMC / 운용사" (Asset Management Companies)
 ```
 
 ## User Preferences
