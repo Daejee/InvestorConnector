@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Search, Eye, Edit, Trash2 } from "lucide-react";
+import { Plus, Search, Eye, Edit, Trash2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,6 +17,7 @@ export default function Analysts() {
   const [selectedAnalyst, setSelectedAnalyst] = useState<Analyst | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isViewOpen, setIsViewOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -43,6 +44,41 @@ export default function Analysts() {
       toast({
         title: "Error / 오류",
         description: "Failed to delete analyst / 애널리스트 삭제에 실패했습니다",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const uploadMutation = useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const response = await fetch('/api/analysts/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      if (!response.ok) {
+        throw new Error('Upload failed');
+      }
+      
+      return response.json();
+    },
+    onSuccess: (result) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/analysts"] });
+      toast({
+        title: "Upload Success / 업로드 성공",
+        description: result.message,
+      });
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Upload Error / 업로드 오류",
+        description: error.message || "Failed to upload CSV / CSV 업로드에 실패했습니다",
         variant: "destructive",
       });
     },
@@ -76,6 +112,19 @@ export default function Analysts() {
     setSelectedAnalyst(null);
   };
 
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file && file.type === 'text/csv') {
+      uploadMutation.mutate(file);
+    } else {
+      toast({
+        title: "Invalid File / 잘못된 파일",
+        description: "Please select a CSV file / CSV 파일을 선택해주세요",
+        variant: "destructive",
+      });
+    }
+  };
+
   const getCoverageBadge = (status: string) => {
     const variants: Record<string, "default" | "secondary" | "destructive"> = {
       Yes: "default",
@@ -106,22 +155,43 @@ export default function Analysts() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Analysts / 애널리스트</h1>
-        <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={() => setSelectedAnalyst(null)}>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Analyst / 애널리스트 추가
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>
-                {selectedAnalyst ? "Edit Analyst / 애널리스트 수정" : "Add New Analyst / 새 애널리스트 추가"}
-              </DialogTitle>
-            </DialogHeader>
-            <AnalystForm analyst={selectedAnalyst} onClose={handleFormClose} />
-          </DialogContent>
-        </Dialog>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploadMutation.isPending}
+          >
+            <Upload className="mr-2 h-4 w-4" />
+            {uploadMutation.isPending ? "Uploading... / 업로드 중..." : "Upload CSV / CSV 업로드"}
+          </Button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".csv"
+            onChange={handleFileUpload}
+            className="hidden"
+          />
+          <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+            <DialogTrigger asChild>
+              <Button onClick={() => setSelectedAnalyst(null)}>
+                <Plus className="mr-2 h-4 w-4" />
+                Add Analyst / 애널리스트 추가
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>
+                  {selectedAnalyst ? "Edit Analyst / 애널리스트 수정" : "Add Analyst / 애널리스트 추가"}
+                </DialogTitle>
+              </DialogHeader>
+              <AnalystForm
+                analyst={selectedAnalyst}
+                onSuccess={handleFormClose}
+                onCancel={handleFormClose}
+              />
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       <Card>
@@ -223,31 +293,31 @@ export default function Analysts() {
                 </div>
                 <div>
                   <label className="text-sm font-medium">Company / 회사</label>
-                  <p className="text-sm text-muted-foreground">{selectedAnalyst.company}</p>
+                  <p className="text-sm text-muted-foreground">{selectedAnalyst?.company}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium">Position / 직책</label>
-                  <p className="text-sm text-muted-foreground">{selectedAnalyst.position || "N/A"}</p>
+                  <p className="text-sm text-muted-foreground">{selectedAnalyst?.position || "N/A"}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium">Specialization / 전문분야</label>
-                  <p className="text-sm text-muted-foreground">{selectedAnalyst.specialization || "N/A"}</p>
+                  <p className="text-sm text-muted-foreground">{selectedAnalyst?.specialization || "N/A"}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium">Coverage / 담당 영역</label>
-                  <p className="text-sm text-muted-foreground">{selectedAnalyst.coverage || "N/A"}</p>
+                  <p className="text-sm text-muted-foreground">{selectedAnalyst?.coverage || "N/A"}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium">Country / 국가</label>
-                  <p className="text-sm text-muted-foreground">{selectedAnalyst.country}</p>
+                  <p className="text-sm text-muted-foreground">{selectedAnalyst?.country}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium">Language / 언어</label>
-                  <p className="text-sm text-muted-foreground">{selectedAnalyst.language}</p>
+                  <p className="text-sm text-muted-foreground">{selectedAnalyst?.language}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium">Coverage / 커버리지여부</label>
-                  <div>{getCoverageBadge(selectedAnalyst.status || "No")}</div>
+                  <div>{getCoverageBadge(selectedAnalyst?.status || "No")}</div>
                 </div>
               </div>
               {selectedAnalyst.notes && (

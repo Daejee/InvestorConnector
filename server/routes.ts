@@ -949,6 +949,97 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ message: "Analyst deleted successfully" });
   });
 
+  // CSV upload for analysts
+  app.post("/api/analysts/upload", upload.single('file'), async (req, res) => {
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
+
+    try {
+      const results: any[] = [];
+      const errors: string[] = [];
+      
+      const csvStream = Readable.from(req.file.buffer.toString('utf8'));
+      
+      await new Promise((resolve, reject) => {
+        csvStream
+          .pipe(csvParser())
+          .on('data', (data) => results.push(data))
+          .on('end', resolve)
+          .on('error', reject);
+      });
+
+      const createdAnalysts = [];
+      let skippedCount = 0;
+
+      for (let index = 0; index < results.length; index++) {
+        const row = results[index];
+        try {
+          // Flexible header mapping - support Korean and English headers
+          const name = row['이름'] || row['Name'] || row['name'] || '';
+          const company = row['회사'] || row['Company'] || row['company'] || '';
+          const specialization = row['담당산업'] || row['Specialization'] || row['specialization'] || row['Industry'] || row['industry'] || '';
+          const coverage = row['Coverage 여부'] || row['Coverage'] || row['coverage'] || row['커버리지여부'] || '';
+          const email = row['이메일주소'] || row['Email'] || row['email'] || row['이메일'] || '';
+          const phone = row['전화번호'] || row['Phone'] || row['phone'] || '';
+
+          // Validate required fields
+          if (!name.trim()) {
+            errors.push(`Row ${index + 2}: Name is required / 이름은 필수입니다`);
+            skippedCount++;
+            continue;
+          }
+
+          if (!company.trim()) {
+            errors.push(`Row ${index + 2}: Company is required / 회사는 필수입니다`);
+            skippedCount++;
+            continue;
+          }
+
+          // Normalize coverage values
+          let normalizedCoverage = 'No';
+          if (coverage && coverage.trim()) {
+            const coverageValue = coverage.trim().toLowerCase();
+            if (coverageValue === 'yes' || coverageValue === 'y' || coverageValue === '예' || coverageValue === 'true') {
+              normalizedCoverage = 'Yes';
+            }
+          }
+
+          const analystData = {
+            name: name.trim(),
+            email: email.trim() || '',
+            phone: phone.trim() || '',
+            company: company.trim(),
+            position: '', // Will be set via form later
+            specialization: specialization.trim() || '',
+            coverage: '', // This maps to the coverage area field
+            language: 'Korean',
+            country: 'Korea',
+            status: normalizedCoverage, // This is the coverage Yes/No field
+            notes: ''
+          };
+
+          const createdAnalyst = await storage.createAnalyst(analystData);
+          createdAnalysts.push(createdAnalyst);
+        } catch (error) {
+          errors.push(`Row ${index + 2}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+          skippedCount++;
+        }
+      }
+
+      res.json({
+        message: `Successfully imported ${createdAnalysts.length} analysts. ${skippedCount} rows skipped.`,
+        imported: createdAnalysts.length,
+        skipped: skippedCount,
+        errors: errors.length > 0 ? errors : undefined
+      });
+
+    } catch (error) {
+      console.error('CSV upload error:', error);
+      res.status(500).json({ error: "Failed to process CSV file" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
