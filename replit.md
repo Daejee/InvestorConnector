@@ -163,6 +163,10 @@ Changelog:
 - June 20, 2025. Updated Companies page header to "Asset Management Companies / 자산운용사" with simplified description
 - June 20, 2025. Converted Companies page from card layout to professional table format with bilingual column headers
 - June 20, 2025. Added "Schedule / 일정 예약" to Quick Actions sidebar alongside "Add Investor / 투자자 추가"
+- June 20, 2025. Created comprehensive Documents system with PDF/file upload functionality, categorization, search, and table-based management
+- June 20, 2025. Added documents database table with file metadata, investor/company linking, and tagging system
+- June 20, 2025. Implemented complete document API routes with multer file upload support for PDF, DOC, DOCX, TXT, JPEG, PNG files
+- June 20, 2025. Built Documents frontend with drag-drop upload, category selection, file size display, and bilingual interface
 ```
 
 ## User Preferences
