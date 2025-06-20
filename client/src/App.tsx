@@ -14,6 +14,7 @@ import Funds from "@/pages/funds";
 import MeetingLogs from "@/pages/meeting-logs";
 import NdrConferences from "@/pages/ndr-conferences";
 import Scheduling from "@/pages/scheduling";
+import Analysts from "@/pages/analysts";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -22,6 +23,7 @@ function Router() {
       <Switch>
         <Route path="/" component={Dashboard} />
         <Route path="/investors" component={Investors} />
+        <Route path="/analysts" component={Analysts} />
         <Route path="/companies" component={Companies} />
         <Route path="/communications" component={Communications} />
         <Route path="/funds" component={Funds} />

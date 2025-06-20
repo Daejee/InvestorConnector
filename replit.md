@@ -141,6 +141,11 @@ Changelog:
 - June 19, 2025. Built scheduling page with investor pre-selection and meeting statistics dashboard
 - June 19, 2025. Integrated scheduling system into navigation as "Schedule/일정 예약" under Meetings submenu
 - June 19, 2025. Updated NDR/Conferences navigation text to simplified "NDR/컨퍼런스" format per user preference
+- June 20, 2025. Created comprehensive Analyst database system with complete CRUD operations and bilingual interface
+- June 20, 2025. Added Analyst table with fields: name, email, phone, company, position, specialization, coverage, language, country, status, notes
+- June 20, 2025. Implemented Analyst API routes with full validation and error handling
+- June 20, 2025. Built Analyst frontend with form creation, editing, viewing, and deletion capabilities
+- June 20, 2025. Added Analysts as submenu under Investors/투자자 navigation per user request
 ```
 
 ## User Preferences

@@ -27,15 +27,15 @@ export const analysts = pgTable("analysts", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
-  phone: text("phone"),
+  phone: text("phone").default(""),
   company: text("company").notNull(),
-  position: text("position"),
-  specialization: text("specialization"), // Tech, Healthcare, Finance, etc.
-  coverage: text("coverage"), // sectors/companies covered
+  position: text("position").default(""),
+  specialization: text("specialization").default(""), // Tech, Healthcare, Finance, etc.
+  coverage: text("coverage").default(""), // sectors/companies covered
   language: text("language").default("Korean"), // Korean, English, Japanese
   country: text("country").default("Korea"), // Korea, US, UK, Japan, Singapore, Other
   status: text("status").default("active"), // active, inactive
-  notes: text("notes"),
+  notes: text("notes").default(""),
 });
 
 export const companies = pgTable("companies", {

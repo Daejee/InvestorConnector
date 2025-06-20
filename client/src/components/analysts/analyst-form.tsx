@@ -32,17 +32,17 @@ export function AnalystForm({ analyst, onClose }: AnalystFormProps) {
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: analyst?.name || "",
-      email: analyst?.email || "",
-      phone: analyst?.phone || "",
-      company: analyst?.company || "",
-      position: analyst?.position || "",
-      specialization: analyst?.specialization || "",
-      coverage: analyst?.coverage || "",
-      language: analyst?.language || "Korean",
-      country: analyst?.country || "Korea",
-      status: analyst?.status || "active",
-      notes: analyst?.notes || "",
+      name: analyst?.name ?? "",
+      email: analyst?.email ?? "",
+      phone: analyst?.phone ?? "",
+      company: analyst?.company ?? "",
+      position: analyst?.position ?? "",
+      specialization: analyst?.specialization ?? "",
+      coverage: analyst?.coverage ?? "",
+      language: analyst?.language ?? "Korean",
+      country: analyst?.country ?? "Korea",
+      status: analyst?.status ?? "active",
+      notes: analyst?.notes ?? "",
     },
   });
 
