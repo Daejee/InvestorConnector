@@ -38,6 +38,23 @@ export const analysts = pgTable("analysts", {
   notes: text("notes").default(""),
 });
 
+export const documents = pgTable("documents", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  originalName: text("original_name").notNull(),
+  filePath: text("file_path").notNull(),
+  fileSize: integer("file_size").notNull(),
+  fileType: text("file_type").notNull(),
+  category: text("category").default("General"),
+  description: text("description"),
+  uploadedBy: text("uploaded_by").default("System"),
+  tags: text("tags").array(),
+  investorId: integer("investor_id").references(() => investors.id),
+  companyId: integer("company_id").references(() => companies.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 export const companies = pgTable("companies", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
@@ -183,6 +200,12 @@ export const insertAnalystSchema = createInsertSchema(analysts).omit({
   id: true,
 });
 
+export const insertDocumentSchema = createInsertSchema(documents).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export type InsertInvestor = z.infer<typeof insertInvestorSchema>;
 export type Investor = typeof investors.$inferSelect;
 
@@ -215,3 +238,6 @@ export type EmailCampaign = typeof emailCampaigns.$inferSelect;
 
 export type InsertAnalyst = z.infer<typeof insertAnalystSchema>;
 export type Analyst = typeof analysts.$inferSelect;
+
+export type InsertDocument = z.infer<typeof insertDocumentSchema>;
+export type Document = typeof documents.$inferSelect;

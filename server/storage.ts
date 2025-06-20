@@ -100,6 +100,16 @@ export interface IStorage {
   createAnalyst(analyst: InsertAnalyst): Promise<Analyst>;
   updateAnalyst(id: number, analyst: Partial<InsertAnalyst>): Promise<Analyst | undefined>;
   deleteAnalyst(id: number): Promise<boolean>;
+
+  // Documents
+  getDocuments(): Promise<Document[]>;
+  getDocument(id: number): Promise<Document | undefined>;
+  getDocumentsByCategory(category: string): Promise<Document[]>;
+  getDocumentsByInvestor(investorId: number): Promise<Document[]>;
+  getDocumentsByCompany(companyId: number): Promise<Document[]>;
+  createDocument(document: InsertDocument): Promise<Document>;
+  updateDocument(id: number, document: Partial<InsertDocument>): Promise<Document | undefined>;
+  deleteDocument(id: number): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
