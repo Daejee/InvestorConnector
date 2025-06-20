@@ -76,15 +76,15 @@ export default function Analysts() {
     setSelectedAnalyst(null);
   };
 
-  const getStatusBadge = (status: string) => {
+  const getCoverageBadge = (status: string) => {
     const variants: Record<string, "default" | "secondary" | "destructive"> = {
-      active: "default",
-      inactive: "secondary",
+      Yes: "default",
+      No: "secondary",
     };
     
     const labels: Record<string, string> = {
-      active: "Active / 활성",
-      inactive: "Inactive / 비활성",
+      Yes: "Yes",
+      No: "No",
     };
 
     return (
@@ -146,7 +146,7 @@ export default function Analysts() {
                 <TableHead>Position / 직책</TableHead>
                 <TableHead>Specialization / 전문분야</TableHead>
                 <TableHead>Country / 국가</TableHead>
-                <TableHead>Status / 상태</TableHead>
+                <TableHead>Coverage / 커버리지여부</TableHead>
                 <TableHead className="w-[120px]">Actions / 작업</TableHead>
               </TableRow>
             </TableHeader>
@@ -165,7 +165,7 @@ export default function Analysts() {
                     <TableCell>{analyst.position || "N/A"}</TableCell>
                     <TableCell>{analyst.specialization || "N/A"}</TableCell>
                     <TableCell>{analyst.country}</TableCell>
-                    <TableCell>{getStatusBadge(analyst.status || "active")}</TableCell>
+                    <TableCell>{getCoverageBadge(analyst.status || "No")}</TableCell>
                     <TableCell>
                       <div className="flex items-center space-x-1">
                         <Button
@@ -246,8 +246,8 @@ export default function Analysts() {
                   <p className="text-sm text-muted-foreground">{selectedAnalyst.language}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium">Status / 상태</label>
-                  <div>{getStatusBadge(selectedAnalyst.status || "active")}</div>
+                  <label className="text-sm font-medium">Coverage / 커버리지여부</label>
+                  <div>{getCoverageBadge(selectedAnalyst.status || "No")}</div>
                 </div>
               </div>
               {selectedAnalyst.notes && (

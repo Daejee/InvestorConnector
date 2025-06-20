@@ -41,7 +41,7 @@ export function AnalystForm({ analyst, onClose }: AnalystFormProps) {
       coverage: analyst?.coverage ?? "",
       language: analyst?.language ?? "Korean",
       country: analyst?.country ?? "Korea",
-      status: analyst?.status ?? "active",
+      status: analyst?.status ?? "No",
       notes: analyst?.notes ?? "",
     },
   });
@@ -301,15 +301,15 @@ export function AnalystForm({ analyst, onClose }: AnalystFormProps) {
             name="status"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Status / 상태</FormLabel>
+                <FormLabel>Coverage / 커버리지여부</FormLabel>
                 <FormControl>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select status / 상태 선택" />
+                      <SelectValue placeholder="Select coverage / 커버리지 선택" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="active">Active / 활성</SelectItem>
-                      <SelectItem value="inactive">Inactive / 비활성</SelectItem>
+                      <SelectItem value="Yes">Yes</SelectItem>
+                      <SelectItem value="No">No</SelectItem>
                     </SelectContent>
                   </Select>
                 </FormControl>
