@@ -1,5 +1,5 @@
 import { 
-  investors, companies, investments, communications, meetings, funds, meetingLogs, ndrConferences, emailTemplates, emailCampaigns,
+  investors, companies, investments, communications, meetings, funds, meetingLogs, ndrConferences, emailTemplates, emailCampaigns, analysts,
   type Investor, type InsertInvestor,
   type Company, type InsertCompany,
   type Investment, type InsertInvestment,
@@ -9,7 +9,8 @@ import {
   type MeetingLog, type InsertMeetingLog,
   type NdrConference, type InsertNdrConference,
   type EmailTemplate, type InsertEmailTemplate,
-  type EmailCampaign, type InsertEmailCampaign
+  type EmailCampaign, type InsertEmailCampaign,
+  type Analyst, type InsertAnalyst
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc } from "drizzle-orm";
@@ -91,6 +92,14 @@ export interface IStorage {
   getEmailCampaign(id: number): Promise<EmailCampaign | undefined>;
   createEmailCampaign(campaign: InsertEmailCampaign): Promise<EmailCampaign>;
   updateEmailCampaign(id: number, campaign: Partial<InsertEmailCampaign>): Promise<EmailCampaign | undefined>;
+
+  // Analysts
+  getAnalysts(): Promise<Analyst[]>;
+  getAnalyst(id: number): Promise<Analyst | undefined>;
+  getAnalystByEmail(email: string): Promise<Analyst | undefined>;
+  createAnalyst(analyst: InsertAnalyst): Promise<Analyst>;
+  updateAnalyst(id: number, analyst: Partial<InsertAnalyst>): Promise<Analyst | undefined>;
+  deleteAnalyst(id: number): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -444,6 +453,43 @@ export class DatabaseStorage implements IStorage {
       .where(eq(emailCampaigns.id, id))
       .returning();
     return campaign || undefined;
+  }
+
+  // Analysts
+  async getAnalysts(): Promise<Analyst[]> {
+    return await db.select().from(analysts);
+  }
+
+  async getAnalyst(id: number): Promise<Analyst | undefined> {
+    const [analyst] = await db.select().from(analysts).where(eq(analysts.id, id));
+    return analyst || undefined;
+  }
+
+  async getAnalystByEmail(email: string): Promise<Analyst | undefined> {
+    const [analyst] = await db.select().from(analysts).where(eq(analysts.email, email));
+    return analyst || undefined;
+  }
+
+  async createAnalyst(insertAnalyst: InsertAnalyst): Promise<Analyst> {
+    const [analyst] = await db
+      .insert(analysts)
+      .values(insertAnalyst)
+      .returning();
+    return analyst;
+  }
+
+  async updateAnalyst(id: number, updateData: Partial<InsertAnalyst>): Promise<Analyst | undefined> {
+    const [analyst] = await db
+      .update(analysts)
+      .set(updateData)
+      .where(eq(analysts.id, id))
+      .returning();
+    return analyst || undefined;
+  }
+
+  async deleteAnalyst(id: number): Promise<boolean> {
+    const result = await db.delete(analysts).where(eq(analysts.id, id));
+    return result.rowCount !== null && result.rowCount > 0;
   }
 }
 

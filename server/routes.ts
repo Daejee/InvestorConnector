@@ -14,7 +14,8 @@ import {
   insertMeetingLogSchema,
   insertNdrConferenceSchema,
   insertEmailTemplateSchema,
-  insertEmailCampaignSchema
+  insertEmailCampaignSchema,
+  insertAnalystSchema
 } from "@shared/schema";
 import { EmailService } from "./email-service";
 

@@ -23,6 +23,21 @@ export const investors = pgTable("investors", {
   timezone: text("timezone").default("Asia/Seoul"),
 });
 
+export const analysts = pgTable("analysts", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  email: text("email").notNull().unique(),
+  phone: text("phone"),
+  company: text("company").notNull(),
+  position: text("position"),
+  specialization: text("specialization"), // Tech, Healthcare, Finance, etc.
+  coverage: text("coverage"), // sectors/companies covered
+  language: text("language").default("Korean"), // Korean, English, Japanese
+  country: text("country").default("Korea"), // Korea, US, UK, Japan, Singapore, Other
+  status: text("status").default("active"), // active, inactive
+  notes: text("notes"),
+});
+
 export const companies = pgTable("companies", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
@@ -164,6 +179,10 @@ export const insertEmailCampaignSchema = createInsertSchema(emailCampaigns).omit
   createdAt: true,
 });
 
+export const insertAnalystSchema = createInsertSchema(analysts).omit({
+  id: true,
+});
+
 export type InsertInvestor = z.infer<typeof insertInvestorSchema>;
 export type Investor = typeof investors.$inferSelect;
 
@@ -193,3 +212,6 @@ export type EmailTemplate = typeof emailTemplates.$inferSelect;
 
 export type InsertEmailCampaign = z.infer<typeof insertEmailCampaignSchema>;
 export type EmailCampaign = typeof emailCampaigns.$inferSelect;
+
+export type InsertAnalyst = z.infer<typeof insertAnalystSchema>;
+export type Analyst = typeof analysts.$inferSelect;
