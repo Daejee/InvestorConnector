@@ -216,6 +216,10 @@ export function AnalystForm({ analyst, onClose }: AnalystFormProps) {
                       <SelectItem value="Materials">Materials / 소재</SelectItem>
                       <SelectItem value="Telecommunications">Telecommunications / 통신</SelectItem>
                       <SelectItem value="Utilities">Utilities / 유틸리티</SelectItem>
+                      <SelectItem value="Semiconductor">반도체</SelectItem>
+                      <SelectItem value="Defense">방산</SelectItem>
+                      <SelectItem value="Machinery">기계</SelectItem>
+                      <SelectItem value="Shipbuilding">조선</SelectItem>
                       <SelectItem value="Other">Other / 기타</SelectItem>
                     </SelectContent>
                   </Select>
