@@ -182,7 +182,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               <Link href="/communications">
                 <a className="w-full text-left text-gray-700 hover:bg-gray-50 group flex items-center px-3 py-2 text-sm font-medium rounded-lg">
                   <Calendar className="mr-3 h-4 w-4" />
-                  Schedule Meeting / 회의 일정
+                  Schedule / 일정예약
                 </a>
               </Link>
             </div>
