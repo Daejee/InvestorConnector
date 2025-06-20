@@ -155,6 +155,7 @@ Changelog:
 - June 20, 2025. Updated analyst table display to show Email field instead of Country field per user request
 - June 20, 2025. Changed "Specialization / 전문분야" field label to "담당산업" in analyst table and view dialog
 - June 20, 2025. Added 4 new industry specialization options to analyst form: 반도체 (Semiconductor), 방산 (Defense), 기계 (Machinery), 조선 (Shipbuilding)
+- June 20, 2025. Removed Country/국가 field from analyst form interface while maintaining database compatibility with default "Korea" value
 ```
 
 ## User Preferences

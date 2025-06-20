@@ -1014,7 +1014,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             specialization: specialization.trim() || '',
             coverage: '', // This maps to the coverage area field
             language: 'Korean',
-            country: 'Korea',
+            country: 'Korea', // Default value since field removed from form
             status: normalizedCoverage, // This is the coverage Yes/No field
             notes: ''
           };

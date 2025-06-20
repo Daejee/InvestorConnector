@@ -40,7 +40,6 @@ export function AnalystForm({ analyst, onClose }: AnalystFormProps) {
       specialization: analyst?.specialization ?? "",
       coverage: analyst?.coverage ?? "",
       language: analyst?.language ?? "Korean",
-      country: analyst?.country ?? "Korea",
       status: analyst?.status ?? "No",
       notes: analyst?.notes ?? "",
     },
@@ -51,7 +50,7 @@ export function AnalystForm({ analyst, onClose }: AnalystFormProps) {
       const response = await fetch("/api/analysts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ ...data, country: "Korea" }),
       });
       if (!response.ok) throw new Error("Failed to create analyst");
       return response.json();
@@ -78,7 +77,7 @@ export function AnalystForm({ analyst, onClose }: AnalystFormProps) {
       const response = await fetch(`/api/analysts/${analyst!.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ ...data, country: "Korea" }),
       });
       if (!response.ok) throw new Error("Failed to update analyst");
       return response.json();
@@ -237,38 +236,6 @@ export function AnalystForm({ analyst, onClose }: AnalystFormProps) {
                 <FormLabel>Coverage / 담당 영역</FormLabel>
                 <FormControl>
                   <Input placeholder="Companies or sectors covered / 담당 회사나 섹터" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="country"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Country / 국가</FormLabel>
-                <FormControl>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select country / 국가 선택" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Korea">Korea / 한국</SelectItem>
-                      <SelectItem value="US">United States / 미국</SelectItem>
-                      <SelectItem value="UK">United Kingdom / 영국</SelectItem>
-                      <SelectItem value="Japan">Japan / 일본</SelectItem>
-                      <SelectItem value="Singapore">Singapore / 싱가포르</SelectItem>
-                      <SelectItem value="Hong Kong">Hong Kong / 홍콩</SelectItem>
-                      <SelectItem value="China">China / 중국</SelectItem>
-                      <SelectItem value="Australia">Australia / 호주</SelectItem>
-                      <SelectItem value="Canada">Canada / 캐나다</SelectItem>
-                      <SelectItem value="Germany">Germany / 독일</SelectItem>
-                      <SelectItem value="France">France / 프랑스</SelectItem>
-                      <SelectItem value="Other">Other / 기타</SelectItem>
-                    </SelectContent>
-                  </Select>
                 </FormControl>
                 <FormMessage />
               </FormItem>
