@@ -152,6 +152,7 @@ Changelog:
 - June 20, 2025. Created sample analyst CSV with Korean headers: 이름, 회사, 담당산업, Coverage 여부, 이메일주소, 전화번호
 - June 20, 2025. Implemented CSV validation requiring only Name and Company fields, all other fields optional
 - June 20, 2025. Added comprehensive CSV format information card with bilingual instructions and sample headers
+- June 20, 2025. Updated analyst table display to show Email field instead of Country field per user request
 ```
 
 ## User Preferences

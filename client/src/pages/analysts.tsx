@@ -257,7 +257,7 @@ export default function Analysts() {
                 <TableHead>Company / 회사</TableHead>
                 <TableHead>Position / 직책</TableHead>
                 <TableHead>Specialization / 전문분야</TableHead>
-                <TableHead>Country / 국가</TableHead>
+                <TableHead>Email / 이메일</TableHead>
                 <TableHead>Coverage / 커버리지여부</TableHead>
                 <TableHead className="w-[120px]">Actions / 작업</TableHead>
               </TableRow>
@@ -276,7 +276,7 @@ export default function Analysts() {
                     <TableCell>{analyst.company}</TableCell>
                     <TableCell>{analyst.position || "N/A"}</TableCell>
                     <TableCell>{analyst.specialization || "N/A"}</TableCell>
-                    <TableCell>{analyst.country}</TableCell>
+                    <TableCell>{analyst.email || "N/A"}</TableCell>
                     <TableCell>{getCoverageBadge(analyst.status || "No")}</TableCell>
                     <TableCell>
                       <div className="flex items-center space-x-1">
@@ -350,8 +350,8 @@ export default function Analysts() {
                   <p className="text-sm text-muted-foreground">{selectedAnalyst?.coverage || "N/A"}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium">Country / 국가</label>
-                  <p className="text-sm text-muted-foreground">{selectedAnalyst?.country}</p>
+                  <label className="text-sm font-medium">Email / 이메일</label>
+                  <p className="text-sm text-muted-foreground">{selectedAnalyst?.email || "N/A"}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium">Language / 언어</label>
