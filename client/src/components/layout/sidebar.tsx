@@ -29,7 +29,7 @@ const navigation = [
   { name: "Investors / 투자자", href: "/investors", icon: Users },
   { name: "Analysts / 애널리스트", href: "/analysts", icon: Users },
   { 
-    name: "해외운영사", 
+    name: "AMC / 운영사", 
     href: "/companies", 
     icon: Building,
     submenu: [
