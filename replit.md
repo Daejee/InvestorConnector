@@ -148,6 +148,10 @@ Changelog:
 - June 20, 2025. Added Analysts as submenu under Investors/투자자 navigation per user request
 - June 20, 2025. Updated Analyst position field to dropdown with Korean options: 애널리스트, RA, 리서치해드, 기타
 - June 20, 2025. Changed Status/상태 field to Coverage/커버리지여부 with Yes/No selection options
+- June 20, 2025. Added CSV upload functionality for Analyst database with flexible header mapping
+- June 20, 2025. Created sample analyst CSV with Korean headers: 이름, 회사, 담당산업, Coverage 여부, 이메일주소, 전화번호
+- June 20, 2025. Implemented CSV validation requiring only Name and Company fields, all other fields optional
+- June 20, 2025. Added comprehensive CSV format information card with bilingual instructions and sample headers
 ```
 
 ## User Preferences
