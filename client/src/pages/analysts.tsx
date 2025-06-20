@@ -26,9 +26,11 @@ export default function Analysts() {
 
   const deleteAnalystMutation = useMutation({
     mutationFn: async (id: number) => {
-      return apiRequest(`/api/analysts/${id}`, {
+      const response = await fetch(`/api/analysts/${id}`, {
         method: "DELETE",
       });
+      if (!response.ok) throw new Error("Failed to delete analyst");
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/analysts"] });

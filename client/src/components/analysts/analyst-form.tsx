@@ -48,10 +48,13 @@ export function AnalystForm({ analyst, onClose }: AnalystFormProps) {
 
   const createMutation = useMutation({
     mutationFn: async (data: FormData) => {
-      return apiRequest("/api/analysts", {
+      const response = await fetch("/api/analysts", {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
+      if (!response.ok) throw new Error("Failed to create analyst");
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/analysts"] });
@@ -72,10 +75,13 @@ export function AnalystForm({ analyst, onClose }: AnalystFormProps) {
 
   const updateMutation = useMutation({
     mutationFn: async (data: FormData) => {
-      return apiRequest(`/api/analysts/${analyst!.id}`, {
+      const response = await fetch(`/api/analysts/${analyst!.id}`, {
         method: "PATCH",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
+      if (!response.ok) throw new Error("Failed to update analyst");
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/analysts"] });
@@ -171,7 +177,17 @@ export function AnalystForm({ analyst, onClose }: AnalystFormProps) {
               <FormItem>
                 <FormLabel>Position / 직책</FormLabel>
                 <FormControl>
-                  <Input placeholder="Senior Analyst, Research Director, etc." {...field} />
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select position / 직책 선택" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="애널리스트">애널리스트 / Analyst</SelectItem>
+                      <SelectItem value="RA">RA</SelectItem>
+                      <SelectItem value="리서치해드">리서치해드 / Research Head</SelectItem>
+                      <SelectItem value="기타">기타 / Other</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </FormControl>
                 <FormMessage />
               </FormItem>

@@ -146,6 +146,7 @@ Changelog:
 - June 20, 2025. Implemented Analyst API routes with full validation and error handling
 - June 20, 2025. Built Analyst frontend with form creation, editing, viewing, and deletion capabilities
 - June 20, 2025. Added Analysts as submenu under Investors/투자자 navigation per user request
+- June 20, 2025. Updated Analyst position field to dropdown with Korean options: 애널리스트, RA, 리서치해드, 기타
 ```
 
 ## User Preferences
