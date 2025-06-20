@@ -163,6 +163,7 @@ Changelog:
 - June 20, 2025. Updated Companies page header to "Asset Management Companies / 자산운용사" with simplified description
 - June 20, 2025. Converted Companies page from card layout to professional table format with bilingual column headers
 - June 20, 2025. Updated AUM display with dual currency format: Korean companies in 억 units, foreign companies in 조원 (trillion KRW) with 1400 exchange rate
+- June 20, 2025. Fixed AUM calculation to properly convert original dollar amounts to Korean won using 1400 exchange rate
 ```
 
 ## User Preferences

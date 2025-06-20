@@ -370,7 +370,7 @@ export default function Companies() {
                     <TableCell>
                       {company.area === 'Korea' || company.area === 'KR' ? 
                         `${(parseFloat(company.aum) / 100000000).toFixed(0)}억` :
-                        `${((parseFloat(company.aum) * 1400) / 1000000000000).toFixed(1)}조원`
+                        `${(parseFloat(company.aum) * 1400 / 1000000000000).toFixed(1)}조원`
                       }
                     </TableCell>
                     <TableCell>
