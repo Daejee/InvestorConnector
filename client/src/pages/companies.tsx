@@ -356,7 +356,7 @@ export default function Companies() {
                   <TableHead>Type / 유형</TableHead>
                   <TableHead>HQ Location / 본사 위치</TableHead>
                   <TableHead>Area / 지역</TableHead>
-                  <TableHead>AUM (Bil) / 운용자산</TableHead>
+                  <TableHead>AUM / 운용자산(억)</TableHead>
                   <TableHead className="w-[100px]">Actions / 작업</TableHead>
                 </TableRow>
               </TableHeader>
@@ -367,7 +367,7 @@ export default function Companies() {
                     <TableCell>{company.type}</TableCell>
                     <TableCell>{company.hqLocation}</TableCell>
                     <TableCell>{company.area || 'US'}</TableCell>
-                    <TableCell>${(parseFloat(company.aum) / 1000000000).toFixed(1)}</TableCell>
+                    <TableCell>{(parseFloat(company.aum) / 100000000).toFixed(0)}억</TableCell>
                     <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
