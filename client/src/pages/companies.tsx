@@ -172,8 +172,8 @@ export default function Companies() {
       <div className="mb-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Companies / 회사</h2>
-            <p className="text-gray-600 mt-1">Manage company information and fund details / 회사 정보 및 펀드 세부사항 관리</p>
+            <h2 className="text-2xl font-bold text-gray-900">AMC/회사 Asset Management Companies</h2>
+            <p className="text-gray-600 mt-1">자산운용사 정보</p>
           </div>
           <div className="mt-4 sm:mt-0 flex space-x-3">
             <Button variant="outline" onClick={downloadSampleCSV}>

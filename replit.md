@@ -160,6 +160,7 @@ Changelog:
 - June 20, 2025. Added Phone / 전화번호 column to analyst table display between Specialization and Email fields
 - June 20, 2025. Moved Analysts / 애널리스트 from submenu under Investors to main navigation menu item
 - June 20, 2025. Changed navigation menu from "Companies / 회사" to "AMC / 운용사" (Asset Management Companies)
+- June 20, 2025. Updated Companies page header to "AMC/회사 Asset Management Companies 자산운용사 정보"
 ```
 
 ## User Preferences
