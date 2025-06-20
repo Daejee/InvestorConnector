@@ -159,6 +159,7 @@ Changelog:
 - June 20, 2025. Updated CSV upload format documentation to reflect "Specialization / 담당분야" terminology change
 - June 20, 2025. Added Phone / 전화번호 column to analyst table display between Specialization and Email fields
 - June 20, 2025. Moved Analysts / 애널리스트 from submenu under Investors to main navigation menu item
+- June 20, 2025. Changed navigation menu from "Companies / 회사" to "해외운영사" (Overseas Asset Management Companies)
 ```
 
 ## User Preferences
