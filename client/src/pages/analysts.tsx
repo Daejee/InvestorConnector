@@ -256,7 +256,7 @@ export default function Analysts() {
                 <TableHead>Name / 이름</TableHead>
                 <TableHead>Company / 회사</TableHead>
                 <TableHead>Position / 직책</TableHead>
-                <TableHead>Specialization / 전문분야</TableHead>
+                <TableHead>담당산업</TableHead>
                 <TableHead>Email / 이메일</TableHead>
                 <TableHead>Coverage / 커버리지여부</TableHead>
                 <TableHead className="w-[120px]">Actions / 작업</TableHead>
@@ -342,7 +342,7 @@ export default function Analysts() {
                   <p className="text-sm text-muted-foreground">{selectedAnalyst?.position || "N/A"}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium">Specialization / 전문분야</label>
+                  <label className="text-sm font-medium">담당산업</label>
                   <p className="text-sm text-muted-foreground">{selectedAnalyst?.specialization || "N/A"}</p>
                 </div>
                 <div>

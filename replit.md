@@ -153,6 +153,7 @@ Changelog:
 - June 20, 2025. Implemented CSV validation requiring only Name and Company fields, all other fields optional
 - June 20, 2025. Added comprehensive CSV format information card with bilingual instructions and sample headers
 - June 20, 2025. Updated analyst table display to show Email field instead of Country field per user request
+- June 20, 2025. Changed "Specialization / 전문분야" field label to "담당산업" in analyst table and view dialog
 ```
 
 ## User Preferences
