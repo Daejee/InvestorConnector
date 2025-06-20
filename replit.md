@@ -161,6 +161,7 @@ Changelog:
 - June 20, 2025. Moved Analysts / 애널리스트 from submenu under Investors to main navigation menu item
 - June 20, 2025. Changed navigation menu from "Companies / 회사" to "AMC / 운용사" (Asset Management Companies)
 - June 20, 2025. Updated Companies page header to "Asset Management Companies / 자산운용사" with simplified description
+- June 20, 2025. Converted Companies page from card layout to professional table format with bilingual column headers
 ```
 
 ## User Preferences

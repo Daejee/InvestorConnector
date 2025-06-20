@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import CompanyForm from "@/components/companies/company-form";
@@ -344,24 +345,30 @@ export default function Companies() {
             </div>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0">
           {filteredCompanies.length === 0 ? (
             <p className="text-gray-500 text-center py-8">No companies found</p>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredCompanies.map((company) => (
-                <Card key={company.id}>
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-lg">{company.name}</h3>
-                        <p className="text-sm text-gray-600 mb-2">{company.type}</p>
-                        <p className="text-sm text-gray-500 mb-1">📍 {company.hqLocation}</p>
-                        <p className="text-sm text-gray-500 mb-2">🌍 {company.area || 'US'}</p>
-                        <p className="text-sm font-medium">
-                          AUM (Bil): ${(parseFloat(company.aum) / 1000000000).toFixed(1)}
-                        </p>
-                      </div>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Company Name / 회사명</TableHead>
+                  <TableHead>Type / 유형</TableHead>
+                  <TableHead>HQ Location / 본사 위치</TableHead>
+                  <TableHead>Area / 지역</TableHead>
+                  <TableHead>AUM (Bil) / 운용자산</TableHead>
+                  <TableHead className="w-[100px]">Actions / 작업</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredCompanies.map((company) => (
+                  <TableRow key={company.id}>
+                    <TableCell className="font-medium">{company.name}</TableCell>
+                    <TableCell>{company.type}</TableCell>
+                    <TableCell>{company.hqLocation}</TableCell>
+                    <TableCell>{company.area || 'US'}</TableCell>
+                    <TableCell>${(parseFloat(company.aum) / 1000000000).toFixed(1)}</TableCell>
+                    <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
@@ -399,11 +406,11 @@ export default function Companies() {
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           )}
         </CardContent>
       </Card>
