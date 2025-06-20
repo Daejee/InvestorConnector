@@ -901,6 +901,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ variables });
   });
 
+  // Analysts routes
+  app.get("/api/analysts", async (req, res) => {
+    const analysts = await storage.getAnalysts();
+    res.json(analysts);
+  });
+
+  app.get("/api/analysts/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    const analyst = await storage.getAnalyst(id);
+    if (!analyst) {
+      return res.status(404).json({ error: "Analyst not found" });
+    }
+    res.json(analyst);
+  });
+
+  app.post("/api/analysts", async (req, res) => {
+    try {
+      const analystData = insertAnalystSchema.parse(req.body);
+      const analyst = await storage.createAnalyst(analystData);
+      res.status(201).json(analyst);
+    } catch (error) {
+      res.status(400).json({ error: "Invalid analyst data", details: error });
+    }
+  });
+
+  app.patch("/api/analysts/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const updateData = insertAnalystSchema.partial().parse(req.body);
+      const analyst = await storage.updateAnalyst(id, updateData);
+      if (!analyst) {
+        return res.status(404).json({ error: "Analyst not found" });
+      }
+      res.json(analyst);
+    } catch (error) {
+      res.status(400).json({ error: "Invalid analyst data", details: error });
+    }
+  });
+
+  app.delete("/api/analysts/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    const success = await storage.deleteAnalyst(id);
+    if (!success) {
+      return res.status(404).json({ error: "Analyst not found" });
+    }
+    res.json({ message: "Analyst deleted successfully" });
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
