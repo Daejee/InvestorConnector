@@ -140,6 +140,7 @@ Changelog:
 - June 19, 2025. Implemented real-time availability checking and meeting conflict prevention
 - June 19, 2025. Built scheduling page with investor pre-selection and meeting statistics dashboard
 - June 19, 2025. Integrated scheduling system into navigation as "Schedule/일정 예약" under Meetings submenu
+- June 19, 2025. Updated NDR/Conferences navigation text to simplified "NDR/컨퍼런스" format per user preference
 ```
 
 ## User Preferences
