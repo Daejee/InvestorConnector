@@ -1,5 +1,5 @@
 import { 
-  investors, companies, investments, communications, meetings, funds, meetingLogs, ndrConferences, emailTemplates, emailCampaigns, analysts,
+  investors, companies, investments, communications, meetings, funds, meetingLogs, ndrConferences, emailTemplates, emailCampaigns, analysts, documents,
   type Investor, type InsertInvestor,
   type Company, type InsertCompany,
   type Investment, type InsertInvestment,
@@ -10,7 +10,8 @@ import {
   type NdrConference, type InsertNdrConference,
   type EmailTemplate, type InsertEmailTemplate,
   type EmailCampaign, type InsertEmailCampaign,
-  type Analyst, type InsertAnalyst
+  type Analyst, type InsertAnalyst,
+  type Document, type InsertDocument
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc } from "drizzle-orm";
@@ -499,6 +500,50 @@ export class DatabaseStorage implements IStorage {
 
   async deleteAnalyst(id: number): Promise<boolean> {
     const result = await db.delete(analysts).where(eq(analysts.id, id));
+    return result.rowCount !== null && result.rowCount > 0;
+  }
+
+  // Documents
+  async getDocuments(): Promise<Document[]> {
+    return await db.select().from(documents).orderBy(desc(documents.createdAt));
+  }
+
+  async getDocument(id: number): Promise<Document | undefined> {
+    const [document] = await db.select().from(documents).where(eq(documents.id, id));
+    return document || undefined;
+  }
+
+  async getDocumentsByCategory(category: string): Promise<Document[]> {
+    return await db.select().from(documents).where(eq(documents.category, category)).orderBy(desc(documents.createdAt));
+  }
+
+  async getDocumentsByInvestor(investorId: number): Promise<Document[]> {
+    return await db.select().from(documents).where(eq(documents.investorId, investorId)).orderBy(desc(documents.createdAt));
+  }
+
+  async getDocumentsByCompany(companyId: number): Promise<Document[]> {
+    return await db.select().from(documents).where(eq(documents.companyId, companyId)).orderBy(desc(documents.createdAt));
+  }
+
+  async createDocument(insertDocument: InsertDocument): Promise<Document> {
+    const [document] = await db
+      .insert(documents)
+      .values(insertDocument)
+      .returning();
+    return document;
+  }
+
+  async updateDocument(id: number, updateData: Partial<InsertDocument>): Promise<Document | undefined> {
+    const [document] = await db
+      .update(documents)
+      .set({ ...updateData, updatedAt: new Date() })
+      .where(eq(documents.id, id))
+      .returning();
+    return document || undefined;
+  }
+
+  async deleteDocument(id: number): Promise<boolean> {
+    const result = await db.delete(documents).where(eq(documents.id, id));
     return result.rowCount !== null && result.rowCount > 0;
   }
 }

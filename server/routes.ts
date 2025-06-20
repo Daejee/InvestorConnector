@@ -15,7 +15,8 @@ import {
   insertNdrConferenceSchema,
   insertEmailTemplateSchema,
   insertEmailCampaignSchema,
-  insertAnalystSchema
+  insertAnalystSchema,
+  insertDocumentSchema
 } from "@shared/schema";
 import { EmailService } from "./email-service";
 
@@ -1037,6 +1038,131 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('CSV upload error:', error);
       res.status(500).json({ error: "Failed to process CSV file" });
+    }
+  });
+
+  // Documents routes
+  app.get("/api/documents", async (req, res) => {
+    try {
+      const documents = await storage.getDocuments();
+      res.json(documents);
+    } catch (error) {
+      console.error('Get documents error:', error);
+      res.status(500).json({ error: "Failed to fetch documents" });
+    }
+  });
+
+  app.get("/api/documents/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const document = await storage.getDocument(id);
+      if (!document) {
+        return res.status(404).json({ message: "Document not found" });
+      }
+      res.json(document);
+    } catch (error) {
+      console.error('Get document error:', error);
+      res.status(500).json({ error: "Failed to fetch document" });
+    }
+  });
+
+  app.post("/api/documents/upload", upload.single('file'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "No file uploaded" });
+      }
+
+      const file = req.file;
+      const { category, description, investorId, companyId, tags } = req.body;
+
+      // Validate file type (PDF, DOC, DOCX, etc.)
+      const allowedTypes = [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'text/plain',
+        'image/jpeg',
+        'image/png'
+      ];
+
+      if (!allowedTypes.includes(file.mimetype)) {
+        return res.status(400).json({ 
+          error: "Invalid file type. Allowed types: PDF, DOC, DOCX, TXT, JPEG, PNG" 
+        });
+      }
+
+      // Generate unique filename
+      const timestamp = Date.now();
+      const fileName = `${timestamp}_${file.originalname}`;
+      const filePath = `/uploads/${fileName}`;
+
+      // In a real application, you would save the file to disk or cloud storage
+      // For this demo, we'll just store the file info in the database
+      
+      const documentData = {
+        name: file.originalname.split('.')[0], // Remove extension for display name
+        originalName: file.originalname,
+        filePath: filePath,
+        fileSize: file.size,
+        fileType: file.mimetype,
+        category: category || 'General',
+        description: description || '',
+        uploadedBy: 'System',
+        tags: tags ? tags.split(',').map((tag: string) => tag.trim()) : [],
+        investorId: investorId ? parseInt(investorId) : null,
+        companyId: companyId ? parseInt(companyId) : null
+      };
+
+      const document = await storage.createDocument(documentData);
+      res.status(201).json({
+        message: "File uploaded successfully",
+        document
+      });
+
+    } catch (error) {
+      console.error('Document upload error:', error);
+      res.status(500).json({ error: "Failed to upload document" });
+    }
+  });
+
+  app.patch("/api/documents/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const updateData = req.body;
+      
+      const document = await storage.updateDocument(id, updateData);
+      if (!document) {
+        return res.status(404).json({ message: "Document not found" });
+      }
+      res.json(document);
+    } catch (error) {
+      console.error('Update document error:', error);
+      res.status(500).json({ error: "Failed to update document" });
+    }
+  });
+
+  app.delete("/api/documents/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const success = await storage.deleteDocument(id);
+      if (!success) {
+        return res.status(404).json({ message: "Document not found" });
+      }
+      res.json({ message: "Document deleted successfully" });
+    } catch (error) {
+      console.error('Delete document error:', error);
+      res.status(500).json({ error: "Failed to delete document" });
+    }
+  });
+
+  app.get("/api/documents/category/:category", async (req, res) => {
+    try {
+      const category = req.params.category;
+      const documents = await storage.getDocumentsByCategory(category);
+      res.json(documents);
+    } catch (error) {
+      console.error('Get documents by category error:', error);
+      res.status(500).json({ error: "Failed to fetch documents by category" });
     }
   });
 
