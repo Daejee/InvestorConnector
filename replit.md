@@ -158,6 +158,7 @@ Changelog:
 - June 20, 2025. Removed Country/국가 field from analyst form interface while maintaining database compatibility with default "Korea" value
 - June 20, 2025. Updated CSV upload format documentation to reflect "Specialization / 담당분야" terminology change
 - June 20, 2025. Added Phone / 전화번호 column to analyst table display between Specialization and Email fields
+- June 20, 2025. Moved Analysts / 애널리스트 from submenu under Investors to main navigation menu item
 ```
 
 ## User Preferences
