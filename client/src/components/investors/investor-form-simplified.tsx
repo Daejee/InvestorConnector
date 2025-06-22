@@ -279,7 +279,7 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel }
                   name="specialtyType"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Specialty Type</FormLabel>
+                      <FormLabel>Specialty(담당분야)</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
                         <FormControl>
                           <SelectTrigger>

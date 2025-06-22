@@ -172,7 +172,7 @@ Changelog:
 - June 22, 2025. Enhanced email campaign targeting with two modes: region-based and specific person selection
 - June 22, 2025. Updated email campaign database schema with target_type, specific_investor_ids, and specific_analyst_ids fields
 - June 22, 2025. Changed investor form section title from "Additional Details (Optional)" to "R&R정보" per user request
-- June 22, 2025. Updated investor form field labels: "Position" to "Position(대리, 과장 등 직책)" and "Position Type" to "R&R(PM, 애널리스트 등)"
+- June 22, 2025. Updated investor form field labels: "Position" to "Position(대리, 과장 등 직책)", "Position Type" to "R&R(PM, 애널리스트 등)", and "Specialty Type" to "Specialty(담당분야)"
 ```
 
 ## User Preferences
