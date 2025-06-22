@@ -118,14 +118,9 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
                     </span>
                   )}
                 </div>
-                {investor.positionType === "Buyside Analyst" && investor.specialtyType && (
+                {investor.positionType === "Buyside Analyst" && Array.isArray(investor.specialty) && investor.specialty.length > 0 && (
                   <div className="text-xs text-gray-400 mt-1">
-                    {investor.specialtyType === "industry" && investor.industryArea && (
-                      <span>Industry: {investor.industryArea}</span>
-                    )}
-                    {investor.specialtyType === "regional" && investor.region && (
-                      <span>Region: {investor.region}</span>
-                    )}
+                    <span>Specialty: {investor.specialty.join(", ")}</span>
                   </div>
                 )}
               </td>
