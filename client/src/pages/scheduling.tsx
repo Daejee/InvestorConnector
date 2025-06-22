@@ -13,7 +13,7 @@ export default function Scheduling() {
   const [activeTab, setActiveTab] = useState("upcoming");
 
   const { data: meetings = [] } = useQuery<Meeting[]>({
-    queryKey: ["/api/meeting-logs"],
+    queryKey: ["/api/meetings"],
   });
 
   const { data: investors = [] } = useQuery<Investor[]>({

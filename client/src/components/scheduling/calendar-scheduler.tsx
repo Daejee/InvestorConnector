@@ -40,7 +40,7 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
   const queryClient = useQueryClient();
 
   const { data: meetings = [] } = useQuery<Meeting[]>({
-    queryKey: ["/api/meeting-logs"],
+    queryKey: ["/api/meetings"],
   });
 
   const { data: investors = [] } = useQuery<Investor[]>({
@@ -60,9 +60,9 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
   });
 
   const createMeetingMutation = useMutation({
-    mutationFn: (data: any) => apiRequest("/api/meeting-logs", "POST", data),
+    mutationFn: (data: any) => apiRequest("/api/meetings", "POST", data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/meeting-logs"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/meetings"] });
       setIsBookingOpen(false);
       setSelectedDate(null);
       setSelectedTime("");
