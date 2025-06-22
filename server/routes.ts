@@ -698,6 +698,73 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Meetings routes (for scheduling)
+  app.get("/api/meetings", async (req, res) => {
+    const meetings = await storage.getMeetings();
+    res.json(meetings);
+  });
+
+  app.get("/api/meetings/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    const meeting = await storage.getMeeting(id);
+    if (meeting) {
+      res.json(meeting);
+    } else {
+      res.status(404).json({ message: "Meeting not found" });
+    }
+  });
+
+  app.get("/api/meetings/investor/:investorId", async (req, res) => {
+    const investorId = parseInt(req.params.investorId);
+    const meetings = await storage.getMeetingsByInvestor(investorId);
+    res.json(meetings);
+  });
+
+  app.post("/api/meetings", async (req, res) => {
+    try {
+      // Transform scheduledDate string to Date object before validation
+      const requestData = {
+        ...req.body,
+        scheduledDate: req.body.scheduledDate ? new Date(req.body.scheduledDate) : undefined
+      };
+      const data = insertMeetingSchema.parse(requestData);
+      const meeting = await storage.createMeeting(data);
+      res.status(201).json(meeting);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid meeting data", error });
+    }
+  });
+
+  app.patch("/api/meetings/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      // Transform scheduledDate string to Date object before validation
+      const requestData = {
+        ...req.body,
+        scheduledDate: req.body.scheduledDate ? new Date(req.body.scheduledDate) : undefined
+      };
+      const data = insertMeetingSchema.partial().parse(requestData);
+      const meeting = await storage.updateMeeting(id, data);
+      if (meeting) {
+        res.json(meeting);
+      } else {
+        res.status(404).json({ message: "Meeting not found" });
+      }
+    } catch (error) {
+      res.status(400).json({ message: "Invalid meeting data", error });
+    }
+  });
+
+  app.delete("/api/meetings/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    const success = await storage.deleteMeeting(id);
+    if (success) {
+      res.status(204).send();
+    } else {
+      res.status(404).json({ message: "Meeting not found" });
+    }
+  });
+
   // NDR/Conference routes
   app.get("/api/ndr-conferences", async (req, res) => {
     const conferences = await storage.getNdrConferences();
