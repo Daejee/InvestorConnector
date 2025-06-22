@@ -318,7 +318,7 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel }
                     name="region"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Region</FormLabel>
+                        <FormLabel>Region 담당지역</FormLabel>
                         <FormControl>
                           <Input placeholder="Enter specific region" {...field} value={field.value ?? ""} />
                         </FormControl>
