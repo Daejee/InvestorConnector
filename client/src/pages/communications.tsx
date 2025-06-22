@@ -58,6 +58,7 @@ export default function Communications() {
       type: "email" as const,
       subject: "",
       description: "",
+      date: new Date(),
       status: "completed" as const,
     },
   });
@@ -159,6 +160,8 @@ export default function Communications() {
   });
 
   const onSubmitCommunication = (data: any) => {
+    console.log('Communication form data:', data);
+    console.log('Form errors:', communicationForm.formState.errors);
     createCommunicationMutation.mutate(data);
   };
 
