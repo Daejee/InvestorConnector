@@ -30,7 +30,7 @@ export const analysts = pgTable("analysts", {
   phone: text("phone").default(""),
   company: text("company").notNull(),
   position: text("position").default(""),
-  specialization: text("specialization").default(""), // Tech, Healthcare, Finance, etc.
+  specialization: text("specialization").array().default([]), // Tech, Healthcare, Finance, etc.
   coverage: text("coverage").default(""), // sectors/companies covered
   language: text("language").default("Korean"), // Korean, English, Japanese
   country: text("country").default("Korea"), // Korea, US, UK, Japan, Singapore, Other
