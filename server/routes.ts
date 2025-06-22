@@ -722,16 +722,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/meetings", async (req, res) => {
     try {
+      console.log('Raw request body:', req.body);
       // Transform scheduledDate string to Date object before validation
       const requestData = {
         ...req.body,
         scheduledDate: req.body.scheduledDate ? new Date(req.body.scheduledDate) : undefined
       };
+      console.log('Transformed request data:', requestData);
       const data = insertMeetingSchema.parse(requestData);
+      console.log('Validated data:', data);
       const meeting = await storage.createMeeting(data);
       res.status(201).json(meeting);
     } catch (error) {
-      res.status(400).json({ message: "Invalid meeting data", error });
+      console.error('Meeting creation error:', error);
+      res.status(400).json({ message: "Invalid meeting data", error: error instanceof Error ? error.message : error });
     }
   });
 
