@@ -174,6 +174,7 @@ export const insertMeetingSchema = createInsertSchema(meetings).omit({
   scheduledDate: z.union([z.date(), z.string()]).transform((val) => 
     typeof val === 'string' ? new Date(val) : val
   ),
+  investorId: z.number().optional().nullable(),
 });
 
 export const insertFundSchema = createInsertSchema(funds).omit({

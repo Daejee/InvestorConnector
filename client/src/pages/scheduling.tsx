@@ -164,7 +164,7 @@ export default function Scheduling() {
                             <div className="flex items-center text-sm text-gray-600 space-x-4">
                               <span className="flex items-center">
                                 <Users className="mr-1 h-3 w-3" />
-                                {investor?.name || 'Unknown Investor'}
+                                {investor?.name || 'Internal Meeting / 내부 미팅'}
                               </span>
                               <span className="flex items-center">
                                 <Clock className="mr-1 h-3 w-3" />

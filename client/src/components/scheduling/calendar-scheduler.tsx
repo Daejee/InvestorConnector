@@ -49,9 +49,7 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
   });
 
   const form = useForm({
-    resolver: zodResolver(insertMeetingSchema.extend({
-      investorId: z.number().optional().nullable(),
-    })),
+    resolver: zodResolver(insertMeetingSchema),
     defaultValues: {
       investorId: selectedInvestor?.id || null,
       title: "",
