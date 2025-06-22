@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { insertMeetingSchema, type Meeting, type Investor } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -48,9 +49,11 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
   });
 
   const form = useForm({
-    resolver: zodResolver(insertMeetingSchema),
+    resolver: zodResolver(insertMeetingSchema.extend({
+      investorId: z.number().optional().nullable(),
+    })),
     defaultValues: {
-      investorId: selectedInvestor?.id || undefined,
+      investorId: selectedInvestor?.id || null,
       title: "",
       description: "",
       scheduledDate: new Date(),
@@ -201,10 +204,10 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
                   name="investorId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Investor / 투자자</FormLabel>
+                      <FormLabel>Investor / 투자자 (Optional / 선택사항)</FormLabel>
                       <Select 
-                        onValueChange={(value) => field.onChange(parseInt(value))}
-                        defaultValue={selectedInvestor?.id?.toString()}
+                        onValueChange={(value) => field.onChange(value === "none" ? null : parseInt(value))}
+                        defaultValue={selectedInvestor?.id?.toString() || "none"}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -212,6 +215,7 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
+                          <SelectItem value="none">None / 없음</SelectItem>
                           {investors.map((investor) => (
                             <SelectItem key={investor.id} value={investor.id.toString()}>
                               {investor.name} - {investor.company}

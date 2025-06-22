@@ -85,7 +85,7 @@ export const communications = pgTable("communications", {
 
 export const meetings = pgTable("meetings", {
   id: serial("id").primaryKey(),
-  investorId: integer("investor_id").notNull(),
+  investorId: integer("investor_id"), // Made optional
   title: text("title").notNull(),
   description: text("description"),
   scheduledDate: timestamp("scheduled_date").notNull(),
