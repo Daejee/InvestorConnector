@@ -81,7 +81,6 @@ export default function Communications() {
       status: "draft" as const,
       targetLanguage: "Korean",
       targetRegion: "Korea",
-      targetType: "region",
     },
   });
 
@@ -125,11 +124,22 @@ export default function Communications() {
   });
 
   const createCampaignMutation = useMutation({
-    mutationFn: (data: any) => apiRequest("POST", "/api/email-campaigns", data),
+    mutationFn: (data: any) => {
+      const campaignData = {
+        ...data,
+        targetType: targetType,
+        specificInvestorIds: targetType === "specific" ? JSON.stringify(selectedInvestors) : null,
+        specificAnalystIds: targetType === "specific" ? JSON.stringify(selectedAnalysts) : null,
+      };
+      return apiRequest("POST", "/api/email-campaigns", campaignData);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/email-campaigns"] });
       setIsCampaignDialogOpen(false);
       campaignForm.reset();
+      setSelectedInvestors([]);
+      setSelectedAnalysts([]);
+      setTargetType("region");
       toast({
         title: "Email campaign created",
         description: "The email campaign has been saved successfully.",
@@ -583,29 +593,18 @@ export default function Communications() {
                         </FormItem>
                       )}
                     />
-                    <FormField
-                      control={campaignForm.control}
-                      name="targetType"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Target Selection / 대상 선택</FormLabel>
-                          <Select onValueChange={(value) => {
-                            setTargetType(value as "region" | "specific");
-                            field.onChange(value);
-                          }} defaultValue="region">
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="region">By Region & Language / 지역별·언어별</SelectItem>
-                              <SelectItem value="specific">Select Specific People / 특정 인물 선택</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </FormItem>
-                      )}
-                    />
+                    <div>
+                      <FormLabel>Target Selection / 대상 선택</FormLabel>
+                      <Select onValueChange={(value) => setTargetType(value as "region" | "specific")} defaultValue="region">
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="region">By Region & Language / 지역별·언어별</SelectItem>
+                          <SelectItem value="specific">Select Specific People / 특정 인물 선택</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
                     {targetType === "region" ? (
                       <div className="grid grid-cols-2 gap-4">
@@ -703,7 +702,7 @@ export default function Communications() {
                             <TabsContent value="analysts" className="mt-4">
                               <ScrollArea className="h-48 w-full border rounded-md p-3">
                                 <div className="space-y-2">
-                                  {analysts.map((analyst: any) => (
+                                  {analysts.map((analyst) => (
                                     <div key={analyst.id} className="flex items-center space-x-2">
                                       <Checkbox
                                         id={`analyst-${analyst.id}`}
