@@ -205,6 +205,7 @@ export function AnalystForm({ analyst, onClose }: AnalystFormProps) {
                       <SelectValue placeholder="Select specialization / 전문분야 선택" />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="Semiconductor">Semiconductor / 반도체</SelectItem>
                       <SelectItem value="Technology">Technology / 기술</SelectItem>
                       <SelectItem value="Healthcare">Healthcare / 헬스케어</SelectItem>
                       <SelectItem value="Finance">Finance / 금융</SelectItem>
@@ -215,7 +216,6 @@ export function AnalystForm({ analyst, onClose }: AnalystFormProps) {
                       <SelectItem value="Materials">Materials / 소재</SelectItem>
                       <SelectItem value="Telecommunications">Telecommunications / 통신</SelectItem>
                       <SelectItem value="Utilities">Utilities / 유틸리티</SelectItem>
-                      <SelectItem value="Semiconductor">Semiconductor / 반도체</SelectItem>
                       <SelectItem value="Defense">Defense / 방산</SelectItem>
                       <SelectItem value="Machinery">Machinery / 기계</SelectItem>
                       <SelectItem value="Shipbuilding">Shipbuilding / 조선</SelectItem>

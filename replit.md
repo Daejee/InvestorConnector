@@ -177,6 +177,7 @@ Changelog:
 - June 22, 2025. Updated region field label from "Region" to "Region(담당지역)" in investor form
 - June 22, 2025. Updated industry field label from "Industry Area" to "Industry(담당산업)" in investor form
 - June 22, 2025. Added English translations to Korean specialization options in analyst form: Semiconductor/반도체, Defense/방산, Machinery/기계, Shipbuilding/조선
+- June 22, 2025. Reordered analyst specialization dropdown to show "Semiconductor / 반도체" at the top of the list
 ```
 
 ## User Preferences
