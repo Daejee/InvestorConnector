@@ -57,7 +57,7 @@ export default function Communications() {
     resolver: zodResolver(insertEmailTemplateSchema),
     defaultValues: {
       name: "",
-      type: "earnings_report" as const,
+      templateType: "earnings_report" as const,
       language: "Korean",
       subject: "",
       content: "",
@@ -89,7 +89,12 @@ export default function Communications() {
   });
 
   const createTemplateMutation = useMutation({
-    mutationFn: (data: any) => apiRequest("/api/email-templates", "POST", data),
+    mutationFn: async (data: any) => {
+      console.log('Sending template data to API:', data);
+      const response = await apiRequest("/api/email-templates", "POST", data);
+      console.log('API response:', response);
+      return response;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/email-templates"] });
       setIsTemplateDialogOpen(false);
@@ -97,6 +102,14 @@ export default function Communications() {
       toast({
         title: "Email template created",
         description: "The email template has been saved successfully.",
+      });
+    },
+    onError: (error: any) => {
+      console.error('Template creation error:', error);
+      toast({
+        title: "Error creating template",
+        description: error.message || "Failed to create email template. Please try again.",
+        variant: "destructive",
       });
     },
   });
@@ -131,7 +144,12 @@ export default function Communications() {
   };
 
   const onSubmitTemplate = (data: any) => {
-    createTemplateMutation.mutate(data);
+    console.log('Template form data:', data);
+    try {
+      createTemplateMutation.mutate(data);
+    } catch (error) {
+      console.error('Template submission error:', error);
+    }
   };
 
   const onSubmitCampaign = (data: any) => {
