@@ -76,7 +76,7 @@ export default function Communications() {
   });
 
   const createCommunicationMutation = useMutation({
-    mutationFn: (data: any) => apiRequest("/api/communications", "POST", data),
+    mutationFn: (data: any) => apiRequest("POST", "/api/communications", data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/communications"] });
       setIsDialogOpen(false);
@@ -91,7 +91,7 @@ export default function Communications() {
   const createTemplateMutation = useMutation({
     mutationFn: async (data: any) => {
       console.log('Sending template data to API:', data);
-      const response = await apiRequest("/api/email-templates", "POST", data);
+      const response = await apiRequest("POST", "/api/email-templates", data);
       console.log('API response:', response);
       return response;
     },
@@ -115,7 +115,7 @@ export default function Communications() {
   });
 
   const createCampaignMutation = useMutation({
-    mutationFn: (data: any) => apiRequest("/api/email-campaigns", "POST", data),
+    mutationFn: (data: any) => apiRequest("POST", "/api/email-campaigns", data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/email-campaigns"] });
       setIsCampaignDialogOpen(false);
@@ -129,7 +129,7 @@ export default function Communications() {
 
   const sendCampaignMutation = useMutation({
     mutationFn: ({ campaignId, targetLanguage, targetRegion }: { campaignId: number, targetLanguage: string, targetRegion: string }) => 
-      apiRequest(`/api/email-campaigns/${campaignId}/send`, "POST", { targetLanguage, targetRegion }),
+      apiRequest("POST", `/api/email-campaigns/${campaignId}/send`, { targetLanguage, targetRegion }),
     onSuccess: (result: any) => {
       queryClient.invalidateQueries({ queryKey: ["/api/email-campaigns"] });
       toast({
