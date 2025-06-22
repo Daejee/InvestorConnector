@@ -171,6 +171,7 @@ Changelog:
 - June 22, 2025. Added individual investor/analyst selection feature for email campaigns with checkbox interface
 - June 22, 2025. Enhanced email campaign targeting with two modes: region-based and specific person selection
 - June 22, 2025. Updated email campaign database schema with target_type, specific_investor_ids, and specific_analyst_ids fields
+- June 22, 2025. Changed investor form section title from "Additional Details (Optional)" to "R&R정보 간단하게" per user request
 ```
 
 ## User Preferences
