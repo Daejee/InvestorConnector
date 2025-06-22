@@ -14,7 +14,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { insertCommunicationSchema, insertEmailTemplateSchema, insertEmailCampaignSchema, type Communication, type Investor, type EmailTemplate, type EmailCampaign } from "@shared/schema";
+import { insertCommunicationSchema, insertEmailTemplateSchema, insertEmailCampaignSchema, type Communication, type Investor, type EmailTemplate, type EmailCampaign, type Analyst } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
@@ -47,7 +47,7 @@ export default function Communications() {
     queryKey: ["/api/email-campaigns"],
   });
 
-  const { data: analysts = [] } = useQuery({
+  const { data: analysts = [] } = useQuery<Analyst[]>({
     queryKey: ["/api/analysts"],
   });
 
@@ -81,6 +81,7 @@ export default function Communications() {
       status: "draft" as const,
       targetLanguage: "Korean",
       targetRegion: "Korea",
+      targetType: "region",
     },
   });
 

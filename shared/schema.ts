@@ -141,8 +141,11 @@ export const emailCampaigns = pgTable("email_campaigns", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   templateId: integer("template_id").notNull(),
+  targetType: text("target_type").default("region"), // region, specific
   targetRegion: text("target_region"), // Korea, International, All
   targetLanguage: text("target_language"), // Korean, English, All
+  specificInvestorIds: text("specific_investor_ids"), // JSON array of investor IDs
+  specificAnalystIds: text("specific_analyst_ids"), // JSON array of analyst IDs
   sentCount: integer("sent_count").default(0),
   deliveredCount: integer("delivered_count").default(0),
   status: text("status").default("draft"), // draft, sending, completed, failed
