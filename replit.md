@@ -167,6 +167,10 @@ Changelog:
 - June 20, 2025. Added documents database table with file metadata, investor/company linking, and tagging system
 - June 20, 2025. Implemented complete document API routes with multer file upload support for PDF, DOC, DOCX, TXT, JPEG, PNG files
 - June 20, 2025. Built Documents frontend with drag-drop upload, category selection, file size display, and bilingual interface
+- June 22, 2025. Fixed Communication form submission by resolving date validation error - server now converts date strings to Date objects
+- June 22, 2025. Added individual investor/analyst selection feature for email campaigns with checkbox interface
+- June 22, 2025. Enhanced email campaign targeting with two modes: region-based and specific person selection
+- June 22, 2025. Updated email campaign database schema with target_type, specific_investor_ids, and specific_analyst_ids fields
 ```
 
 ## User Preferences

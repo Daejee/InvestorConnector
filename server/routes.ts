@@ -397,7 +397,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/communications", async (req, res) => {
     try {
       console.log('Received communication data:', req.body);
-      const data = insertCommunicationSchema.parse(req.body);
+      
+      // Convert date string to Date object if needed
+      const processedData = {
+        ...req.body,
+        date: typeof req.body.date === 'string' ? new Date(req.body.date) : req.body.date
+      };
+      
+      const data = insertCommunicationSchema.parse(processedData);
       console.log('Parsed communication data:', data);
       const communication = await storage.createCommunication(data);
       res.status(201).json(communication);
