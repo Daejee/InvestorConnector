@@ -225,7 +225,7 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel }
                 name="position"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Position</FormLabel>
+                    <FormLabel>Position(대리, 과장 등 직책)</FormLabel>
                     <FormControl>
                       <Input placeholder="Enter position/title" {...field} value={field.value ?? ""} />
                     </FormControl>
@@ -254,7 +254,7 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel }
               name="positionType"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Position Type</FormLabel>
+                  <FormLabel>R&R(PM, 애널리스트 등)</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
                     <FormControl>
                       <SelectTrigger>
