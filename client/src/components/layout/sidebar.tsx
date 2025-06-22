@@ -54,6 +54,7 @@ const navigation = [
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const [location] = useLocation();
   const [expandedItems, setExpandedItems] = useState<string[]>(["Companies / 회사", "Meetings / 회의"]);
+  const [isBookMeetingOpen, setIsBookMeetingOpen] = useState(false);
 
   const toggleExpanded = (itemName: string) => {
     setExpandedItems(prev => 
@@ -180,16 +181,23 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                   Add Investor / 투자자 추가
                 </div>
               </Link>
-              <Link href="/scheduling">
-                <div className="w-full text-left text-gray-700 hover:bg-gray-50 group flex items-center px-3 py-2 text-sm font-medium rounded-lg cursor-pointer">
-                  <Plus className="mr-3 h-4 w-4" />
-                  Schedule / 일정 예약
-                </div>
-              </Link>
+              <button 
+                onClick={() => setIsBookMeetingOpen(true)}
+                className="w-full text-left text-gray-700 hover:bg-gray-50 group flex items-center px-3 py-2 text-sm font-medium rounded-lg cursor-pointer"
+              >
+                <Plus className="mr-3 h-4 w-4" />
+                Schedule / 일정 예약
+              </button>
             </div>
           </div>
         </nav>
       </aside>
+
+      {/* Book Meeting Dialog */}
+      <BookMeetingDialog 
+        open={isBookMeetingOpen} 
+        onOpenChange={setIsBookMeetingOpen}
+      />
     </>
   );
 }

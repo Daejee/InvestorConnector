@@ -54,16 +54,15 @@ export function BookMeetingDialog({
     queryKey: ["/api/analysts"],
   });
 
-  const form = useForm({
-    resolver: zodResolver(insertMeetingSchema),
+  const form = useForm<any>({
     defaultValues: {
-      attendeeType: "other" as const,
+      attendeeType: "other",
       investorId: null,
       analystId: null,
       title: "",
       description: "",
       scheduledDate: new Date(selectedDate),
-      status: "scheduled" as const,
+      status: "scheduled",
     },
   });
 
@@ -153,7 +152,7 @@ export function BookMeetingDialog({
                       <FormLabel>Select Investor / 투자자 선택</FormLabel>
                       <Select 
                         onValueChange={(value) => field.onChange(parseInt(value))}
-                        value={field.value?.toString() || ""}
+                        value={field.value ? field.value.toString() : ""}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -182,7 +181,7 @@ export function BookMeetingDialog({
                       <FormLabel>Select Analyst / 애널리스트 선택</FormLabel>
                       <Select 
                         onValueChange={(value) => field.onChange(parseInt(value))}
-                        value={field.value?.toString() || ""}
+                        value={field.value ? field.value.toString() : ""}
                       >
                         <FormControl>
                           <SelectTrigger>
