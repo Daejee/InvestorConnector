@@ -178,6 +178,10 @@ Changelog:
 - June 22, 2025. Updated industry field label from "Industry Area" to "Industry(담당산업)" in investor form
 - June 22, 2025. Added English translations to Korean specialization options in analyst form: Semiconductor/반도체, Defense/방산, Machinery/기계, Shipbuilding/조선
 - June 22, 2025. Reordered analyst specialization dropdown to show "Semiconductor / 반도체" at the top of the list
+- June 22, 2025. Enhanced analyst specialization to support multiple selections using checkbox interface instead of single dropdown
+- June 22, 2025. Updated database schema to store analyst specializations as text array for multi-select functionality
+- June 22, 2025. Modified analyst table and detail views to display multiple specializations as comma-separated list
+- June 22, 2025. Enhanced search functionality to work with array-based specialization fields
 ```
 
 ## User Preferences
