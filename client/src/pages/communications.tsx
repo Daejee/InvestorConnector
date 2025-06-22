@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Send, Mail, Phone, Calendar, MessageSquare, FileText, Target, Users } from "lucide-react";
+import { Plus, Send, Mail, Phone, Calendar, MessageSquare, FileText, Target, Users, UserCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -10,6 +10,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertCommunicationSchema, insertEmailTemplateSchema, insertEmailCampaignSchema, type Communication, type Investor, type EmailTemplate, type EmailCampaign } from "@shared/schema";
@@ -23,6 +25,9 @@ export default function Communications() {
   const [isTemplateDialogOpen, setIsTemplateDialogOpen] = useState(false);
   const [isCampaignDialogOpen, setIsCampaignDialogOpen] = useState(false);
   const [selectedCampaign, setSelectedCampaign] = useState<EmailCampaign | null>(null);
+  const [selectedInvestors, setSelectedInvestors] = useState<number[]>([]);
+  const [selectedAnalysts, setSelectedAnalysts] = useState<number[]>([]);
+  const [targetType, setTargetType] = useState<"region" | "specific">("region");
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -40,6 +45,10 @@ export default function Communications() {
 
   const { data: emailCampaigns = [] } = useQuery<EmailCampaign[]>({
     queryKey: ["/api/email-campaigns"],
+  });
+
+  const { data: analysts = [] } = useQuery({
+    queryKey: ["/api/analysts"],
   });
 
   const communicationForm = useForm({
@@ -573,50 +582,157 @@ export default function Communications() {
                         </FormItem>
                       )}
                     />
-                    <div className="grid grid-cols-2 gap-4">
-                      <FormField
-                        control={campaignForm.control}
-                        name="targetLanguage"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Target Language / 대상 언어</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <SelectItem value="Korean">Korean / 한국어</SelectItem>
-                                <SelectItem value="English">English / 영어</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={campaignForm.control}
-                        name="targetRegion"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Target Region / 대상 지역</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <SelectItem value="Korea">Korea / 한국</SelectItem>
-                                <SelectItem value="United States">United States / 미국</SelectItem>
-                                <SelectItem value="Europe">Europe / 유럽</SelectItem>
-                                <SelectItem value="Asia">Asia / 아시아</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </FormItem>
-                        )}
-                      />
-                    </div>
+                    <FormField
+                      control={campaignForm.control}
+                      name="targetType"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Target Selection / 대상 선택</FormLabel>
+                          <Select onValueChange={(value) => {
+                            setTargetType(value as "region" | "specific");
+                            field.onChange(value);
+                          }} defaultValue="region">
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="region">By Region & Language / 지역별·언어별</SelectItem>
+                              <SelectItem value="specific">Select Specific People / 특정 인물 선택</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </FormItem>
+                      )}
+                    />
+
+                    {targetType === "region" ? (
+                      <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                          control={campaignForm.control}
+                          name="targetLanguage"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Target Language / 대상 언어</FormLabel>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="Korean">Korean / 한국어</SelectItem>
+                                  <SelectItem value="English">English / 영어</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={campaignForm.control}
+                          name="targetRegion"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Target Region / 대상 지역</FormLabel>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="Korea">Korea / 한국</SelectItem>
+                                  <SelectItem value="United States">United States / 미국</SelectItem>
+                                  <SelectItem value="Europe">Europe / 유럽</SelectItem>
+                                  <SelectItem value="Asia">Asia / 아시아</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        <div>
+                          <FormLabel className="text-base font-medium">Select Recipients / 수신자 선택</FormLabel>
+                          
+                          <Tabs defaultValue="investors" className="mt-2">
+                            <TabsList className="grid w-full grid-cols-2">
+                              <TabsTrigger value="investors" className="flex items-center gap-2">
+                                <Users className="h-4 w-4" />
+                                Investors / 투자자
+                              </TabsTrigger>
+                              <TabsTrigger value="analysts" className="flex items-center gap-2">
+                                <UserCheck className="h-4 w-4" />
+                                Analysts / 애널리스트
+                              </TabsTrigger>
+                            </TabsList>
+                            
+                            <TabsContent value="investors" className="mt-4">
+                              <ScrollArea className="h-48 w-full border rounded-md p-3">
+                                <div className="space-y-2">
+                                  {investors.map((investor) => (
+                                    <div key={investor.id} className="flex items-center space-x-2">
+                                      <Checkbox
+                                        id={`investor-${investor.id}`}
+                                        checked={selectedInvestors.includes(investor.id)}
+                                        onCheckedChange={(checked) => {
+                                          if (checked) {
+                                            setSelectedInvestors([...selectedInvestors, investor.id]);
+                                          } else {
+                                            setSelectedInvestors(selectedInvestors.filter(id => id !== investor.id));
+                                          }
+                                        }}
+                                      />
+                                      <label
+                                        htmlFor={`investor-${investor.id}`}
+                                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                                      >
+                                        {investor.name} ({investor.email}) - {investor.company}
+                                      </label>
+                                    </div>
+                                  ))}
+                                </div>
+                              </ScrollArea>
+                              <p className="text-xs text-muted-foreground mt-2">
+                                Selected: {selectedInvestors.length} investors / 선택됨: {selectedInvestors.length}명
+                              </p>
+                            </TabsContent>
+                            
+                            <TabsContent value="analysts" className="mt-4">
+                              <ScrollArea className="h-48 w-full border rounded-md p-3">
+                                <div className="space-y-2">
+                                  {analysts.map((analyst: any) => (
+                                    <div key={analyst.id} className="flex items-center space-x-2">
+                                      <Checkbox
+                                        id={`analyst-${analyst.id}`}
+                                        checked={selectedAnalysts.includes(analyst.id)}
+                                        onCheckedChange={(checked) => {
+                                          if (checked) {
+                                            setSelectedAnalysts([...selectedAnalysts, analyst.id]);
+                                          } else {
+                                            setSelectedAnalysts(selectedAnalysts.filter(id => id !== analyst.id));
+                                          }
+                                        }}
+                                      />
+                                      <label
+                                        htmlFor={`analyst-${analyst.id}`}
+                                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                                      >
+                                        {analyst.name} ({analyst.email}) - {analyst.company}
+                                      </label>
+                                    </div>
+                                  ))}
+                                </div>
+                              </ScrollArea>
+                              <p className="text-xs text-muted-foreground mt-2">
+                                Selected: {selectedAnalysts.length} analysts / 선택됨: {selectedAnalysts.length}명
+                              </p>
+                            </TabsContent>
+                          </Tabs>
+                        </div>
+                      </div>
+                    )}
                     <div className="flex justify-end space-x-2">
                       <Button type="button" variant="outline" onClick={() => setIsCampaignDialogOpen(false)}>
                         Cancel / 취소
