@@ -187,6 +187,10 @@ Changelog:
 - June 22, 2025. Added comprehensive industry options (Semiconductor, Technology, Healthcare, Finance, etc.) and regional options (Korea, US, Japan, China, Europe, ASEAN, etc.) for investor specialties
 - June 22, 2025. Removed separate specialtyType, industryArea, and region fields in favor of unified specialty array
 - June 22, 2025. Updated investor table display to show multiple specialties as comma-separated list for Buyside Analysts
+- June 22, 2025. Enhanced meeting scheduling system to allow optional investor selection - meetings can now be scheduled without selecting an investor
+- June 22, 2025. Modified meetings database schema to make investorId nullable for internal meetings and other non-investor meetings
+- June 22, 2025. Added "Other / 기타" option to investor selection dropdown in meeting booking form for meetings without specific investor assignment
+- June 22, 2025. Updated meeting display logic to show "Other / 기타" for meetings without assigned investors
 ```
 
 ## User Preferences

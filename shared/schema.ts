@@ -85,7 +85,9 @@ export const communications = pgTable("communications", {
 
 export const meetings = pgTable("meetings", {
   id: serial("id").primaryKey(),
-  investorId: integer("investor_id"), // Made optional
+  attendeeType: text("attendee_type").notNull(), // investor, analyst, other
+  investorId: integer("investor_id"), // Optional - for investor meetings
+  analystId: integer("analyst_id"), // Optional - for analyst meetings
   title: text("title").notNull(),
   description: text("description"),
   scheduledDate: timestamp("scheduled_date").notNull(),
@@ -174,7 +176,9 @@ export const insertMeetingSchema = createInsertSchema(meetings).omit({
   scheduledDate: z.union([z.date(), z.string()]).transform((val) => 
     typeof val === 'string' ? new Date(val) : val
   ),
+  attendeeType: z.enum(["investor", "analyst", "other"]),
   investorId: z.number().optional().nullable(),
+  analystId: z.number().optional().nullable(),
 });
 
 export const insertFundSchema = createInsertSchema(funds).omit({

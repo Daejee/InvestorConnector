@@ -213,7 +213,7 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="none">None / 없음</SelectItem>
+                          <SelectItem value="none">Other / 기타</SelectItem>
                           {investors.map((investor) => (
                             <SelectItem key={investor.id} value={investor.id.toString()}>
                               {investor.name} - {investor.company}
