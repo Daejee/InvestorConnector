@@ -213,7 +213,7 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel }
               variant="outline" 
               className="w-full flex items-center justify-between"
             >
-              <span>Additional Details (Optional)</span>
+              <span>Additional Details (Optional) / 추가 정보 (선택사항)</span>
               <ChevronDown className={`h-4 w-4 transition-transform ${showDetails ? 'rotate-180' : ''}`} />
             </Button>
           </CollapsibleTrigger>
