@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { apiRequest } from "@/lib/queryClient";
@@ -45,9 +47,7 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel }
       fund: investor?.fund ?? "",
       position: investor?.position ?? "",
       positionType: investor?.positionType ?? "",
-      specialtyType: investor?.specialtyType ?? "",
-      industryArea: investor?.industryArea ?? "",
-      region: investor?.region ?? "",
+      specialty: investor?.specialty ?? [],
       ownsOurShare: investor?.ownsOurShare ?? "",
       shareAmount: investor?.shareAmount ?? "",
       note: investor?.note ?? "",
@@ -273,61 +273,66 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel }
             />
 
             {form.watch("positionType") === "Buyside Analyst" && (
-              <>
-                <FormField
-                  control={form.control}
-                  name="specialtyType"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Specialty(담당분야)</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select specialty type" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="regional">Regional(지역전문)</SelectItem>
-                          <SelectItem value="industry">Industry(산업전문)</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {form.watch("specialtyType") === "industry" && (
-                  <FormField
-                    control={form.control}
-                    name="industryArea"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Industry(담당산업)</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Enter specific industry area" {...field} value={field.value ?? ""} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+              <FormField
+                control={form.control}
+                name="specialty"
+                render={({ field }) => (
+                  <FormItem className="col-span-2">
+                    <FormLabel>Specialty / 담당분야 (다중 선택 가능)</FormLabel>
+                    <FormControl>
+                      <div className="grid grid-cols-3 gap-3 p-4 border rounded-md">
+                        {[
+                          // Industry specializations
+                          { value: "Semiconductor", label: "Semiconductor / 반도체" },
+                          { value: "Technology", label: "Technology / 기술" },
+                          { value: "Healthcare", label: "Healthcare / 헬스케어" },
+                          { value: "Finance", label: "Finance / 금융" },
+                          { value: "Consumer", label: "Consumer / 소비재" },
+                          { value: "Energy", label: "Energy / 에너지" },
+                          { value: "Industrial", label: "Industrial / 산업재" },
+                          { value: "Real Estate", label: "Real Estate / 부동산" },
+                          { value: "Materials", label: "Materials / 소재" },
+                          { value: "Telecommunications", label: "Telecommunications / 통신" },
+                          { value: "Utilities", label: "Utilities / 유틸리티" },
+                          { value: "Defense", label: "Defense / 방산" },
+                          { value: "Machinery", label: "Machinery / 기계" },
+                          { value: "Shipbuilding", label: "Shipbuilding / 조선" },
+                          // Regional specializations
+                          { value: "Korea", label: "Korea / 한국" },
+                          { value: "US", label: "US / 미국" },
+                          { value: "Japan", label: "Japan / 일본" },
+                          { value: "China", label: "China / 중국" },
+                          { value: "Europe", label: "Europe / 유럽" },
+                          { value: "ASEAN", label: "ASEAN / 아세안" },
+                          { value: "Emerging Markets", label: "Emerging Markets / 신흥시장" },
+                          { value: "Global", label: "Global / 글로벌" }
+                        ].map((item) => (
+                          <div key={item.value} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={item.value}
+                              checked={field.value?.includes(item.value) || false}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  field.onChange([...(field.value || []), item.value]);
+                                } else {
+                                  field.onChange((field.value || []).filter((value: string) => value !== item.value));
+                                }
+                              }}
+                            />
+                            <Label
+                              htmlFor={item.value}
+                              className="text-sm font-normal cursor-pointer"
+                            >
+                              {item.label}
+                            </Label>
+                          </div>
+                        ))}
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
-
-                {form.watch("specialtyType") === "regional" && (
-                  <FormField
-                    control={form.control}
-                    name="region"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Region(담당지역)</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Enter specific region" {...field} value={field.value ?? ""} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                )}
-              </>
+              />
             )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
