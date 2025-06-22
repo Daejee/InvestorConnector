@@ -30,6 +30,7 @@ function Router() {
         <Route path="/meeting-logs" component={MeetingLogs} />
         <Route path="/ndr-conferences" component={NdrConferences} />
         <Route path="/scheduling" component={Scheduling} />
+        <Route path="/schedule" component={Scheduling} />
         <Route path="/documents" component={Documents} />
         <Route path="/reports" component={Reports} />
         <Route component={NotFound} />
