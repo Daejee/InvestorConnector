@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -214,6 +214,9 @@ export default function Communications() {
               <DialogContent className="max-w-2xl">
                 <DialogHeader>
                   <DialogTitle>Log New Communication / 새 소통 기록</DialogTitle>
+                  <DialogDescription>
+                    Create a new communication record for investor interactions / 투자자와의 상호작용 기록을 생성합니다
+                  </DialogDescription>
                 </DialogHeader>
                 <Form {...communicationForm}>
                   <form onSubmit={communicationForm.handleSubmit(onSubmitCommunication)} className="space-y-4">
@@ -383,6 +386,9 @@ export default function Communications() {
               <DialogContent className="max-w-3xl">
                 <DialogHeader>
                   <DialogTitle>Create Email Template / 이메일 템플릿 생성</DialogTitle>
+                  <DialogDescription>
+                    Create a new email template for investor communications / 투자자 소통용 이메일 템플릿을 생성합니다
+                  </DialogDescription>
                 </DialogHeader>
                 <Form {...templateForm}>
                   <form onSubmit={templateForm.handleSubmit(onSubmitTemplate)} className="space-y-4">
@@ -508,6 +514,9 @@ export default function Communications() {
               <DialogContent className="max-w-2xl">
                 <DialogHeader>
                   <DialogTitle>Create Earnings Report Campaign / 실적 보고서 캠페인 생성</DialogTitle>
+                  <DialogDescription>
+                    Create a new campaign to send earnings reports to investors / 투자자들에게 실적 보고서를 보낼 새 캠페인을 생성합니다
+                  </DialogDescription>
                 </DialogHeader>
                 <Form {...campaignForm}>
                   <form onSubmit={campaignForm.handleSubmit(onSubmitCampaign)} className="space-y-4">
