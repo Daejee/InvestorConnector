@@ -79,7 +79,6 @@ export default function Communications() {
       name: "",
       templateId: undefined,
       status: "draft" as const,
-      targetLanguage: "Korean",
       targetRegion: "Korea",
     },
   });
@@ -600,57 +599,36 @@ export default function Communications() {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="region">By Region & Language / 지역별·언어별</SelectItem>
+                          <SelectItem value="region">By Region / 지역별 발송</SelectItem>
                           <SelectItem value="specific">Select Specific People / 특정 인물 선택</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
 
                     {targetType === "region" ? (
-                      <div className="grid grid-cols-2 gap-4">
-                        <FormField
-                          control={campaignForm.control}
-                          name="targetLanguage"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Target Language / 대상 언어</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  <SelectItem value="Korean">Korean / 한국어</SelectItem>
-                                  <SelectItem value="English">English / 영어</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={campaignForm.control}
-                          name="targetRegion"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Target Region / 대상 지역</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  <SelectItem value="Korea">Korea / 한국</SelectItem>
-                                  <SelectItem value="United States">United States / 미국</SelectItem>
-                                  <SelectItem value="Europe">Europe / 유럽</SelectItem>
-                                  <SelectItem value="Asia">Asia / 아시아</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </FormItem>
-                          )}
-                        />
-                      </div>
+                      <FormField
+                        control={campaignForm.control}
+                        name="targetRegion"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Target Region / 대상 지역</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="Korea">Korea / 한국</SelectItem>
+                                <SelectItem value="United States">United States / 미국</SelectItem>
+                                <SelectItem value="Europe">Europe / 유럽</SelectItem>
+                                <SelectItem value="Asia">Asia / 아시아</SelectItem>
+                                <SelectItem value="All">All Regions / 전체 지역</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </FormItem>
+                        )}
+                      />
                     ) : (
                       <div className="space-y-4">
                         <div>
