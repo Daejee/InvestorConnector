@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { insertMeetingSchema, type Meeting, type Investor } from "@shared/schema";
+import { insertMeetingSchema, type Meeting, type Investor, type Analyst } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
@@ -48,16 +48,24 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
     queryKey: ["/api/investors"],
   });
 
+  const { data: analysts = [] } = useQuery<Analyst[]>({
+    queryKey: ["/api/analysts"],
+  });
+
   const form = useForm({
     resolver: zodResolver(insertMeetingSchema),
     defaultValues: {
+      attendeeType: selectedInvestor ? "investor" : "other",
       investorId: selectedInvestor?.id || null,
+      analystId: null,
       title: "",
       description: "",
       scheduledDate: new Date(),
       status: "scheduled" as const,
     },
   });
+
+  const watchedAttendeeType = form.watch("attendeeType");
 
   const createMeetingMutation = useMutation({
     mutationFn: (data: any) => apiRequest("POST", "/api/meetings", data),
@@ -199,31 +207,90 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
-                  name="investorId"
+                  name="attendeeType"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Investor / 투자자 (Optional / 선택사항)</FormLabel>
+                      <FormLabel>Meeting Type / 미팅 유형</FormLabel>
                       <Select 
-                        onValueChange={(value) => field.onChange(value === "none" ? null : parseInt(value))}
-                        defaultValue={selectedInvestor?.id?.toString() || "none"}
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          // Reset IDs when changing type
+                          form.setValue("investorId", null);
+                          form.setValue("analystId", null);
+                        }}
+                        defaultValue={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select investor / 투자자 선택" />
+                            <SelectValue placeholder="Select meeting type / 미팅 유형 선택" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="none">Other / 기타</SelectItem>
-                          {investors.map((investor) => (
-                            <SelectItem key={investor.id} value={investor.id.toString()}>
-                              {investor.name} - {investor.company}
-                            </SelectItem>
-                          ))}
+                          <SelectItem value="investor">Investor / 투자자</SelectItem>
+                          <SelectItem value="analyst">Analyst / 애널리스트</SelectItem>
+                          <SelectItem value="other">Other / 기타</SelectItem>
                         </SelectContent>
                       </Select>
                     </FormItem>
                   )}
                 />
+
+                {watchedAttendeeType === "investor" && (
+                  <FormField
+                    control={form.control}
+                    name="investorId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Select Investor / 투자자 선택</FormLabel>
+                        <Select 
+                          onValueChange={(value) => field.onChange(parseInt(value))}
+                          defaultValue={selectedInvestor?.id?.toString() || ""}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Choose investor / 투자자를 선택하세요" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {investors.map((investor) => (
+                              <SelectItem key={investor.id} value={investor.id.toString()}>
+                                {investor.name} - {investor.company}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+                )}
+
+                {watchedAttendeeType === "analyst" && (
+                  <FormField
+                    control={form.control}
+                    name="analystId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Select Analyst / 애널리스트 선택</FormLabel>
+                        <Select 
+                          onValueChange={(value) => field.onChange(parseInt(value))}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Choose analyst / 애널리스트를 선택하세요" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {analysts.map((analyst) => (
+                              <SelectItem key={analyst.id} value={analyst.id.toString()}>
+                                {analyst.name} - {analyst.company}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+                )}
 
               </div>
 

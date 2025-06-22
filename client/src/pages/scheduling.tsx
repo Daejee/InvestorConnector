@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import CalendarScheduler from "@/components/scheduling/calendar-scheduler";
-import { type Meeting, type Investor } from "@shared/schema";
+import { type Meeting, type Investor, type Analyst } from "@shared/schema";
 
 export default function Scheduling() {
   const [selectedInvestor, setSelectedInvestor] = useState<Investor | undefined>();
@@ -18,6 +18,10 @@ export default function Scheduling() {
 
   const { data: investors = [] } = useQuery<Investor[]>({
     queryKey: ["/api/investors"],
+  });
+
+  const { data: analysts = [] } = useQuery<Analyst[]>({
+    queryKey: ["/api/analysts"],
   });
 
   const upcomingMeetings = meetings
@@ -148,6 +152,29 @@ export default function Scheduling() {
                 <div className="space-y-4">
                   {upcomingMeetings.map((meeting) => {
                     const investor = investors.find(inv => inv.id === meeting.investorId);
+                    const analyst = analysts.find(an => an.id === meeting.analystId);
+                    
+                    const getAttendeeName = () => {
+                      if (meeting.attendeeType === 'investor' && investor) {
+                        return investor.name;
+                      } else if (meeting.attendeeType === 'analyst' && analyst) {
+                        return analyst.name;
+                      } else if (meeting.attendeeType === 'other') {
+                        return 'Other / 기타';
+                      } else {
+                        return 'Other / 기타'; // fallback
+                      }
+                    };
+
+                    const getAttendeeTypeLabel = () => {
+                      switch (meeting.attendeeType) {
+                        case 'investor': return 'Investor / 투자자';
+                        case 'analyst': return 'Analyst / 애널리스트';
+                        case 'other': return 'Other / 기타';
+                        default: return 'Other / 기타';
+                      }
+                    };
+
                     return (
                       <div key={meeting.id} className="flex items-center justify-between p-4 border rounded-lg">
                         <div className="flex items-center space-x-4">
@@ -164,7 +191,10 @@ export default function Scheduling() {
                             <div className="flex items-center text-sm text-gray-600 space-x-4">
                               <span className="flex items-center">
                                 <Users className="mr-1 h-3 w-3" />
-                                {investor?.name || 'Other / 기타'}
+                                {getAttendeeName()}
+                              </span>
+                              <span className="text-xs px-2 py-1 bg-gray-100 rounded-full">
+                                {getAttendeeTypeLabel()}
                               </span>
                               <span className="flex items-center">
                                 <Clock className="mr-1 h-3 w-3" />
