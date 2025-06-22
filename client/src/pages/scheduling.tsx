@@ -1,16 +1,30 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { Calendar, Clock, Users, Plus } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Calendar, Clock, Users, Plus, Edit, Trash2, MoreVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import CalendarScheduler from "@/components/scheduling/calendar-scheduler";
-import { type Meeting, type Investor, type Analyst } from "@shared/schema";
+import { insertMeetingSchema, type Meeting, type Investor, type Analyst } from "@shared/schema";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 export default function Scheduling() {
   const [selectedInvestor, setSelectedInvestor] = useState<Investor | undefined>();
   const [activeTab, setActiveTab] = useState("upcoming");
+  const [editingMeeting, setEditingMeeting] = useState<Meeting | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const { data: meetings = [] } = useQuery<Meeting[]>({
     queryKey: ["/api/meetings"],
@@ -24,10 +38,86 @@ export default function Scheduling() {
     queryKey: ["/api/analysts"],
   });
 
+  // Delete meeting mutation
+  const deleteMeetingMutation = useMutation({
+    mutationFn: (id: number) => apiRequest("DELETE", `/api/meetings/${id}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/meetings"] });
+      toast({
+        title: "Meeting deleted / 미팅 삭제됨",
+        description: "The meeting has been successfully deleted / 미팅이 성공적으로 삭제되었습니다",
+      });
+    },
+  });
+
+  // Edit form
+  const editForm = useForm({
+    resolver: zodResolver(insertMeetingSchema),
+    defaultValues: {
+      attendeeType: "other" as const,
+      investorId: null,
+      analystId: null,
+      title: "",
+      description: "",
+      scheduledDate: new Date(),
+      status: "scheduled" as const,
+    },
+  });
+
+  const watchedEditAttendeeType = editForm.watch("attendeeType");
+
+  // Update meeting mutation
+  const updateMeetingMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: any }) => 
+      apiRequest("PATCH", `/api/meetings/${id}`, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/meetings"] });
+      setIsEditDialogOpen(false);
+      setEditingMeeting(null);
+      toast({
+        title: "Meeting updated / 미팅 업데이트됨",
+        description: "The meeting has been successfully updated / 미팅이 성공적으로 업데이트되었습니다",
+      });
+    },
+  });
+
   const upcomingMeetings = meetings
     .filter(meeting => new Date(meeting.scheduledDate) > new Date())
     .sort((a, b) => new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime())
     .slice(0, 5);
+
+  // Helper functions
+  const handleEditMeeting = (meeting: Meeting) => {
+    setEditingMeeting(meeting);
+    editForm.reset({
+      attendeeType: meeting.attendeeType || "other",
+      investorId: meeting.investorId || null,
+      analystId: meeting.analystId || null,
+      title: meeting.title,
+      description: meeting.description || "",
+      scheduledDate: new Date(meeting.scheduledDate),
+      status: meeting.status,
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  const handleDeleteMeeting = (id: number) => {
+    if (confirm("Are you sure you want to delete this meeting? / 이 미팅을 삭제하시겠습니까?")) {
+      deleteMeetingMutation.mutate(id);
+    }
+  };
+
+  const onEditSubmit = (data: any) => {
+    if (editingMeeting) {
+      console.log('Edit form data being submitted:', data);
+      const formattedData = {
+        ...data,
+        scheduledDate: data.scheduledDate.toISOString(),
+      };
+      console.log('Formatted edit data being sent:', formattedData);
+      updateMeetingMutation.mutate({ id: editingMeeting.id, data: formattedData });
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -213,6 +303,26 @@ export default function Scheduling() {
                           <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(meeting.status)}`}>
                             {meeting.status}
                           </span>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => handleEditMeeting(meeting)}>
+                                <Edit className="mr-2 h-4 w-4" />
+                                Edit / 편집
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                onClick={() => handleDeleteMeeting(meeting.id)}
+                                className="text-red-600"
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Delete / 삭제
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </div>
                       </div>
                     );
