@@ -332,20 +332,6 @@ export function BookMeetingDialog({
               />
             </div>
 
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h4 className="font-medium text-sm mb-2">Meeting Details / 미팅 상세</h4>
-              <div className="space-y-2 text-sm text-gray-600">
-                <div className="flex items-center">
-                  <Clock className="mr-2 h-4 w-4" />
-                  {formatDateTime()}
-                </div>
-                <div className="flex items-center">
-                  <MapPin className="mr-2 h-4 w-4" />
-                  Meeting scheduled
-                </div>
-              </div>
-            </div>
-
             <div className="flex justify-end space-x-2">
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel / 취소
