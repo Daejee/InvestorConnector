@@ -10,6 +10,7 @@ import { type Meeting, type Investor } from "@shared/schema";
 
 export default function Scheduling() {
   const [selectedInvestor, setSelectedInvestor] = useState<Investor | undefined>();
+  const [activeTab, setActiveTab] = useState("upcoming");
 
   const { data: meetings = [] } = useQuery<Meeting[]>({
     queryKey: ["/api/meeting-logs"],
@@ -44,7 +45,7 @@ export default function Scheduling() {
         </div>
       </div>
 
-      <Tabs defaultValue="scheduler" className="space-y-4">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         <TabsList>
           <TabsTrigger value="scheduler">Calendar Scheduler / 캘린더 스케줄러</TabsTrigger>
           <TabsTrigger value="upcoming">Upcoming Meetings / 예정된 미팅</TabsTrigger>
@@ -138,10 +139,7 @@ export default function Scheduling() {
                   <p className="text-muted-foreground text-center mb-4">
                     Schedule your first meeting using the calendar scheduler / 캘린더 스케줄러를 사용하여 첫 미팅을 예약하세요
                   </p>
-                  <Button onClick={() => {
-                    const schedulerTab = document.querySelector('[value="scheduler"]') as HTMLButtonElement;
-                    schedulerTab?.click();
-                  }}>
+                  <Button onClick={() => setActiveTab("scheduler")}>
                     <Plus className="mr-2 h-4 w-4" />
                     Schedule Meeting / 미팅 예약
                   </Button>

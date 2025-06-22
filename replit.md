@@ -182,6 +182,11 @@ Changelog:
 - June 22, 2025. Updated database schema to store analyst specializations as text array for multi-select functionality
 - June 22, 2025. Modified analyst table and detail views to display multiple specializations as comma-separated list
 - June 22, 2025. Enhanced search functionality to work with array-based specialization fields
+- June 22, 2025. Upgraded investor (Buyside Analyst) specialty field to unified multi-select checkbox interface
+- June 22, 2025. Combined industry and regional specializations into single specialty array field for investors
+- June 22, 2025. Added comprehensive industry options (Semiconductor, Technology, Healthcare, Finance, etc.) and regional options (Korea, US, Japan, China, Europe, ASEAN, etc.) for investor specialties
+- June 22, 2025. Removed separate specialtyType, industryArea, and region fields in favor of unified specialty array
+- June 22, 2025. Updated investor table display to show multiple specialties as comma-separated list for Buyside Analysts
 ```
 
 ## User Preferences
