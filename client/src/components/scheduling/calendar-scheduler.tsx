@@ -53,7 +53,6 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
       investorId: selectedInvestor?.id || undefined,
       title: "",
       description: "",
-      place: "InOffice" as const,
       scheduledDate: new Date(),
       status: "scheduled" as const,
     },
@@ -223,29 +222,7 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="place"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Meeting Type / 미팅 유형</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {meetingTypes.map((type) => (
-                            <SelectItem key={type.value} value={type.value}>
-                              {type.label} ({type.duration}min)
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </FormItem>
-                  )}
-                />
+
               </div>
 
               <FormField
@@ -288,7 +265,7 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
                     </div>
                     <div className="flex items-center">
                       <MapPin className="h-4 w-4 mr-2" />
-                      {meetingTypes.find(t => t.value === form.watch('place'))?.label}
+                      Meeting scheduled
                     </div>
                   </div>
                 </div>
