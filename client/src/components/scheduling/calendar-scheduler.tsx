@@ -60,7 +60,7 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
   });
 
   const createMeetingMutation = useMutation({
-    mutationFn: (data: any) => apiRequest("/api/meetings", "POST", data),
+    mutationFn: (data: any) => apiRequest("POST", "/api/meetings", data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/meetings"] });
       setIsBookingOpen(false);
