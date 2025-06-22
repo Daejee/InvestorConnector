@@ -168,7 +168,7 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel }
                   </FormControl>
                   <SelectContent>
                     {sortedCompanies.map((company) => (
-                      <SelectItem key={`company-${company.id}`} value={company.name}>
+                      <SelectItem key={company.id} value={company.name}>
                         {company.name}
                       </SelectItem>
                     ))}
@@ -193,7 +193,7 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel }
                   </FormControl>
                   <SelectContent>
                     {sortedFunds.map((fund) => (
-                      <SelectItem key={`fund-${fund.id}`} value={fund.name}>
+                      <SelectItem key={fund.id} value={fund.name}>
                         {fund.name}
                       </SelectItem>
                     ))}

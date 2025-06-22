@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -179,6 +179,9 @@ export default function Documents() {
               <DialogContent className="max-w-md">
                 <DialogHeader>
                   <DialogTitle>Upload Document / 문서 업로드</DialogTitle>
+                  <DialogDescription>
+                    Upload a new document to the system / 시스템에 새 문서를 업로드합니다
+                  </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4">
                   <div>
