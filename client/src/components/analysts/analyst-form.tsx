@@ -38,7 +38,7 @@ export function AnalystForm({ analyst, onClose }: AnalystFormProps) {
       phone: analyst?.phone ?? "",
       company: analyst?.company ?? "",
       position: analyst?.position ?? "",
-      specialization: analyst?.specialization ?? "",
+      specialization: analyst?.specialization ?? [],
       coverage: analyst?.coverage ?? "",
       language: analyst?.language ?? "Korean",
       status: analyst?.status ?? "No",
@@ -198,31 +198,48 @@ export function AnalystForm({ analyst, onClose }: AnalystFormProps) {
             control={form.control}
             name="specialization"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>Specialization / 전문분야</FormLabel>
+              <FormItem className="col-span-2">
+                <FormLabel>Specialization / 전문분야 (다중 선택 가능)</FormLabel>
                 <FormControl>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select specialization / 전문분야 선택" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Semiconductor">Semiconductor / 반도체</SelectItem>
-                      <SelectItem value="Technology">Technology / 기술</SelectItem>
-                      <SelectItem value="Healthcare">Healthcare / 헬스케어</SelectItem>
-                      <SelectItem value="Finance">Finance / 금융</SelectItem>
-                      <SelectItem value="Consumer">Consumer / 소비재</SelectItem>
-                      <SelectItem value="Energy">Energy / 에너지</SelectItem>
-                      <SelectItem value="Industrial">Industrial / 산업재</SelectItem>
-                      <SelectItem value="Real Estate">Real Estate / 부동산</SelectItem>
-                      <SelectItem value="Materials">Materials / 소재</SelectItem>
-                      <SelectItem value="Telecommunications">Telecommunications / 통신</SelectItem>
-                      <SelectItem value="Utilities">Utilities / 유틸리티</SelectItem>
-                      <SelectItem value="Defense">Defense / 방산</SelectItem>
-                      <SelectItem value="Machinery">Machinery / 기계</SelectItem>
-                      <SelectItem value="Shipbuilding">Shipbuilding / 조선</SelectItem>
-                      <SelectItem value="Other">Other / 기타</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <div className="grid grid-cols-3 gap-3 p-4 border rounded-md">
+                    {[
+                      { value: "Semiconductor", label: "Semiconductor / 반도체" },
+                      { value: "Technology", label: "Technology / 기술" },
+                      { value: "Healthcare", label: "Healthcare / 헬스케어" },
+                      { value: "Finance", label: "Finance / 금융" },
+                      { value: "Consumer", label: "Consumer / 소비재" },
+                      { value: "Energy", label: "Energy / 에너지" },
+                      { value: "Industrial", label: "Industrial / 산업재" },
+                      { value: "Real Estate", label: "Real Estate / 부동산" },
+                      { value: "Materials", label: "Materials / 소재" },
+                      { value: "Telecommunications", label: "Telecommunications / 통신" },
+                      { value: "Utilities", label: "Utilities / 유틸리티" },
+                      { value: "Defense", label: "Defense / 방산" },
+                      { value: "Machinery", label: "Machinery / 기계" },
+                      { value: "Shipbuilding", label: "Shipbuilding / 조선" },
+                      { value: "Other", label: "Other / 기타" }
+                    ].map((item) => (
+                      <div key={item.value} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={item.value}
+                          checked={field.value?.includes(item.value) || false}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              field.onChange([...(field.value || []), item.value]);
+                            } else {
+                              field.onChange((field.value || []).filter((value: string) => value !== item.value));
+                            }
+                          }}
+                        />
+                        <Label
+                          htmlFor={item.value}
+                          className="text-sm font-normal cursor-pointer"
+                        >
+                          {item.label}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>

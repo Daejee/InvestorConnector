@@ -88,7 +88,9 @@ export default function Analysts() {
     analyst.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     analyst.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
     analyst.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (analyst.specialization && analyst.specialization.toLowerCase().includes(searchTerm.toLowerCase()))
+    (Array.isArray(analyst.specialization) && analyst.specialization.some(spec => 
+      spec.toLowerCase().includes(searchTerm.toLowerCase())
+    ))
   );
 
   const handleEdit = (analyst: Analyst) => {
@@ -276,7 +278,11 @@ export default function Analysts() {
                     <TableCell className="font-medium">{analyst.name}</TableCell>
                     <TableCell>{analyst.company}</TableCell>
                     <TableCell>{analyst.position || "N/A"}</TableCell>
-                    <TableCell>{analyst.specialization || "N/A"}</TableCell>
+                    <TableCell>
+                      {Array.isArray(analyst.specialization) && analyst.specialization.length > 0 
+                        ? analyst.specialization.join(", ") 
+                        : "N/A"}
+                    </TableCell>
                     <TableCell>{analyst.phone || "N/A"}</TableCell>
                     <TableCell>{analyst.email || "N/A"}</TableCell>
                     <TableCell>{getCoverageBadge(analyst.status || "No")}</TableCell>
@@ -345,7 +351,11 @@ export default function Analysts() {
                 </div>
                 <div>
                   <label className="text-sm font-medium">Specialization / 담당분야</label>
-                  <p className="text-sm text-muted-foreground">{selectedAnalyst?.specialization || "N/A"}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {Array.isArray(selectedAnalyst?.specialization) && selectedAnalyst.specialization.length > 0 
+                      ? selectedAnalyst.specialization.join(", ") 
+                      : "N/A"}
+                  </p>
                 </div>
                 <div>
                   <label className="text-sm font-medium">Coverage / 담당 영역</label>
