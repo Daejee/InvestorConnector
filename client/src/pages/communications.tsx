@@ -95,6 +95,14 @@ export default function Communications() {
         description: "The communication record has been created.",
       });
     },
+    onError: (error: any) => {
+      console.error('Communication creation error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create communication record. Please try again.",
+        variant: "destructive",
+      });
+    },
   });
 
   const createTemplateMutation = useMutation({
