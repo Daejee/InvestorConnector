@@ -396,10 +396,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/communications", async (req, res) => {
     try {
+      console.log('Received communication data:', req.body);
       const data = insertCommunicationSchema.parse(req.body);
+      console.log('Parsed communication data:', data);
       const communication = await storage.createCommunication(data);
       res.status(201).json(communication);
     } catch (error) {
+      console.error('Communication validation error:', error);
       res.status(400).json({ message: "Invalid communication data", error });
     }
   });
