@@ -287,8 +287,8 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel }
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="regional">Regional Specialist</SelectItem>
-                          <SelectItem value="industry">Industry Specialist</SelectItem>
+                          <SelectItem value="regional">Regional(지역전문)</SelectItem>
+                          <SelectItem value="industry">Industry(산업전문)</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
