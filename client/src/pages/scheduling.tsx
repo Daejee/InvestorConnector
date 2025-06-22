@@ -145,11 +145,11 @@ export default function Scheduling() {
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         <TabsList>
-          <TabsTrigger value="scheduler">Calendar Scheduler / 캘린더 스케줄러</TabsTrigger>
+          <TabsTrigger value="calendar">Calendar Scheduler / 캘린더 스케줄러</TabsTrigger>
           <TabsTrigger value="upcoming">Upcoming Meetings / 예정된 미팅</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="scheduler" className="space-y-4">
+        <TabsContent value="calendar" className="space-y-4">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             <div className="lg:col-span-1 space-y-4">
               <Card>
