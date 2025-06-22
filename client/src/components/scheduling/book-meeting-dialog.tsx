@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { insertMeetingSchema } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -27,7 +28,10 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Clock, MapPin } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Clock, MapPin, Calendar as CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
 import type { Investor, Analyst } from "@shared/schema";
 
 interface BookMeetingDialogProps {
@@ -62,11 +66,14 @@ export function BookMeetingDialog({
       title: "",
       description: "",
       scheduledDate: new Date(selectedDate),
+      scheduledTime: selectedTime,
       status: "scheduled",
     },
   });
 
   const watchedAttendeeType = form.watch("attendeeType");
+  const watchedDate = form.watch("scheduledDate");
+  const watchedTime = form.watch("scheduledTime");
 
   const createMeetingMutation = useMutation({
     mutationFn: async (data: any) => {
@@ -90,19 +97,31 @@ export function BookMeetingDialog({
 
   const onSubmit = (data: any) => {
     console.log('Form data being submitted:', data);
-    createMeetingMutation.mutate(data);
+    
+    // Combine date and time into a single Date object
+    const [hours, minutes] = data.scheduledTime.split(':').map(Number);
+    const meetingDate = new Date(data.scheduledDate);
+    meetingDate.setHours(hours, minutes, 0, 0);
+    
+    const submitData = {
+      ...data,
+      scheduledDate: meetingDate,
+    };
+    
+    createMeetingMutation.mutate(submitData);
   };
 
   // Format the selected date and time for display
   const formatDateTime = () => {
-    const date = selectedDate;
+    const date = watchedDate || new Date();
+    const time = watchedTime || "09:00";
     const dateString = date.toLocaleDateString('en-US', { 
       weekday: 'long', 
       year: 'numeric', 
       month: 'long', 
       day: 'numeric' 
     });
-    return `${dateString} at ${selectedTime}`;
+    return `${dateString} at ${time}`;
   };
 
   return (
@@ -231,6 +250,87 @@ export function BookMeetingDialog({
                 </FormItem>
               )}
             />
+
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="scheduledDate"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Date / 날짜</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-full pl-3 text-left font-normal",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value ? (
+                              format(field.value, "PPP")
+                            ) : (
+                              <span>Pick a date / 날짜 선택</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          disabled={(date) =>
+                            date < new Date() || date < new Date("1900-01-01")
+                          }
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="scheduledTime"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Time / 시간</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select time / 시간 선택" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="09:00">09:00</SelectItem>
+                        <SelectItem value="09:30">09:30</SelectItem>
+                        <SelectItem value="10:00">10:00</SelectItem>
+                        <SelectItem value="10:30">10:30</SelectItem>
+                        <SelectItem value="11:00">11:00</SelectItem>
+                        <SelectItem value="11:30">11:30</SelectItem>
+                        <SelectItem value="12:00">12:00</SelectItem>
+                        <SelectItem value="12:30">12:30</SelectItem>
+                        <SelectItem value="13:00">13:00</SelectItem>
+                        <SelectItem value="13:30">13:30</SelectItem>
+                        <SelectItem value="14:00">14:00</SelectItem>
+                        <SelectItem value="14:30">14:30</SelectItem>
+                        <SelectItem value="15:00">15:00</SelectItem>
+                        <SelectItem value="15:30">15:30</SelectItem>
+                        <SelectItem value="16:00">16:00</SelectItem>
+                        <SelectItem value="16:30">16:30</SelectItem>
+                        <SelectItem value="17:00">17:00</SelectItem>
+                        <SelectItem value="17:30">17:30</SelectItem>
+                        <SelectItem value="18:00">18:00</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <div className="bg-gray-50 p-4 rounded-lg">
               <h4 className="font-medium text-sm mb-2">Meeting Details / 미팅 상세</h4>
