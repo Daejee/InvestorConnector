@@ -103,7 +103,16 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
   };
 
   const onSubmit = (data: any) => {
-    createMeetingMutation.mutate(data);
+    console.log('Form data being submitted:', data);
+    
+    // Ensure investorId is a number
+    const formattedData = {
+      ...data,
+      investorId: parseInt(data.investorId),
+    };
+    
+    console.log('Formatted data being sent:', formattedData);
+    createMeetingMutation.mutate(formattedData);
   };
 
   const navigateWeek = (direction: 'prev' | 'next') => {
