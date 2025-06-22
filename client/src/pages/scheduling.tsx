@@ -19,7 +19,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 export default function Scheduling() {
   const [selectedInvestor, setSelectedInvestor] = useState<Investor | undefined>();
-  const [activeTab, setActiveTab] = useState("upcoming");
+  const [activeTab, setActiveTab] = useState("calendar");
   const [editingMeeting, setEditingMeeting] = useState<Meeting | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
