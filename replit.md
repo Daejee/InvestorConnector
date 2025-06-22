@@ -175,6 +175,7 @@ Changelog:
 - June 22, 2025. Updated investor form field labels: "Position" to "Position(대리, 과장 등 직책)", "Position Type" to "R&R(PM, 애널리스트 등)", and "Specialty Type" to "Specialty(담당분야)"
 - June 22, 2025. Updated specialty dropdown options: "Regional Specialist" to "Regional(지역전문)" and "Industry Specialist" to "Industry(산업전문)"
 - June 22, 2025. Updated region field label from "Region" to "Region(담당지역)" in investor form
+- June 22, 2025. Updated industry field label from "Industry Area" to "Industry(담당산업)" in investor form
 ```
 
 ## User Preferences

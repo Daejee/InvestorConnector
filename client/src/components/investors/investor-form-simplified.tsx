@@ -302,7 +302,7 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel }
                     name="industryArea"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Industry Area</FormLabel>
+                        <FormLabel>Industry(담당산업)</FormLabel>
                         <FormControl>
                           <Input placeholder="Enter specific industry area" {...field} value={field.value ?? ""} />
                         </FormControl>
