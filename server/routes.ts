@@ -723,13 +723,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/meetings", async (req, res) => {
     try {
       console.log('Raw request body:', req.body);
-      // Transform scheduledDate string to Date object before validation
-      const requestData = {
-        ...req.body,
-        scheduledDate: req.body.scheduledDate ? new Date(req.body.scheduledDate) : undefined
-      };
-      console.log('Transformed request data:', requestData);
-      const data = insertMeetingSchema.parse(requestData);
+      const data = insertMeetingSchema.parse(req.body);
       console.log('Validated data:', data);
       const meeting = await storage.createMeeting(data);
       res.status(201).json(meeting);

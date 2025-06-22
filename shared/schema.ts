@@ -170,6 +170,10 @@ export const insertCommunicationSchema = createInsertSchema(communications).omit
 
 export const insertMeetingSchema = createInsertSchema(meetings).omit({
   id: true,
+}).extend({
+  scheduledDate: z.union([z.date(), z.string()]).transform((val) => 
+    typeof val === 'string' ? new Date(val) : val
+  ),
 });
 
 export const insertFundSchema = createInsertSchema(funds).omit({
