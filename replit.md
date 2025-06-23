@@ -200,6 +200,7 @@ Changelog:
 - June 23, 2025. Replaced "scheduled" status badge with prominent View button for direct access to meeting details
 - June 23, 2025. Increased View meeting dialog width from 500px to 750px for better readability of longer content
 - June 23, 2025. Removed 5-meeting limit from upcoming meetings display to show all scheduled meetings
+- June 23, 2025. Removed Quick Book sidebar section from Calendar Scheduler tab for cleaner interface
 ```
 
 ## User Preferences

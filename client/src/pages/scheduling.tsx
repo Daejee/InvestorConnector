@@ -156,72 +156,7 @@ export default function Scheduling() {
         </TabsList>
 
         <TabsContent value="calendar" className="space-y-4">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            <div className="lg:col-span-1 space-y-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Quick Book / 빠른 예약</CardTitle>
-                  <CardDescription>
-                    Pre-select an investor to speed up booking / 투자자를 미리 선택하여 예약 속도를 높이세요
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">
-                        Select Investor / 투자자 선택
-                      </label>
-                      <Select onValueChange={(value) => {
-                        const investor = investors.find(inv => inv.id.toString() === value);
-                        setSelectedInvestor(investor);
-                      }}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Choose investor / 투자자 선택" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {investors.map((investor) => (
-                            <SelectItem key={investor.id} value={investor.id.toString()}>
-                              <div className="flex flex-col">
-                                <span>{investor.name}</span>
-                                <span className="text-sm text-muted-foreground">{investor.company}</span>
-                              </div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {selectedInvestor && (
-                      <div className="bg-blue-50 p-3 rounded-lg">
-                        <h4 className="font-medium text-sm">Selected Investor / 선택된 투자자</h4>
-                        <p className="text-sm text-gray-600">{selectedInvestor.name}</p>
-                        <p className="text-xs text-gray-500">{selectedInvestor.company}</p>
-                        <p className="text-xs text-gray-500">{selectedInvestor.email}</p>
-                      </div>
-                    )}
-
-                    <div className="space-y-2">
-                      <h4 className="text-sm font-medium">Meeting Statistics / 미팅 통계</h4>
-                      <div className="grid grid-cols-2 gap-2 text-sm">
-                        <div className="bg-gray-50 p-2 rounded text-center">
-                          <div className="font-medium">{meetings.length}</div>
-                          <div className="text-xs text-gray-500">Total / 총계</div>
-                        </div>
-                        <div className="bg-blue-50 p-2 rounded text-center">
-                          <div className="font-medium">{upcomingMeetings.length}</div>
-                          <div className="text-xs text-gray-500">Upcoming / 예정</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            <div className="lg:col-span-3">
-              <CalendarScheduler selectedInvestor={selectedInvestor} />
-            </div>
-          </div>
+          <CalendarScheduler selectedInvestor={selectedInvestor} />
         </TabsContent>
 
         <TabsContent value="upcoming" className="space-y-4">
