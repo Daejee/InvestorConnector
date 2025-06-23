@@ -193,6 +193,7 @@ Changelog:
 - June 22, 2025. Updated meeting display logic to show "Other / 기타" for meetings without assigned investors
 - June 23, 2025. Removed "Schedule / 일정 예약" from Quick Actions sidebar to simplify interface - scheduling remains accessible through main navigation
 - June 23, 2025. Fixed calendar scheduler cache invalidation issue - calendar now properly refreshes when meetings are deleted, showing accurate availability status
+- June 23, 2025. Fixed upcoming meetings display issue by adjusting date filtering logic to include recent meetings within 24-hour window for development/testing purposes
 ```
 
 ## User Preferences
