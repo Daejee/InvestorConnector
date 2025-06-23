@@ -30,6 +30,10 @@ export default function Scheduling() {
     queryKey: ["/api/meetings"],
   });
 
+  const { data: upcomingMeetingsData = [] } = useQuery<Meeting[]>({
+    queryKey: ["/api/meetings/upcoming"],
+  });
+
   const { data: investors = [] } = useQuery<Investor[]>({
     queryKey: ["/api/investors"],
   });
@@ -37,8 +41,6 @@ export default function Scheduling() {
   const { data: analysts = [] } = useQuery<Analyst[]>({
     queryKey: ["/api/analysts"],
   });
-
-
 
   // Edit form
   const editForm = useForm<any>({
@@ -85,10 +87,7 @@ export default function Scheduling() {
     },
   });
 
-  const upcomingMeetings = meetings
-    .filter(meeting => new Date(meeting.scheduledDate) > new Date())
-    .sort((a, b) => new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime())
-    .slice(0, 5);
+  const upcomingMeetings = upcomingMeetingsData.slice(0, 5);
 
   // Helper functions
   const handleEditMeeting = (meeting: Meeting) => {
