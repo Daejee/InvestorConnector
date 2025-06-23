@@ -108,7 +108,7 @@ export default function Meetings() {
           filteredMeetings.map((meeting: Meeting) => {
             const meetingDate = new Date(meeting.scheduledDate);
             const dayMonth = format(meetingDate, "MMM\ndd");
-            const time = meeting.scheduledTime || "TBD";
+            const time = format(meetingDate, "HH:mm");
             
             return (
               <Card key={meeting.id} className="hover:shadow-md transition-shadow">
