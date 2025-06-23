@@ -65,8 +65,8 @@ export function BookMeetingDialog({
       analystId: null,
       title: "",
       description: "",
-      scheduledDate: new Date(selectedDate),
-      scheduledTime: selectedTime,
+      scheduledDate: selectedDate || new Date(),
+      scheduledTime: selectedTime || "09:00",
       status: "scheduled",
     },
   });

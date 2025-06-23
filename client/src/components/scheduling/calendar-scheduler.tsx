@@ -1,20 +1,11 @@
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { format, addDays, startOfWeek, isSameDay, isToday, isBefore, startOfDay } from "date-fns";
-import { ChevronLeft, ChevronRight, Clock, User, MapPin } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { insertMeetingSchema, type Meeting, type Investor, type Analyst } from "@shared/schema";
-import { apiRequest } from "@/lib/queryClient";
-import { useToast } from "@/hooks/use-toast";
+import { BookMeetingDialog } from "@/components/scheduling/book-meeting-dialog";
+import { type Meeting, type Investor } from "@shared/schema";
 
 interface CalendarSchedulerProps {
   selectedInvestor?: Investor;
@@ -34,52 +25,12 @@ const meetingTypes = [
 
 export default function CalendarScheduler({ selectedInvestor }: CalendarSchedulerProps) {
   const [currentWeek, setCurrentWeek] = useState(startOfWeek(new Date()));
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [selectedTime, setSelectedTime] = useState<string>("");
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [selectedTime, setSelectedTime] = useState<string | undefined>(undefined);
   const [isBookingOpen, setIsBookingOpen] = useState(false);
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
 
   const { data: meetings = [] } = useQuery<Meeting[]>({
     queryKey: ["/api/meetings"],
-  });
-
-  const { data: investors = [] } = useQuery<Investor[]>({
-    queryKey: ["/api/investors"],
-  });
-
-  const { data: analysts = [] } = useQuery<Analyst[]>({
-    queryKey: ["/api/analysts"],
-  });
-
-  const form = useForm({
-    resolver: zodResolver(insertMeetingSchema),
-    defaultValues: {
-      attendeeType: selectedInvestor ? "investor" : "other",
-      investorId: selectedInvestor?.id || null,
-      analystId: null,
-      title: "",
-      description: "",
-      scheduledDate: new Date(),
-      status: "scheduled" as const,
-    },
-  });
-
-  const watchedAttendeeType = form.watch("attendeeType");
-
-  const createMeetingMutation = useMutation({
-    mutationFn: (data: any) => apiRequest("POST", "/api/meetings", data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/meetings"] });
-      setIsBookingOpen(false);
-      setSelectedDate(null);
-      setSelectedTime("");
-      form.reset();
-      toast({
-        title: "Meeting scheduled successfully",
-        description: "The meeting has been added to your calendar.",
-      });
-    },
   });
 
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(currentWeek, i));
@@ -101,26 +52,7 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
 
     setSelectedDate(date);
     setSelectedTime(time);
-    
-    const [hours, minutes] = time.split(':').map(Number);
-    const scheduledDateTime = new Date(date);
-    scheduledDateTime.setHours(hours, minutes, 0, 0);
-    
-    form.setValue("scheduledDate", scheduledDateTime);
     setIsBookingOpen(true);
-  };
-
-  const onSubmit = (data: any) => {
-    console.log('Form data being submitted:', data);
-    
-    // Ensure investorId is a number
-    const formattedData = {
-      ...data,
-      investorId: parseInt(data.investorId),
-    };
-    
-    console.log('Formatted data being sent:', formattedData);
-    createMeetingMutation.mutate(formattedData);
   };
 
   const navigateWeek = (direction: 'prev' | 'next') => {
@@ -197,161 +129,12 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
       </Card>
 
       {/* Meeting Booking Dialog */}
-      <Dialog open={isBookingOpen} onOpenChange={setIsBookingOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Book Meeting / 미팅 예약</DialogTitle>
-          </DialogHeader>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="attendeeType"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Meeting Type / 미팅 유형</FormLabel>
-                      <Select 
-                        onValueChange={(value) => {
-                          field.onChange(value);
-                          // Reset IDs when changing type
-                          form.setValue("investorId", null);
-                          form.setValue("analystId", null);
-                        }}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select meeting type / 미팅 유형 선택" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="investor">Investor / 투자자</SelectItem>
-                          <SelectItem value="analyst">Analyst / 애널리스트</SelectItem>
-                          <SelectItem value="other">Other / 기타</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </FormItem>
-                  )}
-                />
-
-                {watchedAttendeeType === "investor" && (
-                  <FormField
-                    control={form.control}
-                    name="investorId"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Select Investor / 투자자 선택</FormLabel>
-                        <Select 
-                          onValueChange={(value) => field.onChange(parseInt(value))}
-                          defaultValue={selectedInvestor?.id?.toString() || ""}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Choose investor / 투자자를 선택하세요" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {investors.map((investor) => (
-                              <SelectItem key={investor.id} value={investor.id.toString()}>
-                                {investor.name} - {investor.company}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </FormItem>
-                    )}
-                  />
-                )}
-
-                {watchedAttendeeType === "analyst" && (
-                  <FormField
-                    control={form.control}
-                    name="analystId"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Select Analyst / 애널리스트 선택</FormLabel>
-                        <Select 
-                          onValueChange={(value) => field.onChange(parseInt(value))}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Choose analyst / 애널리스트를 선택하세요" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {analysts.map((analyst) => (
-                              <SelectItem key={analyst.id} value={analyst.id.toString()}>
-                                {analyst.name} - {analyst.company}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </FormItem>
-                    )}
-                  />
-                )}
-
-              </div>
-
-              <FormField
-                control={form.control}
-                name="title"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Meeting Title / 미팅 제목</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="Enter meeting title / 미팅 제목 입력" />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description / 설명</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        {...field} 
-                        placeholder="Meeting agenda or notes / 미팅 안건 또는 메모"
-                        rows={3}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-
-              {selectedDate && selectedTime && (
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <h4 className="font-medium mb-2">Meeting Details / 미팅 상세</h4>
-                  <div className="space-y-1 text-sm text-gray-600">
-                    <div className="flex items-center">
-                      <Clock className="h-4 w-4 mr-2" />
-                      {format(selectedDate, 'EEEE, MMMM d, yyyy')} at {selectedTime}
-                    </div>
-                    <div className="flex items-center">
-                      <MapPin className="h-4 w-4 mr-2" />
-                      Meeting scheduled
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              <div className="flex justify-end space-x-2">
-                <Button type="button" variant="outline" onClick={() => setIsBookingOpen(false)}>
-                  Cancel / 취소
-                </Button>
-                <Button type="submit" disabled={createMeetingMutation.isPending}>
-                  {createMeetingMutation.isPending ? "Booking..." : "Book Meeting / 미팅 예약"}
-                </Button>
-              </div>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
+      <BookMeetingDialog 
+        open={isBookingOpen} 
+        onOpenChange={setIsBookingOpen}
+        selectedDate={selectedDate || undefined}
+        selectedTime={selectedTime || undefined}
+      />
     </div>
   );
 }
