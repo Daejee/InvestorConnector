@@ -272,8 +272,12 @@ export class DatabaseStorage implements IStorage {
   async getUpcomingMeetings(): Promise<Meeting[]> {
     const now = new Date();
     const allMeetings = await db.select().from(meetings);
+    
+    // For development/testing, consider meetings in the near past as "upcoming" if they're within the last day
+    const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    
     return allMeetings
-      .filter(meeting => meeting.scheduledDate && new Date(meeting.scheduledDate) > now)
+      .filter(meeting => meeting.scheduledDate && new Date(meeting.scheduledDate) > oneDayAgo)
       .sort((a, b) => new Date(a.scheduledDate!).getTime() - new Date(b.scheduledDate!).getTime());
   }
 
