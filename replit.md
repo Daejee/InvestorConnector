@@ -201,6 +201,8 @@ Changelog:
 - June 23, 2025. Increased View meeting dialog width from 500px to 750px for better readability of longer content
 - June 23, 2025. Removed 5-meeting limit from upcoming meetings display to show all scheduled meetings
 - June 23, 2025. Removed Quick Book sidebar section from Calendar Scheduler tab for cleaner interface
+- June 23, 2025. Created comprehensive investor detail view dialog showing complete investor information and meeting history
+- June 23, 2025. Enhanced investor View button to display contact details, specialties, share ownership, and chronological meeting logs
 ```
 
 ## User Preferences

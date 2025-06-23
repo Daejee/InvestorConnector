@@ -1,13 +1,164 @@
 import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Eye, Edit, Trash2 } from "lucide-react";
+import { Eye, Edit, Trash2, Calendar, Users, Mail, Phone, Building, Briefcase } from "lucide-react";
 import InvestorFormSimplified from "@/components/investors/investor-form-simplified";
-import type { Investor } from "@shared/schema";
+import type { Investor, Meeting } from "@shared/schema";
+
+function InvestorDetailView({ investor }: { investor: Investor }) {
+  const { data: meetings = [] } = useQuery<Meeting[]>({
+    queryKey: ["/api/meetings"],
+  });
+
+  const investorMeetings = meetings.filter(meeting => meeting.investorId === investor.id);
+
+  return (
+    <div className="space-y-6">
+      {/* Basic Info Section */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-4">
+          <div className="flex items-center space-x-3">
+            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+              <span className="text-sm font-medium text-blue-800">
+                {investor.avatarInitials || investor.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+              </span>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold">{investor.name}</h3>
+              <p className="text-gray-600">{investor.company}</p>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <div className="flex items-center space-x-2">
+              <Mail className="h-4 w-4 text-gray-400" />
+              <span className="text-sm">{investor.email}</span>
+            </div>
+            {investor.phone && (
+              <div className="flex items-center space-x-2">
+                <Phone className="h-4 w-4 text-gray-400" />
+                <span className="text-sm">{investor.phone}</span>
+              </div>
+            )}
+            {investor.fund && (
+              <div className="flex items-center space-x-2">
+                <Building className="h-4 w-4 text-gray-400" />
+                <span className="text-sm">{investor.fund}</span>
+              </div>
+            )}
+            {investor.position && (
+              <div className="flex items-center space-x-2">
+                <Briefcase className="h-4 w-4 text-gray-400" />
+                <span className="text-sm">{investor.position}</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          {investor.positionType && (
+            <div>
+              <h4 className="text-sm font-medium text-gray-500 mb-1">Position Type / R&R</h4>
+              <p className="text-sm">{investor.positionType}</p>
+            </div>
+          )}
+          
+          {investor.specialty && investor.specialty.length > 0 && (
+            <div>
+              <h4 className="text-sm font-medium text-gray-500 mb-1">Specialty / 담당분야</h4>
+              <div className="flex flex-wrap gap-1">
+                {investor.specialty.map((spec, index) => (
+                  <Badge key={index} variant="secondary" className="text-xs">
+                    {spec}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div>
+            <h4 className="text-sm font-medium text-gray-500 mb-1">Share Ownership / 지분 보유</h4>
+            <div className="flex items-center space-x-2">
+              {investor.ownsOurShare === "Yes" ? (
+                <div>
+                  <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Yes</span>
+                  {investor.shareAmount && (
+                    <div className="text-xs text-gray-500 mt-1">{investor.shareAmount}</div>
+                  )}
+                </div>
+              ) : investor.ownsOurShare === "No" ? (
+                <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">No</span>
+              ) : investor.ownsOurShare === "N/A" ? (
+                <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">N/A</span>
+              ) : (
+                <span className="text-gray-400 italic text-xs">Not specified</span>
+              )}
+            </div>
+          </div>
+
+          {investor.note && (
+            <div>
+              <h4 className="text-sm font-medium text-gray-500 mb-1">Notes / 메모</h4>
+              <p className="text-sm bg-gray-50 p-3 rounded-lg">{investor.note}</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Meeting History Section */}
+      <div className="border-t pt-6">
+        <div className="flex items-center space-x-2 mb-4">
+          <Calendar className="h-5 w-5 text-gray-600" />
+          <h3 className="text-lg font-semibold">Meeting History / 미팅 기록</h3>
+          <Badge variant="outline">{investorMeetings.length}</Badge>
+        </div>
+
+        {investorMeetings.length === 0 ? (
+          <div className="text-center py-8">
+            <Calendar className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+            <p className="text-gray-500">No meetings recorded / 기록된 미팅이 없습니다</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {investorMeetings
+              .sort((a, b) => new Date(b.scheduledDate).getTime() - new Date(a.scheduledDate).getTime())
+              .map((meeting) => (
+                <div key={meeting.id} className="border rounded-lg p-4 bg-gray-50">
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <h4 className="font-medium text-sm">{meeting.title || 'Meeting'}</h4>
+                      <p className="text-xs text-gray-500">
+                        {new Date(meeting.scheduledDate).toLocaleDateString('ko-KR', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </p>
+                    </div>
+                    <Badge 
+                      variant={meeting.status === 'completed' ? 'default' : 'secondary'}
+                      className="text-xs"
+                    >
+                      {meeting.status}
+                    </Badge>
+                  </div>
+                  {meeting.description && (
+                    <p className="text-sm text-gray-700 whitespace-pre-wrap">{meeting.description}</p>
+                  )}
+                </div>
+              ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 interface InvestorTableProps {
   investors: Investor[];
@@ -18,6 +169,7 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const [editingInvestor, setEditingInvestor] = useState<Investor | null>(null);
+  const [viewingInvestor, setViewingInvestor] = useState<Investor | null>(null);
 
   const deleteInvestorMutation = useMutation({
     mutationFn: async (id: number) => {
@@ -152,12 +304,7 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
                   <Button 
                     variant="ghost" 
                     size="sm"
-                    onClick={() => {
-                      toast({
-                        title: "View Investor",
-                        description: `Viewing details for ${investor.name}`,
-                      });
-                    }}
+                    onClick={() => setViewingInvestor(investor)}
                   >
                     <Eye className="h-4 w-4" />
                   </Button>
@@ -182,6 +329,19 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
           ))}
         </tbody>
       </table>
+
+      {/* View Investor Dialog */}
+      <Dialog open={!!viewingInvestor} onOpenChange={() => setViewingInvestor(null)}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Investor Details / 투자자 상세정보</DialogTitle>
+            <DialogDescription>
+              Complete investor information and meeting history / 투자자 상세 정보 및 미팅 기록
+            </DialogDescription>
+          </DialogHeader>
+          {viewingInvestor && <InvestorDetailView investor={viewingInvestor} />}
+        </DialogContent>
+      </Dialog>
 
       {/* Edit Dialog */}
       <Dialog open={!!editingInvestor} onOpenChange={() => setEditingInvestor(null)}>
