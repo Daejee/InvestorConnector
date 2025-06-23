@@ -488,7 +488,7 @@ export default function Scheduling() {
 
       {/* View Meeting Dialog */}
       <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-[750px]">
           <DialogHeader>
             <DialogTitle>Meeting Details / 미팅 상세정보</DialogTitle>
             <DialogDescription>
