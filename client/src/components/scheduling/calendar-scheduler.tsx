@@ -102,6 +102,8 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/meetings"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/meetings/upcoming"] });
+      refetchMeetings(); // Force immediate refresh
       toast({
         title: "Success / 성공",
         description: "Meeting booked successfully / 미팅이 성공적으로 예약되었습니다",
@@ -139,14 +141,35 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(currentWeek, i));
 
   const isTimeSlotBooked = (date: Date, time: string) => {
+    if (!meetings || meetings.length === 0) return false;
+    
     const [hours, minutes] = time.split(':').map(Number);
     const slotDateTime = new Date(date);
     slotDateTime.setHours(hours, minutes, 0, 0);
 
-    return meetings.some(meeting => {
+    const isBooked = meetings.some(meeting => {
       const meetingDate = new Date(meeting.scheduledDate);
-      return Math.abs(meetingDate.getTime() - slotDateTime.getTime()) < 30 * 60 * 1000; // 30 minutes buffer
+      // Check if the meeting is on the same date and within 30 minutes of the time slot
+      const isSameDay = meetingDate.toDateString() === date.toDateString();
+      const timeDiff = Math.abs(meetingDate.getTime() - slotDateTime.getTime());
+      const withinTimeSlot = timeDiff < 30 * 60 * 1000; // 30 minutes buffer
+      
+      // Debug logging for troubleshooting
+      if (isSameDay && format(date, 'yyyy-MM-dd') === '2025-06-23') {
+        console.log(`Checking slot ${time} on ${format(date, 'yyyy-MM-dd')}:`, {
+          slotDateTime: slotDateTime.toISOString(),
+          meetingDate: meetingDate.toISOString(),
+          isSameDay,
+          timeDiff,
+          withinTimeSlot,
+          meeting: meeting.title
+        });
+      }
+      
+      return isSameDay && withinTimeSlot;
     });
+
+    return isBooked;
   };
 
   const handleTimeSlotClick = (date: Date, time: string) => {
