@@ -197,6 +197,7 @@ Changelog:
 - June 23, 2025. Fixed frontend upcoming meetings query to use dedicated `/api/meetings/upcoming` endpoint instead of client-side filtering, resolving display issues
 - June 23, 2025. Simplified upcoming meetings UI to show only attendee name and time for cleaner display
 - June 23, 2025. Added View dialog for meetings to display detailed meeting information including title, description, and notes
+- June 23, 2025. Replaced "scheduled" status badge with prominent View button for direct access to meeting details
 ```
 
 ## User Preferences

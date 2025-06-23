@@ -306,9 +306,15 @@ export default function Scheduling() {
                           </div>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(meeting.status)}`}>
-                            {meeting.status}
-                          </span>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => handleViewMeeting(meeting)}
+                            className="text-xs px-3 py-1"
+                          >
+                            <Eye className="mr-1 h-3 w-3" />
+                            View
+                          </Button>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
@@ -316,10 +322,6 @@ export default function Scheduling() {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => handleViewMeeting(meeting)}>
-                                <Eye className="mr-2 h-4 w-4" />
-                                View / 보기
-                              </DropdownMenuItem>
                               <DropdownMenuItem onClick={() => handleEditMeeting(meeting)}>
                                 <Edit className="mr-2 h-4 w-4" />
                                 Edit / 편집
