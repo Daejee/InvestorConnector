@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -124,9 +124,17 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
     createMeetingMutation.mutate(data);
   };
 
-  const { data: meetings = [] } = useQuery<Meeting[]>({
+  const { data: meetings = [], refetch: refetchMeetings } = useQuery<Meeting[]>({
     queryKey: ["/api/meetings"],
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    staleTime: 0,
   });
+
+  // Force refresh meetings when component mounts or when user navigates to this component
+  React.useEffect(() => {
+    refetchMeetings();
+  }, []);
 
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(currentWeek, i));
 

@@ -37,6 +37,7 @@ export default function Meetings() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/meetings/upcoming"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/meetings"] });
     },
   });
 

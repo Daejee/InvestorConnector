@@ -191,6 +191,7 @@ Changelog:
 - June 22, 2025. Modified meetings database schema to make investorId nullable for internal meetings and other non-investor meetings
 - June 22, 2025. Added "Other / 기타" option to investor selection dropdown in meeting booking form for meetings without specific investor assignment
 - June 22, 2025. Updated meeting display logic to show "Other / 기타" for meetings without assigned investors
+- June 23, 2025. Removed "Schedule / 일정 예약" from Quick Actions sidebar to simplify interface - scheduling remains accessible through main navigation
 ```
 
 ## User Preferences
