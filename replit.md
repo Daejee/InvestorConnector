@@ -192,6 +192,7 @@ Changelog:
 - June 22, 2025. Added "Other / 기타" option to investor selection dropdown in meeting booking form for meetings without specific investor assignment
 - June 22, 2025. Updated meeting display logic to show "Other / 기타" for meetings without assigned investors
 - June 23, 2025. Removed "Schedule / 일정 예약" from Quick Actions sidebar to simplify interface - scheduling remains accessible through main navigation
+- June 23, 2025. Fixed calendar scheduler cache invalidation issue - calendar now properly refreshes when meetings are deleted, showing accurate availability status
 ```
 
 ## User Preferences

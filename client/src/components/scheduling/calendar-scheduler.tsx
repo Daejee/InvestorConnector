@@ -143,17 +143,10 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
     const slotDateTime = new Date(date);
     slotDateTime.setHours(hours, minutes, 0, 0);
 
-    const isBooked = meetings.some(meeting => {
+    return meetings.some(meeting => {
       const meetingDate = new Date(meeting.scheduledDate);
       return Math.abs(meetingDate.getTime() - slotDateTime.getTime()) < 30 * 60 * 1000; // 30 minutes buffer
     });
-
-    // Debug logging
-    if (isBooked) {
-      console.log(`Time slot ${time} on ${format(date, 'yyyy-MM-dd')} is booked. Meetings:`, meetings);
-    }
-
-    return isBooked;
   };
 
   const handleTimeSlotClick = (date: Date, time: string) => {
