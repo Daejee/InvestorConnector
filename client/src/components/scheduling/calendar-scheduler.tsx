@@ -132,8 +132,8 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
       <BookMeetingDialog 
         open={isBookingOpen} 
         onOpenChange={setIsBookingOpen}
-        selectedDate={selectedDate || undefined}
-        selectedTime={selectedTime || undefined}
+        selectedDate={selectedDate}
+        selectedTime={selectedTime}
       />
     </div>
   );
