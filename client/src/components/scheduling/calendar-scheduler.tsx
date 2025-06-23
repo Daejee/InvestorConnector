@@ -83,9 +83,14 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
 
   const createMeetingMutation = useMutation({
     mutationFn: async (data: any) => {
+      // Create the scheduled date by combining the selected date and time
+      const [hours, minutes] = selectedTime.split(':').map(Number);
+      const scheduledDateTime = new Date(selectedDate!);
+      scheduledDateTime.setHours(hours, minutes, 0, 0);
+      
       const formattedData = {
         ...data,
-        scheduledDate: new Date(data.scheduledDate).toISOString(),
+        scheduledDate: scheduledDateTime.toISOString(),
         investorId: data.attendeeType === "investor" ? data.investorId : null,
         analystId: data.attendeeType === "analyst" ? data.analystId : null,
       };
@@ -147,29 +152,22 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
     const slotDateTime = new Date(date);
     slotDateTime.setHours(hours, minutes, 0, 0);
 
-    const isBooked = meetings.some(meeting => {
+    return meetings.some(meeting => {
       const meetingDate = new Date(meeting.scheduledDate);
-      // Check if the meeting is on the same date and within 30 minutes of the time slot
-      const isSameDay = meetingDate.toDateString() === date.toDateString();
-      const timeDiff = Math.abs(meetingDate.getTime() - slotDateTime.getTime());
-      const withinTimeSlot = timeDiff < 30 * 60 * 1000; // 30 minutes buffer
       
-      // Debug logging for troubleshooting
-      if (isSameDay && format(date, 'yyyy-MM-dd') === '2025-06-23') {
-        console.log(`Checking slot ${time} on ${format(date, 'yyyy-MM-dd')}:`, {
-          slotDateTime: slotDateTime.toISOString(),
-          meetingDate: meetingDate.toISOString(),
-          isSameDay,
-          timeDiff,
-          withinTimeSlot,
-          meeting: meeting.title
-        });
-      }
+      // Compare dates in local timezone for same day check
+      const slotDateLocal = format(slotDateTime, 'yyyy-MM-dd');
+      const meetingDateLocal = format(meetingDate, 'yyyy-MM-dd');
+      const isSameDay = slotDateLocal === meetingDateLocal;
+      
+      // Compare times with 30-minute buffer
+      const slotTimeMinutes = hours * 60 + minutes;
+      const meetingTimeMinutes = meetingDate.getHours() * 60 + meetingDate.getMinutes();
+      const timeDiff = Math.abs(slotTimeMinutes - meetingTimeMinutes);
+      const withinTimeSlot = timeDiff < 30; // 30 minutes buffer
       
       return isSameDay && withinTimeSlot;
     });
-
-    return isBooked;
   };
 
   const handleTimeSlotClick = (date: Date, time: string) => {
