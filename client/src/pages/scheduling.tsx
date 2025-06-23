@@ -89,7 +89,7 @@ export default function Scheduling() {
     },
   });
 
-  const upcomingMeetings = upcomingMeetingsData.slice(0, 5);
+  const upcomingMeetings = upcomingMeetingsData;
 
   // Helper functions
   const handleViewMeeting = (meeting: Meeting) => {
