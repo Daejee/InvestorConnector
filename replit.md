@@ -195,6 +195,8 @@ Changelog:
 - June 23, 2025. Fixed calendar scheduler cache invalidation issue - calendar now properly refreshes when meetings are deleted, showing accurate availability status
 - June 23, 2025. Fixed upcoming meetings display issue by adjusting date filtering logic to include recent meetings within 24-hour window for development/testing purposes
 - June 23, 2025. Fixed frontend upcoming meetings query to use dedicated `/api/meetings/upcoming` endpoint instead of client-side filtering, resolving display issues
+- June 23, 2025. Simplified upcoming meetings UI to show only attendee name and time for cleaner display
+- June 23, 2025. Added View dialog for meetings to display detailed meeting information including title, description, and notes
 ```
 
 ## User Preferences

@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Calendar, Clock, Users, Plus, Edit, Trash2, MoreVertical } from "lucide-react";
+import { Calendar, Clock, Users, Plus, Edit, Trash2, MoreVertical, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -22,6 +22,8 @@ export default function Scheduling() {
   const [activeTab, setActiveTab] = useState("calendar");
   const [editingMeeting, setEditingMeeting] = useState<Meeting | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [viewingMeeting, setViewingMeeting] = useState<Meeting | null>(null);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -90,6 +92,11 @@ export default function Scheduling() {
   const upcomingMeetings = upcomingMeetingsData.slice(0, 5);
 
   // Helper functions
+  const handleViewMeeting = (meeting: Meeting) => {
+    setViewingMeeting(meeting);
+    setIsViewDialogOpen(true);
+  };
+
   const handleEditMeeting = (meeting: Meeting) => {
     setEditingMeeting(meeting);
     editForm.reset({
@@ -280,9 +287,8 @@ export default function Scheduling() {
                             </div>
                           </div>
                           <div>
-                            <h4 className="font-medium">{meeting.title}</h4>
                             <div className="flex items-center text-sm text-gray-600 space-x-4">
-                              <span className="flex items-center">
+                              <span className="flex items-center font-medium">
                                 <Users className="mr-1 h-3 w-3" />
                                 {getAttendeeName()}
                               </span>
@@ -297,9 +303,6 @@ export default function Scheduling() {
                                 })}
                               </span>
                             </div>
-                            {meeting.description && (
-                              <p className="text-sm text-gray-500 mt-1">{meeting.description}</p>
-                            )}
                           </div>
                         </div>
                         <div className="flex items-center space-x-2">
@@ -313,6 +316,10 @@ export default function Scheduling() {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => handleViewMeeting(meeting)}>
+                                <Eye className="mr-2 h-4 w-4" />
+                                View / 보기
+                              </DropdownMenuItem>
                               <DropdownMenuItem onClick={() => handleEditMeeting(meeting)}>
                                 <Edit className="mr-2 h-4 w-4" />
                                 Edit / 편집
@@ -474,6 +481,108 @@ export default function Scheduling() {
               </div>
             </form>
           </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* View Meeting Dialog */}
+      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Meeting Details / 미팅 상세정보</DialogTitle>
+            <DialogDescription>
+              View meeting information / 미팅 정보 보기
+            </DialogDescription>
+          </DialogHeader>
+          {viewingMeeting && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <h4 className="text-sm font-medium text-gray-500 mb-1">Date / 날짜</h4>
+                  <p className="text-sm">
+                    {new Date(viewingMeeting.scheduledDate).toLocaleDateString('ko-KR', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                    })}
+                  </p>
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium text-gray-500 mb-1">Time / 시간</h4>
+                  <p className="text-sm">
+                    {new Date(viewingMeeting.scheduledDate).toLocaleTimeString('en-US', {
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="text-sm font-medium text-gray-500 mb-1">Attendee / 참석자</h4>
+                <div className="flex items-center space-x-2">
+                  <p className="text-sm">
+                    {(() => {
+                      const investor = investors.find(inv => inv.id === viewingMeeting.investorId);
+                      const analyst = analysts.find(an => an.id === viewingMeeting.analystId);
+                      
+                      if (viewingMeeting.attendeeType === 'investor' && investor) {
+                        return investor.name;
+                      } else if (viewingMeeting.attendeeType === 'analyst' && analyst) {
+                        return analyst.name;
+                      } else {
+                        return 'Other / 기타';
+                      }
+                    })()}
+                  </p>
+                  <span className="text-xs px-2 py-1 bg-gray-100 rounded-full">
+                    {(() => {
+                      switch (viewingMeeting.attendeeType) {
+                        case 'investor': return 'Investor / 투자자';
+                        case 'analyst': return 'Analyst / 애널리스트';
+                        case 'other': return 'Other / 기타';
+                        default: return 'Other / 기타';
+                      }
+                    })()}
+                  </span>
+                </div>
+              </div>
+
+              {viewingMeeting.title && (
+                <div>
+                  <h4 className="text-sm font-medium text-gray-500 mb-1">Title / 제목</h4>
+                  <p className="text-sm">{viewingMeeting.title}</p>
+                </div>
+              )}
+
+              {viewingMeeting.description && (
+                <div>
+                  <h4 className="text-sm font-medium text-gray-500 mb-1">Description / 설명</h4>
+                  <div className="text-sm bg-gray-50 p-3 rounded-lg whitespace-pre-wrap">
+                    {viewingMeeting.description}
+                  </div>
+                </div>
+              )}
+
+              <div>
+                <h4 className="text-sm font-medium text-gray-500 mb-1">Status / 상태</h4>
+                <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(viewingMeeting.status)}`}>
+                  {viewingMeeting.status}
+                </span>
+              </div>
+
+              <div className="flex justify-end space-x-2 pt-4">
+                <Button variant="outline" onClick={() => setIsViewDialogOpen(false)}>
+                  Close / 닫기
+                </Button>
+                <Button onClick={() => {
+                  setIsViewDialogOpen(false);
+                  handleEditMeeting(viewingMeeting);
+                }}>
+                  Edit / 편집
+                </Button>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>
