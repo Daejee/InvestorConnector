@@ -28,7 +28,7 @@ interface SidebarProps {
 const navigation = [
   { name: "Dashboard / 대시보드", href: "/", icon: BarChart3 },
   { name: "Buyside / 투자자", href: "/investors", icon: Users },
-  { name: "Analysts / 애널리스트", href: "/analysts", icon: Users },
+  { name: "Sellside / 애널리스트", href: "/analysts", icon: Users },
   { 
     name: "AMC / 운용사", 
     href: "/companies", 

@@ -355,10 +355,10 @@ export default function Email() {
                 </ScrollArea>
               </div>
 
-              {/* Analysts */}
+              {/* Sellside */}
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <Label>Analysts / 애널리스트</Label>
+                  <Label>Sellside / 애널리스트</Label>
                   <Button variant="ghost" size="sm" onClick={selectAllAnalysts}>
                     {recipients.analysts.length === analysts.length ? "Clear All" : "Select All"}
                   </Button>

@@ -171,7 +171,7 @@ export default function Analysts() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Analysts / 애널리스트</h1>
+        <h1 className="text-3xl font-bold">Sellside / 애널리스트</h1>
         <div className="flex gap-2">
           <Button
             variant="outline"
@@ -192,13 +192,13 @@ export default function Analysts() {
             <DialogTrigger asChild>
               <Button onClick={() => setSelectedAnalyst(null)}>
                 <Plus className="mr-2 h-4 w-4" />
-                Add Analyst / 애널리스트 추가
+                Add Sellside / 애널리스트 추가
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-2xl">
               <DialogHeader>
                 <DialogTitle>
-                  {selectedAnalyst ? "Edit Analyst / 애널리스트 수정" : "Add Analyst / 애널리스트 추가"}
+                  {selectedAnalyst ? "Edit Sellside / 애널리스트 수정" : "Add Sellside / 애널리스트 추가"}
                 </DialogTitle>
               </DialogHeader>
               <AnalystForm
@@ -212,7 +212,7 @@ export default function Analysts() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Search Analysts / 애널리스트 검색</CardTitle>
+          <CardTitle>Search Sellside / 애널리스트 검색</CardTitle>
           <div className="flex items-center space-x-2">
             <Search className="h-4 w-4 text-muted-foreground" />
             <Input
@@ -241,7 +241,7 @@ export default function Analysts() {
               {filteredAnalysts.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={8} className="text-center py-8">
-                    No analysts found / 애널리스트를 찾을 수 없습니다
+                    No sellside found / 애널리스트를 찾을 수 없습니다
                   </TableCell>
                 </TableRow>
               ) : (
@@ -296,7 +296,7 @@ export default function Analysts() {
       <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Analyst Details / 애널리스트 상세정보</DialogTitle>
+            <DialogTitle>Sellside Details / 애널리스트 상세정보</DialogTitle>
           </DialogHeader>
           {selectedAnalyst && (
             <div className="space-y-4">
