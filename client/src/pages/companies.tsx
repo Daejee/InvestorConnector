@@ -356,7 +356,7 @@ export default function Companies() {
                   <TableHead>Type / 유형</TableHead>
                   <TableHead>HQ Location / 본사 위치</TableHead>
                   <TableHead>Area / 지역</TableHead>
-                  <TableHead>AUM / 운용자산</TableHead>
+                  <TableHead>AUM ($Bil)</TableHead>
                   <TableHead className="w-[100px]">Actions / 작업</TableHead>
                 </TableRow>
               </TableHeader>
