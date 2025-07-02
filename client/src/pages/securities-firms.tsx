@@ -55,10 +55,13 @@ export default function SecuritiesFirms() {
 
   const createMutation = useMutation({
     mutationFn: async (data: InsertSecuritiesFirm) => {
-      return apiRequest("/api/securities-firms", {
+      const response = await fetch("/api/securities-firms", {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
+      if (!response.ok) throw new Error("Failed to create");
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/securities-firms"] });
@@ -75,10 +78,13 @@ export default function SecuritiesFirms() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: Partial<InsertSecuritiesFirm> }) => {
-      return apiRequest(`/api/securities-firms/${id}`, {
+      const response = await fetch(`/api/securities-firms/${id}`, {
         method: "PATCH",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
+      if (!response.ok) throw new Error("Failed to update");
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/securities-firms"] });
@@ -95,9 +101,11 @@ export default function SecuritiesFirms() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      return apiRequest(`/api/securities-firms/${id}`, {
+      const response = await fetch(`/api/securities-firms/${id}`, {
         method: "DELETE",
       });
+      if (!response.ok) throw new Error("Failed to delete");
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/securities-firms"] });
@@ -474,7 +482,7 @@ function SecuritiesFirmForm({ firm, onSubmit, onCancel, isSubmitting }: Securiti
         <Label htmlFor="website">Website / 웹사이트</Label>
         <Input
           id="website"
-          value={formData.website}
+          value={formData.website || ""}
           onChange={(e) => setFormData({ ...formData, website: e.target.value })}
           placeholder="Enter website URL / 웹사이트 URL을 입력하세요"
         />

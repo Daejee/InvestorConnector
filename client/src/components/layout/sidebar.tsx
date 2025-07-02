@@ -37,6 +37,7 @@ const navigation = [
       { name: "Funds / 펀드", href: "/funds", icon: Wallet }
     ]
   },
+  { name: "Securities Firms / 증권사", href: "/securities-firms", icon: Building },
   { 
     name: "Meetings / 회의", 
     href: "/meeting-logs", 
