@@ -284,8 +284,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 return;
               }
 
-              // Validate AUM is a number (in billions)
-              const aumNumericValue = parseFloat(finalAum);
+              // Parse AUM value - handle various formats like ">$66B", "~$130B", "$30B+", "66"
+              const parseAumValue = (aumString: string): number => {
+                // Remove common prefixes and suffixes
+                let cleanedAum = aumString
+                  .replace(/[>~$+]/g, '') // Remove >, ~, $, + symbols
+                  .replace(/\s*\(.*?\)\s*/g, '') // Remove parenthetical content like "(incl. non-hedge assets)"
+                  .replace(/[Bb]/g, '') // Remove B for billions
+                  .trim();
+                
+                const numericValue = parseFloat(cleanedAum);
+                return numericValue;
+              };
+              
+              const aumNumericValue = parseAumValue(finalAum);
               if (isNaN(aumNumericValue) || aumNumericValue < 0) {
                 errors.push(`Line ${lineNumber}: AUM must be a valid positive number in billions, got "${finalAum}"`);
                 return;
@@ -586,8 +598,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
             continue;
           }
 
-          // Validate AUM is a number (in billions)
-          const aumNumericValue = parseFloat(finalAum);
+          // Parse AUM value - handle various formats like ">$66B", "~$130B", "$30B+", "66"
+          const parseAumValue = (aumString: string): number => {
+            // Remove common prefixes and suffixes
+            let cleanedAum = aumString
+              .replace(/[>~$+]/g, '') // Remove >, ~, $, + symbols
+              .replace(/\s*\(.*?\)\s*/g, '') // Remove parenthetical content like "(incl. non-hedge assets)"
+              .replace(/[Bb]/g, '') // Remove B for billions
+              .trim();
+            
+            const numericValue = parseFloat(cleanedAum);
+            return numericValue;
+          };
+          
+          const aumNumericValue = parseAumValue(finalAum);
           if (isNaN(aumNumericValue) || aumNumericValue < 0) {
             errors.push(`Line ${lineNumber}: AUM must be a valid positive number in billions, got "${finalAum}"`);
             continue;

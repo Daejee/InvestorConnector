@@ -252,6 +252,8 @@ export function AnalystForm({ analyst, onClose }: AnalystFormProps) {
                       <SelectItem value="애널리스트">애널리스트 / Analyst</SelectItem>
                       <SelectItem value="RA">RA</SelectItem>
                       <SelectItem value="리서치해드">리서치해드 / Research Head</SelectItem>
+                      <SelectItem value="브로커">브로커 / Broker</SelectItem>
+                      <SelectItem value="세일즈">세일즈 / Sales</SelectItem>
                       <SelectItem value="기타">기타 / Other</SelectItem>
                     </SelectContent>
                   </Select>
