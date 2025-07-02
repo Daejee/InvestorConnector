@@ -8,7 +8,7 @@ import {
   Users, 
   Building, 
   PieChart, 
-  MessageSquare, 
+  Mail, 
   FileText, 
   BarChart,
   Plus,
@@ -46,7 +46,7 @@ const navigation = [
       { name: "NDR/컨퍼런스", href: "/ndr-conferences", icon: CalendarDays }
     ]
   },
-  { name: "Communications / 소통", href: "/communications", icon: MessageSquare },
+  { name: "Email / 이메일", href: "/email", icon: Mail },
   { name: "Documents / 문서", href: "/documents", icon: FileText },
   { name: "Reports / 보고서", href: "/reports", icon: BarChart },
 ];

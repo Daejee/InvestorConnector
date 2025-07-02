@@ -1241,6 +1241,84 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Email sending endpoint
+  app.post("/api/email/send", async (req, res) => {
+    try {
+      const { subject, content, recipients, attachments } = req.body;
+      
+      // Get recipient emails
+      const investorEmails: string[] = [];
+      const analystEmails: string[] = [];
+      
+      if (recipients.investors && recipients.investors.length > 0) {
+        for (const investorId of recipients.investors) {
+          const investor = await storage.getInvestor(investorId);
+          if (investor && investor.email) {
+            investorEmails.push(investor.email);
+          }
+        }
+      }
+      
+      if (recipients.analysts && recipients.analysts.length > 0) {
+        for (const analystId of recipients.analysts) {
+          const analyst = await storage.getAnalyst(analystId);
+          if (analyst && analyst.email) {
+            analystEmails.push(analyst.email);
+          }
+        }
+      }
+      
+      const allEmails = [...investorEmails, ...analystEmails];
+      
+      if (allEmails.length === 0) {
+        return res.status(400).json({ error: "No valid email addresses found for selected recipients" });
+      }
+      
+      // Get attachment files if any
+      const attachmentFiles: any[] = [];
+      if (attachments && attachments.length > 0) {
+        for (const docId of attachments) {
+          const document = await storage.getDocument(docId);
+          if (document) {
+            attachmentFiles.push({
+              filename: document.originalName,
+              path: document.filePath,
+              contentType: document.fileType
+            });
+          }
+        }
+      }
+      
+      // Send emails using EmailService
+      const results = [];
+      for (const email of allEmails) {
+        try {
+          const success = await EmailService.sendSingleEmail({
+            to: email,
+            subject: subject,
+            html: content.replace(/\n/g, '<br>'),
+            from: 'noreply@ircrm.com'
+          });
+          results.push({ email, success });
+        } catch (error) {
+          console.error(`Failed to send email to ${email}:`, error);
+          results.push({ email, success: false, error: error.message });
+        }
+      }
+      
+      res.json({ 
+        message: "Email sending completed", 
+        results,
+        totalSent: results.filter(r => r.success).length,
+        totalFailed: results.filter(r => !r.success).length
+      });
+      
+    } catch (error) {
+      console.error('Email sending error:', error);
+      res.status(500).json({ error: "Failed to send emails" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

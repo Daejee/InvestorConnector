@@ -7,7 +7,7 @@ import Layout from "@/components/layout/layout";
 import Dashboard from "@/pages/dashboard";
 import Investors from "@/pages/investors";
 import Companies from "@/pages/companies";
-import Communications from "@/pages/communications";
+import Email from "@/pages/email";
 import Documents from "@/pages/documents";
 import Reports from "@/pages/reports";
 import Funds from "@/pages/funds";
@@ -25,7 +25,7 @@ function Router() {
         <Route path="/investors" component={Investors} />
         <Route path="/analysts" component={Analysts} />
         <Route path="/companies" component={Companies} />
-        <Route path="/communications" component={Communications} />
+        <Route path="/email" component={Email} />
         <Route path="/funds" component={Funds} />
         <Route path="/meeting-logs" component={MeetingLogs} />
         <Route path="/ndr-conferences" component={NdrConferences} />
