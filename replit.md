@@ -203,6 +203,10 @@ Changelog:
 - June 23, 2025. Removed Quick Book sidebar section from Calendar Scheduler tab for cleaner interface
 - June 23, 2025. Created comprehensive investor detail view dialog showing complete investor information and meeting history
 - June 23, 2025. Enhanced investor View button to display contact details, specialties, share ownership, and chronological meeting logs
+- July 2, 2025. Created simplified Email interface to replace complex Communications menu
+- July 2, 2025. Added recipient selection with individual investor/analyst checkboxes and quick group selection (Korean/Overseas)
+- July 2, 2025. Integrated document attachment functionality from Documents menu with file preview
+- July 2, 2025. Added search functionality for recipients - users can search by name, company, or email to quickly find people
 ```
 
 ## User Preferences

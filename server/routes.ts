@@ -1302,7 +1302,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           results.push({ email, success });
         } catch (error) {
           console.error(`Failed to send email to ${email}:`, error);
-          results.push({ email, success: false, error: error.message });
+          results.push({ email, success: false, error: error instanceof Error ? error.message : 'Unknown error' });
         }
       }
       

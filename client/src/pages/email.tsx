@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { Mail, Users, FileText, Send, X, Paperclip, User, Building } from "lucide-react";
+import { Mail, Users, FileText, Send, X, Paperclip, User, Building, Search } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import type { Investor, Analyst, Document } from "@shared/schema";
@@ -29,6 +29,8 @@ export default function Email() {
     content: "",
     recipientType: "individuals" // "individuals" | "group"
   });
+  const [investorSearch, setInvestorSearch] = useState("");
+  const [analystSearch, setAnalystSearch] = useState("");
   
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -185,6 +187,19 @@ export default function Email() {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   };
 
+  // Filter functions for search
+  const filteredInvestors = investors.filter(investor =>
+    investor.name.toLowerCase().includes(investorSearch.toLowerCase()) ||
+    investor.company.toLowerCase().includes(investorSearch.toLowerCase()) ||
+    investor.email.toLowerCase().includes(investorSearch.toLowerCase())
+  );
+
+  const filteredAnalysts = analysts.filter(analyst =>
+    analyst.name.toLowerCase().includes(analystSearch.toLowerCase()) ||
+    analyst.company.toLowerCase().includes(analystSearch.toLowerCase()) ||
+    (analyst.email && analyst.email.toLowerCase().includes(analystSearch.toLowerCase()))
+  );
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -306,9 +321,21 @@ export default function Email() {
                     {recipients.investors.length === investors.length ? "Clear All" : "Select All"}
                   </Button>
                 </div>
+                
+                {/* Search input for investors */}
+                <div className="relative mb-2">
+                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
+                  <Input
+                    placeholder="이름, 회사, 이메일로 검색..."
+                    value={investorSearch}
+                    onChange={(e) => setInvestorSearch(e.target.value)}
+                    className="pl-8 text-sm"
+                  />
+                </div>
+                
                 <ScrollArea className="h-32 border rounded p-2">
                   <div className="space-y-2">
-                    {investors.map((investor) => (
+                    {filteredInvestors.map((investor) => (
                       <div key={investor.id} className="flex items-center space-x-2">
                         <Checkbox
                           checked={recipients.investors.includes(investor.id)}
@@ -321,6 +348,9 @@ export default function Email() {
                         <User className="h-3 w-3 text-gray-400" />
                       </div>
                     ))}
+                    {filteredInvestors.length === 0 && investorSearch && (
+                      <p className="text-sm text-gray-500 text-center py-2">검색 결과가 없습니다</p>
+                    )}
                   </div>
                 </ScrollArea>
               </div>
@@ -333,9 +363,21 @@ export default function Email() {
                     {recipients.analysts.length === analysts.length ? "Clear All" : "Select All"}
                   </Button>
                 </div>
+                
+                {/* Search input for analysts */}
+                <div className="relative mb-2">
+                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
+                  <Input
+                    placeholder="이름, 회사, 이메일로 검색..."
+                    value={analystSearch}
+                    onChange={(e) => setAnalystSearch(e.target.value)}
+                    className="pl-8 text-sm"
+                  />
+                </div>
+                
                 <ScrollArea className="h-32 border rounded p-2">
                   <div className="space-y-2">
-                    {analysts.map((analyst) => (
+                    {filteredAnalysts.map((analyst) => (
                       <div key={analyst.id} className="flex items-center space-x-2">
                         <Checkbox
                           checked={recipients.analysts.includes(analyst.id)}
@@ -348,6 +390,9 @@ export default function Email() {
                         <Building className="h-3 w-3 text-gray-400" />
                       </div>
                     ))}
+                    {filteredAnalysts.length === 0 && analystSearch && (
+                      <p className="text-sm text-gray-500 text-center py-2">검색 결과가 없습니다</p>
+                    )}
                   </div>
                 </ScrollArea>
               </div>
