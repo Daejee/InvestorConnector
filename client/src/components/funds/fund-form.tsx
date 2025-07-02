@@ -7,16 +7,17 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { insertFundSchema, type InsertFund, type Company } from "@shared/schema";
+import { insertFundSchema, type InsertFund, type Company, type Fund } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
 interface FundFormProps {
+  fund?: Fund;
   onSuccess?: () => void;
   onCancel?: () => void;
 }
 
-export default function FundForm({ onSuccess, onCancel }: FundFormProps) {
+export default function FundForm({ fund, onSuccess, onCancel }: FundFormProps) {
   const { toast } = useToast();
   const [ownOurShares, setOwnOurShares] = useState(false);
 
@@ -27,12 +28,12 @@ export default function FundForm({ onSuccess, onCancel }: FundFormProps) {
   const form = useForm<InsertFund>({
     resolver: zodResolver(insertFundSchema),
     defaultValues: {
-      name: "",
-      companyId: undefined,
-      aum: "",
-      type: "",
-      ownOurShares: false,
-      shareAmount: "",
+      name: fund?.name || "",
+      companyId: fund?.companyId || undefined,
+      aum: fund?.aum || "",
+      type: fund?.type || "",
+      ownOurShares: fund?.ownOurShares || false,
+      shareAmount: fund?.shareAmount || "",
     },
   });
 

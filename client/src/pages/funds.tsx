@@ -15,6 +15,8 @@ export default function Funds() {
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingFund, setEditingFund] = useState<Fund | null>(null);
 
   const { data: funds = [], isLoading } = useQuery<Fund[]>({
     queryKey: ["/api/funds"],
@@ -372,7 +374,14 @@ export default function Funds() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end space-x-2">
-                        <Button size="sm" variant="outline">
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => {
+                            setEditingFund(fund);
+                            setIsEditDialogOpen(true);
+                          }}
+                        >
                           <Edit className="h-4 w-4" />
                         </Button>
                         <Button 
@@ -392,6 +401,28 @@ export default function Funds() {
           )}
         </CardContent>
       </Card>
+
+      {/* Edit Fund Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Fund</DialogTitle>
+          </DialogHeader>
+          {editingFund && (
+            <FundForm 
+              fund={editingFund}
+              onSuccess={() => {
+                setIsEditDialogOpen(false);
+                setEditingFund(null);
+              }}
+              onCancel={() => {
+                setIsEditDialogOpen(false);
+                setEditingFund(null);
+              }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
