@@ -173,15 +173,10 @@ export default function Companies() {
       <div className="mb-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Asset Management Companies / 자산운용사</h2>
+            <h2 className="text-2xl font-bold text-gray-900">Asset Management Companies / 투신사</h2>
             <p className="text-gray-600 mt-1">자산운용사 정보</p>
           </div>
           <div className="mt-4 sm:mt-0 flex space-x-3">
-            <Button variant="outline" onClick={downloadSampleCSV}>
-              <Download className="mr-2 h-4 w-4" />
-              Sample CSV / 샘플 CSV
-            </Button>
-            
             <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
               <DialogTrigger asChild>
                 <Button variant="outline">

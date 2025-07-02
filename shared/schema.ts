@@ -61,6 +61,8 @@ export const companies = pgTable("companies", {
   aumKrw: decimal("aum_krw", { precision: 20, scale: 2 }), // AUM in Korean Won (trillion)
   type: text("type").notNull(), // VC, PE, Hedge Fund, etc.
   area: text("area"), // US, EU, Hong Kong, Singapore, Korea, Other
+  shareholderStatus: text("shareholder_status").default("N/A"), // Yes, No, N/A
+  shareCount: text("share_count"), // Number of shares if shareholderStatus is Yes
   status: text("status").notNull().default("active"), // active, archived
 });
 

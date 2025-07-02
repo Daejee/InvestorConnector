@@ -27,6 +27,8 @@ export default function CompanyForm({ company, onSuccess, onCancel }: CompanyFor
       aum: company ? parseFloat(company.aum).toString() : "",
       type: company?.type || "",
       area: company?.area || "",
+      shareholderStatus: company?.shareholderStatus || "N/A",
+      shareCount: company?.shareCount || "",
     },
   });
 
