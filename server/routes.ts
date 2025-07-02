@@ -16,7 +16,8 @@ import {
   insertEmailTemplateSchema,
   insertEmailCampaignSchema,
   insertAnalystSchema,
-  insertDocumentSchema
+  insertDocumentSchema,
+  insertSecuritiesFirmSchema
 } from "@shared/schema";
 import { EmailService } from "./email-service";
 
@@ -1247,6 +1248,149 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Get documents by category error:', error);
       res.status(500).json({ error: "Failed to fetch documents by category" });
+    }
+  });
+
+  // Securities Firms routes
+  app.get("/api/securities-firms", async (req, res) => {
+    try {
+      const firms = await storage.getSecuritiesFirms();
+      res.json(firms);
+    } catch (error) {
+      console.error('Get securities firms error:', error);
+      res.status(500).json({ error: "Failed to fetch securities firms" });
+    }
+  });
+
+  app.get("/api/securities-firms/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const firm = await storage.getSecuritiesFirm(id);
+      if (!firm) {
+        return res.status(404).json({ message: "Securities firm not found" });
+      }
+      res.json(firm);
+    } catch (error) {
+      console.error('Get securities firm error:', error);
+      res.status(500).json({ error: "Failed to fetch securities firm" });
+    }
+  });
+
+  app.post("/api/securities-firms", async (req, res) => {
+    try {
+      const firmData = insertSecuritiesFirmSchema.parse(req.body);
+      const firm = await storage.createSecuritiesFirm(firmData);
+      res.status(201).json(firm);
+    } catch (error) {
+      res.status(400).json({ error: "Invalid securities firm data", details: error });
+    }
+  });
+
+  app.patch("/api/securities-firms/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const updateData = insertSecuritiesFirmSchema.partial().parse(req.body);
+      const firm = await storage.updateSecuritiesFirm(id, updateData);
+      if (!firm) {
+        return res.status(404).json({ error: "Securities firm not found" });
+      }
+      res.json(firm);
+    } catch (error) {
+      res.status(400).json({ error: "Invalid securities firm data", details: error });
+    }
+  });
+
+  app.delete("/api/securities-firms/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const success = await storage.deleteSecuritiesFirm(id);
+      if (!success) {
+        return res.status(404).json({ error: "Securities firm not found" });
+      }
+      res.json({ message: "Securities firm deleted successfully" });
+    } catch (error) {
+      console.error('Delete securities firm error:', error);
+      res.status(500).json({ error: "Failed to delete securities firm" });
+    }
+  });
+
+  // CSV upload for securities firms
+  app.post("/api/securities-firms/upload", upload.single('file'), async (req, res) => {
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
+
+    try {
+      const results: any[] = [];
+      const errors: string[] = [];
+      
+      const csvStream = Readable.from(req.file.buffer.toString('utf8'));
+      
+      await new Promise((resolve, reject) => {
+        csvStream
+          .pipe(csvParser())
+          .on('data', (data) => results.push(data))
+          .on('end', resolve)
+          .on('error', reject);
+      });
+
+      const createdFirms = [];
+      let skippedCount = 0;
+
+      for (let index = 0; index < results.length; index++) {
+        const row = results[index];
+        try {
+          // Flexible header mapping - support Korean and English headers
+          const name = row['이름'] || row['Name'] || row['name'] || row['회사명'] || row['Company'] || '';
+          const address = row['주소'] || row['Address'] || row['address'] || '';
+          const phone = row['대표번호'] || row['전화번호'] || row['Phone'] || row['phone'] || '';
+          const website = row['웹사이트'] || row['Website'] || row['website'] || row['URL'] || row['url'] || '';
+
+          // Validate required fields
+          if (!name.trim()) {
+            errors.push(`Row ${index + 2}: Name is required / 이름은 필수입니다`);
+            skippedCount++;
+            continue;
+          }
+
+          if (!address.trim()) {
+            errors.push(`Row ${index + 2}: Address is required / 주소는 필수입니다`);
+            skippedCount++;
+            continue;
+          }
+
+          if (!phone.trim()) {
+            errors.push(`Row ${index + 2}: Phone is required / 전화번호는 필수입니다`);
+            skippedCount++;
+            continue;
+          }
+
+          const firmData = {
+            name: name.trim(),
+            address: address.trim(),
+            phone: phone.trim(),
+            website: website.trim() || undefined,
+            status: 'active'
+          };
+
+          const createdFirm = await storage.createSecuritiesFirm(firmData);
+          createdFirms.push(createdFirm);
+        } catch (error) {
+          errors.push(`Row ${index + 2}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+          skippedCount++;
+        }
+      }
+
+      res.json({
+        message: `Successfully imported ${createdFirms.length} securities firms`,
+        created: createdFirms.length,
+        skipped: skippedCount,
+        errors: errors.length > 0 ? errors : undefined
+      });
+
+    } catch (error) {
+      console.error('CSV upload error:', error);
+      res.status(500).json({ error: "Failed to process CSV file" });
     }
   });
 

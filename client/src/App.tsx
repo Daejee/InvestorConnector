@@ -15,6 +15,7 @@ import MeetingLogs from "@/pages/meeting-logs-new";
 import NdrConferences from "@/pages/ndr-conferences";
 import Scheduling from "@/pages/scheduling";
 import Analysts from "@/pages/analysts";
+import SecuritiesFirms from "@/pages/securities-firms";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -25,6 +26,7 @@ function Router() {
         <Route path="/investors" component={Investors} />
         <Route path="/analysts" component={Analysts} />
         <Route path="/companies" component={Companies} />
+        <Route path="/securities-firms" component={SecuritiesFirms} />
         <Route path="/email" component={Email} />
         <Route path="/funds" component={Funds} />
         <Route path="/meeting-logs" component={MeetingLogs} />
