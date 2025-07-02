@@ -264,3 +264,6 @@ export type Analyst = typeof analysts.$inferSelect;
 
 export type InsertDocument = z.infer<typeof insertDocumentSchema>;
 export type Document = typeof documents.$inferSelect;
+
+export type InsertSecuritiesFirm = z.infer<typeof insertSecuritiesFirmSchema>;
+export type SecuritiesFirm = typeof securitiesFirms.$inferSelect;

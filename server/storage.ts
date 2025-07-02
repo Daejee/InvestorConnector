@@ -1,5 +1,5 @@
 import { 
-  investors, companies, investments, communications, meetings, funds, meetingLogs, ndrConferences, emailTemplates, emailCampaigns, analysts, documents,
+  investors, companies, investments, communications, meetings, funds, meetingLogs, ndrConferences, emailTemplates, emailCampaigns, analysts, documents, securitiesFirms,
   type Investor, type InsertInvestor,
   type Company, type InsertCompany,
   type Investment, type InsertInvestment,
@@ -11,7 +11,8 @@ import {
   type EmailTemplate, type InsertEmailTemplate,
   type EmailCampaign, type InsertEmailCampaign,
   type Analyst, type InsertAnalyst,
-  type Document, type InsertDocument
+  type Document, type InsertDocument,
+  type SecuritiesFirm, type InsertSecuritiesFirm
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc } from "drizzle-orm";
@@ -111,6 +112,13 @@ export interface IStorage {
   createDocument(document: InsertDocument): Promise<Document>;
   updateDocument(id: number, document: Partial<InsertDocument>): Promise<Document | undefined>;
   deleteDocument(id: number): Promise<boolean>;
+
+  // Securities Firms
+  getSecuritiesFirms(): Promise<SecuritiesFirm[]>;
+  getSecuritiesFirm(id: number): Promise<SecuritiesFirm | undefined>;
+  createSecuritiesFirm(firm: InsertSecuritiesFirm): Promise<SecuritiesFirm>;
+  updateSecuritiesFirm(id: number, firm: Partial<InsertSecuritiesFirm>): Promise<SecuritiesFirm | undefined>;
+  deleteSecuritiesFirm(id: number): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -548,6 +556,38 @@ export class DatabaseStorage implements IStorage {
 
   async deleteDocument(id: number): Promise<boolean> {
     const result = await db.delete(documents).where(eq(documents.id, id));
+    return result.rowCount !== null && result.rowCount > 0;
+  }
+
+  // Securities Firms
+  async getSecuritiesFirms(): Promise<SecuritiesFirm[]> {
+    return await db.select().from(securitiesFirms);
+  }
+
+  async getSecuritiesFirm(id: number): Promise<SecuritiesFirm | undefined> {
+    const [firm] = await db.select().from(securitiesFirms).where(eq(securitiesFirms.id, id));
+    return firm || undefined;
+  }
+
+  async createSecuritiesFirm(insertFirm: InsertSecuritiesFirm): Promise<SecuritiesFirm> {
+    const [firm] = await db
+      .insert(securitiesFirms)
+      .values(insertFirm)
+      .returning();
+    return firm;
+  }
+
+  async updateSecuritiesFirm(id: number, updateData: Partial<InsertSecuritiesFirm>): Promise<SecuritiesFirm | undefined> {
+    const [firm] = await db
+      .update(securitiesFirms)
+      .set(updateData)
+      .where(eq(securitiesFirms.id, id))
+      .returning();
+    return firm || undefined;
+  }
+
+  async deleteSecuritiesFirm(id: number): Promise<boolean> {
+    const result = await db.delete(securitiesFirms).where(eq(securitiesFirms.id, id));
     return result.rowCount !== null && result.rowCount > 0;
   }
 }
