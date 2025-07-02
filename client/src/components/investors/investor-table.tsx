@@ -206,7 +206,7 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
   if (isLoading) {
     return (
       <div className="p-6">
-        <p className="text-gray-500">Loading investors...</p>
+        <p className="text-gray-500">Loading buyside...</p>
       </div>
     );
   }
@@ -225,7 +225,7 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
         <thead className="bg-gray-50">
           <tr>
             <th className="pl-1 pr-1 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[18%]">
-              Investor
+              Buyside
             </th>
             <th className="px-1 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[20%]">
               Company & Fund
