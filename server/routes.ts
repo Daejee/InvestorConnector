@@ -201,6 +201,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 case 'name':
                 case 'company name':
                 case 'company':
+                case '회사명':
                   return 'name';
                 case 'hq location':
                 case 'hq':
@@ -212,6 +213,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 case 'assets under management':
                 case 'total aum':
                 case 'aum (bil)':
+                case 'aum ($bil)':
                 case 'aum (billion usd)':
                 case 'aum_bil':
                   return 'aum';
@@ -219,6 +221,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 case 'company type':
                 case 'fund type':
                 case 'investment_type':
+                case '유형':
                   return 'type';
                 case 'area':
                 case 'region':
@@ -243,24 +246,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
               // Check which required fields are missing (case-insensitive)
               const missingFields = [];
               
-              // Check for name field (various possible keys)
-              const nameValue = data.name || data.Name || data['Company Name'] || data['company name'];
+              // Check for name field (mapped from header)
+              const nameValue = data.name;
               if (!nameValue || nameValue.toString().trim() === '') missingFields.push('name');
               
-              // Check for hqLocation field (various possible keys)
-              const hqLocationValue = data.hqLocation || data.Hqlocation || data['HQ Location'] || data['hq location'] || data.location || data.Location;
+              // Check for hqLocation field (mapped from header)
+              const hqLocationValue = data.hqLocation;
               if (!hqLocationValue || hqLocationValue.toString().trim() === '') missingFields.push('hqLocation');
               
-              // Check for aum field (various possible keys)
-              const aumFieldValue = data.aum || data.AUM || data['AUM (Billion USD)'] || data['aum (billion usd)'];
+              // Check for aum field (mapped from header)
+              const aumFieldValue = data.aum;
               if (!aumFieldValue || aumFieldValue.toString().trim() === '') missingFields.push('aum');
               
-              // Check for type field (various possible keys)
-              const typeValue = data.type || data.Type;
+              // Check for type field (mapped from header)
+              const typeValue = data.type;
               if (!typeValue || typeValue.toString().trim() === '') missingFields.push('type');
               
-              // Check for area field (various possible keys)
-              const areaValue = data.area || data.Area || data.region || data.Region;
+              // Check for area field (mapped from header)
+              const areaValue = data.area;
               if (!areaValue || areaValue.toString().trim() === '') missingFields.push('area');
 
               if (missingFields.length > 0) {
