@@ -1337,11 +1337,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const createdFirms = [];
       let skippedCount = 0;
 
-      // Debug: Log first row to see actual headers
-      if (results.length > 0) {
-        console.log('First CSV row keys:', Object.keys(results[0]));
-        console.log('First CSV row:', results[0]);
-      }
+
 
       for (let index = 0; index < results.length; index++) {
         const row = results[index];

@@ -285,7 +285,7 @@ export default function SecuritiesFirms() {
                   <TableHead>Address / 주소</TableHead>
                   <TableHead>Phone / 전화번호</TableHead>
                   <TableHead>Website / 웹사이트</TableHead>
-                  <TableHead>Status / 상태</TableHead>
+
                   <TableHead className="w-32">Actions / 작업</TableHead>
                 </TableRow>
               </TableHeader>
@@ -322,11 +322,7 @@ export default function SecuritiesFirms() {
                         <span className="text-gray-400">-</span>
                       )}
                     </TableCell>
-                    <TableCell>
-                      <Badge variant={firm.status === 'active' ? 'default' : 'secondary'}>
-                        {firm.status === 'active' ? 'Active / 활성' : 'Archived / 보관됨'}
-                      </Badge>
-                    </TableCell>
+
                     <TableCell>
                       <div className="flex items-center space-x-2">
                         <Button
