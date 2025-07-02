@@ -207,6 +207,10 @@ Changelog:
 - July 2, 2025. Added recipient selection with individual investor/analyst checkboxes and quick group selection (Korean/Overseas)
 - July 2, 2025. Integrated document attachment functionality from Documents menu with file preview
 - July 2, 2025. Added search functionality for recipients - users can search by name, company, or email to quickly find people
+- July 2, 2025. Redesigned Dashboard to focus exclusively on meeting management
+- July 2, 2025. Dashboard now shows three key metrics: Total Meetings, Upcoming Meetings, and Completed Meetings
+- July 2, 2025. Created two-column layout showing Upcoming Meetings and Recent Completed Meetings with attendee details and dates
+- July 2, 2025. Added quick actions to schedule new meetings directly from Dashboard
 ```
 
 ## User Preferences

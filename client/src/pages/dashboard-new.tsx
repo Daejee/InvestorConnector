@@ -189,12 +189,10 @@ export default function Dashboard() {
                           <div className="flex items-center space-x-2 mt-1">
                             <span className="text-xs text-gray-500">{dateTime.date}</span>
                             <span className="text-xs text-gray-500">{dateTime.time}</span>
-                            {meeting.place && (
-                              <div className="flex items-center space-x-1">
-                                <MapPin className="h-3 w-3 text-gray-400" />
-                                <span className="text-xs text-gray-500">{meeting.place}</span>
-                              </div>
-                            )}
+                            <div className="flex items-center space-x-1">
+                              <MapPin className="h-3 w-3 text-gray-400" />
+                              <span className="text-xs text-gray-500">{meeting.attendeeType}</span>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -248,12 +246,10 @@ export default function Dashboard() {
                           <div className="flex items-center space-x-2 mt-1">
                             <span className="text-xs text-gray-500">{dateTime.date}</span>
                             <span className="text-xs text-gray-500">{dateTime.time}</span>
-                            {meeting.place && (
-                              <div className="flex items-center space-x-1">
-                                <MapPin className="h-3 w-3 text-gray-400" />
-                                <span className="text-xs text-gray-500">{meeting.place}</span>
-                              </div>
-                            )}
+                            <div className="flex items-center space-x-1">
+                              <MapPin className="h-3 w-3 text-gray-400" />
+                              <span className="text-xs text-gray-500">{meeting.attendeeType}</span>
+                            </div>
                           </div>
                         </div>
                       </div>
