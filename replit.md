@@ -211,6 +211,10 @@ Changelog:
 - July 2, 2025. Dashboard now shows three key metrics: Total Meetings, Upcoming Meetings, and Completed Meetings
 - July 2, 2025. Created two-column layout showing Upcoming Meetings and Recent Completed Meetings with attendee details and dates
 - July 2, 2025. Added quick actions to schedule new meetings directly from Dashboard
+- July 2, 2025. Updated terminology from "Investor" to "Buyside" across entire application interface
+- July 2, 2025. Changed navigation menu from "Investors / 투자자" to "Buyside / 투자자" for better market terminology
+- July 2, 2025. Updated all page headers, buttons, table columns, and search placeholders to use "Buyside" terminology
+- July 2, 2025. Maintained Korean translation as "투자자" while updating English term from "Investor" to "Buyside"
 ```
 
 ## User Preferences

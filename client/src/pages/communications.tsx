@@ -649,7 +649,7 @@ export default function Communications() {
                             <TabsList className="grid w-full grid-cols-2">
                               <TabsTrigger value="investors" className="flex items-center gap-2">
                                 <Users className="h-4 w-4" />
-                                Investors / 투자자
+                                Buyside / 투자자
                               </TabsTrigger>
                               <TabsTrigger value="analysts" className="flex items-center gap-2">
                                 <UserCheck className="h-4 w-4" />

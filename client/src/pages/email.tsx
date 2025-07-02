@@ -316,7 +316,7 @@ export default function Email() {
               {/* Investors */}
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <Label>Investors / 투자자</Label>
+                  <Label>Buyside / 투자자</Label>
                   <Button variant="ghost" size="sm" onClick={selectAllInvestors}>
                     {recipients.investors.length === investors.length ? "Clear All" : "Select All"}
                   </Button>

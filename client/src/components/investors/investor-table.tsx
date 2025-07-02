@@ -214,7 +214,7 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
   if (investors.length === 0) {
     return (
       <div className="p-6">
-        <p className="text-gray-500">No investors found</p>
+        <p className="text-gray-500">No buyside found</p>
       </div>
     );
   }
