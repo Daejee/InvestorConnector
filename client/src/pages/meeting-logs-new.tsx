@@ -1,17 +1,37 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { Plus, Search, Eye, Edit, Trash2, Calendar, Users, Clock, MoreVertical, CheckCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { apiRequest } from "@/lib/queryClient";
 import type { Meeting, Investor, Analyst } from "@shared/schema";
+
+// Edit meeting form schema
+const editMeetingSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().optional(),
+  attendeeType: z.enum(["investor", "analyst", "other"]),
+  investorId: z.number().nullable(),
+  analystId: z.number().nullable(),
+  scheduledDate: z.string(),
+  scheduledTime: z.string(),
+  status: z.enum(["scheduled", "completed", "cancelled"])
+});
+
+type EditMeetingForm = z.infer<typeof editMeetingSchema>;
 
 export default function Meetings() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -20,6 +40,21 @@ export default function Meetings() {
   const [editingMeeting, setEditingMeeting] = useState<Meeting | null>(null);
   const [location] = useLocation();
   const queryClient = useQueryClient();
+
+  // Edit form setup
+  const editForm = useForm<EditMeetingForm>({
+    resolver: zodResolver(editMeetingSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      attendeeType: "investor",
+      investorId: null,
+      analystId: null,
+      scheduledDate: "",
+      scheduledTime: "",
+      status: "scheduled"
+    }
+  });
 
   // Check URL parameters to set default tab
   useEffect(() => {
@@ -65,6 +100,55 @@ export default function Meetings() {
       queryClient.invalidateQueries({ queryKey: ["/api/meetings"] });
     },
   });
+
+  // Update meeting mutation
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: EditMeetingForm }) => 
+      apiRequest(`/api/meetings/${id}`, "PATCH", data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/meetings"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/meetings/upcoming"] });
+      setEditingMeeting(null);
+      editForm.reset();
+    },
+  });
+
+  // Function to set up edit form when meeting is selected
+  const handleEditMeeting = (meeting: Meeting) => {
+    const meetingDate = new Date(meeting.scheduledDate);
+    const dateString = meetingDate.toISOString().split('T')[0];
+    const timeString = meetingDate.toTimeString().split(' ')[0].substring(0, 5);
+    
+    editForm.reset({
+      title: meeting.title,
+      description: meeting.description || "",
+      attendeeType: meeting.attendeeType,
+      investorId: meeting.investorId,
+      analystId: meeting.analystId,
+      scheduledDate: dateString,
+      scheduledTime: timeString,
+      status: meeting.status
+    });
+    
+    setEditingMeeting(meeting);
+  };
+
+  // Function to handle form submission
+  const onEditSubmit = (data: EditMeetingForm) => {
+    if (!editingMeeting) return;
+    
+    // Combine date and time
+    const scheduledDate = new Date(`${data.scheduledDate}T${data.scheduledTime}:00`);
+    
+    const updateData = {
+      ...data,
+      scheduledDate: scheduledDate.toISOString(),
+      investorId: data.attendeeType === "investor" ? data.investorId : null,
+      analystId: data.attendeeType === "analyst" ? data.analystId : null,
+    };
+    
+    updateMutation.mutate({ id: editingMeeting.id, data: updateData });
+  };
 
   const getAttendeeName = (meeting: Meeting) => {
     if (meeting.investorId) {
@@ -196,7 +280,7 @@ export default function Meetings() {
                             <Eye className="mr-2 h-4 w-4" />
                             View Details / 상세보기
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => setEditingMeeting(meeting)}>
+                          <DropdownMenuItem onClick={() => handleEditMeeting(meeting)}>
                             <Edit className="mr-2 h-4 w-4" />
                             Edit Meeting / 수정
                           </DropdownMenuItem>
