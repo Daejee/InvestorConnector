@@ -53,6 +53,14 @@ export function AnalystForm({ analyst, onClose }: AnalystFormProps) {
     },
   });
 
+  // Check if the current company is in the securities firms list
+  useEffect(() => {
+    if (analyst?.company && securitiesFirms.length > 0) {
+      const firmExists = securitiesFirms.some(firm => firm.name === analyst.company);
+      setIsCustomCompany(!firmExists);
+    }
+  }, [analyst?.company, securitiesFirms]);
+
   const createMutation = useMutation({
     mutationFn: async (data: FormData) => {
       const response = await fetch("/api/analysts", {
