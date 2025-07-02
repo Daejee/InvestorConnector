@@ -367,7 +367,7 @@ export default function Companies() {
                     <TableCell>{company.type}</TableCell>
                     <TableCell>{company.hqLocation}</TableCell>
                     <TableCell>{company.area || 'US'}</TableCell>
-                    <TableCell>${parseFloat(company.aum).toFixed(1)}</TableCell>
+                    <TableCell>{(parseFloat(company.aum) / 1000000000).toFixed(1)}</TableCell>
                     <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
