@@ -122,12 +122,12 @@ export default function Meetings() {
     editForm.reset({
       title: meeting.title,
       description: meeting.description || "",
-      attendeeType: meeting.attendeeType,
+      attendeeType: meeting.attendeeType as "investor" | "analyst" | "other",
       investorId: meeting.investorId,
       analystId: meeting.analystId,
       scheduledDate: dateString,
       scheduledTime: timeString,
-      status: meeting.status
+      status: meeting.status as "scheduled" | "completed" | "cancelled"
     });
     
     setEditingMeeting(meeting);
@@ -413,21 +413,170 @@ export default function Meetings() {
             <DialogTitle>Edit Meeting / 미팅 수정</DialogTitle>
           </DialogHeader>
           {editingMeeting && (
-            <div className="space-y-4">
-              <p className="text-gray-600">
-                Meeting editing functionality will be implemented here.
-                <br />
-                미팅 수정 기능이 여기에 구현될 예정입니다.
-              </p>
-              <div className="flex justify-end space-x-2">
-                <Button variant="outline" onClick={() => setEditingMeeting(null)}>
-                  Cancel / 취소
-                </Button>
-                <Button onClick={() => setEditingMeeting(null)}>
-                  Save Changes / 변경사항 저장
-                </Button>
-              </div>
-            </div>
+            <Form {...editForm}>
+              <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={editForm.control}
+                    name="title"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Title / 제목</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="Meeting title" />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={editForm.control}
+                    name="status"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Status / 상태</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="scheduled">Scheduled / 예정</SelectItem>
+                            <SelectItem value="completed">Completed / 완료</SelectItem>
+                            <SelectItem value="cancelled">Cancelled / 취소</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={editForm.control}
+                    name="scheduledDate"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Date / 날짜</FormLabel>
+                        <FormControl>
+                          <Input type="date" {...field} />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={editForm.control}
+                    name="scheduledTime"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Time / 시간</FormLabel>
+                        <FormControl>
+                          <Input type="time" {...field} />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <FormField
+                  control={editForm.control}
+                  name="attendeeType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Meeting Type / 미팅 유형</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="investor">Investor / 투자자</SelectItem>
+                          <SelectItem value="analyst">Analyst / 애널리스트</SelectItem>
+                          <SelectItem value="other">Other / 기타</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )}
+                />
+
+                {editForm.watch("attendeeType") === "investor" && (
+                  <FormField
+                    control={editForm.control}
+                    name="investorId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Select Investor / 투자자 선택</FormLabel>
+                        <Select onValueChange={(value) => field.onChange(value ? parseInt(value) : null)} value={field.value?.toString() || ""}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Choose investor" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {investors.map((investor) => (
+                              <SelectItem key={investor.id} value={investor.id.toString()}>
+                                {investor.name} - {investor.company}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+                )}
+
+                {editForm.watch("attendeeType") === "analyst" && (
+                  <FormField
+                    control={editForm.control}
+                    name="analystId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Select Analyst / 애널리스트 선택</FormLabel>
+                        <Select onValueChange={(value) => field.onChange(value ? parseInt(value) : null)} value={field.value?.toString() || ""}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Choose analyst" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {analysts.map((analyst) => (
+                              <SelectItem key={analyst.id} value={analyst.id.toString()}>
+                                {analyst.name} - {analyst.company}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+                )}
+
+                <FormField
+                  control={editForm.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Description / 설명</FormLabel>
+                      <FormControl>
+                        <Textarea {...field} placeholder="Meeting description" rows={3} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <div className="flex justify-end space-x-2">
+                  <Button type="button" variant="outline" onClick={() => setEditingMeeting(null)}>
+                    Cancel / 취소
+                  </Button>
+                  <Button type="submit" disabled={updateMutation.isPending}>
+                    {updateMutation.isPending ? "Saving..." : "Save Changes / 변경사항 저장"}
+                  </Button>
+                </div>
+              </form>
+            </Form>
           )}
         </DialogContent>
       </Dialog>
