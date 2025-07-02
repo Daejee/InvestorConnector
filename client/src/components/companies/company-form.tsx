@@ -170,6 +170,50 @@ export default function CompanyForm({ company, onSuccess, onCancel }: CompanyFor
           )}
         />
 
+        <FormField
+          control={form.control}
+          name="shareholderStatus"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>주주여부 / Shareholder Status</FormLabel>
+              <Select onValueChange={(value) => {
+                field.onChange(value);
+                if (value !== "Yes") {
+                  form.setValue("shareCount", "");
+                }
+              }} defaultValue={field.value || "N/A"}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select shareholder status" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="Yes">Yes</SelectItem>
+                  <SelectItem value="No">No</SelectItem>
+                  <SelectItem value="N/A">N/A</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {form.watch("shareholderStatus") === "Yes" && (
+          <FormField
+            control={form.control}
+            name="shareCount"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>주식수 / Share Count</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter number of shares" value={field.value || ""} onChange={field.onChange} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
         <div className="flex justify-end space-x-4">
           {onCancel && (
             <Button type="button" variant="outline" onClick={onCancel}>
