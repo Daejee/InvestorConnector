@@ -1,13 +1,14 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";
-import { insertNdrConferenceSchema, type InsertNdrConference, type NdrConference } from "@shared/schema";
+import { insertNdrConferenceSchema, type InsertNdrConference, type NdrConference, type SecuritiesFirm } from "@shared/schema";
 import { z } from "zod";
 import { useState } from "react";
 
@@ -28,6 +29,10 @@ type FormData = z.infer<typeof formSchema>;
 
 export default function NdrConferenceForm({ conference, onSuccess, onCancel }: NdrConferenceFormProps) {
   const queryClient = useQueryClient();
+  
+  const { data: securitiesFirms = [] } = useQuery<SecuritiesFirm[]>({
+    queryKey: ["/api/securities-firms"],
+  });
   const [newCompany, setNewCompany] = useState("");
 
   const form = useForm<FormData>({
@@ -212,13 +217,21 @@ export default function NdrConferenceForm({ conference, onSuccess, onCancel }: N
             name="hostCompany"
             render={({ field }) => (
               <FormItem className="md:col-span-2">
-                <FormLabel>Host Company</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="e.g., Goldman Sachs, Morgan Stanley"
-                    {...field}
-                  />
-                </FormControl>
+                <FormLabel>Host Company / 주최사</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select host securities firm / 주최 증권사 선택" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {securitiesFirms.map((firm) => (
+                      <SelectItem key={firm.id} value={firm.name}>
+                        {firm.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
