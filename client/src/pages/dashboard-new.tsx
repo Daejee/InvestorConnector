@@ -213,7 +213,7 @@ export default function Dashboard() {
                 <CheckCircle className="h-5 w-5" />
                 <span>Recent Completed / 최근 완료된 미팅</span>
               </CardTitle>
-              <Link href="/meeting-logs">
+              <Link href="/meeting-logs?tab=completed">
                 <Button variant="ghost" size="sm">View All / 전체보기</Button>
               </Link>
             </div>

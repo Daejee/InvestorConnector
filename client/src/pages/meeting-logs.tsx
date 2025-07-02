@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Plus, Search, Eye, Edit, Trash2, Calendar, Users, Clock, MoreVertical } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Plus, Search, Eye, Edit, Trash2, Calendar, Users, Clock, MoreVertical, CheckCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { apiRequest } from "@/lib/queryClient";
@@ -13,9 +15,24 @@ import type { Meeting, Investor, Analyst } from "@shared/schema";
 
 export default function Meetings() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState("upcoming");
+  const [location] = useLocation();
   const queryClient = useQueryClient();
 
-  const { data: upcomingMeetings = [], isLoading } = useQuery<Meeting[]>({
+  // Check URL parameters to set default tab
+  useEffect(() => {
+    const params = new URLSearchParams(location.split('?')[1] || '');
+    const tab = params.get('tab');
+    if (tab === 'completed') {
+      setActiveTab('completed');
+    }
+  }, [location]);
+
+  const { data: allMeetings = [], isLoading } = useQuery<Meeting[]>({
+    queryKey: ["/api/meetings"],
+  });
+
+  const { data: upcomingMeetings = [], isLoading: upcomingLoading } = useQuery<Meeting[]>({
     queryKey: ["/api/meetings/upcoming"],
   });
 
@@ -26,6 +43,12 @@ export default function Meetings() {
   const { data: analysts = [] } = useQuery<Analyst[]>({
     queryKey: ["/api/analysts"],
   });
+
+  // Filter completed meetings
+  const now = new Date();
+  const completedMeetings = allMeetings.filter(meeting => 
+    new Date(meeting.scheduledDate) < now
+  ).sort((a, b) => new Date(b.scheduledDate).getTime() - new Date(a.scheduledDate).getTime());
 
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
@@ -83,29 +106,36 @@ export default function Meetings() {
     }
   };
 
-  return (
-    <div>
-      <div className="mb-8">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900 flex items-center">
-              <Calendar className="mr-3 h-6 w-6" />
-              Upcoming Meetings / 예정된 미팅
-            </h2>
-            <p className="text-gray-600 mt-1">Your scheduled meetings for the coming weeks / 앞으로 몇 주간 예정된 미팅</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="space-y-4">
-        {isLoading ? (
-          <div className="p-6 text-center">Loading upcoming meetings...</div>
-        ) : filteredMeetings.length === 0 ? (
-          <div className="p-6 text-center text-gray-500">
-            No upcoming meetings found. Schedule your first meeting to get started.
-          </div>
-        ) : (
-          filteredMeetings.map((meeting: Meeting) => {
+  // Function to render meeting list
+  const renderMeetingList = (meetings: Meeting[], isLoading: boolean, emptyMessage: string) => {
+    if (isLoading) {
+      return <div className="p-6 text-center">Loading meetings...</div>;
+    }
+    
+    if (meetings.length === 0) {
+      return <div className="p-6 text-center text-gray-500">{emptyMessage}</div>;
+    }
+    
+    return meetings.map((meeting: Meeting) => {
+      const meetingDate = new Date(meeting.scheduledDate);
+      const dayMonth = format(meetingDate, "MMM\ndd");
+      const time = format(meetingDate, "HH:mm");
+      
+      return (
+        <Card key={meeting.id} className="hover:shadow-md transition-shadow">
+          <CardContent className="p-6">
+            <div className="flex items-start space-x-4">
+              {/* Date Column */}
+              <div className="flex-shrink-0 text-center bg-blue-50 rounded-lg p-3 min-w-[80px]">
+                <div className="text-sm font-medium text-blue-600 whitespace-pre-line">
+                  {dayMonth}
+                </div>
+              </div>
+              
+              {/* Meeting Info */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
             const meetingDate = new Date(meeting.scheduledDate);
             const dayMonth = format(meetingDate, "MMM\ndd");
             const time = format(meetingDate, "HH:mm");
