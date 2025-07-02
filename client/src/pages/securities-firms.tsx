@@ -140,9 +140,20 @@ export default function SecuritiesFirms() {
       queryClient.invalidateQueries({ queryKey: ["/api/securities-firms"] });
       setShowUploadDialog(false);
       setCsvFile(null);
-      toast({ 
-        title: `Successfully imported ${result.created} securities firms / ${result.created}개의 증권사를 성공적으로 가져왔습니다` 
-      });
+      
+      if (result.created > 0) {
+        toast({ 
+          title: `Successfully imported ${result.created} securities firms / ${result.created}개의 증권사를 성공적으로 가져왔습니다` 
+        });
+      }
+      
+      if (result.skipped > 0 && result.errors) {
+        toast({ 
+          title: `${result.skipped} rows skipped / ${result.skipped}개 행 건너뜀`,
+          description: result.errors.slice(0, 3).join(', '),
+          variant: "destructive"
+        });
+      }
     } catch (error) {
       toast({ 
         title: "Failed to upload CSV / CSV 업로드에 실패했습니다", 

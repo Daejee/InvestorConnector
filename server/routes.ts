@@ -1365,6 +1365,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
             continue;
           }
 
+          // Check if firm already exists
+          const existingFirms = await storage.getSecuritiesFirms();
+          const existingFirm = existingFirms.find(f => 
+            f.name.trim().toLowerCase() === name.trim().toLowerCase()
+          );
+          
+          if (existingFirm) {
+            errors.push(`Row ${index + 2}: Securities firm "${name}" already exists / 증권사 "${name}"가 이미 존재합니다`);
+            skippedCount++;
+            continue;
+          }
+
           const firmData = {
             name: name.trim(),
             address: address.trim(),
