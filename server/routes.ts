@@ -94,10 +94,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/companies", async (req, res) => {
     try {
       const data = insertCompanySchema.parse(req.body);
-      // Convert AUM from billions to full amount for storage
+      // Store AUM value directly as entered (in billions)
+      // No conversion needed since UI displays in billions and database stores the actual value
       if (data.aum) {
-        const aumInBillions = parseFloat(data.aum);
-        data.aum = (aumInBillions * 1000000000).toString();
+        const aumValue = parseFloat(data.aum);
+        data.aum = aumValue.toString();
       }
       const company = await storage.createCompany(data);
       res.status(201).json(company);
@@ -114,10 +115,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const data = insertCompanySchema.partial().parse(req.body);
       console.log('Parsed data:', data);
       
-      // Convert AUM from billions to full amount for storage (keeping as string for decimal type)
+      // Store AUM value directly as entered (in billions)
+      // No conversion needed since UI displays in billions and database stores the actual value
       if (data.aum) {
-        const aumInBillions = parseFloat(data.aum);
-        data.aum = (aumInBillions * 1000000000).toString();
+        const aumValue = parseFloat(data.aum);
+        data.aum = aumValue.toString();
       }
       
       console.log('Final data for update:', data);
@@ -128,7 +130,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(company);
     } catch (error) {
       console.error('Company update error:', error);
-      res.status(400).json({ message: "Invalid company data", error: error.message });
+      res.status(400).json({ message: "Invalid company data", error: error instanceof Error ? error.message : String(error) });
     }
   });
 
@@ -288,8 +290,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 return;
               }
 
-              // Convert billions to full amount for storage
-              const aumInFullAmount = (aumNumericValue * 1000000000).toString();
+              // Store AUM value directly (already in billions from CSV)
+              const aumInFullAmount = aumNumericValue.toString();
 
               const companyData = {
                 name: finalName,
