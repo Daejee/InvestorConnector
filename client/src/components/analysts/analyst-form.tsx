@@ -1,6 +1,7 @@
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,7 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { insertAnalystSchema, type Analyst } from "@shared/schema";
+import { insertAnalystSchema, type Analyst, type SecuritiesFirm } from "@shared/schema";
 import { z } from "zod";
 
 const formSchema = insertAnalystSchema.extend({
@@ -29,6 +30,12 @@ interface AnalystFormProps {
 export function AnalystForm({ analyst, onClose }: AnalystFormProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [isCustomCompany, setIsCustomCompany] = useState(false);
+
+  // Fetch securities firms for company dropdown
+  const { data: securitiesFirms = [] } = useQuery<SecuritiesFirm[]>({
+    queryKey: ["/api/securities-firms"],
+  });
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -163,7 +170,59 @@ export function AnalystForm({ analyst, onClose }: AnalystFormProps) {
               <FormItem>
                 <FormLabel>Company / 회사 *</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter company name / 회사명 입력" {...field} />
+                  {!isCustomCompany ? (
+                    <Select 
+                      onValueChange={(value) => {
+                        if (value === "custom") {
+                          setIsCustomCompany(true);
+                          field.onChange("");
+                        } else {
+                          field.onChange(value);
+                        }
+                      }} 
+                      value={field.value || ""}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select securities firm / 증권사 선택" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {securitiesFirms
+                          .sort((a, b) => {
+                            // Korean names first, then English names
+                            const isKoreanA = /^[가-힣]/.test(a.name);
+                            const isKoreanB = /^[가-힣]/.test(b.name);
+                            
+                            if (isKoreanA && !isKoreanB) return -1;
+                            if (!isKoreanA && isKoreanB) return 1;
+                            
+                            return a.name.localeCompare(b.name, 'ko-KR');
+                          })
+                          .map((firm) => (
+                            <SelectItem key={firm.id} value={firm.name}>
+                              {firm.name}
+                            </SelectItem>
+                          ))}
+                        <SelectItem value="custom">기타 / Other (직접 입력)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <div className="flex gap-2">
+                      <Input 
+                        placeholder="Enter company name / 회사명 입력" 
+                        {...field}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          setIsCustomCompany(false);
+                          field.onChange("");
+                        }}
+                      >
+                        Cancel / 취소
+                      </Button>
+                    </div>
+                  )}
                 </FormControl>
                 <FormMessage />
               </FormItem>
