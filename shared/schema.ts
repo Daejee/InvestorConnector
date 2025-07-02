@@ -154,6 +154,15 @@ export const emailCampaigns = pgTable("email_campaigns", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const securitiesFirms = pgTable("securities_firms", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  address: text("address").notNull(),
+  phone: text("phone").notNull(),
+  website: text("website"),
+  status: text("status").notNull().default("active"), // active, archived
+});
+
 export const insertInvestorSchema = createInsertSchema(investors).omit({
   id: true,
 });
@@ -214,6 +223,10 @@ export const insertDocumentSchema = createInsertSchema(documents).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
+});
+
+export const insertSecuritiesFirmSchema = createInsertSchema(securitiesFirms).omit({
+  id: true,
 });
 
 export type InsertInvestor = z.infer<typeof insertInvestorSchema>;

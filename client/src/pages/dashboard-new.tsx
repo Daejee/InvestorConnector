@@ -10,7 +10,8 @@ import {
   CheckCircle,
   MapPin,
   User,
-  Plus
+  Plus,
+  Mail
 } from "lucide-react";
 import type { Meeting, Investor, Analyst } from "@shared/schema";
 
@@ -79,7 +80,13 @@ export default function Dashboard() {
             <h2 className="text-2xl font-bold text-gray-900">Dashboard / 대시보드</h2>
             <p className="text-gray-600 mt-1">Meeting overview and management / 미팅 개요 및 관리</p>
           </div>
-          <div className="mt-4 sm:mt-0">
+          <div className="mt-4 sm:mt-0 flex gap-3">
+            <Link href="/email">
+              <Button variant="outline">
+                <Mail className="mr-2 h-4 w-4" />
+                Email / 이메일
+              </Button>
+            </Link>
             <Link href="/scheduling">
               <Button>
                 <Plus className="mr-2 h-4 w-4" />
