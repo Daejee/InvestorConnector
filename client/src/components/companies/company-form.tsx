@@ -24,7 +24,7 @@ export default function CompanyForm({ company, onSuccess, onCancel }: CompanyFor
     defaultValues: {
       name: company?.name || "",
       hqLocation: company?.hqLocation || "",
-      aum: company ? (parseFloat(company.aum) / 1000000000).toString() : "",
+      aum: company ? parseFloat(company.aum).toString() : "",
       type: company?.type || "",
       area: company?.area || "",
     },
