@@ -16,6 +16,8 @@ import type { Meeting, Investor, Analyst } from "@shared/schema";
 export default function Meetings() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("upcoming");
+  const [viewingMeeting, setViewingMeeting] = useState<Meeting | null>(null);
+  const [editingMeeting, setEditingMeeting] = useState<Meeting | null>(null);
   const [location] = useLocation();
   const queryClient = useQueryClient();
 
@@ -190,20 +192,20 @@ export default function Meetings() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent>
-                          <DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => setViewingMeeting(meeting)}>
                             <Eye className="mr-2 h-4 w-4" />
-                            View Details
+                            View Details / 상세보기
                           </DropdownMenuItem>
-                          <DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => setEditingMeeting(meeting)}>
                             <Edit className="mr-2 h-4 w-4" />
-                            Edit Meeting
+                            Edit Meeting / 수정
                           </DropdownMenuItem>
                           <DropdownMenuItem 
                             onClick={() => deleteMutation.mutate(meeting.id)}
                             className="text-red-600"
                           >
                             <Trash2 className="mr-2 h-4 w-4" />
-                            Delete Meeting
+                            Delete Meeting / 삭제
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -274,6 +276,77 @@ export default function Meetings() {
           )}
         </TabsContent>
       </Tabs>
+
+      {/* View Meeting Dialog */}
+      <Dialog open={!!viewingMeeting} onOpenChange={() => setViewingMeeting(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Meeting Details / 미팅 상세정보</DialogTitle>
+          </DialogHeader>
+          {viewingMeeting && (
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-lg font-semibold mb-2">{viewingMeeting.title}</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Date & Time / 날짜 및 시간</p>
+                    <p className="text-sm">{format(new Date(viewingMeeting.scheduledDate), "yyyy-MM-dd HH:mm")}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Attendee / 참석자</p>
+                    <p className="text-sm">{getAttendeeName(viewingMeeting)}</p>
+                    <p className="text-xs text-gray-500">{getAttendeeCompany(viewingMeeting)}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Type / 유형</p>
+                    <p className="text-sm">{getAttendeeType(viewingMeeting)}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Status / 상태</p>
+                    <Badge className={getStatusBadgeColor(viewingMeeting.status)}>
+                      {viewingMeeting.status}
+                    </Badge>
+                  </div>
+                </div>
+                {viewingMeeting.description && (
+                  <div className="mt-4">
+                    <p className="text-sm font-medium text-gray-600 mb-2">Description / 설명</p>
+                    <p className="text-sm bg-gray-50 p-3 rounded-lg whitespace-pre-wrap">
+                      {viewingMeeting.description}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Meeting Dialog */}
+      <Dialog open={!!editingMeeting} onOpenChange={() => setEditingMeeting(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Edit Meeting / 미팅 수정</DialogTitle>
+          </DialogHeader>
+          {editingMeeting && (
+            <div className="space-y-4">
+              <p className="text-gray-600">
+                Meeting editing functionality will be implemented here.
+                <br />
+                미팅 수정 기능이 여기에 구현될 예정입니다.
+              </p>
+              <div className="flex justify-end space-x-2">
+                <Button variant="outline" onClick={() => setEditingMeeting(null)}>
+                  Cancel / 취소
+                </Button>
+                <Button onClick={() => setEditingMeeting(null)}>
+                  Save Changes / 변경사항 저장
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
