@@ -84,14 +84,29 @@ export default function Analysts() {
     },
   });
 
-  const filteredAnalysts = analysts.filter((analyst: Analyst) =>
-    analyst.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    analyst.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    analyst.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (Array.isArray(analyst.specialization) && analyst.specialization.some(spec => 
-      spec.toLowerCase().includes(searchTerm.toLowerCase())
-    ))
-  );
+  const filteredAnalysts = analysts
+    .filter((analyst: Analyst) =>
+      analyst.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      analyst.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      analyst.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (Array.isArray(analyst.specialization) && analyst.specialization.some(spec => 
+        spec.toLowerCase().includes(searchTerm.toLowerCase())
+      ))
+    )
+    .sort((a, b) => {
+      // Helper function to check if a string starts with Korean characters
+      const isKorean = (str: string) => /^[가-힣]/.test(str);
+      
+      const aIsKorean = isKorean(a.name);
+      const bIsKorean = isKorean(b.name);
+      
+      // Korean names first, then English names
+      if (aIsKorean && !bIsKorean) return -1;
+      if (!aIsKorean && bIsKorean) return 1;
+      
+      // Both Korean or both English - sort alphabetically
+      return a.name.localeCompare(b.name, 'ko-KR');
+    });
 
   const handleEdit = (analyst: Analyst) => {
     setSelectedAnalyst(analyst);
