@@ -100,6 +100,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (data.aum) {
         const aumValue = parseFloat(data.aum);
         data.aum = aumValue.toString();
+        // Auto-calculate AUM in KRW (trillion won) with 1.4x multiplier
+        data.aumKrw = (aumValue * 1.4).toString();
       }
       const company = await storage.createCompany(data);
       res.status(201).json(company);
@@ -121,6 +123,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (data.aum) {
         const aumValue = parseFloat(data.aum);
         data.aum = aumValue.toString();
+        // Auto-calculate AUM in KRW (trillion won) with 1.4x multiplier
+        data.aumKrw = (aumValue * 1.4).toString();
       }
       
       console.log('Final data for update:', data);
