@@ -310,6 +310,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 name: finalName,
                 hqLocation: finalHqLocation,
                 aum: aumInFullAmount,
+                aumKrw: (aumNumericValue * 1.4).toString(), // Auto-calculate KRW with 1.4x multiplier
                 type: finalType,
                 area: finalArea
               };
