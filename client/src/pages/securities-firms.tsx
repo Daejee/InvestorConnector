@@ -164,11 +164,26 @@ export default function SecuritiesFirms() {
     }
   };
 
-  const filteredFirms = firms.filter(firm =>
-    firm.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    firm.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    firm.phone.includes(searchTerm)
-  );
+  const filteredFirms = firms
+    .filter(firm =>
+      firm.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      firm.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      firm.phone.includes(searchTerm)
+    )
+    .sort((a, b) => {
+      // Helper function to check if a string starts with Korean characters
+      const isKorean = (str: string) => /^[가-힣]/.test(str);
+      
+      const aIsKorean = isKorean(a.name);
+      const bIsKorean = isKorean(b.name);
+      
+      // Korean names first, then English names
+      if (aIsKorean && !bIsKorean) return -1;
+      if (!aIsKorean && bIsKorean) return 1;
+      
+      // Both Korean or both English - sort alphabetically
+      return a.name.localeCompare(b.name, 'ko-KR');
+    });
 
   return (
     <div className="p-6 space-y-6">
