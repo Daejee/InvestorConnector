@@ -1,0 +1,140 @@
+Vanguard	Index Funds, ETFs, Mutual Funds	Malvern, PA	US	$8500000000000.0	
+Vanguard Group	Mutual Funds, ETFs, Retirement	Malvern, PA	US	$7800000000000.0	
+Fidelity	Mutual Funds, Index Funds, ETFs	Boston, MA	US	$4900000000000.0	
+Fidelity Investments	Mutual Funds, Retirement, Brokerage	Boston, MA	US	$4500000000000.0	
+State Street Global Advisors	ETFs, Institutional, Pension	Boston, MA	US	$4100000000000.0	
+J.P. Morgan Asset Management	Mutual Funds, Pension, Institutional	New York, NY	US	$3200000000000.0	
+Capital Group (American Funds)	Mutual Funds, Retirement	Los Angeles, CA	US	$2800000000000.0	
+J.P. Morgan	Asset Management, Investment Banking	New York, NY	US	$2800000000000.0	
+Goldman Sachs Asset Management	Institutional, Hedge Funds, Private Wealth	New York, NY	US	$2600000000000.0	
+American Funds	Mutual Funds, Target Date Funds	Los Angeles, CA	US	$2300000000000.0	
+PIMCO	Bond Funds, Fixed Income	Newport Beach, CA	US	$2200000000000.0	
+Invesco	ETFs, Mutual Funds, Alternative Investments	Atlanta, GA	US	$1600000000000.0	
+Franklin Templeton	Mutual Funds, ETFs, Global Strategies	San Mateo, CA	US	$1500000000000.0	
+T. Rowe Price	Mutual Funds, Retirement	Baltimore, MD	US	$1400000000000.0	
+Wellington Management	Institutional, Mutual Funds	Boston, MA	US	$1400000000000.0	
+PGIM (Prudential Financial)	Institutional, Retirement, Real Estate	Newark, NJ	US	$1400000000000.0	
+Northern Trust Asset Management	Institutional, Pension, ESG Strategies	Chicago, IL	US	$1300000000000.0	
+Natixis Investment Managers	Global Strategies, ESG, Mutual Funds	Paris, France	EU	$1140000000000.0	
+Nuveen	Institutional, ESG, Retirement	Chicago, IL	US	$1100000000000.0	
+Schroders	Institutional, ESG, Alternatives	London, UK	EU	$990000000000.0	
+AXA Investment Managers	Insurance, ESG, Alternatives	Paris, France	EU	$933000000000.0	
+Manulife Investment Management	Institutional, ESG, Real Assets	Boston, MA	US	$800000000000.0	
+Federated Hermes	Mutual Funds, ESG, Institutional	Pittsburgh, PA	US	$701000000000.0	
+Principal Global Investors	Pension, Retirement, Mutual Funds	Des Moines, IA	US	$700000000000.0	
+Dimensional Fund Advisors	Factor Investing, Mutual Funds	Austin, TX	US	$700000000000.0	
+AB (AllianceBernstein)	Institutional, Mutual Funds	Nashville, TN	US	$694000000000.0	
+Ameriprise Financial (Columbia Threadneedle)	Mutual Funds, Wealth Management	Minneapolis, MN	US	$650000000000.0	
+HSBC Global Asset Management	Institutional, ESG, Fixed Income	Hong Kong	Hong Kong	$620000000000.0	
+MFS Investment Management	Mutual Funds, Retirement	Boston, MA	US	$600000000000.0	
+Allianz Global Investors	ESG, Multi-Asset, Global Strategies	Frankfurt, Germany	EU	$600000000000.0	
+Allianz Global Investors (HK)	Multi-asset, ESG, Global Equity	Hong Kong	Hong Kong	$600000000000.0	
+Eaton Vance (Morgan Stanley IM)	Mutual Funds, Wealth Management	Boston, MA	US	$500000000000.0	
+Nomura Asset Management	Japan Equity, Institutional	Tokyo, Japan	Other	$500000000000.0	
+Neuberger Berman	Private Wealth, Institutional	New York, NY	US	$460000000000.0	
+RBC Global Asset Management	Mutual Funds, Global Strategies	Minneapolis, MN	US	$430000000000.0	
+Barings LLC	Institutional, Private Credit	Charlotte, NC	US	$391000000000.0	
+SEI Investments	Institutional, Retirement Solutions	Oaks, PA	US	$389000000000.0	
+Western Asset Management	Fixed Income, Institutional	Pasadena, CA	US	$385000000000.0	
+Aviva Investors	Institutional, ESG	London, UK	EU	$350000000000.0	
+Loomis Sayles & Company	Institutional, Multi-Asset	Boston, MA	US	$335000000000.0	
+Voya Investment Management	Retirement, Institutional	New York, NY	US	$330000000000.0	
+MassMutual Investments	Retirement, Insurance-Based	Springfield, MA	US	$320000000000.0	
+Janus Henderson Investors	Mutual Funds, Equities	Denver, CO	US	$308000000000.0	
+Dodge & Cox	Mutual Funds, Value Investing	San Francisco, CA	US	$300000000000.0	
+Guggenheim Investments	Alternatives, Fixed Income, Institutional	New York, NY	US	$300000000000.0	
+Baillie Gifford	Growth Investing, Institutional, Mutual Funds	Edinburgh, UK	EU	$300000000000.0	
+China Asset Management Co.	Equity, Fixed Income, ETFs	Beijing, China	Other	$300000000000.0	
+E Fund Management (HK)	China Equity, Fixed Income, Institutional	Hong Kong	Hong Kong	$300000000000.0	
+Nikko Asset Management	Asia Pacific Equities, Mutual Funds	Tokyo, Japan	Other	$280000000000.0	
+Harvest Fund Management	China Equity, Institutional	Beijing, China	Other	$275000000000.0	
+Samsung Asset Management	Mutual Funds, ETFs, Korea Equity	Seoul, Korea	Korea	$250000000000.0	
+Lazard Asset Management	Global Equities, Institutional	New York, NY	US	$250000000000.0	
+Pictet Asset Management	Thematic Investing, ESG	Geneva, Switzerland	EU	$250000000000.0	
+ChinaAMC (HK)	ETFs, Mutual Funds, China Focus	Hong Kong	Hong Kong	$250000000000.0	
+Mirae Asset Global Investments	ETFs, Global Equities, Alternatives	Seoul, Korea	Korea	$245000000000.0	
+Eastspring Investments	Mutual Funds, ESG, Asia Strategies	Singapore	Singapore	$240000000000.0	
+Lord Abbett	Mutual Funds, Fixed Income	Jersey City, NJ	US	$225000000000.0	
+Jennison Associates	Growth Equity, Institutional	New York, NY	US	$224000000000.0	
+TCW Group	Fixed Income, Alternatives	Los Angeles, CA	US	$200000000000.0	
+Affiliated Managers Group (AMG)	Multi-boutique, Institutional	West Palm Beach, FL	US	$200000000000.0	
+Lion Global Investors	Institutional, Asia Fixed Income	Singapore	Singapore	$180000000000.0	
+Raymond James Investment Management	Wealth Management, Mutual Funds	St. Petersburg, FL	US	$175000000000.0	
+Putnam Investments	Mutual Funds, Retirement	Boston, MA	US	$170000000000.0	
+Man Group	Hedge Funds, Quant Strategies	London, UK	EU	$161000000000.0	
+UOB Asset Management	Southeast Asia Equities, Fixed Income	Singapore	Singapore	$160000000000.0	
+Value Partners Group	Asia Equity, Hedge Fund Strategies	Hong Kong	Hong Kong	$160000000000.0	
+BMO Global Asset Management	Mutual Funds, ESG	Chicago, IL	US	$160000000000.0	
+PineBridge Investments	Institutional, Emerging Markets	New York, NY	US	$153000000000.0	
+Baird Advisors	Fixed Income, Institutional	Milwaukee, WI	US	$150000000000.0	
+Brown Advisory	Private Wealth, ESG	Baltimore, MD	US	$140000000000.0	
+KB Asset Management	Mutual Funds, Fixed Income	Seoul, Korea	Korea	$140000000000.0	
+Fullerton Fund Management	Asia Bonds, Equities	Singapore	Singapore	$140000000000.0	
+Renaissance Technologies	Quant Hedge Funds	East Setauket, NY	US	$130000000000.0	
+Hanwha Asset Management	Mutual Funds, Alternatives	Seoul, Korea	Korea	$125000000000.0	
+Principal Asset Management (Asia)	Retirement Solutions, Asia Focus	Hong Kong	Hong Kong	$120000000000.0	
+HSBC Jintrust Fund Management	China Mutual Funds	Shanghai, China	Other	$120000000000.0	
+Principal Hong Kong	Retirement Solutions, MPF Schemes	Hong Kong	Hong Kong	$120000000000.0	
+AR Asset Management	Quant Strategies, Equity	Tokyo, Japan	Other	$110000000000.0	
+CICC Asset Management (HK)	Institutional, China Equities	Hong Kong	Hong Kong	$110000000000.0	
+Ping An Asset Management (HK)	Insurance, Institutional, China Strategies	Hong Kong	Hong Kong	$105000000000.0	
+DoubleLine Capital	Mutual Funds, Fixed Income	Los Angeles, CA	US	$100000000000.0	
+AIA Investment Management	Insurance Assets, Asia Fixed Income	Hong Kong	Hong Kong	$100000000000.0	
+Woori Asset Management	Fixed Income, Mutual Funds	Seoul, Korea	Korea	$100000000000.0	
+BOCI-Prudential Asset Management	China Fixed Income, Mutual Funds	Hong Kong	Hong Kong	$100000000000.0	
+CSOP Asset Management	ETFs, China Equities, Index Funds	Hong Kong	Hong Kong	$100000000000.0	
+Samsung Active Asset Management	Active Equity, Korea Focus	Seoul, Korea	Korea	$98000000000.0	
+Bank of Singapore Asset Management	Private Wealth, Asia Equities	Singapore	Singapore	$95000000000.0	
+ICICI Prudential AMC	Retail Funds, Fixed Income	Mumbai, India	Other	$95000000000.0	
+Harvest Global Investments	Mutual Funds, ESG, China Focus	Hong Kong	Hong Kong	$95000000000.0	
+KBStar Asset Management	ETFs, Index Funds	Seoul, Korea	Korea	$92000000000.0	
+LaSalle Investment Management	Real Estate, Institutional	Chicago, IL	US	$90000000000.0	
+Skandinaviska Enskilda Banken (SEB)	ESG, Institutional	Stockholm, Sweden	EU	$90000000000.0	
+Mirae Asset Securities	Trading, Brokerage, Asset Mgmt	Seoul, Korea	Korea	$90000000000.0	
+Hang Seng Investment Management	ETFs, Index Funds, Hong Kong Equities	Hong Kong	Hong Kong	$90000000000.0	
+China Southern Asset Management (HK)	China Mutual Funds, ETFs	Hong Kong	Hong Kong	$90000000000.0	
+OCBC Asset Management	Fixed Income, Asia Equities	Singapore	Singapore	$88000000000.0	
+China Universal Asset Management (HK)	Equities, Fixed Income, Institutional	Hong Kong	Hong Kong	$88000000000.0	
+OP Asset Management	Institutional, ESG	Helsinki, Finland	EU	$85000000000.0	
+LGT Capital Partners	Private Equity, Hedge Funds	Pfäffikon, Switzerland	EU	$85000000000.0	
+KTB Asset Management	Mutual Funds, Structured Products	Seoul, Korea	Korea	$85000000000.0	
+BOCOM International Asset Management	China Fixed Income, Equity	Hong Kong	Hong Kong	$85000000000.0	
+Haitong International Asset Management	Fixed Income, Structured Products	Hong Kong	Hong Kong	$82000000000.0	
+Jupiter Asset Management	Mutual Funds, ESG	London, UK	EU	$80000000000.0	
+China Merchants Securities (HK)	China Equity, Wealth Management	Hong Kong	Hong Kong	$80000000000.0	
+CCB International Asset Management	Equities, Fixed Income, Institutional	Hong Kong	Hong Kong	$78000000000.0	
+ICBC Credit Suisse Asset Management (HK)	China Mutual Funds, Equities	Hong Kong	Hong Kong	$77000000000.0	
+Huatai-PineBridge (HK)	Mutual Funds, Institutional, China Markets	Hong Kong	Hong Kong	$72000000000.0	
+Pine Street Group	Private Real Estate, Alternatives	Seattle, WA	US	$70000000000.0	
+GF International Investment Management	China Equities, Fixed Income	Hong Kong	Hong Kong	$70000000000.0	
+ABCI Asset Management	China Equities, Fixed Income	Hong Kong	Hong Kong	$66000000000.0	
+China Galaxy Asset Management (HK)	Institutional, Equities, China Focus	Hong Kong	Hong Kong	$65000000000.0	
+Harbor Capital Advisors	Mutual Funds, Sub-Advised	Chicago, IL	US	$63000000000.0	
+Tianhong Asset Management (HK)	Index Funds, Fixed Income	Hong Kong	Hong Kong	$62000000000.0	
+Mapfre Asset Management	Insurance, Mutual Funds	Madrid, Spain	EU	$60000000000.0	
+Bosera Asset Management (HK)	China Equity, Mutual Funds	Hong Kong	Hong Kong	$60000000000.0	
+BOC International Asset Management	Mutual Funds, Wealth Management	Hong Kong	Hong Kong	$60000000000.0	
+Great Wall Fund Management (HK)	China Fixed Income, Mutual Funds	Hong Kong	Hong Kong	$58000000000.0	
+SinoPac Asset Management (Asia)	Multi-asset, Taiwan & China Focus	Hong Kong	Hong Kong	$55000000000.0	
+ABC International Asset Management	China Equity, Wealth Management	Hong Kong	Hong Kong	$55000000000.0	
+China Everbright Asset Management	Fixed Income, Multi-Strategy	Hong Kong	Hong Kong	$53000000000.0	
+Fubon Asset Management (HK)	ETFs, China Equity, Fixed Income	Hong Kong	Hong Kong	$52000000000.0	
+Essence International Asset Management	Wealth Management, China Focus	Hong Kong	Hong Kong	$50000000000.0	
+Guotai Junan Assets (Asia)	China Equity, Institutional	Hong Kong	Hong Kong	$50000000000.0	
+CMS Asset Management (HK)	Institutional, Multi-Asset	Hong Kong	Hong Kong	$49000000000.0	
+Galaxy Asset Management (Asia)	Institutional, Multi-Asset	Hong Kong	Hong Kong	$48000000000.0	
+Cinda International Asset Management	Wealth Management, Fixed Income	Hong Kong	Hong Kong	$47000000000.0	
+GF Asset Management (HK)	Fixed Income, Institutional	Hong Kong	Hong Kong	$46000000000.0	
+Dongxing Securities (HK) Asset Management	Institutional, China Focus	Hong Kong	Hong Kong	$45000000000.0	
+Shenwan Hongyuan Asset Management (Asia)	China Equity, Structured Products	Hong Kong	Hong Kong	$42000000000.0	
+Great China Asset Management	Fixed Income, Balanced Funds	Hong Kong	Hong Kong	$40000000000.0	
+Yuexiu Asset Management	Institutional, China Fixed Income	Hong Kong	Hong Kong	$39000000000.0	
+Everbright Sun Hung Kai Asset Mgmt	Discretionary Portfolio, Alternatives	Hong Kong	Hong Kong	$38000000000.0	
+AMTD Asset Management	Private Wealth, Fixed Income	Hong Kong	Hong Kong	$37000000000.0	
+Sinopac Securities Asset Management (Asia)	Taiwan/China Equity Focus	Hong Kong	Hong Kong	$36000000000.0	
+Northern Cross	Equity, Institutional	Boston, MA	US	$35000000000.0	
+China Industrial Securities Intl AM	Equity, Wealth Management	Hong Kong	Hong Kong	$35000000000.0	
+Huishang Asset Management (Asia)	Institutional, China Credit	Hong Kong	Hong Kong	$34000000000.0	
+ZHONGTAI International Asset Mgmt	Multi-strategy, Asia Focus	Hong Kong	Hong Kong	$33000000000.0	
+Shenzhen Qianhai Financial Holdings	Private Equity, China Investments	Hong Kong	Hong Kong	$32000000000.0	
+BlackRock, Inc.	Mutual Funds, ETFs, Institutional, Pension	New York, NY	US	$11000000000.0	
