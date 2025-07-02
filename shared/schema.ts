@@ -57,7 +57,7 @@ export const companies = pgTable("companies", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   hqLocation: text("hq_location").notNull(),
-  aum: decimal("aum", { precision: 15, scale: 2 }).notNull(),
+  aum: decimal("aum", { precision: 20, scale: 2 }).notNull(),
   type: text("type").notNull(), // VC, PE, Hedge Fund, etc.
   area: text("area"), // US, EU, Hong Kong, Singapore, Korea, Other
   status: text("status").notNull().default("active"), // active, archived
