@@ -2,75 +2,56 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import InvestorTable from "@/components/investors/investor-table";
 import { 
-  Users, 
-  DollarSign, 
-  PieChart, 
   Calendar,
-  ArrowUp,
-  ArrowDown,
-  Download,
-  Plus,
-  Eye,
-  Edit,
-  Trash2,
-  Mail,
-  Phone
+  Users,
+  Clock,
+  CheckCircle,
+  MapPin,
+  User
 } from "lucide-react";
-import type { Investor, Meeting, Communication } from "@shared/schema";
-
-interface DashboardStats {
-  totalInvestors: number;
-  totalAum: number;
-  activeInvestments: number;
-  meetingsThisWeek: number;
-}
+import type { Meeting, Investor, Analyst } from "@shared/schema";
 
 export default function Dashboard() {
-  const { data: stats, isLoading: statsLoading } = useQuery<DashboardStats>({
-    queryKey: ["/api/dashboard/stats"],
+  const { data: allMeetings, isLoading: meetingsLoading } = useQuery<Meeting[]>({
+    queryKey: ["/api/meetings"],
   });
 
-  const { data: recentInvestors, isLoading: investorsLoading } = useQuery<Investor[]>({
-    queryKey: ["/api/investors"],
-  });
-
-  const { data: upcomingMeetings, isLoading: meetingsLoading } = useQuery<Meeting[]>({
+  const { data: upcomingMeetings, isLoading: upcomingLoading } = useQuery<Meeting[]>({
     queryKey: ["/api/meetings/upcoming"],
   });
 
-  const { data: recentCommunications, isLoading: communicationsLoading } = useQuery<Communication[]>({
-    queryKey: ["/api/communications"],
+  const { data: investors = [] } = useQuery<Investor[]>({
+    queryKey: ["/api/investors"],
   });
 
-  const formatCurrency = (amount: number) => {
-    if (amount >= 1e9) return `$${(amount / 1e9).toFixed(1)}B`;
-    if (amount >= 1e6) return `$${(amount / 1e6).toFixed(1)}M`;
-    if (amount >= 1e3) return `$${(amount / 1e3).toFixed(1)}K`;
-    return `$${amount.toFixed(0)}`;
-  };
+  const { data: analysts = [] } = useQuery<Analyst[]>({
+    queryKey: ["/api/analysts"],
+  });
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "active":
-        return "bg-green-100 text-green-800";
-      case "in-review":
-        return "bg-yellow-100 text-yellow-800";
-      case "inactive":
-        return "bg-gray-100 text-gray-800";
-      default:
-        return "bg-gray-100 text-gray-800";
+  // Filter meetings into completed and upcoming
+  const now = new Date();
+  const completedMeetings = allMeetings?.filter(meeting => 
+    new Date(meeting.scheduledDate) < now
+  ).sort((a, b) => new Date(b.scheduledDate).getTime() - new Date(a.scheduledDate).getTime()) || [];
+
+  const upcomingMeetingsList = upcomingMeetings || [];
+
+  const getAttendeeInfo = (meeting: Meeting) => {
+    if (meeting.investorId) {
+      const investor = investors.find(inv => inv.id === meeting.investorId);
+      return investor ? { name: investor.name, type: 'Investor', company: investor.company } : null;
     }
+    return { name: 'Other / 기타', type: 'Other', company: '' };
   };
 
-  const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map(word => word.charAt(0))
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
+  const getStatusBadge = (meeting: Meeting) => {
+    const isPast = new Date(meeting.scheduledDate) < now;
+    if (isPast) {
+      return <Badge className="bg-green-100 text-green-800">Completed / 완료</Badge>;
+    } else {
+      return <Badge className="bg-blue-100 text-blue-800">Upcoming / 예정</Badge>;
+    }
   };
 
   return (

@@ -4,7 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Layout from "@/components/layout/layout";
-import Dashboard from "@/pages/dashboard";
+import Dashboard from "@/pages/dashboard-new";
 import Investors from "@/pages/investors";
 import Companies from "@/pages/companies";
 import Email from "@/pages/email";
