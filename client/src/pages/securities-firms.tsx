@@ -203,11 +203,14 @@ export default function SecuritiesFirms() {
                 <div className="text-sm text-gray-600">
                   <p className="font-medium mb-2">Required columns / 필수 컬럼:</p>
                   <ul className="list-disc list-inside space-y-1">
-                    <li>Name / 이름 (required / 필수)</li>
+                    <li>Name / 이름 or 증권사 (required / 필수)</li>
                     <li>Address / 주소 (required / 필수)</li>
-                    <li>Phone / 대표번호 (required / 필수)</li>
+                    <li>Phone / 대표번호 or 대표전화 (required / 필수)</li>
                     <li>Website / 웹사이트 (optional / 선택사항)</li>
                   </ul>
+                  <p className="mt-3 text-xs text-gray-500">
+                    Supported formats / 지원 형식: 이름,주소,대표번호,웹사이트 OR 증권사,주소,대표전화,웹사이트
+                  </p>
                 </div>
                 <div className="flex justify-end gap-3">
                   <Button variant="outline" onClick={() => setShowUploadDialog(false)}>

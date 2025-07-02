@@ -1337,13 +1337,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const createdFirms = [];
       let skippedCount = 0;
 
+      // Debug: Log first row to see actual headers
+      if (results.length > 0) {
+        console.log('First CSV row keys:', Object.keys(results[0]));
+        console.log('First CSV row:', results[0]);
+      }
+
       for (let index = 0; index < results.length; index++) {
         const row = results[index];
         try {
           // Flexible header mapping - support Korean and English headers
-          const name = row['이름'] || row['Name'] || row['name'] || row['회사명'] || row['Company'] || '';
+          const name = row['이름'] || row['Name'] || row['name'] || row['회사명'] || row['Company'] || row['증권사'] || '';
           const address = row['주소'] || row['Address'] || row['address'] || '';
-          const phone = row['대표번호'] || row['전화번호'] || row['Phone'] || row['phone'] || '';
+          const phone = row['대표번호'] || row['전화번호'] || row['Phone'] || row['phone'] || row['대표전화'] || '';
           const website = row['웹사이트'] || row['Website'] || row['website'] || row['URL'] || row['url'] || '';
 
           // Validate required fields
