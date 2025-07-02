@@ -19,7 +19,7 @@ interface FundFormProps {
 
 export default function FundForm({ fund, onSuccess, onCancel }: FundFormProps) {
   const { toast } = useToast();
-  const [ownOurShares, setOwnOurShares] = useState(false);
+  const [ownOurShares, setOwnOurShares] = useState(fund?.ownOurShares || false);
 
   const { data: companies = [] } = useQuery<Company[]>({
     queryKey: ["/api/companies"],
@@ -61,12 +61,39 @@ export default function FundForm({ fund, onSuccess, onCancel }: FundFormProps) {
     },
   });
 
+  const updateFundMutation = useMutation({
+    mutationFn: async (data: InsertFund) => {
+      const response = await apiRequest("PUT", `/api/funds/${fund!.id}`, data);
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/funds"] });
+      toast({
+        title: "Success",
+        description: "Fund updated successfully",
+      });
+      onSuccess?.();
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update fund",
+        variant: "destructive",
+      });
+    },
+  });
+
   const onSubmit = (data: InsertFund) => {
     // If ownOurShares is false, clear shareAmount
     if (!data.ownOurShares) {
       data.shareAmount = "";
     }
-    createFundMutation.mutate(data);
+    
+    if (fund) {
+      updateFundMutation.mutate(data);
+    } else {
+      createFundMutation.mutate(data);
+    }
   };
 
   return (
@@ -207,8 +234,15 @@ export default function FundForm({ fund, onSuccess, onCancel }: FundFormProps) {
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancel
           </Button>
-          <Button type="submit" disabled={createFundMutation.isPending}>
-            {createFundMutation.isPending ? "Creating..." : "Create Fund"}
+          <Button 
+            type="submit" 
+            disabled={createFundMutation.isPending || updateFundMutation.isPending}
+          >
+            {fund ? (
+              updateFundMutation.isPending ? "Updating..." : "Update Fund"
+            ) : (
+              createFundMutation.isPending ? "Creating..." : "Create Fund"
+            )}
           </Button>
         </div>
       </form>
