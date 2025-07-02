@@ -109,19 +109,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/companies/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
+      console.log('Update company request:', req.body);
+      
       const data = insertCompanySchema.partial().parse(req.body);
-      // Convert AUM from billions to full amount for storage
+      console.log('Parsed data:', data);
+      
+      // Convert AUM from billions to full amount for storage (keeping as string for decimal type)
       if (data.aum) {
         const aumInBillions = parseFloat(data.aum);
         data.aum = (aumInBillions * 1000000000).toString();
       }
+      
+      console.log('Final data for update:', data);
       const company = await storage.updateCompany(id, data);
       if (!company) {
         return res.status(404).json({ message: "Company not found" });
       }
       res.json(company);
     } catch (error) {
-      res.status(400).json({ message: "Invalid company data", error });
+      console.error('Company update error:', error);
+      res.status(400).json({ message: "Invalid company data", error: error.message });
     }
   });
 
