@@ -653,7 +653,7 @@ export default function Communications() {
                               </TabsTrigger>
                               <TabsTrigger value="analysts" className="flex items-center gap-2">
                                 <UserCheck className="h-4 w-4" />
-                                Analysts / 애널리스트
+                                Sellside / 애널리스트
                               </TabsTrigger>
                             </TabsList>
                             

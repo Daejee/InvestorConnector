@@ -215,6 +215,11 @@ Changelog:
 - July 2, 2025. Changed navigation menu from "Investors / 투자자" to "Buyside / 투자자" for better market terminology
 - July 2, 2025. Updated all page headers, buttons, table columns, and search placeholders to use "Buyside" terminology
 - July 2, 2025. Maintained Korean translation as "투자자" while updating English term from "Investor" to "Buyside"
+- July 2, 2025. Updated terminology from "Analyst" to "Sellside" across entire application interface
+- July 2, 2025. Changed navigation menu from "Analysts / 애널리스트" to "Sellside / 애널리스트" for better market terminology
+- July 2, 2025. Updated all page headers, buttons, search titles, and dialog titles to use "Sellside" terminology
+- July 2, 2025. Maintained Korean translation as "애널리스트" while updating English term from "Analyst" to "Sellside"
+- July 2, 2025. Completed comprehensive terminology update: "Investor" → "Buyside", "Analyst" → "Sellside" for proper financial market distinction
 ```
 
 ## User Preferences
