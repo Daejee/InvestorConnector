@@ -1,0 +1,44 @@
+{
+  "name": "ir-crm-desktop",
+  "version": "1.0.0",
+  "main": "electron/main.js",
+  "description": "IR CRM - Investor Relations Management Desktop Application",
+  "author": "IR CRM Team",
+  "license": "MIT",
+  "scripts": {
+    "electron": "electron .",
+    "electron-dev": "NODE_ENV=development electron .",
+    "build-web": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
+    "build-electron": "npm run build-web && electron-builder",
+    "dist": "npm run build-web && electron-builder --publish=never"
+  },
+  "build": {
+    "appId": "com.ircrm.desktop",
+    "productName": "IR CRM",
+    "directories": {
+      "output": "electron-dist"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/main.js",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "electron/assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "IR CRM"
+    }
+  }
+}
