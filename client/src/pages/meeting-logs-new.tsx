@@ -760,8 +760,9 @@ export default function Meetings() {
                   </div>
                 )}
 
-                {/* File upload section */}
-                <div className="border-t pt-4 mt-6">
+                {/* File upload section - TEST */}
+                <div className="border-t pt-4 mt-6 bg-yellow-100 p-4">
+                  <p className="text-red-600 font-bold mb-2">TEST UPLOAD SECTION</p>
                   <div className="flex items-center space-x-2 mb-3">
                     <Upload className="h-4 w-4" />
                     <span className="text-sm font-medium">Upload Meeting Minutes / 회의록 업로드</span>
@@ -776,13 +777,25 @@ export default function Meetings() {
                   />
                   <button
                     type="button"
-                    onClick={() => document.getElementById('minutes-upload')?.click()}
+                    onClick={() => {
+                      console.log('Upload button clicked!');
+                      document.getElementById('minutes-upload')?.click();
+                    }}
                     disabled={uploadingMinutes}
                     className="bg-black text-white hover:bg-gray-800 disabled:bg-gray-400 px-4 py-2 rounded-md text-sm font-medium flex items-center space-x-2"
                   >
                     <Upload className="h-4 w-4" />
                     <span>{uploadingMinutes ? "업로딩 중..." : "회의록 UPLOAD"}</span>
                   </button>
+                  <div className="mt-2">
+                    <button 
+                      type="button" 
+                      className="bg-red-500 text-white px-2 py-1 text-xs"
+                      onClick={() => alert('Simple test button works!')}
+                    >
+                      TEST BUTTON
+                    </button>
+                  </div>
                 </div>
 
                 {/* Action buttons */}
