@@ -17,7 +17,8 @@ import {
   X,
   Wallet,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  FileEdit
 } from "lucide-react";
 
 interface SidebarProps {
@@ -33,6 +34,7 @@ const navigation = [
     icon: Calendar,
     submenu: [
       { name: "Schedule / 일정 예약", href: "/scheduling", icon: Plus },
+      { name: "미팅요약", href: "/meeting-summary", icon: FileEdit },
       { name: "NDR/컨퍼런스", href: "/ndr-conferences", icon: CalendarDays }
     ]
   },
