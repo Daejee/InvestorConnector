@@ -567,7 +567,7 @@ export default function Meetings() {
 
       {/* Edit Meeting Dialog */}
       <Dialog open={!!editingMeeting} onOpenChange={() => setEditingMeeting(null)}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Meeting / 미팅 수정</DialogTitle>
           </DialogHeader>
@@ -760,52 +760,44 @@ export default function Meetings() {
                   </div>
                 )}
 
-                {/* File upload section - TEST */}
-                <div className="border-t pt-4 mt-6 bg-yellow-100 p-4">
-                  <p className="text-red-600 font-bold mb-2">TEST UPLOAD SECTION</p>
-                  <div className="flex items-center space-x-2 mb-3">
-                    <Upload className="h-4 w-4" />
-                    <span className="text-sm font-medium">Upload Meeting Minutes / 회의록 업로드</span>
-                  </div>
-                  <input
-                    type="file"
-                    id="minutes-upload"
-                    className="hidden"
-                    accept=".pdf,.doc,.docx,.txt"
-                    onChange={handleFileUpload}
-                    disabled={uploadingMinutes}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      console.log('Upload button clicked!');
-                      document.getElementById('minutes-upload')?.click();
-                    }}
-                    disabled={uploadingMinutes}
-                    className="bg-black text-white hover:bg-gray-800 disabled:bg-gray-400 px-4 py-2 rounded-md text-sm font-medium flex items-center space-x-2"
-                  >
-                    <Upload className="h-4 w-4" />
-                    <span>{uploadingMinutes ? "업로딩 중..." : "회의록 UPLOAD"}</span>
-                  </button>
-                  <div className="mt-2">
-                    <button 
-                      type="button" 
-                      className="bg-red-500 text-white px-2 py-1 text-xs"
-                      onClick={() => alert('Simple test button works!')}
-                    >
-                      TEST BUTTON
-                    </button>
-                  </div>
-                </div>
+
 
                 {/* Action buttons */}
-                <div className="flex justify-end space-x-2 mt-6">
-                  <Button type="button" variant="outline" onClick={() => setEditingMeeting(null)}>
-                    Cancel / 취소
-                  </Button>
-                  <Button type="submit" disabled={updateMutation.isPending}>
-                    {updateMutation.isPending ? "Saving..." : "Save Changes / 변경사항 저장"}
-                  </Button>
+                <div className="space-y-4 mt-6">
+                  {/* Upload button section at the bottom */}
+                  <div className="bg-red-100 border-2 border-red-500 p-4 rounded-lg">
+                    <h3 className="text-red-800 font-bold text-lg mb-2">회의록 업로드 / UPLOAD SECTION</h3>
+                    <input
+                      type="file"
+                      id="minutes-upload"
+                      className="hidden"
+                      accept=".pdf,.doc,.docx,.txt"
+                      onChange={handleFileUpload}
+                      disabled={uploadingMinutes}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        console.log('Upload button clicked!');
+                        document.getElementById('minutes-upload')?.click();
+                      }}
+                      disabled={uploadingMinutes}
+                      className="bg-black text-white hover:bg-gray-800 disabled:bg-gray-400 px-6 py-3 rounded-md text-base font-bold flex items-center space-x-2"
+                    >
+                      <Upload className="h-5 w-5" />
+                      <span>{uploadingMinutes ? "업로딩 중..." : "회의록 UPLOAD"}</span>
+                    </button>
+                  </div>
+                  
+                  {/* Navigation buttons */}
+                  <div className="flex justify-end space-x-2">
+                    <Button type="button" variant="outline" onClick={() => setEditingMeeting(null)}>
+                      Cancel / 취소
+                    </Button>
+                    <Button type="submit" disabled={updateMutation.isPending}>
+                      {updateMutation.isPending ? "Saving..." : "Save Changes / 변경사항 저장"}
+                    </Button>
+                  </div>
                 </div>
               </form>
             </Form>
