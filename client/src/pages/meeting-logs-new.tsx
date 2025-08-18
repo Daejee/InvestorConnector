@@ -705,15 +705,13 @@ export default function Meetings() {
                   )}
                 />
 
-                {/* Meeting Minutes Upload Section */}
-                <div className="space-y-4 border-t pt-4">
-                  <div className="flex items-center space-x-2">
-                    <FileText className="h-5 w-5 text-gray-600" />
-                    <h3 className="text-lg font-medium">Meeting Minutes / 회의록</h3>
-                  </div>
-                  
-                  {/* Existing minutes file */}
-                  {editingMeeting.minutesFilePath && (
+                {/* Existing minutes file display */}
+                {editingMeeting.minutesFilePath && (
+                  <div className="space-y-2 border-t pt-4">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <FileText className="h-5 w-5 text-gray-600" />
+                      <h3 className="text-sm font-medium">Current Meeting Minutes / 현재 회의록</h3>
+                    </div>
                     <div className="bg-gray-50 p-3 rounded-lg">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-2">
@@ -738,42 +736,33 @@ export default function Meetings() {
                         </div>
                       </div>
                     </div>
-                  )}
-                  
-                  {/* Upload new minutes */}
-                  <div className="space-y-2">
-                    <p className="text-sm text-gray-600">
-                      {editingMeeting.minutesFilePath 
-                        ? "Upload a new file to replace the existing minutes / 기존 회의록을 교체할 새 파일 업로드"
-                        : "Upload meeting minutes document / 회의록 문서 업로드"
-                      }
-                    </p>
+                  </div>
+                )}
+
+                <div className="flex justify-between items-center space-x-2 mt-6">
+                  <div className="flex space-x-2">
                     <ObjectUploader
                       maxNumberOfFiles={1}
                       maxFileSize={10485760} // 10MB
                       onGetUploadParameters={handleGetUploadParameters}
                       onComplete={handleMinutesUploadComplete}
+                      buttonClassName="bg-black text-white hover:bg-gray-800"
                     >
                       <div className="flex items-center space-x-2">
                         <Upload className="h-4 w-4" />
-                        <span>
-                          {uploadingMinutes 
-                            ? "Uploading... / 업로드 중..." 
-                            : "Upload Minutes / 회의록 업로드"
-                          }
-                        </span>
+                        <span>회의록 UPLOAD</span>
                       </div>
                     </ObjectUploader>
                   </div>
-                </div>
-
-                <div className="flex justify-end space-x-2">
-                  <Button type="button" variant="outline" onClick={() => setEditingMeeting(null)}>
-                    Cancel / 취소
-                  </Button>
-                  <Button type="submit" disabled={updateMutation.isPending}>
-                    {updateMutation.isPending ? "Saving..." : "Save Changes / 변경사항 저장"}
-                  </Button>
+                  
+                  <div className="flex space-x-2">
+                    <Button type="button" variant="outline" onClick={() => setEditingMeeting(null)}>
+                      Cancel / 취소
+                    </Button>
+                    <Button type="submit" disabled={updateMutation.isPending}>
+                      {updateMutation.isPending ? "Saving..." : "Save Changes / 변경사항 저장"}
+                    </Button>
+                  </div>
                 </div>
               </form>
             </Form>
