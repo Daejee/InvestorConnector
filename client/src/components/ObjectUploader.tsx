@@ -78,15 +78,7 @@ export function ObjectUploader({
 
   return (
     <div>
-      <Button 
-        type="button" 
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          setShowModal(true);
-        }} 
-        className={buttonClassName}
-      >
+      <Button onClick={() => setShowModal(true)} className={buttonClassName}>
         {children}
       </Button>
 

@@ -1540,7 +1540,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Removed duplicate - see line 1608 for the proper implementation
+  // The endpoint for getting the upload URL for an object entity.
+  app.post("/api/objects/upload", async (req, res) => {
+    const objectStorageService = new ObjectStorageService();
+    const uploadURL = await objectStorageService.getObjectEntityUploadURL();
+    res.json({ uploadURL });
+  });
 
   // This endpoint is used to serve public assets.
   app.get("/public-objects/:filePath(*)", async (req, res) => {
@@ -1594,101 +1599,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error saving document:", error);
       res.status(500).json({ error: "Internal server error" });
-    }
-  });
-
-  // Object Storage Routes for Meeting Minutes
-  
-  // Get upload URL for meeting minutes
-  app.post("/api/objects/upload", async (req, res) => {
-    const objectStorageService = new ObjectStorageService();
-    try {
-      const uploadURL = await objectStorageService.getObjectEntityUploadURL();
-      res.json({ uploadURL });
-    } catch (error) {
-      console.error("Error getting upload URL:", error);
-      res.status(500).json({ error: "Failed to get upload URL" });
-    }
-  });
-
-  // Serve private object files (meeting minutes)
-  app.get("/objects/:objectPath(*)", async (req, res) => {
-    const objectStorageService = new ObjectStorageService();
-    try {
-      const objectFile = await objectStorageService.getObjectEntityFile(
-        req.path,
-      );
-      objectStorageService.downloadObject(objectFile, res);
-    } catch (error) {
-      console.error("Error downloading object:", error);
-      if (error instanceof ObjectNotFoundError) {
-        return res.sendStatus(404);
-      }
-      return res.sendStatus(500);
-    }
-  });
-
-  // Update meeting with uploaded minutes file
-  app.put("/api/meetings/:id/minutes", async (req, res) => {
-    try {
-      const id = parseInt(req.params.id);
-      const { minutesFileURL, minutesFileName, minutesFileSize } = req.body;
-      
-      if (!minutesFileURL || !minutesFileName) {
-        return res.status(400).json({ error: "minutesFileURL and minutesFileName are required" });
-      }
-
-      const objectStorageService = new ObjectStorageService();
-      const objectPath = objectStorageService.normalizeObjectEntityPath(minutesFileURL);
-      
-      // Update meeting with minutes information
-      const updateData = {
-        minutesFilePath: objectPath,
-        minutesFileName,
-        minutesFileSize: minutesFileSize || null,
-        minutesUploadedAt: new Date()
-      };
-
-      const meeting = await storage.updateMeeting(id, updateData);
-      if (!meeting) {
-        return res.status(404).json({ error: "Meeting not found" });
-      }
-
-      res.json({ 
-        meeting,
-        message: "Meeting minutes uploaded successfully" 
-      });
-    } catch (error) {
-      console.error("Error updating meeting with minutes:", error);
-      res.status(500).json({ error: "Failed to update meeting with minutes" });
-    }
-  });
-
-  // Get meeting minutes download URL
-  app.get("/api/meetings/:id/minutes", async (req, res) => {
-    try {
-      const id = parseInt(req.params.id);
-      const meeting = await storage.getMeeting(id);
-      
-      if (!meeting) {
-        return res.status(404).json({ error: "Meeting not found" });
-      }
-      
-      if (!meeting.minutesFilePath) {
-        return res.status(404).json({ error: "No meeting minutes found for this meeting" });
-      }
-
-      // Return meeting minutes info
-      res.json({
-        fileName: meeting.minutesFileName,
-        filePath: meeting.minutesFilePath,
-        fileSize: meeting.minutesFileSize,
-        uploadedAt: meeting.minutesUploadedAt,
-        downloadUrl: meeting.minutesFilePath // This will be used to download the file
-      });
-    } catch (error) {
-      console.error("Error getting meeting minutes:", error);
-      res.status(500).json({ error: "Failed to get meeting minutes" });
     }
   });
 

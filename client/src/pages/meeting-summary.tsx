@@ -79,20 +79,13 @@ export default function MeetingSummary() {
     },
   });
 
-  // Meeting minutes upload handlers
+  // Document upload handlers
   const handleGetUploadParameters = async () => {
     try {
-      const response = await apiRequest("POST", "/api/objects/upload", {});
-      const data = await response.json();
-      console.log("Upload response:", data); // 디버그 로그
-      
-      if (!data.uploadURL) {
-        throw new Error("No upload URL received from server");
-      }
-      
+      const response: any = await apiRequest("POST", "/api/objects/upload", {});
       return {
         method: "PUT" as const,
-        url: data.uploadURL,
+        url: response.uploadURL,
       };
     } catch (error) {
       console.error("Failed to get upload URL:", error);
@@ -100,58 +93,38 @@ export default function MeetingSummary() {
     }
   };
 
-  const uploadMinutesMutation = useMutation({
-    mutationFn: async ({ meetingId, minutesFileURL, minutesFileName, minutesFileSize }: {
-      meetingId: number;
-      minutesFileURL: string;
-      minutesFileName: string;
-      minutesFileSize?: number;
-    }) => {
-      return apiRequest("PUT", `/api/meetings/${meetingId}/minutes`, {
-        minutesFileURL,
-        minutesFileName,
-        minutesFileSize,
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/meetings"] });
-      toast({
-        title: "Meeting minutes uploaded / 회의록이 업로드되었습니다",
-        description: "Meeting minutes have been successfully uploaded / 회의록이 성공적으로 업로드되었습니다",
-      });
-      setIsUploading(false);
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Upload failed / 업로드 실패",
-        description: error.message || "Failed to upload meeting minutes / 회의록 업로드에 실패했습니다",
-        variant: "destructive",
-      });
-      setIsUploading(false);
-    },
-  });
-
   const handleUploadComplete = async (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
-    if (!selectedMeeting) return;
-    
-    setIsUploading(true);
+    setIsUploading(false);
     
     if (result.successful && result.successful.length > 0) {
       const uploadedFile = result.successful[0];
       
-      uploadMinutesMutation.mutate({
-        meetingId: selectedMeeting.id,
-        minutesFileURL: uploadedFile.uploadURL || "",
-        minutesFileName: uploadedFile.name || "",
-        minutesFileSize: uploadedFile.size || undefined,
-      });
-    } else {
-      toast({
-        title: "Upload failed / 업로드 실패",
-        description: "File upload was not successful / 파일 업로드가 성공하지 못했습니다",
-        variant: "destructive",
-      });
-      setIsUploading(false);
+      try {
+        await apiRequest("POST", "/api/documents/upload", {
+          uploadURL: uploadedFile.uploadURL,
+          fileName: uploadedFile.name,
+          fileSize: uploadedFile.size,
+          fileType: uploadedFile.type,
+          category: "Meeting Document",
+          description: `Uploaded for meeting summary`,
+          uploadedBy: "User",
+          tags: "meeting",
+        });
+
+        queryClient.invalidateQueries({ queryKey: ["/api/documents"] });
+        
+        toast({
+          title: "Document uploaded / 문서가 업로드되었습니다",
+          description: "The document has been successfully uploaded / 문서가 성공적으로 업로드되었습니다",
+        });
+      } catch (error) {
+        console.error("Failed to save document:", error);
+        toast({
+          title: "Upload failed / 업로드 실패",
+          description: "Failed to save document information / 문서 정보 저장에 실패했습니다",
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -357,31 +330,17 @@ export default function MeetingSummary() {
                     </div>
                   )}
                   <div className="flex items-center justify-between pt-3 border-t">
+                    <span className="text-xs text-gray-400">
+                      Meeting ID: {meeting.id}
+                    </span>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs text-gray-400">
-                        Meeting ID: {meeting.id}
-                      </span>
-                      {meeting.minutesFilePath && (
-                        <Badge variant="secondary" className="bg-green-50 text-green-700 border-green-200">
-                          <FileText className="h-3 w-3 mr-1" />
-                          회의록 있음
-                        </Badge>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {meeting.minutesFilePath && (
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => window.open(meeting.minutesFilePath, '_blank')}
-                        >
-                          <FileText className="h-4 w-4 mr-2" />
-                          회의록 다운로드
-                        </Button>
-                      )}
                       <Button variant="outline" size="sm" onClick={() => handleEditClick(meeting)}>
                         <Edit className="h-4 w-4 mr-2" />
                         Edit / 편집
+                      </Button>
+                      <Button variant="outline" size="sm">
+                        <FileText className="h-4 w-4 mr-2" />
+                        View Details / 상세보기
                       </Button>
                     </div>
                   </div>
@@ -550,28 +509,7 @@ export default function MeetingSummary() {
                 )}
               />
 
-              {/* Upload Meeting Minutes Section */}
-              <div className="border-t pt-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-medium text-gray-700">
-                    Upload Meeting Minutes / 회의록 업로드
-                  </h3>
-                </div>
-                <div className="mt-3">
-                  <ObjectUploader
-                    maxNumberOfFiles={1}
-                    maxFileSize={10485760} // 10MB
-                    onGetUploadParameters={handleGetUploadParameters}
-                    onComplete={handleUploadComplete}
-                    buttonClassName="bg-black text-white hover:bg-gray-800 px-4 py-2 rounded-md text-sm font-medium"
-                  >
-                    <Upload className="h-4 w-4 mr-2" />
-                    {isUploading || uploadMinutesMutation.isPending ? "업로딩 중..." : "회의록 UPLOAD"}
-                  </ObjectUploader>
-                </div>
-              </div>
-
-              <div className="flex justify-end space-x-2 pt-4">
+              <div className="flex justify-end space-x-2">
                 <Button 
                   type="button" 
                   variant="outline" 
