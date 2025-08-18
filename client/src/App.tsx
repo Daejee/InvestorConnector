@@ -11,7 +11,7 @@ import Email from "@/pages/email";
 import Documents from "@/pages/documents";
 import Reports from "@/pages/reports";
 import Funds from "@/pages/funds";
-import MeetingLogs from "@/pages/meeting-logs-with-upload";
+import MeetingLogs from "@/pages/meeting-logs-clean";
 
 import NdrConferences from "@/pages/ndr-conferences";
 import Scheduling from "@/pages/scheduling";

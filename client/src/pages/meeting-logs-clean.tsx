@@ -128,6 +128,7 @@ export default function Meetings() {
         });
         
         setUploadingMinutes(false);
+        setEditingMeeting(null); // Close the dialog after successful upload
       } catch (error) {
         console.error("Failed to save meeting minutes:", error);
         toast({
