@@ -34,7 +34,8 @@ UI Language: Korean/English bilingual display - show both Korean and English tex
     - Bilingual Korean/English interface across all application components.
     - Comprehensive email system with SendGrid integration for targeted campaigns (region-based or specific person selection).
     - Calendly-style scheduling system with interactive calendar, real-time availability, and meeting conflict prevention.
-    - Document management system with file upload, categorization, and search.
+    - Document management system with cloud file upload (Replit Object Storage), categorization, and search.
+
     - Dynamic search and filtering capabilities across various data tables.
     - Consolidated investor/analyst information display with meeting history.
 
@@ -56,9 +57,39 @@ UI Language: Korean/English bilingual display - show both Korean and English tex
 - **Date Handling**: date-fns
 - **Icons**: Lucide React
 - **Email Service**: SendGrid (for email campaigns)
-- **File Upload**: Multer (for document uploads)
+- **File Storage**: Replit Object Storage (cloud file storage for documents and meeting minutes)
+- **File Upload**: Uppy.js with AWS S3 plugin (for direct-to-cloud uploads)
 
 ### Development Tools
 - **Type Safety**: TypeScript
 - **Database Migrations**: Drizzle Kit
 - **Bundling**: Vite, ESBuild
+
+## File Upload Implementation Details
+
+### Object Storage Architecture
+- **Platform**: Replit Object Storage (Google Cloud Storage backend)
+- **Bucket Structure**:
+  - Default Bucket: `repl-default-bucket-$REPL_ID`
+  - Public Directory: `/public` (for static assets)
+  - Private Directory: `/.private` (for user uploads)
+  - Upload Directory: `/.private/uploads/` (for meeting documents)
+
+### Upload Flow
+1. Client requests pre-signed URL from `/api/objects/upload`
+2. Server generates unique object ID and returns pre-signed PUT URL
+3. Client uploads file directly to Object Storage using Uppy.js
+4. On completion, client calls `/api/documents/upload` with file metadata
+5. Server normalizes object path and stores document info in database
+6. Files are served via `/objects/*` endpoint with proper access control
+
+### Key Components
+- **ObjectUploader Component**: React component with Uppy.js modal interface
+- **ObjectStorageService**: Server-side service for managing uploads and downloads
+- **Document Management**: Database tracking of uploaded files with metadata
+
+### Security Features
+- Pre-signed URLs with limited TTL (15 minutes)
+- Direct-to-cloud uploads (no server intermediary)
+- Proper Content-Type and file size validation
+- Object path normalization for security

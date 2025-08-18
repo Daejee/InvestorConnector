@@ -12,7 +12,7 @@ import Documents from "@/pages/documents";
 import Reports from "@/pages/reports";
 import Funds from "@/pages/funds";
 import MeetingLogs from "@/pages/meeting-logs-new";
-import MeetingSummary from "@/pages/meeting-summary";
+
 import NdrConferences from "@/pages/ndr-conferences";
 import Scheduling from "@/pages/scheduling";
 import Analysts from "@/pages/analysts";
@@ -31,7 +31,7 @@ function Router() {
         <Route path="/email" component={Email} />
         <Route path="/funds" component={Funds} />
         <Route path="/meeting-logs" component={MeetingLogs} />
-        <Route path="/meeting-summary" component={MeetingSummary} />
+
         <Route path="/ndr-conferences" component={NdrConferences} />
         <Route path="/scheduling" component={Scheduling} />
         <Route path="/schedule" component={Scheduling} />
