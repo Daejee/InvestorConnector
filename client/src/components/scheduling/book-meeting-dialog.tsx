@@ -60,7 +60,7 @@ export function BookMeetingDialog({
 
   const form = useForm<any>({
     defaultValues: {
-      attendeeType: "other",
+      attendeeType: "investor",
       investorId: null,
       analystId: null,
       title: "",
