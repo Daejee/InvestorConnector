@@ -57,6 +57,12 @@ export interface IStorage {
   createMeeting(meeting: InsertMeeting): Promise<Meeting>;
   updateMeeting(id: number, meeting: Partial<InsertMeeting>): Promise<Meeting | undefined>;
   deleteMeeting(id: number): Promise<boolean>;
+  updateMeetingMinutes(meetingId: number, minutesData: {
+    minutesFilePath: string;
+    minutesFileName: string;
+    minutesFileSize: number;
+    minutesUploadedAt: Date;
+  }): Promise<Meeting | undefined>;
 
   // Funds
   getFunds(): Promise<Fund[]>;
@@ -309,6 +315,34 @@ export class DatabaseStorage implements IStorage {
   async deleteMeeting(id: number): Promise<boolean> {
     const result = await db.delete(meetings).where(eq(meetings.id, id));
     return result.rowCount! > 0;
+  }
+
+  async updateMeetingMinutes(id: number, minutesData: {
+    minutesFilePath: string;
+    minutesFileName: string;
+    minutesFileSize: number;
+    minutesUploadedAt: Date;
+  }): Promise<Meeting | undefined> {
+    const [meeting] = await db
+      .update(meetings)
+      .set(minutesData)
+      .where(eq(meetings.id, id))
+      .returning();
+    return meeting || undefined;
+  }
+
+  async updateMeetingMinutes(meetingId: number, minutesData: {
+    minutesFilePath: string;
+    minutesFileName: string;
+    minutesFileSize: number;
+    minutesUploadedAt: Date;
+  }): Promise<Meeting | undefined> {
+    const [meeting] = await db
+      .update(meetings)
+      .set(minutesData)
+      .where(eq(meetings.id, meetingId))
+      .returning();
+    return meeting || undefined;
   }
 
   // Funds

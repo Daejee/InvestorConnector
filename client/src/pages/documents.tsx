@@ -48,7 +48,14 @@ export default function Documents() {
   const handleGetUploadParameters = async () => {
     try {
       setIsUploading(true);
-      const response = await apiRequest("POST", "/api/objects/upload", {});
+      const response = await fetch("/api/objects/upload", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({})
+      });
+      if (!response.ok) throw new Error("Failed to get upload URL");
       const data = await response.json();
       return {
         method: "PUT" as const,
@@ -68,16 +75,23 @@ export default function Documents() {
       const uploadedFile = result.successful[0];
       
       try {
-        await apiRequest("POST", "/api/documents/upload", {
-          uploadURL: uploadedFile.uploadURL,
-          fileName: uploadedFile.name,
-          fileSize: uploadedFile.size,
-          fileType: uploadedFile.type,
-          category: uploadForm.category,
-          description: uploadForm.description,
-          uploadedBy: "User",
-          tags: uploadForm.tags,
+        const response = await fetch("/api/documents/upload", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            uploadURL: uploadedFile.uploadURL,
+            fileName: uploadedFile.name,
+            fileSize: uploadedFile.size,
+            fileType: uploadedFile.type,
+            category: uploadForm.category,
+            description: uploadForm.description,
+            uploadedBy: "User",
+            tags: uploadForm.tags,
+          })
         });
+        if (!response.ok) throw new Error("Failed to save document");
 
         queryClient.invalidateQueries({ queryKey: ["/api/documents"] });
         

@@ -469,6 +469,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Meeting minutes upload
+  app.post("/api/meetings/:meetingId/minutes", async (req, res) => {
+    try {
+      const meetingId = parseInt(req.params.meetingId);
+      const { uploadURL, fileName, fileSize } = req.body;
+
+      if (!uploadURL || !fileName) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+
+      const objectStorageService = new ObjectStorageService();
+      const objectPath = objectStorageService.normalizeObjectEntityPath(uploadURL);
+
+      // Update meeting with minutes information
+      await storage.updateMeetingMinutes(meetingId, {
+        minutesFilePath: objectPath,
+        minutesFileName: fileName,
+        minutesFileSize: fileSize,
+        minutesUploadedAt: new Date()
+      });
+
+      res.json({ success: true, objectPath });
+    } catch (error) {
+      console.error("Failed to save meeting minutes:", error);
+      res.status(500).json({ error: "Failed to save meeting minutes" });
+    }
+  });
+
+  // Get meeting minutes
+  app.get("/api/meetings/:meetingId/minutes", async (req, res) => {
+    try {
+      const meetingId = parseInt(req.params.meetingId);
+      const meeting = await storage.getMeeting(meetingId);
+      
+      if (!meeting || !meeting.minutesFilePath) {
+        return res.status(404).json({ error: "Meeting minutes not found" });
+      }
+
+      const objectStorageService = new ObjectStorageService();
+      const objectFile = await objectStorageService.getObjectEntityFile(meeting.minutesFilePath);
+      objectStorageService.downloadObject(objectFile, res);
+    } catch (error) {
+      console.error("Failed to get meeting minutes:", error);
+      res.status(500).json({ error: "Failed to get meeting minutes" });
+    }
+  });
+
   // Funds routes
   app.get("/api/funds", async (req, res) => {
     const funds = await storage.getFunds();
@@ -806,6 +853,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(204).send();
     } else {
       res.status(404).json({ message: "Meeting not found" });
+    }
+  });
+
+  // Meeting minutes upload endpoint
+  app.post("/api/meetings/:id/minutes", async (req, res) => {
+    try {
+      const meetingId = parseInt(req.params.id);
+      const { uploadURL, fileName, fileSize } = req.body;
+
+      if (!uploadURL || !fileName) {
+        return res.status(400).json({ message: "Missing upload URL or file name" });
+      }
+
+      // Extract object path from the upload URL
+      const objectStorageService = new ObjectStorageService();
+      const objectPath = objectStorageService.normalizeObjectEntityPath(uploadURL);
+
+      // Update the meeting with minutes information
+      const minutesData = {
+        minutesFilePath: objectPath.replace('/objects/', ''),
+        minutesFileName: fileName,
+        minutesFileSize: fileSize || 0,
+        minutesUploadedAt: new Date(),
+      };
+
+      const updatedMeeting = await storage.updateMeetingMinutes(meetingId, minutesData);
+      
+      if (!updatedMeeting) {
+        return res.status(404).json({ message: "Meeting not found" });
+      }
+
+      res.json({ 
+        message: "Meeting minutes uploaded successfully",
+        meeting: updatedMeeting 
+      });
+    } catch (error) {
+      console.error('Meeting minutes upload error:', error);
+      res.status(500).json({ message: "Failed to update meeting minutes", error });
     }
   });
 

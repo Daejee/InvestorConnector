@@ -1,68 +1,31 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { Plus, Search, Eye, Edit, Trash2, Calendar, Users, Clock, MoreVertical, CheckCircle, Upload, Download, FileText } from "lucide-react";
-import { ObjectUploader } from "@/components/ObjectUploader";
-import type { UploadResult } from "@uppy/core";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { apiRequest } from "@/lib/queryClient";
 import type { Meeting, Investor, Analyst } from "@shared/schema";
-
+import { ObjectUploader } from "@/components/ObjectUploader";
+import type { UploadResult } from "@uppy/core";
 import { useToast } from "@/hooks/use-toast";
-
-// Edit meeting form schema
-const editMeetingSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  description: z.string().optional(),
-  attendeeType: z.enum(["investor", "analyst", "other"]),
-  investorId: z.number().nullable(),
-  analystId: z.number().nullable(),
-  scheduledDate: z.string(),
-  scheduledTime: z.string(),
-  status: z.enum(["scheduled", "completed", "cancelled"])
-});
-
-type EditMeetingForm = z.infer<typeof editMeetingSchema>;
 
 export default function Meetings() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("upcoming");
   const [viewingMeeting, setViewingMeeting] = useState<Meeting | null>(null);
-  const [editingMeeting, setEditingMeeting] = useState<Meeting | null>(null);
   const [uploadingMinutes, setUploadingMinutes] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [uploadingMeetingId, setUploadingMeetingId] = useState<number | null>(null);
   const [location] = useLocation();
   const queryClient = useQueryClient();
   const { toast } = useToast();
-
-  // Edit form setup
-  const editForm = useForm<EditMeetingForm>({
-    resolver: zodResolver(editMeetingSchema),
-    defaultValues: {
-      title: "",
-      description: "",
-      attendeeType: "investor",
-      investorId: null,
-      analystId: null,
-      scheduledDate: "",
-      scheduledTime: "",
-      status: "scheduled"
-    }
-  });
 
   // Check URL parameters to set default tab
   useEffect(() => {
@@ -106,18 +69,6 @@ export default function Meetings() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/meetings/upcoming"] });
       queryClient.invalidateQueries({ queryKey: ["/api/meetings"] });
-    },
-  });
-
-  // Update meeting mutation
-  const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: EditMeetingForm }) => 
-      apiRequest(`/api/meetings/${id}`, "PATCH", data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/meetings"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/meetings/upcoming"] });
-      setEditingMeeting(null);
-      editForm.reset();
     },
   });
 
@@ -200,130 +151,6 @@ export default function Meetings() {
     }
   };
 
-  // Function to set up edit form when meeting is selected
-  const handleEditMeeting = (meeting: Meeting) => {
-    const meetingDate = new Date(meeting.scheduledDate);
-    const dateString = meetingDate.toISOString().split('T')[0];
-    const timeString = meetingDate.toTimeString().split(' ')[0].substring(0, 5);
-    
-    editForm.reset({
-      title: meeting.title,
-      description: meeting.description || "",
-      attendeeType: meeting.attendeeType as "investor" | "analyst" | "other",
-      investorId: meeting.investorId,
-      analystId: meeting.analystId,
-      scheduledDate: dateString,
-      scheduledTime: timeString,
-      status: meeting.status as "scheduled" | "completed" | "cancelled"
-    });
-    
-    setEditingMeeting(meeting);
-  };
-
-  // Function to handle form submission
-  const onEditSubmit = (data: EditMeetingForm) => {
-    if (!editingMeeting) return;
-    
-    // Combine date and time
-    const scheduledDate = new Date(`${data.scheduledDate}T${data.scheduledTime}:00`);
-    
-    const updateData = {
-      ...data,
-      scheduledDate: scheduledDate.toISOString(),
-      investorId: data.attendeeType === "investor" ? data.investorId : null,
-      analystId: data.attendeeType === "analyst" ? data.analystId : null,
-    };
-    
-    updateMutation.mutate({ id: editingMeeting.id, data: updateData });
-  };
-
-  // Meeting minutes upload handlers
-  const handleGetUploadParameters = async () => {
-    try {
-      const response = await apiRequest("/api/objects/upload", "POST", {}) as { uploadURL: string };
-      return {
-        method: "PUT" as const,
-        url: response.uploadURL,
-      };
-    } catch (error) {
-      toast({
-        title: "Upload Error / 업로드 오류",
-        description: "Failed to get upload URL / 업로드 URL 가져오기 실패",
-        variant: "destructive"
-      });
-      throw error;
-    }
-  };
-
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file || !editingMeeting) return;
-
-    setUploadingMinutes(true);
-
-    try {
-      // Get upload URL from backend
-      const { uploadURL } = await handleGetUploadParameters();
-      
-      // Upload file directly to object storage
-      const uploadResponse = await fetch(uploadURL, {
-        method: 'PUT',
-        body: file,
-        headers: {
-          'Content-Type': file.type || 'application/octet-stream',
-        },
-      });
-
-      if (!uploadResponse.ok) {
-        throw new Error('Upload failed');
-      }
-
-      // Update meeting with file info
-      uploadMinutesMutation.mutate({
-        meetingId: editingMeeting.id,
-        minutesFileURL: uploadURL,
-        minutesFileName: file.name,
-        minutesFileSize: file.size
-      });
-
-    } catch (error) {
-      console.error('Upload error:', error);
-      toast({
-        title: "Upload Failed / 업로드 실패",
-        description: "File upload was not successful / 파일 업로드가 성공하지 못했습니다",
-        variant: "destructive"
-      });
-      setUploadingMinutes(false);
-    }
-
-    // Reset file input
-    event.target.value = '';
-  };
-
-  const handleDownloadMinutes = async (meetingId: number) => {
-    try {
-      const response = await apiRequest(`/api/meetings/${meetingId}/minutes`, "GET") as { 
-        downloadUrl?: string; 
-        fileName?: string; 
-      };
-      if (response.downloadUrl) {
-        // Create a link and trigger download
-        const link = document.createElement('a');
-        link.href = response.downloadUrl;
-        link.download = response.fileName || 'meeting-minutes';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      }
-    } catch (error) {
-      toast({
-        title: "Download Failed / 다운로드 실패",
-        description: "Failed to download meeting minutes / 회의록 다운로드에 실패했습니다",
-        variant: "destructive"
-      });
-    }
-  };
-
   const getAttendeeName = (meeting: Meeting) => {
     if (meeting.investorId) {
       const investor = investors.find(inv => inv.id === meeting.investorId);
@@ -356,27 +183,23 @@ export default function Meetings() {
 
   const getStatusBadgeColor = (status: string) => {
     switch (status) {
-      case 'scheduled':
-        return 'bg-blue-100 text-blue-800';
-      case 'completed':
-        return 'bg-green-100 text-green-800';
-      case 'cancelled':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
+      case "completed": return "bg-green-100 text-green-800";
+      case "cancelled": return "bg-red-100 text-red-800";
+      case "scheduled": return "bg-blue-100 text-blue-800";
+      default: return "bg-gray-100 text-gray-800";
     }
   };
 
   const filterMeetings = (meetings: Meeting[]) => {
-    if (searchQuery === "") return meetings;
+    if (!searchQuery) return meetings;
     
+    const query = searchQuery.toLowerCase();
     return meetings.filter(meeting => {
-      const attendeeName = getAttendeeName(meeting);
-      const attendeeCompany = getAttendeeCompany(meeting);
+      const titleMatch = meeting.title.toLowerCase().includes(query);
+      const attendeeName = getAttendeeName(meeting).toLowerCase();
+      const attendeeCompany = getAttendeeCompany(meeting).toLowerCase();
       
-      return meeting.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-             attendeeName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-             attendeeCompany.toLowerCase().includes(searchQuery.toLowerCase());
+      return titleMatch || attendeeName.includes(query) || attendeeCompany.includes(query);
     });
   };
 
@@ -440,6 +263,14 @@ export default function Meetings() {
                             {meeting.description}
                           </p>
                         )}
+
+                        {/* Meeting Minutes Status */}
+                        {meeting.minutesFilePath && (
+                          <div className="mt-2 flex items-center text-sm text-green-600">
+                            <FileText className="mr-1 h-4 w-4" />
+                            <span>Meeting minutes available / 회의록 있음</span>
+                          </div>
+                        )}
                       </div>
                       
                       {/* Actions */}
@@ -454,13 +285,9 @@ export default function Meetings() {
                             <Eye className="mr-2 h-4 w-4" />
                             View Details / 상세보기
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleEditMeeting(meeting)}>
-                            <Edit className="mr-2 h-4 w-4" />
-                            Edit Meeting / 수정
-                          </DropdownMenuItem>
                           {meeting.minutesFilePath ? (
                             <DropdownMenuItem
-                              onClick={() => window.open(`/objects/${meeting.minutesFilePath}`, '_blank')}
+                              onClick={() => handleDownloadMinutes(meeting.id)}
                             >
                               <Download className="mr-2 h-4 w-4" />
                               Download Minutes / 회의록 다운로드
@@ -505,7 +332,7 @@ export default function Meetings() {
               <Calendar className="mr-3 h-6 w-6" />
               Meetings / 미팅
             </h2>
-            <p className="text-gray-600 mt-1">Manage your meetings and schedule new ones / 미팅 관리 및 새 일정 예약</p>
+            <p className="text-gray-600 mt-1">Manage your meetings and upload meeting minutes / 미팅 관리 및 회의록 업로드</p>
           </div>
         </div>
       </div>
@@ -594,7 +421,7 @@ export default function Meetings() {
                 )}
                 
                 {/* Meeting Minutes Section in View Dialog */}
-                {viewingMeeting.minutesFilePath && (
+                {viewingMeeting.minutesFilePath ? (
                   <div className="mt-4 border-t pt-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
@@ -626,221 +453,32 @@ export default function Meetings() {
                       </div>
                     </div>
                   </div>
-                )}
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Edit Meeting Dialog */}
-      <Dialog open={!!editingMeeting} onOpenChange={() => setEditingMeeting(null)}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Edit Meeting / 미팅 수정</DialogTitle>
-          </DialogHeader>
-          {editingMeeting && (
-            <Form {...editForm}>
-              <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={editForm.control}
-                    name="title"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Title / 제목</FormLabel>
-                        <FormControl>
-                          <Input {...field} placeholder="Meeting title" />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={editForm.control}
-                    name="status"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Status / 상태</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="scheduled">Scheduled / 예정</SelectItem>
-                            <SelectItem value="completed">Completed / 완료</SelectItem>
-                            <SelectItem value="cancelled">Cancelled / 취소</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={editForm.control}
-                    name="scheduledDate"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Date / 날짜</FormLabel>
-                        <FormControl>
-                          <Input type="date" {...field} />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={editForm.control}
-                    name="scheduledTime"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Time / 시간</FormLabel>
-                        <FormControl>
-                          <Input type="time" {...field} />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <FormField
-                  control={editForm.control}
-                  name="attendeeType"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Meeting Type / 미팅 유형</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="investor">Investor / 투자자</SelectItem>
-                          <SelectItem value="analyst">Analyst / 애널리스트</SelectItem>
-                          <SelectItem value="other">Other / 기타</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </FormItem>
-                  )}
-                />
-
-                {editForm.watch("attendeeType") === "investor" && (
-                  <FormField
-                    control={editForm.control}
-                    name="investorId"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Select Investor / 투자자 선택</FormLabel>
-                        <Select onValueChange={(value) => field.onChange(value ? parseInt(value) : null)} value={field.value?.toString() || ""}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Choose investor" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {investors.map((investor) => (
-                              <SelectItem key={investor.id} value={investor.id.toString()}>
-                                {investor.name} - {investor.company}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </FormItem>
-                    )}
-                  />
-                )}
-
-                {editForm.watch("attendeeType") === "analyst" && (
-                  <FormField
-                    control={editForm.control}
-                    name="analystId"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Select Analyst / 애널리스트 선택</FormLabel>
-                        <Select onValueChange={(value) => field.onChange(value ? parseInt(value) : null)} value={field.value?.toString() || ""}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Choose analyst" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {analysts.map((analyst) => (
-                              <SelectItem key={analyst.id} value={analyst.id.toString()}>
-                                {analyst.name} - {analyst.company}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </FormItem>
-                    )}
-                  />
-                )}
-
-                <FormField
-                  control={editForm.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Description / 설명</FormLabel>
-                      <FormControl>
-                        <Textarea {...field} placeholder="Meeting description" rows={3} />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-
-                {/* Existing minutes file display */}
-                {editingMeeting.minutesFilePath && (
-                  <div className="space-y-2 border-t pt-4">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <FileText className="h-5 w-5 text-gray-600" />
-                      <h3 className="text-sm font-medium">Current Meeting Minutes / 현재 회의록</h3>
-                    </div>
-                    <div className="bg-gray-50 p-3 rounded-lg">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                          <FileText className="h-4 w-4 text-blue-600" />
-                          <span className="text-sm font-medium">{editingMeeting.minutesFileName}</span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <span className="text-xs text-gray-500">
-                            {editingMeeting.minutesUploadedAt && 
-                              `Uploaded: ${format(new Date(editingMeeting.minutesUploadedAt), "yyyy-MM-dd HH:mm")}`
-                            }
-                          </span>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleDownloadMinutes(editingMeeting.id)}
-                          >
-                            <Download className="h-4 w-4 mr-1" />
-                            Download / 다운로드
-                          </Button>
-                        </div>
+                ) : (
+                  <div className="mt-4 border-t pt-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <FileText className="h-5 w-5 text-gray-400" />
+                        <h4 className="text-sm font-medium text-gray-600">Meeting Minutes / 회의록</h4>
                       </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setUploadingMeetingId(viewingMeeting.id);
+                          setShowUploadModal(true);
+                        }}
+                      >
+                        <Upload className="h-4 w-4 mr-1" />
+                        Upload / 업로드
+                      </Button>
+                    </div>
+                    <div className="mt-2 bg-gray-50 p-3 rounded-lg">
+                      <p className="text-sm text-gray-500">No meeting minutes uploaded yet / 회의록이 아직 업로드되지 않았습니다</p>
                     </div>
                   </div>
                 )}
-
-
-
-                {/* Action buttons */}
-                <div className="flex justify-end space-x-2 mt-6">
-                  <Button type="button" variant="outline" onClick={() => setEditingMeeting(null)}>
-                    Cancel / 취소
-                  </Button>
-                  <Button type="submit" disabled={updateMutation.isPending}>
-                    {updateMutation.isPending ? "Saving..." : "Save Changes / 변경사항 저장"}
-                  </Button>
-                </div>
-              </form>
-            </Form>
+              </div>
+            </div>
           )}
         </DialogContent>
       </Dialog>
