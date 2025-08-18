@@ -1,4 +1,5 @@
 import { useForm } from "react-hook-form";
+import { useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertMeetingSchema } from "@shared/schema";
@@ -75,6 +76,22 @@ export function BookMeetingDialog({
   const watchedDate = form.watch("scheduledDate");
   const watchedTime = form.watch("scheduledTime");
 
+  // Reset form to correct defaults when dialog opens
+  useEffect(() => {
+    if (open) {
+      form.reset({
+        attendeeType: "investor",
+        investorId: null,
+        analystId: null,
+        title: "",
+        description: "",
+        scheduledDate: selectedDate || new Date(),
+        scheduledTime: selectedTime || "09:00",
+        status: "scheduled",
+      });
+    }
+  }, [open, selectedDate, selectedTime]);
+
   const createMeetingMutation = useMutation({
     mutationFn: async (data: any) => {
       const formattedData = {
@@ -86,7 +103,16 @@ export function BookMeetingDialog({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/meetings"] });
       queryClient.invalidateQueries({ queryKey: ["/api/meetings/upcoming"] });
-      form.reset();
+      form.reset({
+        attendeeType: "investor",
+        investorId: null,
+        analystId: null,
+        title: "",
+        description: "",
+        scheduledDate: selectedDate || new Date(),
+        scheduledTime: selectedTime || "09:00",
+        status: "scheduled",
+      });
       onOpenChange(false);
       toast({
         title: "Meeting scheduled / 미팅이 예약되었습니다",
