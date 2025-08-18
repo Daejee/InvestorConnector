@@ -357,17 +357,31 @@ export default function MeetingSummary() {
                     </div>
                   )}
                   <div className="flex items-center justify-between pt-3 border-t">
-                    <span className="text-xs text-gray-400">
-                      Meeting ID: {meeting.id}
-                    </span>
                     <div className="flex items-center gap-2">
+                      <span className="text-xs text-gray-400">
+                        Meeting ID: {meeting.id}
+                      </span>
+                      {meeting.minutesFilePath && (
+                        <Badge variant="secondary" className="bg-green-50 text-green-700 border-green-200">
+                          <FileText className="h-3 w-3 mr-1" />
+                          회의록 있음
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {meeting.minutesFilePath && (
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => window.open(meeting.minutesFilePath, '_blank')}
+                        >
+                          <FileText className="h-4 w-4 mr-2" />
+                          회의록 다운로드
+                        </Button>
+                      )}
                       <Button variant="outline" size="sm" onClick={() => handleEditClick(meeting)}>
                         <Edit className="h-4 w-4 mr-2" />
                         Edit / 편집
-                      </Button>
-                      <Button variant="outline" size="sm">
-                        <FileText className="h-4 w-4 mr-2" />
-                        View Details / 상세보기
                       </Button>
                     </div>
                   </div>
