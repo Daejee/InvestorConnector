@@ -97,6 +97,11 @@ export const meetings = pgTable("meetings", {
   duration: integer("duration").default(60), // duration in minutes
   location: text("location"), // meeting location
   status: text("status").notNull().default("scheduled"), // scheduled, completed, cancelled
+  // Meeting minutes/documents fields
+  minutesFilePath: text("minutes_file_path"), // Path to uploaded meeting minutes file
+  minutesFileName: text("minutes_file_name"), // Original filename of the minutes
+  minutesFileSize: integer("minutes_file_size"), // File size in bytes
+  minutesUploadedAt: timestamp("minutes_uploaded_at"), // When the minutes were uploaded
 });
 
 export const funds = pgTable("funds", {

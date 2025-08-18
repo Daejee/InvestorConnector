@@ -13,11 +13,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Search, Eye, Edit, Trash2, Calendar, Users, Clock, MoreVertical, CheckCircle } from "lucide-react";
+import { Plus, Search, Eye, Edit, Trash2, Calendar, Users, Clock, MoreVertical, CheckCircle, Upload, Download, FileText } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { apiRequest } from "@/lib/queryClient";
 import type { Meeting, Investor, Analyst } from "@shared/schema";
+import { ObjectUploader } from "@/components/ObjectUploader";
+import type { UploadResult } from "@uppy/core";
+import { useToast } from "@/hooks/use-toast";
 
 // Edit meeting form schema
 const editMeetingSchema = z.object({
@@ -38,8 +41,10 @@ export default function Meetings() {
   const [activeTab, setActiveTab] = useState("upcoming");
   const [viewingMeeting, setViewingMeeting] = useState<Meeting | null>(null);
   const [editingMeeting, setEditingMeeting] = useState<Meeting | null>(null);
+  const [uploadingMinutes, setUploadingMinutes] = useState(false);
   const [location] = useLocation();
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   // Edit form setup
   const editForm = useForm<EditMeetingForm>({
@@ -113,6 +118,38 @@ export default function Meetings() {
     },
   });
 
+  // Meeting minutes upload mutation
+  const uploadMinutesMutation = useMutation({
+    mutationFn: ({ meetingId, minutesFileURL, minutesFileName, minutesFileSize }: {
+      meetingId: number;
+      minutesFileURL: string;
+      minutesFileName: string;
+      minutesFileSize?: number;
+    }) => 
+      apiRequest(`/api/meetings/${meetingId}/minutes`, "PUT", { 
+        minutesFileURL, 
+        minutesFileName, 
+        minutesFileSize 
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/meetings"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/meetings/upcoming"] });
+      toast({
+        title: "Success / 성공",
+        description: "Meeting minutes uploaded successfully / 회의록이 성공적으로 업로드되었습니다"
+      });
+      setUploadingMinutes(false);
+    },
+    onError: (error) => {
+      toast({
+        title: "Upload Failed / 업로드 실패",
+        description: "Failed to upload meeting minutes / 회의록 업로드에 실패했습니다",
+        variant: "destructive"
+      });
+      setUploadingMinutes(false);
+    }
+  });
+
   // Function to set up edit form when meeting is selected
   const handleEditMeeting = (meeting: Meeting) => {
     const meetingDate = new Date(meeting.scheduledDate);
@@ -148,6 +185,72 @@ export default function Meetings() {
     };
     
     updateMutation.mutate({ id: editingMeeting.id, data: updateData });
+  };
+
+  // Meeting minutes upload handlers
+  const handleGetUploadParameters = async () => {
+    try {
+      const response = await apiRequest("/api/objects/upload", "POST", {});
+      return {
+        method: "PUT" as const,
+        url: response.uploadURL,
+      };
+    } catch (error) {
+      toast({
+        title: "Upload Error / 업로드 오류",
+        description: "Failed to get upload URL / 업로드 URL 가져오기 실패",
+        variant: "destructive"
+      });
+      throw error;
+    }
+  };
+
+  const handleMinutesUploadComplete = (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
+    if (!editingMeeting) return;
+    
+    setUploadingMinutes(true);
+    
+    if (result.successful && result.successful[0]) {
+      const file = result.successful[0];
+      const uploadURL = file.uploadURL;
+      const fileName = file.name;
+      const fileSize = file.size;
+      
+      uploadMinutesMutation.mutate({
+        meetingId: editingMeeting.id,
+        minutesFileURL: uploadURL,
+        minutesFileName: fileName,
+        minutesFileSize: fileSize
+      });
+    } else {
+      toast({
+        title: "Upload Failed / 업로드 실패",
+        description: "File upload was not successful / 파일 업로드가 성공하지 못했습니다",
+        variant: "destructive"
+      });
+      setUploadingMinutes(false);
+    }
+  };
+
+  const handleDownloadMinutes = async (meetingId: number) => {
+    try {
+      const response = await apiRequest(`/api/meetings/${meetingId}/minutes`, "GET");
+      if (response.downloadUrl) {
+        // Create a link and trigger download
+        const link = document.createElement('a');
+        link.href = response.downloadUrl;
+        link.download = response.fileName || 'meeting-minutes';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    } catch (error) {
+      toast({
+        title: "Download Failed / 다운로드 실패",
+        description: "Failed to download meeting minutes / 회의록 다운로드에 실패했습니다",
+        variant: "destructive"
+      });
+    }
   };
 
   const getAttendeeName = (meeting: Meeting) => {
@@ -400,6 +503,41 @@ export default function Meetings() {
                     </p>
                   </div>
                 )}
+                
+                {/* Meeting Minutes Section in View Dialog */}
+                {viewingMeeting.minutesFilePath && (
+                  <div className="mt-4 border-t pt-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <FileText className="h-5 w-5 text-gray-600" />
+                        <h4 className="text-sm font-medium text-gray-600">Meeting Minutes / 회의록</h4>
+                      </div>
+                    </div>
+                    <div className="mt-2 bg-gray-50 p-3 rounded-lg">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <FileText className="h-4 w-4 text-blue-600" />
+                          <span className="text-sm font-medium">{viewingMeeting.minutesFileName}</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <span className="text-xs text-gray-500">
+                            {viewingMeeting.minutesUploadedAt && 
+                              `Uploaded: ${format(new Date(viewingMeeting.minutesUploadedAt), "yyyy-MM-dd HH:mm")}`
+                            }
+                          </span>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDownloadMinutes(viewingMeeting.id)}
+                          >
+                            <Download className="h-4 w-4 mr-1" />
+                            Download / 다운로드
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -566,6 +704,68 @@ export default function Meetings() {
                     </FormItem>
                   )}
                 />
+
+                {/* Meeting Minutes Upload Section */}
+                <div className="space-y-4 border-t pt-4">
+                  <div className="flex items-center space-x-2">
+                    <FileText className="h-5 w-5 text-gray-600" />
+                    <h3 className="text-lg font-medium">Meeting Minutes / 회의록</h3>
+                  </div>
+                  
+                  {/* Existing minutes file */}
+                  {editingMeeting.minutesFilePath && (
+                    <div className="bg-gray-50 p-3 rounded-lg">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <FileText className="h-4 w-4 text-blue-600" />
+                          <span className="text-sm font-medium">{editingMeeting.minutesFileName}</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <span className="text-xs text-gray-500">
+                            {editingMeeting.minutesUploadedAt && 
+                              `Uploaded: ${format(new Date(editingMeeting.minutesUploadedAt), "yyyy-MM-dd HH:mm")}`
+                            }
+                          </span>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDownloadMinutes(editingMeeting.id)}
+                          >
+                            <Download className="h-4 w-4 mr-1" />
+                            Download / 다운로드
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Upload new minutes */}
+                  <div className="space-y-2">
+                    <p className="text-sm text-gray-600">
+                      {editingMeeting.minutesFilePath 
+                        ? "Upload a new file to replace the existing minutes / 기존 회의록을 교체할 새 파일 업로드"
+                        : "Upload meeting minutes document / 회의록 문서 업로드"
+                      }
+                    </p>
+                    <ObjectUploader
+                      maxNumberOfFiles={1}
+                      maxFileSize={10485760} // 10MB
+                      onGetUploadParameters={handleGetUploadParameters}
+                      onComplete={handleMinutesUploadComplete}
+                    >
+                      <div className="flex items-center space-x-2">
+                        <Upload className="h-4 w-4" />
+                        <span>
+                          {uploadingMinutes 
+                            ? "Uploading... / 업로드 중..." 
+                            : "Upload Minutes / 회의록 업로드"
+                          }
+                        </span>
+                      </div>
+                    </ObjectUploader>
+                  </div>
+                </div>
 
                 <div className="flex justify-end space-x-2">
                   <Button type="button" variant="outline" onClick={() => setEditingMeeting(null)}>
