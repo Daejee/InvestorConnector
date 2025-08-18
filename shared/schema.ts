@@ -94,6 +94,8 @@ export const meetings = pgTable("meetings", {
   title: text("title").notNull(),
   description: text("description"),
   scheduledDate: timestamp("scheduled_date").notNull(),
+  duration: integer("duration").default(60), // duration in minutes
+  location: text("location"), // meeting location
   status: text("status").notNull().default("scheduled"), // scheduled, completed, cancelled
 });
 

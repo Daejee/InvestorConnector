@@ -10,17 +10,20 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Search, FileText, Calendar, Users, Clock, Edit, X } from "lucide-react";
+import { Search, FileText, Calendar, Users, Clock, Edit, X, Upload } from "lucide-react";
 import { format } from "date-fns";
 import { insertMeetingSchema } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import type { Meeting, Investor, Analyst } from "@shared/schema";
+import type { Meeting, Investor, Analyst, Document } from "@shared/schema";
+import { ObjectUploader } from "@/components/ObjectUploader";
+import type { UploadResult } from "@uppy/core";
 
 export default function MeetingSummary() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedMeeting, setSelectedMeeting] = useState<Meeting | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -35,6 +38,10 @@ export default function MeetingSummary() {
 
   const { data: analysts = [] } = useQuery<Analyst[]>({
     queryKey: ["/api/analysts"],
+  });
+
+  const { data: documents = [] } = useQuery<Document[]>({
+    queryKey: ["/api/documents"],
   });
 
   const form = useForm<any>({
@@ -72,6 +79,55 @@ export default function MeetingSummary() {
       });
     },
   });
+
+  // Document upload handlers
+  const handleGetUploadParameters = async () => {
+    try {
+      const response: any = await apiRequest("POST", "/api/objects/upload", {});
+      return {
+        method: "PUT" as const,
+        url: response.uploadURL,
+      };
+    } catch (error) {
+      console.error("Failed to get upload URL:", error);
+      throw error;
+    }
+  };
+
+  const handleUploadComplete = async (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
+    setIsUploading(false);
+    
+    if (result.successful && result.successful.length > 0) {
+      const uploadedFile = result.successful[0];
+      
+      try {
+        await apiRequest("POST", "/api/documents/upload", {
+          uploadURL: uploadedFile.uploadURL,
+          fileName: uploadedFile.name,
+          fileSize: uploadedFile.size,
+          fileType: uploadedFile.type,
+          category: "Meeting Document",
+          description: `Uploaded for meeting summary`,
+          uploadedBy: "User",
+          tags: "meeting",
+        });
+
+        queryClient.invalidateQueries({ queryKey: ["/api/documents"] });
+        
+        toast({
+          title: "Document uploaded / 문서가 업로드되었습니다",
+          description: "The document has been successfully uploaded / 문서가 성공적으로 업로드되었습니다",
+        });
+      } catch (error) {
+        console.error("Failed to save document:", error);
+        toast({
+          title: "Upload failed / 업로드 실패",
+          description: "Failed to save document information / 문서 정보 저장에 실패했습니다",
+          variant: "destructive",
+        });
+      }
+    }
+  };
 
   const handleEditClick = (meeting: Meeting) => {
     setSelectedMeeting(meeting);
@@ -156,17 +212,62 @@ export default function MeetingSummary() {
         <p className="text-gray-600">Complete history of concluded meetings / 완료된 미팅 기록</p>
       </div>
 
-      <div className="mb-6 flex items-center gap-4">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-          <Input
-            placeholder="Search meetings... / 미팅 검색..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
+      <div className="mb-6 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-4 flex-1">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Input
+              placeholder="Search meetings... / 미팅 검색..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <ObjectUploader
+            maxNumberOfFiles={5}
+            maxFileSize={50485760} // 50MB
+            onGetUploadParameters={handleGetUploadParameters}
+            onComplete={handleUploadComplete}
+            buttonClassName="bg-blue-600 hover:bg-blue-700"
+          >
+            <Upload className="w-4 h-4 mr-2" />
+            Upload Documents / 문서 업로드
+          </ObjectUploader>
         </div>
       </div>
+
+      {/* Uploaded Documents Section */}
+      {documents.length > 0 && (
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold mb-4">Uploaded Documents / 업로드된 문서</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {documents.map((doc) => (
+              <Card key={doc.id} className="p-4">
+                <div className="flex items-start gap-3">
+                  <FileText className="w-8 h-8 text-blue-600 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-medium text-gray-900 truncate">{doc.name}</h3>
+                    <p className="text-sm text-gray-500 mb-2">{doc.category}</p>
+                    <div className="flex items-center justify-between text-xs text-gray-400">
+                      <span>{(doc.fileSize / 1024).toFixed(1)} KB</span>
+                      <a 
+                        href={doc.filePath} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:text-blue-800"
+                      >
+                        Download / 다운로드
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="space-y-4">
         {filteredMeetings.length === 0 ? (
