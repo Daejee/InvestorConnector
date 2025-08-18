@@ -1,15 +1,29 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, FileText, Calendar, Users, Clock } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Search, FileText, Calendar, Users, Clock, Edit, X } from "lucide-react";
 import { format } from "date-fns";
+import { insertMeetingSchema } from "@shared/schema";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import type { Meeting, Investor, Analyst } from "@shared/schema";
 
 export default function MeetingSummary() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedMeeting, setSelectedMeeting] = useState<Meeting | null>(null);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const { data: allMeetings = [], isLoading } = useQuery<Meeting[]>({
     queryKey: ["/api/meetings"],
@@ -22,6 +36,70 @@ export default function MeetingSummary() {
   const { data: analysts = [] } = useQuery<Analyst[]>({
     queryKey: ["/api/analysts"],
   });
+
+  const form = useForm<any>({
+    resolver: zodResolver(insertMeetingSchema),
+    defaultValues: {
+      attendeeType: "investor",
+      investorId: null,
+      analystId: null,
+      title: "",
+      description: "",
+      scheduledDate: new Date(),
+      duration: 60,
+      status: "scheduled",
+    },
+  });
+
+  const updateMeetingMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: any }) => {
+      return apiRequest("PATCH", `/api/meetings/${id}`, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/meetings"] });
+      toast({
+        title: "Meeting updated / 미팅이 업데이트되었습니다",
+        description: "The meeting has been successfully updated / 미팅이 성공적으로 업데이트되었습니다",
+      });
+      setIsEditOpen(false);
+      setSelectedMeeting(null);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error / 오류",
+        description: error.message || "Failed to update meeting / 미팅 업데이트에 실패했습니다",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleEditClick = (meeting: Meeting) => {
+    setSelectedMeeting(meeting);
+    form.reset({
+      attendeeType: meeting.attendeeType,
+      investorId: meeting.investorId,
+      analystId: meeting.analystId,
+      title: meeting.title,
+      description: meeting.description || "",
+      scheduledDate: new Date(meeting.scheduledDate),
+      duration: meeting.duration || 60,
+      status: meeting.status,
+    });
+    setIsEditOpen(true);
+  };
+
+  const onSubmit = (data: any) => {
+    if (!selectedMeeting) return;
+    
+    const submitData = {
+      ...data,
+      scheduledDate: data.scheduledDate.toISOString(),
+      investorId: data.attendeeType === "investor" ? data.investorId : null,
+      analystId: data.attendeeType === "analyst" ? data.analystId : null,
+    };
+    
+    updateMeetingMutation.mutate({ id: selectedMeeting.id, data: submitData });
+  };
 
   // Filter completed meetings for summary
   const now = new Date();
@@ -161,10 +239,16 @@ export default function MeetingSummary() {
                     <span className="text-xs text-gray-400">
                       Meeting ID: {meeting.id}
                     </span>
-                    <Button variant="outline" size="sm">
-                      <FileText className="h-4 w-4 mr-2" />
-                      View Details / 상세보기
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <Button variant="outline" size="sm" onClick={() => handleEditClick(meeting)}>
+                        <Edit className="h-4 w-4 mr-2" />
+                        Edit / 편집
+                      </Button>
+                      <Button variant="outline" size="sm">
+                        <FileText className="h-4 w-4 mr-2" />
+                        View Details / 상세보기
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -181,6 +265,195 @@ export default function MeetingSummary() {
           </p>
         </div>
       )}
+
+      {/* Edit Meeting Dialog */}
+      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Edit Meeting / 미팅 편집</DialogTitle>
+          </DialogHeader>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="attendeeType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Meeting Type / 미팅 유형</FormLabel>
+                      <Select 
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          form.setValue("investorId", null);
+                          form.setValue("analystId", null);
+                        }}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select meeting type / 미팅 유형 선택" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="investor">Investor / 투자자</SelectItem>
+                          <SelectItem value="analyst">Analyst / 애널리스트</SelectItem>
+                          <SelectItem value="other">Other / 기타</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )}
+                />
+
+                {form.watch("attendeeType") === "investor" && (
+                  <FormField
+                    control={form.control}
+                    name="investorId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Select Investor / 투자자 선택</FormLabel>
+                        <Select 
+                          onValueChange={(value) => field.onChange(parseInt(value))}
+                          value={field.value?.toString() || ""}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Choose investor / 투자자를 선택하세요" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {investors.map((investor) => (
+                              <SelectItem key={investor.id} value={investor.id.toString()}>
+                                {investor.name} - {investor.company}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+                )}
+
+                {form.watch("attendeeType") === "analyst" && (
+                  <FormField
+                    control={form.control}
+                    name="analystId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Select Analyst / 애널리스트 선택</FormLabel>
+                        <Select 
+                          onValueChange={(value) => field.onChange(parseInt(value))}
+                          value={field.value?.toString() || ""}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Choose analyst / 애널리스트를 선택하세요" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {analysts.map((analyst) => (
+                              <SelectItem key={analyst.id} value={analyst.id.toString()}>
+                                {analyst.name} - {analyst.company}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+                )}
+              </div>
+
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Meeting Title / 미팅 제목</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Enter meeting title / 미팅 제목 입력" />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description / 설명</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        {...field} 
+                        placeholder="Meeting agenda or notes / 미팅 안건 또는 메모"
+                        rows={3}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="duration"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Duration (minutes) / 소요시간 (분)</FormLabel>
+                      <FormControl>
+                        <Input 
+                          {...field} 
+                          type="number" 
+                          placeholder="60" 
+                          onChange={(e) => field.onChange(parseInt(e.target.value) || 60)}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="status"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Status / 상태</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select status / 상태 선택" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="scheduled">Scheduled / 예정</SelectItem>
+                          <SelectItem value="completed">Completed / 완료</SelectItem>
+                          <SelectItem value="cancelled">Cancelled / 취소</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="flex justify-end space-x-2">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => setIsEditOpen(false)}
+                >
+                  Cancel / 취소
+                </Button>
+                <Button 
+                  type="submit" 
+                  disabled={updateMeetingMutation.isPending}
+                >
+                  {updateMeetingMutation.isPending ? "Saving..." : "Save Changes / 변경사항 저장"}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
