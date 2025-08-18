@@ -91,7 +91,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         
         <nav className="mt-6 px-3 lg:mt-0">
           <div className="space-y-1">
-            {navigation.map((item) => {
+            {navigation.slice(0, 4).map((item) => {
               const isActive = location === item.href;
               const hasSubmenu = item.submenu && item.submenu.length > 0;
               const expanded = isExpanded(item.name);
@@ -169,6 +169,93 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                 </div>
               );
             })}
+          </div>
+          
+          {/* DATABASE Section */}
+          <div className="mt-8">
+            <h3 className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+              DATABASE / DB작성
+            </h3>
+            <div className="mt-2 space-y-1">
+              {navigation.slice(4).map((item) => {
+                const isActive = location === item.href;
+                const hasSubmenu = item.submenu && item.submenu.length > 0;
+                const expanded = isExpanded(item.name);
+                
+                return (
+                  <div key={item.name}>
+                    {hasSubmenu ? (
+                      <>
+                        <div className="flex items-center">
+                          <Link href={item.href}>
+                            <div
+                              className={cn(
+                                "flex-1 group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer",
+                                isActive
+                                  ? "bg-primary text-white"
+                                  : "text-gray-700 hover:bg-gray-50"
+                              )}
+                              onClick={() => onClose()}
+                            >
+                              <item.icon className="mr-3 h-5 w-5" />
+                              {item.name}
+                            </div>
+                          </Link>
+                          <button
+                            className="p-1 text-gray-500 hover:text-gray-700"
+                            onClick={() => toggleExpanded(item.name)}
+                          >
+                            {expanded ? (
+                              <ChevronDown className="h-4 w-4" />
+                            ) : (
+                              <ChevronRight className="h-4 w-4" />
+                            )}
+                          </button>
+                        </div>
+                        {expanded && (
+                          <div className="ml-6 mt-1 space-y-1">
+                            {item.submenu.map((subItem) => {
+                              const subIsActive = location === subItem.href;
+                              return (
+                                <Link key={subItem.name} href={subItem.href}>
+                                  <div
+                                    className={cn(
+                                      "group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer",
+                                      subIsActive
+                                        ? "bg-primary text-white"
+                                        : "text-gray-600 hover:bg-gray-50"
+                                    )}
+                                    onClick={() => onClose()}
+                                  >
+                                    <subItem.icon className="mr-3 h-4 w-4" />
+                                    {subItem.name}
+                                  </div>
+                                </Link>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <Link href={item.href}>
+                        <div
+                          className={cn(
+                            "group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer",
+                            isActive
+                              ? "bg-primary text-white"
+                              : "text-gray-700 hover:bg-gray-50"
+                          )}
+                          onClick={() => onClose()}
+                        >
+                          <item.icon className="mr-3 h-5 w-5" />
+                          {item.name}
+                        </div>
+                      </Link>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
           
           <div className="mt-8">
