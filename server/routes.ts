@@ -1262,6 +1262,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Object storage upload endpoint
+  app.post("/api/objects/upload", async (req, res) => {
+    try {
+      const objectStorageService = new ObjectStorageService();
+      const uploadURL = await objectStorageService.getObjectEntityUploadURL();
+      res.json({ uploadURL });
+    } catch (error) {
+      console.error("Error getting upload URL:", error);
+      res.status(500).json({ error: "Failed to get upload URL" });
+    }
+  });
+
+  // Endpoint for updating document info after upload
+  app.post("/api/documents/upload", async (req, res) => {
+    try {
+      const { uploadURL, fileName, fileSize, fileType, category, description, uploadedBy, tags } = req.body;
+      
+      if (!uploadURL) {
+        return res.status(400).json({ error: "uploadURL is required" });
+      }
+
+      const objectStorageService = new ObjectStorageService();
+      const objectPath = objectStorageService.normalizeObjectEntityPath(uploadURL);
+
+      const documentData = {
+        name: fileName ? fileName.split('.')[0] : 'Untitled',
+        originalName: fileName || 'unknown',
+        filePath: objectPath,
+        fileSize: fileSize || 0,
+        fileType: fileType || 'application/octet-stream',
+        category: category || 'General',
+        description: description || '',
+        uploadedBy: uploadedBy || 'System',
+        tags: tags ? tags.split(',').map((tag: string) => tag.trim()).filter(Boolean) : [],
+        investorId: null,
+        companyId: null
+      };
+
+      const document = await storage.createDocument(documentData);
+      res.status(201).json({
+        message: "Document information saved successfully",
+        document
+      });
+
+    } catch (error) {
+      console.error('Document upload error:', error);
+      res.status(500).json({ error: "Failed to save document information" });
+    }
+  });
+
+  // Serve uploaded objects
+  app.get("/objects/:objectPath(*)", async (req, res) => {
+    try {
+      const objectStorageService = new ObjectStorageService();
+      const objectFile = await objectStorageService.getObjectEntityFile(req.path);
+      await objectStorageService.downloadObject(objectFile, res);
+    } catch (error) {
+      console.error("Error serving object:", error);
+      if (error instanceof ObjectNotFoundError) {
+        return res.status(404).json({ error: "Object not found" });
+      }
+      return res.status(500).json({ error: "Failed to serve object" });
+    }
+  });
+
   app.delete("/api/documents/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
