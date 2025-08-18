@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Search, FileText, Calendar, Users, Edit, Upload } from "lucide-react";
+import { Search, FileText, Calendar, Users, Clock, Edit, X, Upload } from "lucide-react";
 import { format } from "date-fns";
 import { insertMeetingSchema } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
@@ -135,8 +135,9 @@ export default function MeetingSummary() {
       investorId: meeting.investorId,
       analystId: meeting.analystId,
       title: meeting.title,
-      description: meeting.description,
+      description: meeting.description || "",
       scheduledDate: new Date(meeting.scheduledDate),
+      duration: meeting.duration || 60,
       status: meeting.status,
     });
     setIsEditOpen(true);
@@ -145,51 +146,52 @@ export default function MeetingSummary() {
   const onSubmit = (data: any) => {
     if (!selectedMeeting) return;
     
-    updateMeetingMutation.mutate({
-      id: selectedMeeting.id,
-      data: {
-        ...data,
-        scheduledDate: new Date(data.scheduledDate),
-      },
-    });
+    const submitData = {
+      ...data,
+      scheduledDate: data.scheduledDate.toISOString(),
+      investorId: data.attendeeType === "investor" ? data.investorId : null,
+      analystId: data.attendeeType === "analyst" ? data.analystId : null,
+    };
+    
+    updateMeetingMutation.mutate({ id: selectedMeeting.id, data: submitData });
   };
+
+  // Filter completed meetings for summary
+  const now = new Date();
+  const completedMeetings = allMeetings.filter(meeting => 
+    new Date(meeting.scheduledDate) < now
+  ).sort((a, b) => new Date(b.scheduledDate).getTime() - new Date(a.scheduledDate).getTime());
+
+  const filteredMeetings = completedMeetings.filter((meeting: Meeting) => {
+    if (searchQuery === "") return true;
+    
+    const investor = investors.find((inv: Investor) => inv.id === meeting.investorId);
+    const analyst = analysts.find((ana: Analyst) => ana.id === meeting.analystId);
+    
+    return meeting.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+           meeting.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+           investor?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+           analyst?.name.toLowerCase().includes(searchQuery.toLowerCase());
+  });
 
   const getAttendeeName = (meeting: Meeting) => {
     if (meeting.attendeeType === "investor") {
-      const investor = investors.find(i => i.id === meeting.investorId);
-      return investor ? `${investor.name} - ${investor.company}` : "Unknown Investor";
-    } else if (meeting.attendeeType === "analyst") {
-      const analyst = analysts.find(a => a.id === meeting.analystId);
-      return analyst ? `${analyst.name} - ${analyst.company}` : "Unknown Analyst";
+      const investor = investors.find((inv: Investor) => inv.id === meeting.investorId);
+      return investor?.name || "Unknown Investor";
+    } else {
+      const analyst = analysts.find((ana: Analyst) => ana.id === meeting.analystId);
+      return analyst?.name || "Unknown Analyst";
     }
-    return "Other";
   };
 
   const getAttendeeType = (meeting: Meeting) => {
-    switch (meeting.attendeeType) {
-      case "investor": return "Investor / 투자자";
-      case "analyst": return "Analyst / 애널리스트";
-      default: return "Other / 기타";
-    }
+    return meeting.attendeeType === "investor" ? "Buyside / 투자자" : "Sellside / 애널리스트";
   };
-
-  const filteredMeetings = allMeetings.filter((meeting) => {
-    if (!searchQuery) return true;
-    
-    const searchLower = searchQuery.toLowerCase();
-    const attendeeName = getAttendeeName(meeting).toLowerCase();
-    
-    return (
-      meeting.title?.toLowerCase().includes(searchLower) ||
-      meeting.description?.toLowerCase().includes(searchLower) ||
-      attendeeName.includes(searchLower)
-    );
-  });
 
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
+        <div className="animate-pulse space-y-4">
           <div className="h-8 bg-gray-200 rounded w-1/4"></div>
           <div className="h-4 bg-gray-200 rounded w-1/2"></div>
           <div className="grid gap-4">
@@ -295,6 +297,7 @@ export default function MeetingSummary() {
                         <Calendar className="h-4 w-4" />
                         {format(new Date(meeting.scheduledDate), "PPP")}
                       </div>
+                      {/* Duration field removed per user request */}
                       <div className="flex items-center gap-1">
                         <Users className="h-4 w-4" />
                         {getAttendeeName(meeting)}
@@ -488,26 +491,26 @@ export default function MeetingSummary() {
               />
 
               <FormField
-                control={form.control}
-                name="status"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Status / 상태</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select status / 상태 선택" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="scheduled">Scheduled / 예정</SelectItem>
-                        <SelectItem value="completed">Completed / 완료</SelectItem>
-                        <SelectItem value="cancelled">Cancelled / 취소</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FormItem>
-                )}
-              />
+                  control={form.control}
+                  name="status"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Status / 상태</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select status / 상태 선택" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="scheduled">Scheduled / 예정</SelectItem>
+                          <SelectItem value="completed">Completed / 완료</SelectItem>
+                          <SelectItem value="cancelled">Cancelled / 취소</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )}
+                />
 
               <div className="flex justify-end space-x-2">
                 <Button 
