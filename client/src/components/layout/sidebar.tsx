@@ -27,6 +27,17 @@ interface SidebarProps {
 
 const navigation = [
   { name: "Dashboard / 대시보드", href: "/", icon: BarChart3 },
+  { 
+    name: "Meetings / 회의", 
+    href: "/meeting-logs", 
+    icon: Calendar,
+    submenu: [
+      { name: "Schedule / 일정 예약", href: "/scheduling", icon: Plus },
+      { name: "NDR/컨퍼런스", href: "/ndr-conferences", icon: CalendarDays }
+    ]
+  },
+  { name: "Email / 이메일", href: "/email", icon: Mail },
+  { name: "Reports / 보고서", href: "/reports", icon: BarChart },
   { name: "Buyside / 투자자", href: "/investors", icon: Users },
   { name: "Sellside / 애널리스트", href: "/analysts", icon: Users },
   { 
@@ -38,18 +49,7 @@ const navigation = [
     ]
   },
   { name: "Securities Firms / 증권사", href: "/securities-firms", icon: Building },
-  { 
-    name: "Meetings / 회의", 
-    href: "/meeting-logs", 
-    icon: Calendar,
-    submenu: [
-      { name: "Schedule / 일정 예약", href: "/scheduling", icon: Plus },
-      { name: "NDR/컨퍼런스", href: "/ndr-conferences", icon: CalendarDays }
-    ]
-  },
-  { name: "Email / 이메일", href: "/email", icon: Mail },
   { name: "Documents / 문서", href: "/documents", icon: FileText },
-  { name: "Reports / 보고서", href: "/reports", icon: BarChart },
 ];
 
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
