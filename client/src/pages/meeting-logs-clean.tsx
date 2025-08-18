@@ -1,12 +1,18 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { Plus, Search, Eye, Edit, Trash2, Calendar, Users, Clock, MoreVertical, CheckCircle, Upload, Download, FileText } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
@@ -15,6 +21,20 @@ import type { Meeting, Investor, Analyst } from "@shared/schema";
 import { ObjectUploader } from "@/components/ObjectUploader";
 import type { UploadResult } from "@uppy/core";
 import { useToast } from "@/hooks/use-toast";
+
+// Edit meeting form schema
+const editMeetingSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().optional(),
+  attendeeType: z.enum(["investor", "analyst", "other"]),
+  investorId: z.number().nullable(),
+  analystId: z.number().nullable(),
+  scheduledDate: z.string(),
+  scheduledTime: z.string(),
+  status: z.enum(["scheduled", "completed", "cancelled"])
+});
+
+type EditMeetingForm = z.infer<typeof editMeetingSchema>;
 
 export default function Meetings() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -25,6 +45,21 @@ export default function Meetings() {
   const [location] = useLocation();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+
+  // Edit form setup
+  const editForm = useForm<EditMeetingForm>({
+    resolver: zodResolver(editMeetingSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      attendeeType: "investor",
+      investorId: null,
+      analystId: null,
+      scheduledDate: "",
+      scheduledTime: "",
+      status: "scheduled"
+    }
+  });
 
   // Check URL parameters to set default tab
   useEffect(() => {
@@ -70,6 +105,74 @@ export default function Meetings() {
       queryClient.invalidateQueries({ queryKey: ["/api/meetings"] });
     },
   });
+
+  // Edit meeting mutation
+  const editMeetingMutation = useMutation({
+    mutationFn: async (data: EditMeetingForm & { id: number }) => {
+      const { id, scheduledDate, scheduledTime, ...rest } = data;
+      const scheduledDateTime = new Date(`${scheduledDate}T${scheduledTime}`);
+      
+      const response = await fetch(`/api/meetings/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...rest,
+          scheduledDate: scheduledDateTime.toISOString(),
+        })
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.text();
+        throw new Error(`Failed to update meeting: ${errorData}`);
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/meetings"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/meetings/upcoming"] });
+      setEditingMeeting(null);
+      editForm.reset();
+      toast({
+        title: "Success / 성공",
+        description: "Meeting updated successfully / 미팅이 성공적으로 업데이트되었습니다"
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error / 오류", 
+        description: `Failed to update meeting: ${error.message} / 미팅 업데이트에 실패했습니다`,
+        variant: "destructive"
+      });
+    }
+  });
+
+  // Function to populate edit form when editing a meeting
+  const startEditingMeeting = (meeting: Meeting) => {
+    const scheduledDate = new Date(meeting.scheduledDate);
+    const dateStr = scheduledDate.toISOString().split('T')[0];
+    const timeStr = scheduledDate.toTimeString().split(' ')[0].substring(0, 5);
+    
+    editForm.reset({
+      title: meeting.title,
+      description: meeting.description || "",
+      attendeeType: meeting.attendeeType,
+      investorId: meeting.investorId,
+      analystId: meeting.analystId,
+      scheduledDate: dateStr,
+      scheduledTime: timeStr,
+      status: meeting.status
+    });
+    
+    setEditingMeeting(meeting);
+  };
+
+  // Handle edit form submission
+  const handleEditSubmit = (data: EditMeetingForm) => {
+    if (!editingMeeting) return;
+    editMeetingMutation.mutate({ ...data, id: editingMeeting.id });
+  };
 
   // Meeting minutes upload handlers for ObjectUploader in edit dialog
   const handleGetMinutesUploadParameters = async () => {
@@ -283,7 +386,7 @@ export default function Meetings() {
                             <Eye className="mr-2 h-4 w-4" />
                             View Details / 상세보기
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => setEditingMeeting(meeting)}>
+                          <DropdownMenuItem onClick={() => startEditingMeeting(meeting)}>
                             <Edit className="mr-2 h-4 w-4" />
                             Edit / 편집
                           </DropdownMenuItem>
@@ -455,7 +558,7 @@ export default function Meetings() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => setEditingMeeting(viewingMeeting)}
+                        onClick={() => startEditingMeeting(viewingMeeting)}
                       >
                         <Upload className="h-4 w-4 mr-1" />
                         Upload / 업로드
@@ -472,42 +575,178 @@ export default function Meetings() {
         </DialogContent>
       </Dialog>
 
-      {/* Edit Meeting Dialog with Upload Functionality */}
+      {/* Edit Meeting Dialog with Full Form and Upload Functionality */}
       <Dialog open={!!editingMeeting} onOpenChange={() => {
         setEditingMeeting(null);
         setUploadingMinutes(false);
+        editForm.reset();
       }}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Meeting / 미팅 편집</DialogTitle>
           </DialogHeader>
           {editingMeeting && (
-            <div className="space-y-4">
-              <div>
-                <h3 className="text-lg font-semibold mb-2">{editingMeeting.title}</h3>
+            <Form {...editForm}>
+              <form onSubmit={editForm.handleSubmit(handleEditSubmit)} className="space-y-4">
+                <FormField
+                  control={editForm.control}
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Title / 제목</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Meeting title" />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={editForm.control}
+                  name="status"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Status / 상태</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="scheduled">Scheduled / 예정</SelectItem>
+                          <SelectItem value="completed">Completed / 완료</SelectItem>
+                          <SelectItem value="cancelled">Cancelled / 취소</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )}
+                />
+
                 <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">Date & Time / 날짜 및 시간</p>
-                    <p className="text-sm">{format(new Date(editingMeeting.scheduledDate), "yyyy-MM-dd HH:mm")}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">Attendee / 참석자</p>
-                    <p className="text-sm">{getAttendeeName(editingMeeting)}</p>
-                    <p className="text-xs text-gray-500">{getAttendeeCompany(editingMeeting)}</p>
-                  </div>
+                  <FormField
+                    control={editForm.control}
+                    name="scheduledDate"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Date / 날짜</FormLabel>
+                        <FormControl>
+                          <Input type="date" {...field} />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={editForm.control}
+                    name="scheduledTime"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Time / 시간</FormLabel>
+                        <FormControl>
+                          <Input type="time" {...field} />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
                 </div>
-                
-                {/* Meeting Minutes Section in Edit Dialog */}
-                <div className="mt-6 border-t pt-4">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center space-x-2">
-                      <FileText className="h-5 w-5 text-gray-600" />
-                      <h4 className="text-lg font-medium text-gray-900">Meeting Minutes / 회의록</h4>
-                    </div>
+
+                <FormField
+                  control={editForm.control}
+                  name="attendeeType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Meeting Type / 미팅 유형</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="investor">Investor / 투자자</SelectItem>
+                          <SelectItem value="analyst">Analyst / 애널리스트</SelectItem>
+                          <SelectItem value="other">Other / 기타</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )}
+                />
+
+                {editForm.watch("attendeeType") === "investor" && (
+                  <FormField
+                    control={editForm.control}
+                    name="investorId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Select Investor / 투자자 선택</FormLabel>
+                        <Select onValueChange={(value) => field.onChange(value ? parseInt(value) : null)} value={field.value?.toString() || ""}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Choose investor" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {investors.map((investor) => (
+                              <SelectItem key={investor.id} value={investor.id.toString()}>
+                                {investor.name} - {investor.company}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+                )}
+
+                {editForm.watch("attendeeType") === "analyst" && (
+                  <FormField
+                    control={editForm.control}
+                    name="analystId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Select Analyst / 애널리스트 선택</FormLabel>
+                        <Select onValueChange={(value) => field.onChange(value ? parseInt(value) : null)} value={field.value?.toString() || ""}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Choose analyst" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {analysts.map((analyst) => (
+                              <SelectItem key={analyst.id} value={analyst.id.toString()}>
+                                {analyst.name} - {analyst.company}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+                )}
+
+                <FormField
+                  control={editForm.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Description / 설명</FormLabel>
+                      <FormControl>
+                        <Textarea {...field} placeholder="Meeting description" rows={3} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                {/* Meeting Minutes Section */}
+                <div className="space-y-2 border-t pt-4">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <FileText className="h-5 w-5 text-gray-600" />
+                    <h3 className="text-sm font-medium">Meeting Minutes / 회의록</h3>
                   </div>
                   
                   {editingMeeting.minutesFilePath ? (
-                    <div className="bg-gray-50 p-4 rounded-lg">
+                    <div className="bg-gray-50 p-3 rounded-lg">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-2">
                           <FileText className="h-4 w-4 text-blue-600" />
@@ -520,6 +759,7 @@ export default function Meetings() {
                             }
                           </span>
                           <Button
+                            type="button"
                             variant="outline"
                             size="sm"
                             onClick={() => handleDownloadMinutes(editingMeeting.id)}
@@ -531,12 +771,12 @@ export default function Meetings() {
                       </div>
                     </div>
                   ) : (
-                    <div className="bg-gray-50 p-4 rounded-lg">
+                    <div className="bg-gray-50 p-3 rounded-lg">
                       <div className="text-center">
-                        <p className="text-sm text-gray-500 mb-4">No meeting minutes uploaded yet / 회의록이 아직 업로드되지 않았습니다</p>
+                        <p className="text-sm text-gray-500 mb-3">No meeting minutes uploaded yet / 회의록이 아직 업로드되지 않았습니다</p>
                         <ObjectUploader
                           maxNumberOfFiles={1}
-                          maxFileSize={10485760} // 10MB
+                          maxFileSize={10485760}
                           onGetUploadParameters={handleGetMinutesUploadParameters}
                           onComplete={handleMinutesUploadComplete}
                           buttonClassName="w-auto"
@@ -550,21 +790,29 @@ export default function Meetings() {
                     </div>
                   )}
                 </div>
-              </div>
-              
-              <div className="flex justify-end space-x-2 pt-4">
-                <Button 
-                  variant="outline" 
-                  onClick={() => {
-                    setEditingMeeting(null);
-                    setUploadingMinutes(false);
-                  }}
-                  disabled={uploadingMinutes}
-                >
-                  Close / 닫기
-                </Button>
-              </div>
-            </div>
+
+                <div className="flex justify-end space-x-2 pt-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setEditingMeeting(null);
+                      setUploadingMinutes(false);
+                      editForm.reset();
+                    }}
+                    disabled={editMeetingMutation.isPending || uploadingMinutes}
+                  >
+                    Cancel / 취소
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={editMeetingMutation.isPending || uploadingMinutes}
+                  >
+                    {editMeetingMutation.isPending ? "Updating... / 업데이트 중..." : "Update Meeting / 미팅 업데이트"}
+                  </Button>
+                </div>
+              </form>
+            </Form>
           )}
         </DialogContent>
       </Dialog>
