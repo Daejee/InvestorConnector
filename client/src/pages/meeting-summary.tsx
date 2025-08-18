@@ -83,6 +83,12 @@ export default function MeetingSummary() {
   const handleGetUploadParameters = async () => {
     try {
       const response: any = await apiRequest("POST", "/api/objects/upload", {});
+      console.log("Upload response:", response); // 디버그 로그
+      
+      if (!response.uploadURL) {
+        throw new Error("No upload URL received from server");
+      }
+      
       return {
         method: "PUT" as const,
         url: response.uploadURL,

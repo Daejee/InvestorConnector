@@ -1540,12 +1540,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // The endpoint for getting the upload URL for an object entity.
-  app.post("/api/objects/upload", async (req, res) => {
-    const objectStorageService = new ObjectStorageService();
-    const uploadURL = await objectStorageService.getObjectEntityUploadURL();
-    res.json({ uploadURL });
-  });
+  // Removed duplicate - see line 1608 for the proper implementation
 
   // This endpoint is used to serve public assets.
   app.get("/public-objects/:filePath(*)", async (req, res) => {
