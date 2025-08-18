@@ -18,8 +18,7 @@ import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { apiRequest } from "@/lib/queryClient";
 import type { Meeting, Investor, Analyst } from "@shared/schema";
-import { ObjectUploader } from "@/components/ObjectUploader";
-import type { UploadResult } from "@uppy/core";
+
 import { useToast } from "@/hooks/use-toast";
 
 // Edit meeting form schema
@@ -42,6 +41,7 @@ export default function Meetings() {
   const [viewingMeeting, setViewingMeeting] = useState<Meeting | null>(null);
   const [editingMeeting, setEditingMeeting] = useState<Meeting | null>(null);
   const [uploadingMinutes, setUploadingMinutes] = useState(false);
+  const [showUploadModal, setShowUploadModal] = useState(false);
   const [location] = useLocation();
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -205,24 +205,39 @@ export default function Meetings() {
     }
   };
 
-  const handleMinutesUploadComplete = (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
-    if (!editingMeeting) return;
-    
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !editingMeeting) return;
+
     setUploadingMinutes(true);
-    
-    if (result.successful && result.successful[0]) {
-      const file = result.successful[0];
-      const uploadURL = file.uploadURL || "";
-      const fileName = file.name || "";
-      const fileSize = file.size || undefined;
+
+    try {
+      // Get upload URL from backend
+      const { uploadURL } = await handleGetUploadParameters();
       
+      // Upload file directly to object storage
+      const uploadResponse = await fetch(uploadURL, {
+        method: 'PUT',
+        body: file,
+        headers: {
+          'Content-Type': file.type || 'application/octet-stream',
+        },
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error('Upload failed');
+      }
+
+      // Update meeting with file info
       uploadMinutesMutation.mutate({
         meetingId: editingMeeting.id,
         minutesFileURL: uploadURL,
-        minutesFileName: fileName,
-        minutesFileSize: fileSize
+        minutesFileName: file.name,
+        minutesFileSize: file.size
       });
-    } else {
+
+    } catch (error) {
+      console.error('Upload error:', error);
       toast({
         title: "Upload Failed / 업로드 실패",
         description: "File upload was not successful / 파일 업로드가 성공하지 못했습니다",
@@ -230,6 +245,9 @@ export default function Meetings() {
       });
       setUploadingMinutes(false);
     }
+
+    // Reset file input
+    event.target.value = '';
   };
 
   const handleDownloadMinutes = async (meetingId: number) => {
@@ -744,16 +762,23 @@ export default function Meetings() {
 
                 <div className="flex justify-between items-center space-x-2 mt-6">
                   <div className="flex space-x-2">
-                    <ObjectUploader
-                      maxNumberOfFiles={1}
-                      maxFileSize={10485760}
-                      onGetUploadParameters={handleGetUploadParameters}
-                      onComplete={handleMinutesUploadComplete}
-                      buttonClassName="bg-black text-white hover:bg-gray-800 px-4 py-2 rounded-md text-sm font-medium"
+                    <input
+                      type="file"
+                      id="minutes-upload"
+                      className="hidden"
+                      accept=".pdf,.doc,.docx,.txt"
+                      onChange={handleFileUpload}
+                      disabled={uploadingMinutes}
+                    />
+                    <Button
+                      type="button"
+                      onClick={() => document.getElementById('minutes-upload')?.click()}
+                      disabled={uploadingMinutes}
+                      className="bg-black text-white hover:bg-gray-800 px-4 py-2 rounded-md text-sm font-medium"
                     >
                       <Upload className="h-4 w-4 mr-2" />
-                      회의록 UPLOAD
-                    </ObjectUploader>
+                      {uploadingMinutes ? "업로딩 중..." : "회의록 UPLOAD"}
+                    </Button>
                   </div>
                   
                   <div className="flex space-x-2">
