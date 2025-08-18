@@ -190,7 +190,7 @@ export default function Meetings() {
   // Meeting minutes upload handlers
   const handleGetUploadParameters = async () => {
     try {
-      const response = await apiRequest("/api/objects/upload", "POST", {});
+      const response = await apiRequest("/api/objects/upload", "POST", {}) as { uploadURL: string };
       return {
         method: "PUT" as const,
         url: response.uploadURL,
@@ -212,9 +212,9 @@ export default function Meetings() {
     
     if (result.successful && result.successful[0]) {
       const file = result.successful[0];
-      const uploadURL = file.uploadURL;
-      const fileName = file.name;
-      const fileSize = file.size;
+      const uploadURL = file.uploadURL || "";
+      const fileName = file.name || "";
+      const fileSize = file.size || undefined;
       
       uploadMinutesMutation.mutate({
         meetingId: editingMeeting.id,
@@ -234,7 +234,10 @@ export default function Meetings() {
 
   const handleDownloadMinutes = async (meetingId: number) => {
     try {
-      const response = await apiRequest(`/api/meetings/${meetingId}/minutes`, "GET");
+      const response = await apiRequest(`/api/meetings/${meetingId}/minutes`, "GET") as { 
+        downloadUrl?: string; 
+        fileName?: string; 
+      };
       if (response.downloadUrl) {
         // Create a link and trigger download
         const link = document.createElement('a');
@@ -743,15 +746,13 @@ export default function Meetings() {
                   <div className="flex space-x-2">
                     <ObjectUploader
                       maxNumberOfFiles={1}
-                      maxFileSize={10485760} // 10MB
+                      maxFileSize={10485760}
                       onGetUploadParameters={handleGetUploadParameters}
                       onComplete={handleMinutesUploadComplete}
-                      buttonClassName="bg-black text-white hover:bg-gray-800"
+                      buttonClassName="bg-black text-white hover:bg-gray-800 px-4 py-2 rounded-md text-sm font-medium"
                     >
-                      <div className="flex items-center space-x-2">
-                        <Upload className="h-4 w-4" />
-                        <span>회의록 UPLOAD</span>
-                      </div>
+                      <Upload className="h-4 w-4 mr-2" />
+                      회의록 UPLOAD
                     </ObjectUploader>
                   </div>
                   
