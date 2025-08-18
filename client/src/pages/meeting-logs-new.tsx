@@ -760,35 +760,39 @@ export default function Meetings() {
                   </div>
                 )}
 
-                <div className="flex justify-between items-center space-x-2 mt-6">
-                  <div className="flex space-x-2">
-                    <input
-                      type="file"
-                      id="minutes-upload"
-                      className="hidden"
-                      accept=".pdf,.doc,.docx,.txt"
-                      onChange={handleFileUpload}
-                      disabled={uploadingMinutes}
-                    />
-                    <Button
-                      type="button"
-                      onClick={() => document.getElementById('minutes-upload')?.click()}
-                      disabled={uploadingMinutes}
-                      className="bg-black text-white hover:bg-gray-800 px-4 py-2 rounded-md text-sm font-medium"
-                    >
-                      <Upload className="h-4 w-4 mr-2" />
-                      {uploadingMinutes ? "업로딩 중..." : "회의록 UPLOAD"}
-                    </Button>
+                {/* File upload section */}
+                <div className="border-t pt-4 mt-6">
+                  <div className="flex items-center space-x-2 mb-3">
+                    <Upload className="h-4 w-4" />
+                    <span className="text-sm font-medium">Upload Meeting Minutes / 회의록 업로드</span>
                   </div>
-                  
-                  <div className="flex space-x-2">
-                    <Button type="button" variant="outline" onClick={() => setEditingMeeting(null)}>
-                      Cancel / 취소
-                    </Button>
-                    <Button type="submit" disabled={updateMutation.isPending}>
-                      {updateMutation.isPending ? "Saving..." : "Save Changes / 변경사항 저장"}
-                    </Button>
-                  </div>
+                  <input
+                    type="file"
+                    id="minutes-upload"
+                    className="hidden"
+                    accept=".pdf,.doc,.docx,.txt"
+                    onChange={handleFileUpload}
+                    disabled={uploadingMinutes}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => document.getElementById('minutes-upload')?.click()}
+                    disabled={uploadingMinutes}
+                    className="bg-black text-white hover:bg-gray-800 disabled:bg-gray-400 px-4 py-2 rounded-md text-sm font-medium flex items-center space-x-2"
+                  >
+                    <Upload className="h-4 w-4" />
+                    <span>{uploadingMinutes ? "업로딩 중..." : "회의록 UPLOAD"}</span>
+                  </button>
+                </div>
+
+                {/* Action buttons */}
+                <div className="flex justify-end space-x-2 mt-6">
+                  <Button type="button" variant="outline" onClick={() => setEditingMeeting(null)}>
+                    Cancel / 취소
+                  </Button>
+                  <Button type="submit" disabled={updateMutation.isPending}>
+                    {updateMutation.isPending ? "Saving..." : "Save Changes / 변경사항 저장"}
+                  </Button>
                 </div>
               </form>
             </Form>
