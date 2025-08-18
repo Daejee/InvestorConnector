@@ -68,7 +68,7 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
 
   const form = useForm<any>({
     defaultValues: {
-      attendeeType: selectedInvestor ? "investor" : "other",
+      attendeeType: selectedInvestor ? "investor" : "investor",
       investorId: selectedInvestor?.id || null,
       analystId: null,
       title: "",
@@ -114,7 +114,16 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
         description: "Meeting booked successfully / 미팅이 성공적으로 예약되었습니다",
       });
       setIsBookingOpen(false);
-      form.reset();
+      form.reset({
+        attendeeType: "investor",
+        investorId: selectedInvestor?.id || null,
+        analystId: null,
+        title: "",
+        description: "",
+        scheduledDate: selectedDate || new Date(),
+        scheduledTime: selectedTime || "09:00",
+        status: "scheduled",
+      });
       setSelectedDate(null);
       setSelectedTime("");
     },
@@ -142,6 +151,22 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
   useEffect(() => {
     refetchMeetings();
   }, [refetchMeetings]);
+
+  // Reset form with correct defaults when booking dialog opens
+  useEffect(() => {
+    if (isBookingOpen) {
+      form.reset({
+        attendeeType: "investor",
+        investorId: selectedInvestor?.id || null,
+        analystId: null,
+        title: "",
+        description: "",
+        scheduledDate: selectedDate || new Date(),
+        scheduledTime: selectedTime || "09:00",
+        status: "scheduled",
+      });
+    }
+  }, [isBookingOpen, selectedInvestor, selectedDate, selectedTime]);
 
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(currentWeek, i));
 
