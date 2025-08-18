@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,12 +14,14 @@ import { FileText, Upload, Download, Eye, Search, Trash2, Edit, MoreVertical } f
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { ObjectUploader } from "@/components/ObjectUploader";
+import type { UploadResult } from "@uppy/core";
 import type { Document, Investor, Company } from "@shared/schema";
 
 export default function Documents() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   const [uploadForm, setUploadForm] = useState({
     category: "General",
     description: "",
@@ -27,7 +29,6 @@ export default function Documents() {
     companyId: "",
     tags: ""
   });
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -43,44 +44,67 @@ export default function Documents() {
     queryKey: ["/api/companies"],
   });
 
-  const uploadMutation = useMutation({
-    mutationFn: async (formData: FormData) => {
-      const response = await fetch("/api/documents/upload", {
-        method: "POST",
-        body: formData,
-      });
+  // Document upload handlers for ObjectUploader
+  const handleGetUploadParameters = async () => {
+    try {
+      setIsUploading(true);
+      const response = await apiRequest("POST", "/api/objects/upload", {});
+      const data = await response.json();
+      return {
+        method: "PUT" as const,
+        url: data.uploadURL,
+      };
+    } catch (error) {
+      setIsUploading(false);
+      console.error("Failed to get upload URL:", error);
+      throw error;
+    }
+  };
+
+  const handleUploadComplete = async (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
+    setIsUploading(false);
+    
+    if (result.successful && result.successful.length > 0) {
+      const uploadedFile = result.successful[0];
       
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Upload failed");
+      try {
+        await apiRequest("POST", "/api/documents/upload", {
+          uploadURL: uploadedFile.uploadURL,
+          fileName: uploadedFile.name,
+          fileSize: uploadedFile.size,
+          fileType: uploadedFile.type,
+          category: uploadForm.category,
+          description: uploadForm.description,
+          uploadedBy: "User",
+          tags: uploadForm.tags,
+        });
+
+        queryClient.invalidateQueries({ queryKey: ["/api/documents"] });
+        
+        // Reset form
+        setUploadForm({
+          category: "General",
+          description: "",
+          investorId: "",
+          companyId: "",
+          tags: ""
+        });
+        setIsUploadDialogOpen(false);
+        
+        toast({
+          title: "Document uploaded / 문서가 업로드되었습니다",
+          description: "The document has been successfully uploaded / 문서가 성공적으로 업로드되었습니다",
+        });
+      } catch (error) {
+        console.error("Failed to save document:", error);
+        toast({
+          title: "Upload failed / 업로드 실패",
+          description: "Failed to save document information / 문서 정보 저장에 실패했습니다",
+          variant: "destructive",
+        });
       }
-      
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/documents"] });
-      setIsUploadDialogOpen(false);
-      setSelectedFile(null);
-      setUploadForm({
-        category: "General",
-        description: "",
-        investorId: "",
-        companyId: "",
-        tags: ""
-      });
-      toast({
-        title: "Success",
-        description: "Document uploaded successfully",
-      });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
+    }
+  };
 
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
@@ -106,38 +130,7 @@ export default function Documents() {
     },
   });
 
-  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      setSelectedFile(file);
-    }
-  };
 
-  const handleUpload = () => {
-    if (!selectedFile) {
-      toast({
-        title: "Error",
-        description: "Please select a file to upload",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("file", selectedFile);
-    formData.append("category", uploadForm.category);
-    formData.append("description", uploadForm.description);
-    formData.append("tags", uploadForm.tags);
-    
-    if (uploadForm.investorId) {
-      formData.append("investorId", uploadForm.investorId);
-    }
-    if (uploadForm.companyId) {
-      formData.append("companyId", uploadForm.companyId);
-    }
-
-    uploadMutation.mutate(formData);
-  };
 
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return "0 Bytes";
@@ -185,28 +178,21 @@ export default function Documents() {
                 </DialogHeader>
                 <div className="space-y-4">
                   <div>
-                    <Label>File / 파일</Label>
+                    <Label>File Upload / 파일 업로드</Label>
                     <div className="mt-1">
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
-                        onChange={handleFileSelect}
-                        className="hidden"
-                      />
-                      <Button
-                        variant="outline"
-                        onClick={() => fileInputRef.current?.click()}
-                        className="w-full"
+                      <ObjectUploader
+                        maxNumberOfFiles={1}
+                        maxFileSize={52428800} // 50MB
+                        onGetUploadParameters={handleGetUploadParameters}
+                        onComplete={handleUploadComplete}
+                        buttonClassName="w-full"
                       >
-                        {selectedFile ? selectedFile.name : "Choose File / 파일 선택"}
-                      </Button>
+                        <div className="flex items-center gap-2">
+                          <Upload className="h-4 w-4" />
+                          <span>Choose and Upload Document / 문서 선택 및 업로드</span>
+                        </div>
+                      </ObjectUploader>
                     </div>
-                    {selectedFile && (
-                      <p className="text-sm text-gray-500 mt-1">
-                        Size: {formatFileSize(selectedFile.size)}
-                      </p>
-                    )}
                   </div>
 
                   <div>
@@ -278,21 +264,18 @@ export default function Documents() {
                     />
                   </div>
 
-                  <div className="flex space-x-2 pt-4">
-                    <Button
-                      onClick={handleUpload}
-                      disabled={!selectedFile || uploadMutation.isPending}
-                      className="flex-1"
-                    >
-                      {uploadMutation.isPending ? "Uploading..." : "Upload / 업로드"}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => setIsUploadDialogOpen(false)}
-                      className="flex-1"
-                    >
-                      Cancel / 취소
-                    </Button>
+                  <div className="text-center pt-4">
+                    <p className="text-sm text-gray-500">
+                      Fill in the metadata above, then use the upload button to select and upload your file
+                    </p>
+                    <p className="text-sm text-gray-500 mt-1">
+                      메타데이터를 입력한 후 업로드 버튼을 클릭해 파일을 선택하고 업로드하세요
+                    </p>
+                    {isUploading && (
+                      <p className="text-sm text-blue-600 mt-2">
+                        Uploading file... / 파일 업로드 중...
+                      </p>
+                    )}
                   </div>
                 </div>
               </DialogContent>
