@@ -859,16 +859,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Meeting minutes upload endpoint
   app.post("/api/meetings/:id/minutes", async (req, res) => {
     try {
+      console.log("Meeting minutes upload request:", req.params.id, req.body);
+      
       const meetingId = parseInt(req.params.id);
       const { uploadURL, fileName, fileSize } = req.body;
 
       if (!uploadURL || !fileName) {
-        return res.status(400).json({ message: "Missing upload URL or file name" });
+        console.error("Missing required fields:", { uploadURL, fileName });
+        return res.status(400).json({ 
+          success: false, 
+          message: "Missing upload URL or file name" 
+        });
       }
 
       // Extract object path from the upload URL
       const objectStorageService = new ObjectStorageService();
       const objectPath = objectStorageService.normalizeObjectEntityPath(uploadURL);
+      console.log("Normalized object path:", objectPath);
 
       // Update the meeting with minutes information
       const minutesData = {

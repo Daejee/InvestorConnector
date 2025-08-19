@@ -220,6 +220,9 @@ export default function Meetings() {
     setUploadingMinutes(true);
 
     try {
+      console.log("Uploading minutes for meeting:", editingMeeting.id);
+      console.log("File details:", file);
+
       const response = await fetch(`/api/meetings/${editingMeeting.id}/minutes`, {
         method: "POST",
         headers: {
@@ -232,17 +235,41 @@ export default function Meetings() {
         })
       });
 
+      console.log("Response status:", response.status);
+      console.log("Response headers:", response.headers);
+
       if (!response.ok) {
         const errorText = await response.text();
+        console.error("Error response:", errorText);
         throw new Error(`서버 오류 (${response.status}): ${errorText}`);
       }
 
-      const responseData = await response.json();
+      // Safe JSON parsing
+      let responseData;
+      try {
+        const responseText = await response.text();
+        console.log("Raw response text:", responseText);
+        
+        if (!responseText.trim()) {
+          throw new Error("빈 응답을 받았습니다");
+        }
+
+        if (responseText.trim().startsWith('<')) {
+          throw new Error("서버에서 HTML 응답을 받았습니다. JSON이 아닙니다.");
+        }
+
+        responseData = JSON.parse(responseText);
+        console.log("Parsed response:", responseData);
+      } catch (parseError) {
+        console.error("JSON parsing failed:", parseError);
+        throw new Error(`응답 처리 실패: ${parseError instanceof Error ? parseError.message : '알 수 없는 오류'}`);
+      }
 
       // Safe cache invalidation
       try {
         await queryClient.invalidateQueries({ queryKey: ["/api/meetings"] });
         await queryClient.invalidateQueries({ queryKey: ["/api/meetings/upcoming"] });
+        console.log("Cache invalidated successfully");
       } catch (cacheError) {
         console.warn("Cache invalidation failed, but upload was successful:", cacheError);
       }
