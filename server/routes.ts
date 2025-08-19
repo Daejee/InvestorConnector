@@ -894,6 +894,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Delete meeting minutes endpoint
+  app.delete("/api/meetings/:id/minutes", async (req, res) => {
+    try {
+      const meetingId = parseInt(req.params.id);
+      
+      // Clear minutes data from the meeting
+      const updateData = {
+        minutesFilePath: null,
+        minutesFileName: null,
+        minutesFileSize: null,
+        minutesUploadedAt: null
+      };
+
+      const meeting = await storage.updateMeeting(meetingId, updateData);
+      if (!meeting) {
+        return res.status(404).json({ error: "Meeting not found" });
+      }
+
+      res.json({ 
+        message: "Meeting minutes deleted successfully",
+        meeting 
+      });
+    } catch (error) {
+      console.error('Delete meeting minutes error:', error);
+      res.status(500).json({ error: "Failed to delete meeting minutes" });
+    }
+  });
+
   // NDR/Conference routes
   app.get("/api/ndr-conferences", async (req, res) => {
     const conferences = await storage.getNdrConferences();

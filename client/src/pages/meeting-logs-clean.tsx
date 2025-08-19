@@ -174,6 +174,42 @@ export default function Meetings() {
     editMeetingMutation.mutate({ ...data, id: editingMeeting.id });
   };
 
+  // Delete meeting minutes mutation
+  const deleteMinutesMutation = useMutation({
+    mutationFn: async (meetingId: number) => {
+      const response = await fetch(`/api/meetings/${meetingId}/minutes`, {
+        method: "DELETE",
+      });
+      if (!response.ok) {
+        const errorData = await response.text();
+        throw new Error(`Failed to delete minutes: ${errorData}`);
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/meetings"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/meetings/upcoming"] });
+      toast({
+        title: "성공",
+        description: "회의록이 삭제되었습니다"
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "오류",
+        description: `회의록 삭제에 실패했습니다: ${error.message}`,
+        variant: "destructive"
+      });
+    }
+  });
+
+  // Handle delete minutes
+  const handleDeleteMinutes = (meetingId: number) => {
+    if (confirm("회의록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.")) {
+      deleteMinutesMutation.mutate(meetingId);
+    }
+  };
+
   // Meeting minutes upload handlers for ObjectUploader in edit dialog
   const handleGetMinutesUploadParameters = async () => {
     try {
@@ -770,7 +806,7 @@ export default function Meetings() {
                         <div className="flex items-center space-x-2">
                           <span className="text-xs text-gray-500">
                             {editingMeeting.minutesUploadedAt && 
-                              `Uploaded: ${format(new Date(editingMeeting.minutesUploadedAt), "yyyy-MM-dd HH:mm")}`
+                              `업로드: ${format(new Date(editingMeeting.minutesUploadedAt), "yyyy-MM-dd HH:mm")}`
                             }
                           </span>
                           <Button
@@ -780,7 +816,18 @@ export default function Meetings() {
                             onClick={() => handleDownloadMinutes(editingMeeting.id)}
                           >
                             <Download className="h-4 w-4 mr-1" />
-                            Download / 다운로드
+                            다운로드
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDeleteMinutes(editingMeeting.id)}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            disabled={deleteMinutesMutation.isPending}
+                          >
+                            <Trash2 className="h-4 w-4 mr-1" />
+                            {deleteMinutesMutation.isPending ? "삭제 중..." : "삭제"}
                           </Button>
                         </div>
                       </div>
