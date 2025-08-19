@@ -872,7 +872,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Update the meeting with minutes information
       const minutesData = {
-        minutesFilePath: objectPath.replace('/objects/', ''),
+        minutesFilePath: objectPath,
         minutesFileName: fileName,
         minutesFileSize: fileSize || 0,
         minutesUploadedAt: new Date(),

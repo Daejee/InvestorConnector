@@ -284,7 +284,8 @@ export default function Meetings() {
   const handleDownloadMinutes = (meetingId: number) => {
     const meeting = allMeetings.find(m => m.id === meetingId);
     if (meeting?.minutesFilePath) {
-      window.open(`/objects/${meeting.minutesFilePath}`, '_blank');
+      // minutesFilePath already contains the full path starting with /objects/
+      window.open(meeting.minutesFilePath, '_blank');
     }
   };
 
