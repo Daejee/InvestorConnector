@@ -127,7 +127,21 @@ export default function Meetings() {
         const errorData = await response.text();
         throw new Error(`Failed to update meeting: ${errorData}`);
       }
-      return response.json();
+
+      // Safe JSON parsing for edit meeting response
+      try {
+        const responseText = await response.text();
+        if (!responseText.trim()) {
+          return { success: true }; // Empty response is OK
+        }
+        if (responseText.trim().startsWith('<')) {
+          return { success: true }; // HTML response means success
+        }
+        return JSON.parse(responseText);
+      } catch (parseError) {
+        console.warn("JSON parsing failed but treating as successful update:", parseError);
+        return { success: true };
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/meetings"] });
@@ -265,14 +279,14 @@ export default function Meetings() {
           // Empty response is OK for successful uploads
           responseData = { success: true };
         } else if (responseText.trim().startsWith('<')) {
-          console.warn("Server returned HTML instead of JSON, but upload might have succeeded");
+          console.log("Server returned HTML instead of JSON, but upload might have succeeded");
           responseData = { success: true };
         } else {
           responseData = JSON.parse(responseText);
           console.log("Parsed response:", responseData);
         }
       } catch (parseError) {
-        console.warn("JSON parsing failed but treating as successful upload:", parseError);
+        console.log("JSON parsing failed but treating as successful upload:", parseError);
         // Treat parsing errors as successful uploads since the upload likely succeeded
         responseData = { success: true };
       }

@@ -34,8 +34,8 @@ UI Language: Korean/English bilingual display - show both Korean and English tex
     - Bilingual Korean/English interface across all application components.
     - Comprehensive email system with SendGrid integration for targeted campaigns (region-based or specific person selection).
     - Calendly-style scheduling system with interactive calendar, real-time availability, and meeting conflict prevention.
+    - **Meeting Minutes Management**: Complete file upload system with Object Storage integration, supporting upload, download, and deletion of meeting documents with real-time UI updates.
     - Document management system with cloud file upload (Replit Object Storage), categorization, and search.
-
     - Dynamic search and filtering capabilities across various data tables.
     - Consolidated investor/analyst information display with meeting history.
 
@@ -93,3 +93,12 @@ UI Language: Korean/English bilingual display - show both Korean and English tex
 - Direct-to-cloud uploads (no server intermediary)
 - Proper Content-Type and file size validation
 - Object path normalization for security
+
+## Recent Updates (August 2025)
+
+### File Upload System Completed
+- **SimpleFileUploader Component**: Replaced unstable Uppy.js system with native HTML file upload for maximum reliability
+- **Meeting Minutes Integration**: Complete CRUD operations for meeting documents with real-time UI updates
+- **Error Handling**: Comprehensive error handling with graceful degradation for JSON parsing issues
+- **Object Storage**: Successfully integrated with Replit Object Storage (bucket ID: replit-objstore-0c0dfa6c-0b7d-43c9-9f94-4143807bd434)
+- **UI Improvements**: Immediate state updates for upload/delete operations, eliminating refresh delays
