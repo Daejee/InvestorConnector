@@ -287,8 +287,14 @@ export default function Meetings() {
 
         console.log("Upload successful:", responseData);
         
-        queryClient.invalidateQueries({ queryKey: ["/api/meetings"] });
-        queryClient.invalidateQueries({ queryKey: ["/api/meetings/upcoming"] });
+        // Safe cache invalidation with error handling
+        try {
+          await queryClient.invalidateQueries({ queryKey: ["/api/meetings"] });
+          await queryClient.invalidateQueries({ queryKey: ["/api/meetings/upcoming"] });
+        } catch (cacheError) {
+          console.warn("Cache invalidation failed, but upload was successful:", cacheError);
+          // Don't throw the error - upload was successful
+        }
         
         toast({
           title: "성공",
