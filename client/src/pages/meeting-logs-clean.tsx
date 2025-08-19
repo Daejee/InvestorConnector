@@ -8,12 +8,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Search, Eye, Edit, Trash2, Calendar, Users, Clock, CheckCircle, Upload, Download, FileText } from "lucide-react";
+import { Plus, Search, Eye, Edit, Trash2, Calendar, Users, Clock, MoreVertical, CheckCircle, Upload, Download, FileText } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { apiRequest } from "@/lib/queryClient";
@@ -157,12 +157,12 @@ export default function Meetings() {
     editForm.reset({
       title: meeting.title,
       description: meeting.description || "",
-      attendeeType: meeting.attendeeType,
+      attendeeType: meeting.attendeeType as "investor" | "analyst" | "other",
       investorId: meeting.investorId,
       analystId: meeting.analystId,
       scheduledDate: dateStr,
       scheduledTime: timeStr,
-      status: meeting.status
+      status: meeting.status as "scheduled" | "completed" | "cancelled"
     });
     
     setEditingMeeting(meeting);
@@ -374,49 +374,57 @@ export default function Meetings() {
                         )}
                       </div>
                       
-                      {/* Action Buttons in a Visible Box */}
-                      <div className="bg-gray-50 border rounded-lg p-3 space-y-2 min-w-[200px]">
+                      {/* Action Buttons in a Compact Box */}
+                      <div className="bg-gray-50 border rounded-lg p-2 space-y-1.5">
                         <Button
-                          variant="outline"
+                          variant="ghost"
                           size="sm"
                           onClick={() => setViewingMeeting(meeting)}
-                          className="w-full justify-start"
+                          className="h-8 w-full justify-start text-xs px-2 hover:bg-white"
                         >
-                          <Eye className="mr-2 h-4 w-4" />
+                          <Eye className="mr-1.5 h-3 w-3" />
                           View Details / 상세보기
                         </Button>
                         
                         <Button
-                          variant="outline"
+                          variant="ghost"
                           size="sm"
                           onClick={() => startEditingMeeting(meeting)}
-                          className="w-full justify-start"
+                          className="h-8 w-full justify-start text-xs px-2 hover:bg-white"
                         >
-                          <Edit className="mr-2 h-4 w-4" />
+                          <Edit className="mr-1.5 h-3 w-3" />
                           Edit / 편집
                         </Button>
                         
                         {meeting.minutesFilePath && (
                           <Button
-                            variant="outline"
+                            variant="ghost"
                             size="sm"
                             onClick={() => handleDownloadMinutes(meeting.id)}
-                            className="w-full justify-start"
+                            className="h-8 w-full justify-start text-xs px-2 hover:bg-white"
                           >
-                            <Download className="mr-2 h-4 w-4" />
+                            <Download className="mr-1.5 h-3 w-3" />
                             Download Minutes / 회의록 다운로드
                           </Button>
                         )}
                         
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => deleteMutation.mutate(meeting.id)}
-                          className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Delete Meeting / 삭제
-                        </Button>
+                        {/* Delete button hidden in dropdown menu */}
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:bg-white">
+                              <MoreVertical className="h-3 w-3" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent>
+                            <DropdownMenuItem 
+                              onClick={() => deleteMutation.mutate(meeting.id)}
+                              className="text-red-600"
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Delete Meeting / 삭제
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     </div>
                   </div>
