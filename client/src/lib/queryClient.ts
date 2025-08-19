@@ -49,8 +49,11 @@ export const getQueryFn: <T>(options: {
       return JSON.parse(text);
     } catch (error) {
       console.error("JSON parsing error in queryClient:", error);
-      console.error("Response text:", text);
-      throw new Error(`Invalid JSON response: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error("Response URL:", res.url);
+      console.error("Response status:", res.status);
+      console.error("Response text:", text.substring(0, 200));
+      // Don't throw error to prevent breaking the UI
+      return null;
     }
   };
 

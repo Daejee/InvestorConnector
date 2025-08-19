@@ -279,6 +279,11 @@ export default function Meetings() {
         description: "회의록이 성공적으로 업로드되었습니다"
       });
 
+      // 업로드 성공 후 대화상자를 새로고침하기 위해 editingMeeting 상태 업데이트
+      if (responseData.meeting) {
+        setEditingMeeting(responseData.meeting);
+      }
+
     } catch (error) {
       console.error("Failed to save meeting minutes:", error);
       let errorMessage = "알 수 없는 오류가 발생했습니다";
