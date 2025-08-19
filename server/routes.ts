@@ -878,7 +878,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         minutesUploadedAt: new Date(),
       };
 
-      const updatedMeeting = await storage.updateMeetingMinutes(meetingId, minutesData);
+      const updatedMeeting = await storage.updateMeeting(meetingId, minutesData);
       
       if (!updatedMeeting) {
         return res.status(404).json({ message: "Meeting not found" });

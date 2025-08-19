@@ -331,19 +331,7 @@ export class DatabaseStorage implements IStorage {
     return meeting || undefined;
   }
 
-  async updateMeetingMinutes(meetingId: number, minutesData: {
-    minutesFilePath: string;
-    minutesFileName: string;
-    minutesFileSize: number;
-    minutesUploadedAt: Date;
-  }): Promise<Meeting | undefined> {
-    const [meeting] = await db
-      .update(meetings)
-      .set(minutesData)
-      .where(eq(meetings.id, meetingId))
-      .returning();
-    return meeting || undefined;
-  }
+
 
   // Funds
   async getFunds(): Promise<Fund[]> {
