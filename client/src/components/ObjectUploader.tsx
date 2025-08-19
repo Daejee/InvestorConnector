@@ -76,26 +76,37 @@ export function ObjectUploader({
           getUploadParameters: onGetUploadParameters,
         })
         .on("complete", (result) => {
-          onComplete?.(result);
+          try {
+            onComplete?.(result);
+          } catch (error) {
+            console.error("Error in onComplete callback:", error);
+          }
           // Close the modal after upload completion
           setShowModal(false);
           // Clear uploaded files from Uppy state
           setTimeout(() => {
-            result.successful?.forEach(file => {
-              if (file.id && uppyRef.current) {
-                uppyRef.current.removeFile(file.id);
-              }
-            });
-            result.failed?.forEach(file => {
-              if (file.id && uppyRef.current) {
-                uppyRef.current.removeFile(file.id);
-              }
-            });
+            try {
+              result.successful?.forEach(file => {
+                if (file.id && uppyRef.current) {
+                  uppyRef.current.removeFile(file.id);
+                }
+              });
+              result.failed?.forEach(file => {
+                if (file.id && uppyRef.current) {
+                  uppyRef.current.removeFile(file.id);
+                }
+              });
+            } catch (error) {
+              console.error("Error clearing files:", error);
+            }
           }, 100);
         })
         .on("error", (error) => {
           console.error("Uppy upload error:", error);
           setShowModal(false);
+        })
+        .on("upload-error", (file, error) => {
+          console.error("Uppy file upload error:", file, error);
         });
     }
 

@@ -235,13 +235,17 @@ export default function Meetings() {
   };
 
   const handleMinutesUploadComplete = async (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
-    if (!editingMeeting) {
-      setUploadingMinutes(false);
-      return;
-    }
+    try {
+      if (!editingMeeting) {
+        setUploadingMinutes(false);
+        return;
+      }
 
+      console.log("Upload result:", result);
+    
     if (result.successful && result.successful.length > 0) {
       const uploadedFile = result.successful[0];
+      console.log("Uploaded file:", uploadedFile);
       
       try {
         const response = await fetch(`/api/meetings/${editingMeeting.id}/minutes`, {
@@ -278,13 +282,34 @@ export default function Meetings() {
         // Don't close the dialog - let user see the uploaded file and continue editing
       } catch (error) {
         console.error("Failed to save meeting minutes:", error);
+        const errorMessage = error instanceof Error ? error.message : String(error);
         toast({
           title: "업로드 실패",
-          description: `회의록 저장에 실패했습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}`,
+          description: `회의록 저장에 실패했습니다: ${errorMessage}`,
           variant: "destructive"
         });
         setUploadingMinutes(false);
       }
+    } else if (result.failed && result.failed.length > 0) {
+      console.error("Upload failed:", result.failed);
+      setUploadingMinutes(false);
+      toast({
+        title: "업로드 실패",
+        description: "파일 업로드에 실패했습니다",
+        variant: "destructive"
+      });
+    } else {
+      console.warn("No files uploaded");
+      setUploadingMinutes(false);
+    }
+    } catch (outerError) {
+      console.error("Critical error in handleMinutesUploadComplete:", outerError);
+      setUploadingMinutes(false);
+      toast({
+        title: "업로드 오류",
+        description: "파일 업로드 처리 중 오류가 발생했습니다",
+        variant: "destructive"
+      });
     }
   };
 
