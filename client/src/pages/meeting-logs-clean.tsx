@@ -262,17 +262,17 @@ export default function Meetings() {
         queryClient.invalidateQueries({ queryKey: ["/api/meetings/upcoming"] });
         
         toast({
-          title: "Success / 성공",
-          description: "Meeting minutes uploaded successfully / 회의록이 성공적으로 업로드되었습니다"
+          title: "성공",
+          description: "회의록이 성공적으로 업로드되었습니다"
         });
         
         setUploadingMinutes(false);
-        setEditingMeeting(null); // Close the dialog after successful upload
+        // Don't close the dialog - let user see the uploaded file and continue editing
       } catch (error) {
         console.error("Failed to save meeting minutes:", error);
         toast({
-          title: "Upload Failed / 업로드 실패",
-          description: "Failed to save meeting minutes / 회의록 저장에 실패했습니다",
+          title: "업로드 실패",
+          description: `회의록 저장에 실패했습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}`,
           variant: "destructive"
         });
         setUploadingMinutes(false);
