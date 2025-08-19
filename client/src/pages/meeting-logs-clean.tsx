@@ -256,8 +256,16 @@ export default function Meetings() {
           })
         });
         
-        if (!response.ok) throw new Error("Failed to save meeting minutes");
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error("Server response:", errorText);
+          throw new Error(`Server error (${response.status}): ${errorText}`);
+        }
+        
+        const responseData = await response.json();
 
+        console.log("Upload successful:", responseData);
+        
         queryClient.invalidateQueries({ queryKey: ["/api/meetings"] });
         queryClient.invalidateQueries({ queryKey: ["/api/meetings/upcoming"] });
         
