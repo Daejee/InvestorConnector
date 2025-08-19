@@ -18,8 +18,8 @@ import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { apiRequest } from "@/lib/queryClient";
 import type { Meeting, Investor, Analyst } from "@shared/schema";
-import { ObjectUploader } from "@/components/ObjectUploader";
-import type { UploadResult } from "@uppy/core";
+import { SimpleFileUploader } from "@/components/SimpleFileUploader";
+// import type { UploadResult } from "@uppy/core";
 import { useToast } from "@/hooks/use-toast";
 
 // Edit meeting form schema
@@ -210,146 +210,67 @@ export default function Meetings() {
     }
   };
 
-  // Meeting minutes upload handlers for ObjectUploader in edit dialog
-  const handleGetMinutesUploadParameters = async () => {
+  // Simple file upload handler for meeting minutes
+
+  const handleSimpleMinutesUpload = async (file: { name: string; size: number; url: string }) => {
+    if (!editingMeeting) {
+      return;
+    }
+
+    setUploadingMinutes(true);
+
     try {
-      setUploadingMinutes(true);
-      const response = await fetch("/api/objects/upload", {
+      const response = await fetch(`/api/meetings/${editingMeeting.id}/minutes`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({})
+        body: JSON.stringify({
+          uploadURL: file.url,
+          fileName: file.name,
+          fileSize: file.size,
+        })
       });
-      if (!response.ok) throw new Error("Failed to get upload URL");
-      const data = await response.json();
-      return {
-        method: "PUT" as const,
-        url: data.uploadURL,
-      };
-    } catch (error) {
-      setUploadingMinutes(false);
-      console.error("Failed to get upload URL:", error);
-      throw error;
-    }
-  };
 
-  const handleMinutesUploadComplete = async (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
-    try {
-      if (!editingMeeting) {
-        setUploadingMinutes(false);
-        return;
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`서버 오류 (${response.status}): ${errorText}`);
       }
 
-      console.log("Upload result:", result);
-    
-    if (result.successful && result.successful.length > 0) {
-      const uploadedFile = result.successful[0];
-      console.log("Uploaded file:", uploadedFile);
-      
+      const responseData = await response.json();
+
+      // Safe cache invalidation
       try {
-        const response = await fetch(`/api/meetings/${editingMeeting.id}/minutes`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            uploadURL: uploadedFile.uploadURL,
-            fileName: uploadedFile.name,
-            fileSize: uploadedFile.size,
-          })
-        });
-        
-        console.log("Response status:", response.status);
-        console.log("Response headers:", response.headers);
-        
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error("Server response:", errorText);
-          throw new Error(`Server error (${response.status}): ${errorText}`);
-        }
-        
-        let responseData;
-        try {
-          const responseText = await response.text();
-          console.log("Raw response:", responseText);
-          
-          if (responseText.trim().startsWith('{') || responseText.trim().startsWith('[')) {
-            responseData = JSON.parse(responseText);
-          } else {
-            console.error("Non-JSON response received:", responseText);
-            throw new Error(`서버에서 올바르지 않은 응답을 받았습니다: ${responseText.substring(0, 100)}`);
-          }
-        } catch (parseError) {
-          console.error("JSON parsing error:", parseError);
-          throw new Error(`응답 처리 중 오류가 발생했습니다: ${parseError instanceof Error ? parseError.message : '알 수 없는 오류'}`);
-        }
-
-        console.log("Upload successful:", responseData);
-        
-        // Safe cache invalidation with error handling
-        try {
-          await queryClient.invalidateQueries({ queryKey: ["/api/meetings"] });
-          await queryClient.invalidateQueries({ queryKey: ["/api/meetings/upcoming"] });
-        } catch (cacheError) {
-          console.warn("Cache invalidation failed, but upload was successful:", cacheError);
-          // Don't throw the error - upload was successful
-        }
-        
-        toast({
-          title: "성공",
-          description: "회의록이 성공적으로 업로드되었습니다"
-        });
-        
-        setUploadingMinutes(false);
-        // Don't close the dialog - let user see the uploaded file and continue editing
-      } catch (error) {
-        console.error("Failed to save meeting minutes:", error);
-        let errorMessage = "알 수 없는 오류가 발생했습니다";
-        
-        if (error instanceof Error) {
-          errorMessage = error.message;
-        } else if (typeof error === "string") {
-          errorMessage = error;
-        } else if (error && typeof error === "object") {
-          errorMessage = JSON.stringify(error);
-        }
-        
-        toast({
-          title: "업로드 실패",
-          description: `회의록 저장에 실패했습니다: ${errorMessage}`,
-          variant: "destructive"
-        });
-        setUploadingMinutes(false);
+        await queryClient.invalidateQueries({ queryKey: ["/api/meetings"] });
+        await queryClient.invalidateQueries({ queryKey: ["/api/meetings/upcoming"] });
+      } catch (cacheError) {
+        console.warn("Cache invalidation failed, but upload was successful:", cacheError);
       }
-    } else if (result.failed && result.failed.length > 0) {
-      console.error("Upload failed:", result.failed);
-      setUploadingMinutes(false);
+
+      toast({
+        title: "성공",
+        description: "회의록이 성공적으로 업로드되었습니다"
+      });
+
+    } catch (error) {
+      console.error("Failed to save meeting minutes:", error);
+      let errorMessage = "알 수 없는 오류가 발생했습니다";
+      
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      
       toast({
         title: "업로드 실패",
-        description: "파일 업로드에 실패했습니다",
+        description: `회의록 저장에 실패했습니다: ${errorMessage}`,
         variant: "destructive"
       });
-    } else {
-      console.warn("No files uploaded");
+    } finally {
       setUploadingMinutes(false);
-    }
-    } catch (outerError) {
-      console.error("Critical error in handleMinutesUploadComplete:", outerError);
-      setUploadingMinutes(false);
-      
-      let errorDesc = "파일 업로드 처리 중 오류가 발생했습니다";
-      if (outerError instanceof Error) {
-        errorDesc = `처리 오류: ${outerError.message}`;
-      }
-      
-      toast({
-        title: "업로드 오류",
-        description: errorDesc,
-        variant: "destructive"
-      });
     }
   };
+
+  // Removed old complex Uppy upload handler
 
   // Handle meeting minutes download
   const handleDownloadMinutes = (meetingId: number) => {
@@ -908,18 +829,15 @@ export default function Meetings() {
                     <div className="bg-gray-50 p-3 rounded-lg">
                       <div className="text-center">
                         <p className="text-sm text-gray-500 mb-3">No meeting minutes uploaded yet / 회의록이 아직 업로드되지 않았습니다</p>
-                        <ObjectUploader
-                          maxNumberOfFiles={1}
-                          maxFileSize={10485760}
-                          onGetUploadParameters={handleGetMinutesUploadParameters}
-                          onComplete={handleMinutesUploadComplete}
-                          buttonClassName="w-auto"
+                        <SimpleFileUploader
+                          onUploadComplete={handleSimpleMinutesUpload}
+                          disabled={uploadingMinutes}
                         >
                           <div className="flex items-center space-x-2">
                             <Upload className="h-4 w-4" />
                             <span>{uploadingMinutes ? "Uploading... / 업로드 중..." : "Upload Minutes / 회의록 업로드"}</span>
                           </div>
-                        </ObjectUploader>
+                        </SimpleFileUploader>
                       </div>
                     </div>
                   )}
