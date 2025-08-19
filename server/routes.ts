@@ -873,9 +873,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Extract object path from the upload URL
-      const objectStorageService = new ObjectStorageService();
-      const objectPath = objectStorageService.normalizeObjectEntityPath(uploadURL);
-      console.log("Normalized object path:", objectPath);
+      let objectPath;
+      try {
+        const objectStorageService = new ObjectStorageService();
+        objectPath = objectStorageService.normalizeObjectEntityPath(uploadURL);
+        console.log("Normalized object path:", objectPath);
+      } catch (pathError) {
+        console.error("Path normalization error:", pathError);
+        // If normalization fails, use the uploadURL as-is for now
+        objectPath = uploadURL;
+      }
 
       // Update the meeting with minutes information
       const minutesData = {
@@ -885,19 +892,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
         minutesUploadedAt: new Date(),
       };
 
+      console.log("Updating meeting with data:", minutesData);
       const updatedMeeting = await storage.updateMeeting(meetingId, minutesData);
+      console.log("Update result:", updatedMeeting);
       
       if (!updatedMeeting) {
+        console.error("Meeting not found:", meetingId);
         return res.status(404).json({ message: "Meeting not found" });
       }
 
-      res.json({ 
+      const response = { 
+        success: true,
         message: "Meeting minutes uploaded successfully",
         meeting: updatedMeeting 
-      });
+      };
+      console.log("Sending response:", response);
+      res.json(response);
     } catch (error) {
       console.error('Meeting minutes upload error:', error);
-      res.status(500).json({ message: "Failed to update meeting minutes", error });
+      console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+      res.status(500).json({ 
+        success: false,
+        message: "Failed to update meeting minutes", 
+        error: error instanceof Error ? error.message : String(error)
+      });
     }
   });
 
