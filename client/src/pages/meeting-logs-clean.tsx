@@ -335,80 +335,80 @@ export default function Meetings() {
                   
                   {/* Meeting Info */}
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                          {meeting.title}
-                        </h3>
-                        
-                        <div className="flex items-center space-x-2 mb-2">
-                          <Badge variant="outline" className="text-xs">
-                            <Users className="mr-1 h-3 w-3" />
-                            {getAttendeeName(meeting)}
-                          </Badge>
-                          <Badge variant="outline" className="text-xs">
-                            <Clock className="mr-1 h-3 w-3" />
-                            {time}
-                          </Badge>
-                          <Badge className={getStatusBadgeColor(meeting.status)}>
-                            {meeting.status}
-                          </Badge>
-                        </div>
-                        
-                        <p className="text-sm text-gray-600 mb-2">
-                          {getAttendeeCompany(meeting)} • {getAttendeeType(meeting)}
-                        </p>
-                        
-                        {meeting.description && (
-                          <p className="text-sm text-gray-700">
-                            {meeting.description}
-                          </p>
-                        )}
+                    <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                      {meeting.title}
+                    </h3>
+                    
+                    <div className="flex items-center space-x-2 mb-2">
+                      <Badge variant="outline" className="text-xs">
+                        <Users className="mr-1 h-3 w-3" />
+                        {getAttendeeName(meeting)}
+                      </Badge>
+                      <Badge variant="outline" className="text-xs">
+                        <Clock className="mr-1 h-3 w-3" />
+                        {time}
+                      </Badge>
+                      <Badge className={getStatusBadgeColor(meeting.status)}>
+                        {meeting.status}
+                      </Badge>
+                    </div>
+                    
+                    <p className="text-sm text-gray-600 mb-2">
+                      {getAttendeeCompany(meeting)} • {getAttendeeType(meeting)}
+                    </p>
+                    
+                    {meeting.description && (
+                      <p className="text-sm text-gray-700">
+                        {meeting.description}
+                      </p>
+                    )}
 
-                        {/* Meeting Minutes Status */}
-                        {meeting.minutesFilePath && (
-                          <div className="mt-2 flex items-center text-sm text-green-600">
-                            <FileText className="mr-1 h-4 w-4" />
-                            <span>Meeting minutes available / 회의록 있음</span>
-                          </div>
-                        )}
+                    {/* Meeting Minutes Status */}
+                    {meeting.minutesFilePath && (
+                      <div className="mt-2 flex items-center text-sm text-green-600">
+                        <FileText className="mr-1 h-4 w-4" />
+                        <span>Meeting minutes available / 회의록 있음</span>
                       </div>
+                    )}
+                  </div>
+                  
+                  {/* Action Buttons in a Compact Box - Right Aligned */}
+                  <div className="flex-shrink-0 ml-4">
+                    <div className="bg-gray-50 border rounded-lg p-2 space-y-1.5 min-w-[180px]">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setViewingMeeting(meeting)}
+                        className="h-8 w-full justify-start text-xs px-2 hover:bg-white"
+                      >
+                        <Eye className="mr-1.5 h-3 w-3" />
+                        View Details / 상세보기
+                      </Button>
                       
-                      {/* Action Buttons in a Compact Box */}
-                      <div className="bg-gray-50 border rounded-lg p-2 space-y-1.5">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => startEditingMeeting(meeting)}
+                        className="h-8 w-full justify-start text-xs px-2 hover:bg-white"
+                      >
+                        <Edit className="mr-1.5 h-3 w-3" />
+                        Edit / 편집
+                      </Button>
+                      
+                      {meeting.minutesFilePath && (
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => setViewingMeeting(meeting)}
+                          onClick={() => handleDownloadMinutes(meeting.id)}
                           className="h-8 w-full justify-start text-xs px-2 hover:bg-white"
                         >
-                          <Eye className="mr-1.5 h-3 w-3" />
-                          View Details / 상세보기
+                          <Download className="mr-1.5 h-3 w-3" />
+                          Download Minutes / 회의록 다운로드
                         </Button>
-                        
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => startEditingMeeting(meeting)}
-                          className="h-8 w-full justify-start text-xs px-2 hover:bg-white"
-                        >
-                          <Edit className="mr-1.5 h-3 w-3" />
-                          Edit / 편집
-                        </Button>
-                        
-                        {meeting.minutesFilePath && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDownloadMinutes(meeting.id)}
-                            className="h-8 w-full justify-start text-xs px-2 hover:bg-white"
-                          >
-                            <Download className="mr-1.5 h-3 w-3" />
-                            Download Minutes / 회의록 다운로드
-                          </Button>
-                        )}
-                        
-                        {/* Delete button hidden in dropdown menu */}
+                      )}
+                      
+                      {/* Delete button hidden in dropdown menu */}
+                      <div className="flex justify-center">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:bg-white">
