@@ -260,13 +260,30 @@ export default function Meetings() {
           })
         });
         
+        console.log("Response status:", response.status);
+        console.log("Response headers:", response.headers);
+        
         if (!response.ok) {
           const errorText = await response.text();
           console.error("Server response:", errorText);
           throw new Error(`Server error (${response.status}): ${errorText}`);
         }
         
-        const responseData = await response.json();
+        let responseData;
+        try {
+          const responseText = await response.text();
+          console.log("Raw response:", responseText);
+          
+          if (responseText.trim().startsWith('{') || responseText.trim().startsWith('[')) {
+            responseData = JSON.parse(responseText);
+          } else {
+            console.error("Non-JSON response received:", responseText);
+            throw new Error(`서버에서 올바르지 않은 응답을 받았습니다: ${responseText.substring(0, 100)}`);
+          }
+        } catch (parseError) {
+          console.error("JSON parsing error:", parseError);
+          throw new Error(`응답 처리 중 오류가 발생했습니다: ${parseError instanceof Error ? parseError.message : '알 수 없는 오류'}`);
+        }
 
         console.log("Upload successful:", responseData);
         
@@ -282,7 +299,16 @@ export default function Meetings() {
         // Don't close the dialog - let user see the uploaded file and continue editing
       } catch (error) {
         console.error("Failed to save meeting minutes:", error);
-        const errorMessage = error instanceof Error ? error.message : String(error);
+        let errorMessage = "알 수 없는 오류가 발생했습니다";
+        
+        if (error instanceof Error) {
+          errorMessage = error.message;
+        } else if (typeof error === "string") {
+          errorMessage = error;
+        } else if (error && typeof error === "object") {
+          errorMessage = JSON.stringify(error);
+        }
+        
         toast({
           title: "업로드 실패",
           description: `회의록 저장에 실패했습니다: ${errorMessage}`,
@@ -305,9 +331,15 @@ export default function Meetings() {
     } catch (outerError) {
       console.error("Critical error in handleMinutesUploadComplete:", outerError);
       setUploadingMinutes(false);
+      
+      let errorDesc = "파일 업로드 처리 중 오류가 발생했습니다";
+      if (outerError instanceof Error) {
+        errorDesc = `처리 오류: ${outerError.message}`;
+      }
+      
       toast({
         title: "업로드 오류",
-        description: "파일 업로드 처리 중 오류가 발생했습니다",
+        description: errorDesc,
         variant: "destructive"
       });
     }
