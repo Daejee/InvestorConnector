@@ -8,12 +8,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Search, Eye, Edit, Trash2, Calendar, Users, Clock, MoreVertical, CheckCircle, Upload, Download, FileText } from "lucide-react";
+import { Plus, Search, Eye, Edit, Trash2, Calendar, Users, Clock, CheckCircle, Upload, Download, FileText } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { apiRequest } from "@/lib/queryClient";
@@ -374,39 +374,50 @@ export default function Meetings() {
                         )}
                       </div>
                       
-                      {/* Actions */}
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm">
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent>
-                          <DropdownMenuItem onClick={() => setViewingMeeting(meeting)}>
-                            <Eye className="mr-2 h-4 w-4" />
-                            View Details / 상세보기
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => startEditingMeeting(meeting)}>
-                            <Edit className="mr-2 h-4 w-4" />
-                            Edit / 편집
-                          </DropdownMenuItem>
-                          {meeting.minutesFilePath && (
-                            <DropdownMenuItem
-                              onClick={() => handleDownloadMinutes(meeting.id)}
-                            >
-                              <Download className="mr-2 h-4 w-4" />
-                              Download Minutes / 회의록 다운로드
-                            </DropdownMenuItem>
-                          )}
-                          <DropdownMenuItem 
-                            onClick={() => deleteMutation.mutate(meeting.id)}
-                            className="text-red-600"
+                      {/* Action Buttons in a Visible Box */}
+                      <div className="bg-gray-50 border rounded-lg p-3 space-y-2 min-w-[200px]">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setViewingMeeting(meeting)}
+                          className="w-full justify-start"
+                        >
+                          <Eye className="mr-2 h-4 w-4" />
+                          View Details / 상세보기
+                        </Button>
+                        
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => startEditingMeeting(meeting)}
+                          className="w-full justify-start"
+                        >
+                          <Edit className="mr-2 h-4 w-4" />
+                          Edit / 편집
+                        </Button>
+                        
+                        {meeting.minutesFilePath && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDownloadMinutes(meeting.id)}
+                            className="w-full justify-start"
                           >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Delete Meeting / 삭제
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                            <Download className="mr-2 h-4 w-4" />
+                            Download Minutes / 회의록 다운로드
+                          </Button>
+                        )}
+                        
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => deleteMutation.mutate(meeting.id)}
+                          className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Delete Meeting / 삭제
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </div>
