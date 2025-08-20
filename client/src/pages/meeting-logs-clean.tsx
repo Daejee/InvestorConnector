@@ -7,7 +7,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
@@ -713,6 +713,9 @@ export default function Meetings() {
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Meeting Details / 미팅 상세정보</DialogTitle>
+            <DialogDescription>
+              View meeting details and download minutes / 미팅 상세정보 보기 및 회의록 다운로드
+            </DialogDescription>
           </DialogHeader>
           {viewingMeeting && (
             <div className="space-y-4">
@@ -820,6 +823,9 @@ export default function Meetings() {
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Meeting / 미팅 편집</DialogTitle>
+            <DialogDescription>
+              Edit meeting details and upload meeting minutes / 미팅 상세정보 편집 및 회의록 업로드
+            </DialogDescription>
           </DialogHeader>
           {editingMeeting && (
             <Form {...editForm}>
