@@ -11,6 +11,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import {
   Form,
@@ -53,6 +54,7 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
   const [currentWeek, setCurrentWeek] = useState(startOfWeek(new Date()));
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<string>("");
+  const [selectedDuration, setSelectedDuration] = useState<number>(60); // Default 1 hour
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   
   const { toast } = useToast();
@@ -73,6 +75,7 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
       analystId: null,
       title: "",
       description: "",
+      duration: 60, // Default 1 hour
       scheduledDate: selectedDate || new Date(),
       scheduledTime: selectedTime || "09:00",
       status: "scheduled",
@@ -170,28 +173,30 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
 
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(currentWeek, i));
 
-  const isTimeSlotBooked = (date: Date, time: string) => {
+  const isTimeSlotBooked = (date: Date, time: string, duration: number = 60) => {
     if (!meetings || meetings.length === 0) return false;
     
     const [hours, minutes] = time.split(':').map(Number);
     const slotDateTime = new Date(date);
     slotDateTime.setHours(hours, minutes, 0, 0);
+    const slotEndTime = new Date(slotDateTime.getTime() + duration * 60000); // duration in minutes
 
     return meetings.some(meeting => {
       const meetingDate = new Date(meeting.scheduledDate);
+      const meetingDuration = meeting.duration || 60; // Default 1 hour
+      const meetingEndTime = new Date(meetingDate.getTime() + meetingDuration * 60000);
       
-      // Compare dates in local timezone for same day check
+      // Check if same day
       const slotDateLocal = format(slotDateTime, 'yyyy-MM-dd');
       const meetingDateLocal = format(meetingDate, 'yyyy-MM-dd');
       const isSameDay = slotDateLocal === meetingDateLocal;
       
-      // Compare times with 30-minute buffer
-      const slotTimeMinutes = hours * 60 + minutes;
-      const meetingTimeMinutes = meetingDate.getHours() * 60 + meetingDate.getMinutes();
-      const timeDiff = Math.abs(slotTimeMinutes - meetingTimeMinutes);
-      const withinTimeSlot = timeDiff < 30; // 30 minutes buffer
+      if (!isSameDay) return false;
       
-      return isSameDay && withinTimeSlot;
+      // Check for time overlap: meetings overlap if one starts before the other ends
+      const overlaps = (slotDateTime < meetingEndTime) && (slotEndTime > meetingDate);
+      
+      return overlaps;
     });
   };
 
@@ -282,6 +287,9 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Book Meeting / 미팅 예약</DialogTitle>
+            <DialogDescription>
+              Schedule a new meeting with flexible duration options / 유연한 시간 옵션으로 새 미팅 예약
+            </DialogDescription>
           </DialogHeader>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -316,64 +324,93 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
                   )}
                 />
 
-                {watchedAttendeeType === "investor" && (
-                  <FormField
-                    control={form.control}
-                    name="investorId"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Select Investor / 투자자 선택</FormLabel>
-                        <Select 
-                          onValueChange={(value) => field.onChange(parseInt(value))}
-                          defaultValue={selectedInvestor?.id?.toString() || ""}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Choose investor / 투자자를 선택하세요" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {investors.map((investor) => (
-                              <SelectItem key={investor.id} value={investor.id.toString()}>
-                                {investor.name} - {investor.company}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </FormItem>
-                    )}
-                  />
-                )}
-
-                {watchedAttendeeType === "analyst" && (
-                  <FormField
-                    control={form.control}
-                    name="analystId"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Select Analyst / 애널리스트 선택</FormLabel>
-                        <Select 
-                          onValueChange={(value) => field.onChange(parseInt(value))}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Choose analyst / 애널리스트를 선택하세요" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {analysts.map((analyst) => (
-                              <SelectItem key={analyst.id} value={analyst.id.toString()}>
-                                {analyst.name} - {analyst.company}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </FormItem>
-                    )}
-                  />
-                )}
+                <FormField
+                  control={form.control}
+                  name="duration"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Duration / 미팅 길이</FormLabel>
+                      <Select 
+                        onValueChange={(value) => {
+                          field.onChange(parseInt(value));
+                          setSelectedDuration(parseInt(value));
+                        }}
+                        defaultValue="60"
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select duration / 길이 선택" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="30">30분 (30 minutes)</SelectItem>
+                          <SelectItem value="60">1시간 (1 hour)</SelectItem>
+                          <SelectItem value="90">1시간 30분 (1.5 hours)</SelectItem>
+                          <SelectItem value="120">2시간 (2 hours)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )}
+                />
 
               </div>
+
+              {watchedAttendeeType === "investor" && (
+                <FormField
+                  control={form.control}
+                  name="investorId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Select Investor / 투자자 선택</FormLabel>
+                      <Select 
+                        onValueChange={(value) => field.onChange(parseInt(value))}
+                        defaultValue={selectedInvestor?.id?.toString() || ""}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Choose investor / 투자자를 선택하세요" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {investors.map((investor) => (
+                            <SelectItem key={investor.id} value={investor.id.toString()}>
+                              {investor.name} - {investor.company}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )}
+                />
+              )}
+
+              {watchedAttendeeType === "analyst" && (
+                <FormField
+                  control={form.control}
+                  name="analystId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Select Analyst / 애널리스트 선택</FormLabel>
+                      <Select 
+                        onValueChange={(value) => field.onChange(parseInt(value))}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Choose analyst / 애널리스트를 선택하세요" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {analysts.map((analyst) => (
+                            <SelectItem key={analyst.id} value={analyst.id.toString()}>
+                              {analyst.name} - {analyst.company}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )}
+                />
+              )}
 
               <FormField
                 control={form.control}
@@ -414,8 +451,12 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
                       {format(selectedDate, 'EEEE, MMMM d, yyyy')} at {selectedTime}
                     </div>
                     <div className="flex items-center">
+                      <Clock className="h-4 w-4 mr-2" />
+                      Duration: {selectedDuration} minutes / 길이: {selectedDuration}분
+                    </div>
+                    <div className="flex items-center">
                       <MapPin className="h-4 w-4 mr-2" />
-                      Meeting scheduled
+                      Meeting will be scheduled / 미팅이 예약됩니다
                     </div>
                   </div>
                 </div>
