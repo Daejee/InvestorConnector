@@ -279,7 +279,7 @@ export default function Dashboard() {
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center space-x-2">
                 <Calendar className="h-5 w-5" />
-                <span>Upcomig Meetings /향후미팅</span>
+                <span>Upcomig Meetings / 향후미팅</span>
               </CardTitle>
               <Link href="/meeting-logs">
                 <Button variant="ghost" size="sm">View All / 전체보기</Button>
