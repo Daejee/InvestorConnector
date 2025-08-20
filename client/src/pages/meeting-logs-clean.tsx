@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { useForm } from "react-hook-form";
@@ -236,7 +236,7 @@ export default function Meetings() {
   };
 
   // Simple file upload handler for meeting minutes
-  const handleSimpleMinutesUpload = useCallback(async (file: { name: string; size: number; url: string }) => {
+  const handleSimpleMinutesUpload = async (file: { name: string; size: number; url: string }) => {
     if (!editingMeeting) {
       return;
     }
@@ -333,7 +333,7 @@ export default function Meetings() {
     } finally {
       setUploadingMinutes(false);
     }
-  }, [editingMeeting, queryClient, toast]);
+  };
 
   // Removed old complex Uppy upload handler
 
