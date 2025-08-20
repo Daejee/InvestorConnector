@@ -561,8 +561,7 @@ export default function Meetings() {
                         href="#"
                         onClick={(e) => {
                           e.preventDefault();
-                          e.stopPropagation();
-                          console.log("View clicked - meeting:", meeting.id);
+                          alert(`View clicked for meeting: ${meeting.title}`);
                           setViewingMeeting(meeting);
                         }}
                         className="px-3 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 no-underline text-center"
@@ -574,8 +573,7 @@ export default function Meetings() {
                         href="#"
                         onClick={(e) => {
                           e.preventDefault();
-                          e.stopPropagation();
-                          console.log("Edit clicked - meeting:", meeting.id);
+                          alert(`Edit clicked for meeting: ${meeting.title}`);
                           startEditingMeeting(meeting);
                         }}
                         className="px-3 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600 no-underline text-center"
@@ -650,22 +648,7 @@ export default function Meetings() {
         </div>
       </div>
 
-      {/* Debug Info */}
-      <div className="mb-4 p-2 bg-gray-100 rounded text-xs">
-        <p>Debug: editingMeeting = {editingMeeting ? `ID: ${editingMeeting.id}, Title: ${editingMeeting.title}` : 'null'}</p>
-        <button 
-          onClick={() => {
-            const testMeeting = allMeetings[0];
-            if (testMeeting) {
-              console.log("Force test edit with first meeting:", testMeeting);
-              startEditingMeeting(testMeeting);
-            }
-          }}
-          className="mt-1 px-2 py-1 bg-blue-500 text-white rounded text-xs"
-        >
-          Test Edit First Meeting
-        </button>
-      </div>
+
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
