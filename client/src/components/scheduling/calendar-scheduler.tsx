@@ -349,10 +349,7 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
                               window.location.href = `/meetings?edit=${meeting.id}`;
                             }}
                           >
-                            <div className="font-medium truncate text-blue-900">
-                              {meeting.title || "No title"}
-                            </div>
-                            <div className="text-xs text-blue-700 truncate">
+                            <div className="text-xs text-blue-700 truncate font-medium">
                               {getAttendeeName(meeting)}
                             </div>
                             <div className="text-xs text-blue-600 truncate">
@@ -363,9 +360,6 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
                                 "Other"
                               }
                             </div>
-                            <Badge variant="outline" className="text-xs px-1 py-0">
-                              {meeting.duration || 60}분
-                            </Badge>
                             <div className="flex items-center text-xs text-blue-600">
                               <Edit className="h-3 w-3 mr-1" />
                               Edit
