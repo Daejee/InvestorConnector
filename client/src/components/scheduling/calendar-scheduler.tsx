@@ -520,18 +520,7 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
                 />
               )}
 
-              <FormField
-                control={form.control}
-                name="title"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Meeting Title / 미팅 제목</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="Enter meeting title / 미팅 제목 입력" />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
+
 
               <FormField
                 control={form.control}
