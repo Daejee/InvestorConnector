@@ -1152,7 +1152,7 @@ export default function Meetings() {
                     }}
                     disabled={editMeetingMutation.isPending || uploadingMinutes}
                   >
-                    Cancel / 취소
+                    No change / 변경 없음
                   </Button>
                   <Button
                     type="submit"
