@@ -167,29 +167,42 @@ export default function Documents() {
     window.open(`/objects${document.filePath}`, '_blank');
   };
 
-  const handleDownload = async (document: Document) => {
+  const handleDownload = async (doc: Document) => {
     try {
-      const response = await fetch(`/objects${document.filePath}`);
-      if (!response.ok) throw new Error('Download failed');
+      console.log('Starting download for document:', doc.name, 'FilePath:', doc.filePath);
+      
+      const response = await fetch(`/objects${doc.filePath}`);
+      if (!response.ok) {
+        console.error('Download response not ok:', response.status, response.statusText);
+        throw new Error(`Download failed: ${response.status}`);
+      }
       
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = document.originalName;
+      a.download = doc.originalName;
+      a.style.display = 'none';
       document.body.appendChild(a);
       a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      
+      // Clean up
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url);
+        if (document.body.contains(a)) {
+          document.body.removeChild(a);
+        }
+      }, 100);
       
       toast({
-        title: "Download started",
-        description: `Downloading ${document.originalName}`,
+        title: "Download started / 다운로드 시작",
+        description: `Downloading ${doc.originalName} / ${doc.originalName} 다운로드 중`,
       });
     } catch (error) {
+      console.error('Download error:', error);
       toast({
-        title: "Download failed",
-        description: "Failed to download document",
+        title: "Download failed / 다운로드 실패",
+        description: `Failed to download document: ${error instanceof Error ? error.message : 'Unknown error'}`,
         variant: "destructive",
       });
     }
