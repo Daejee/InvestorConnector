@@ -1,8 +1,12 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -22,6 +26,7 @@ export default function Documents() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [editingDocument, setEditingDocument] = useState<Document | null>(null);
   const [uploadForm, setUploadForm] = useState({
     category: "General",
     description: ""
@@ -155,6 +160,44 @@ export default function Documents() {
       });
     },
   });
+
+  // Handler functions for document actions
+  const handleView = (document: Document) => {
+    // Open document in new tab for viewing
+    window.open(`/objects${document.filePath}`, '_blank');
+  };
+
+  const handleDownload = async (document: Document) => {
+    try {
+      const response = await fetch(`/objects${document.filePath}`);
+      if (!response.ok) throw new Error('Download failed');
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = document.originalName;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast({
+        title: "Download started",
+        description: `Downloading ${document.originalName}`,
+      });
+    } catch (error) {
+      toast({
+        title: "Download failed",
+        description: "Failed to download document",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleEdit = (document: Document) => {
+    setEditingDocument(document);
+  };
 
 
 
@@ -370,21 +413,21 @@ export default function Documents() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleView(document)}>
                             <Eye className="mr-2 h-4 w-4" />
                             View / 보기
                           </DropdownMenuItem>
-                          <DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleDownload(document)}>
                             <Download className="mr-2 h-4 w-4" />
                             Download / 다운로드
                           </DropdownMenuItem>
-                          <DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleEdit(document)}>
                             <Edit className="mr-2 h-4 w-4" />
                             Edit / 편집
                           </DropdownMenuItem>
                           <DropdownMenuItem 
                             onClick={() => {
-                              if (confirm("Are you sure you want to delete this document?")) {
+                              if (confirm("정말 이 문서를 삭제하시겠습니까? / Are you sure you want to delete this document?")) {
                                 deleteMutation.mutate(document.id);
                               }
                             }}
@@ -404,15 +447,162 @@ export default function Documents() {
         </CardContent>
       </Card>
 
+      {/* Edit Document Dialog */}
+      <Dialog open={!!editingDocument} onOpenChange={(open) => !open && setEditingDocument(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Document / 문서 편집</DialogTitle>
+            <DialogDescription>
+              Update document information / 문서 정보 수정
+            </DialogDescription>
+          </DialogHeader>
+          {editingDocument && (
+            <EditDocumentForm 
+              document={editingDocument}
+              onClose={() => setEditingDocument(null)}
+              onSuccess={() => {
+                queryClient.invalidateQueries({ queryKey: ["/api/documents"] });
+                setEditingDocument(null);
+                toast({
+                  title: "Success",
+                  description: "Document updated successfully / 문서가 성공적으로 업데이트되었습니다"
+                });
+              }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
       {/* File Type Information */}
       <Alert className="mt-6">
         <FileText className="h-4 w-4" />
         <AlertDescription>
           <strong>Supported file types / 지원 파일 형식:</strong> PDF, DOC, DOCX, TXT, JPEG, PNG
           <br />
-          <strong>Maximum file size / 최대 파일 크기:</strong> 10MB
+          <strong>Maximum file size / 최대 파일 크기:</strong> 50MB
         </AlertDescription>
       </Alert>
     </div>
+  );
+}
+
+// Edit Document Form Component
+const editDocumentSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  category: z.string(),
+  description: z.string().optional(),
+});
+
+type EditDocumentForm = z.infer<typeof editDocumentSchema>;
+
+interface EditDocumentFormProps {
+  document: Document;
+  onClose: () => void;
+  onSuccess: () => void;
+}
+
+function EditDocumentForm({ document, onClose, onSuccess }: EditDocumentFormProps) {
+  const { toast } = useToast();
+  
+  const form = useForm<EditDocumentForm>({
+    resolver: zodResolver(editDocumentSchema),
+    defaultValues: {
+      name: document.name,
+      category: document.category || "General",
+      description: document.description || "",
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async (data: EditDocumentForm) => {
+      const response = await fetch(`/api/documents/${document.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) throw new Error("Failed to update document");
+      return response.json();
+    },
+    onSuccess: () => {
+      onSuccess();
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: `Failed to update document: ${error.message}`,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleSubmit = (data: EditDocumentForm) => {
+    updateMutation.mutate(data);
+  };
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Document Name / 문서명</FormLabel>
+              <FormControl>
+                <Input {...field} placeholder="Document name" />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="category"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Category / 카테고리</FormLabel>
+              <Select value={field.value} onValueChange={field.onChange}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="General">General / 일반</SelectItem>
+                  <SelectItem value="Financial Reports">Financial Reports / 재무보고서</SelectItem>
+                  <SelectItem value="IR Presentations">IR Presentations / IR 발표자료</SelectItem>
+                  <SelectItem value="Legal Documents">Legal Documents / 법적문서</SelectItem>
+                  <SelectItem value="Meeting Notes">Meeting Notes / 회의록</SelectItem>
+                  <SelectItem value="Research">Research / 리서치</SelectItem>
+                  <SelectItem value="Contracts">Contracts / 계약서</SelectItem>
+                </SelectContent>
+              </Select>
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Description / 설명</FormLabel>
+              <FormControl>
+                <Textarea {...field} placeholder="Document description" rows={3} />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+
+        <div className="flex space-x-2 pt-4">
+          <Button type="submit" disabled={updateMutation.isPending}>
+            {updateMutation.isPending ? "Saving..." : "Save Changes / 저장"}
+          </Button>
+          <Button type="button" variant="outline" onClick={onClose}>
+            Cancel / 취소
+          </Button>
+        </div>
+      </form>
+    </Form>
   );
 }
