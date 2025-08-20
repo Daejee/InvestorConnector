@@ -577,67 +577,55 @@ export default function Meetings() {
                       </Button>
                     )}
                     
-                    {/* Action buttons - direct approach */}
-                    <div className="flex flex-col space-y-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          console.log("View button clicked for meeting:", meeting);
+                    {/* Action buttons - inline with spacing */}
+                    <div className="flex space-x-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          console.log("View clicked - meeting:", meeting.id);
                           setViewingMeeting(meeting);
                         }}
-                        className="h-6 px-2 text-xs justify-start"
+                        className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
                       >
-                        <Eye className="mr-1 h-3 w-3" />
                         View
-                      </Button>
+                      </button>
                       
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          console.log("Edit button clicked for meeting:", meeting);
+                      <button
+                        type="button"
+                        onClick={() => {
+                          console.log("Edit clicked - meeting:", meeting.id);
                           startEditingMeeting(meeting);
                         }}
-                        className="h-6 px-2 text-xs justify-start"
+                        className="px-2 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600"
                       >
-                        <Edit className="mr-1 h-3 w-3" />
                         Edit
-                      </Button>
+                      </button>
                       
                       {meeting.minutesFilePath && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            console.log("Download button clicked for meeting:", meeting.id);
+                        <button
+                          type="button"
+                          onClick={() => {
+                            console.log("Download clicked - meeting:", meeting.id);
                             handleDownloadMinutes(meeting.id);
                           }}
-                          className="h-6 px-2 text-xs justify-start"
+                          className="px-2 py-1 text-xs bg-purple-500 text-white rounded hover:bg-purple-600"
                         >
-                          <Download className="mr-1 h-3 w-3" />
                           Download
-                        </Button>
+                        </button>
                       )}
                       
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          console.log("Delete button clicked for meeting:", meeting.id);
+                      <button
+                        type="button"
+                        onClick={() => {
+                          console.log("Delete clicked - meeting:", meeting.id);
                           if (confirm('정말 이 회의를 삭제하시겠습니까?')) {
                             deleteMutation.mutate(meeting.id);
                           }
                         }}
-                        className="h-6 px-2 text-xs justify-start text-red-600 hover:text-red-700"
+                        className="px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600"
                       >
-                        <Trash2 className="mr-1 h-3 w-3" />
                         Delete
-                      </Button>
+                      </button>
                     </div>
                   </div>
                 </div>
