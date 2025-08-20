@@ -491,6 +491,15 @@ export default function Meetings() {
     }
   };
 
+  const getStatusDisplayText = (status: string) => {
+    switch (status) {
+      case "completed": return "completed / 완료";
+      case "cancelled": return "cancelled / 취소";
+      case "scheduled": return "scheduled / 예정";
+      default: return status;
+    }
+  };
+
   const filterMeetings = (meetings: Meeting[]) => {
     if (!searchQuery) return meetings;
     
@@ -552,7 +561,7 @@ export default function Meetings() {
                         {meeting.duration || 60}분
                       </Badge>
                       <Badge className={getStatusBadgeColor(meeting.status)}>
-                        {meeting.status}
+                        {getStatusDisplayText(meeting.status)}
                       </Badge>
                     </div>
                     
@@ -806,7 +815,7 @@ export default function Meetings() {
                   <div>
                     <p className="text-sm font-medium text-gray-600">Status / 상태</p>
                     <Badge className={getStatusBadgeColor(viewingMeeting.status)}>
-                      {viewingMeeting.status}
+                      {getStatusDisplayText(viewingMeeting.status)}
                     </Badge>
                   </div>
                 </div>
