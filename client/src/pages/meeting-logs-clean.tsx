@@ -579,12 +579,26 @@ export default function Meetings() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent>
+                        <DropdownMenuItem onClick={() => setViewingMeeting(meeting)}>
+                          <Eye className="mr-2 h-4 w-4" />
+                          View / 보기
+                        </DropdownMenuItem>
+                        {meeting.minutesFilePath && (
+                          <DropdownMenuItem onClick={() => handleDownloadMinutes(meeting.id)}>
+                            <Download className="mr-2 h-4 w-4" />
+                            Download / 다운로드
+                          </DropdownMenuItem>
+                        )}
+                        <DropdownMenuItem onClick={() => startEditingMeeting(meeting)}>
+                          <Edit className="mr-2 h-4 w-4" />
+                          Edit / 편집
+                        </DropdownMenuItem>
                         <DropdownMenuItem 
                           onClick={() => deleteMutation.mutate(meeting.id)}
                           className="text-red-600"
                         >
                           <Trash2 className="mr-2 h-4 w-4" />
-                          삭제
+                          Delete / 삭제
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
