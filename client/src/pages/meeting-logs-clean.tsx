@@ -24,7 +24,7 @@ import { useToast } from "@/hooks/use-toast";
 
 // Edit meeting form schema
 const editMeetingSchema = z.object({
-  title: z.string().min(1, "Title is required"),
+  title: z.string().optional(),
   description: z.string().optional(),
   attendeeType: z.enum(["investor", "analyst", "other"]),
   investorId: z.number().nullable(),
