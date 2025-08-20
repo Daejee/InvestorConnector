@@ -180,7 +180,7 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
     const [hours, minutes] = time.split(':').map(Number);
     const slotDateTime = new Date(date);
     slotDateTime.setHours(hours, minutes, 0, 0);
-    const slotEndTime = new Date(slotDateTime.getTime() + 60 * 60000); // 1 hour slot
+    const slotEndTime = new Date(slotDateTime.getTime() + 30 * 60000); // 30 minute slot
 
     return meetings.find(meeting => {
       const meetingDate = new Date(meeting.scheduledDate);
@@ -199,6 +199,17 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
       
       return overlaps;
     }) || null;
+  };
+
+  // Check if this slot is the start time of a meeting
+  const isMeetingStartSlot = (date: Date, time: string, meeting: Meeting) => {
+    const [hours, minutes] = time.split(':').map(Number);
+    const slotDateTime = new Date(date);
+    slotDateTime.setHours(hours, minutes, 0, 0);
+    
+    const meetingDate = new Date(meeting.scheduledDate);
+    
+    return slotDateTime.getTime() === meetingDate.getTime();
   };
 
   const isTimeSlotBooked = (date: Date, time: string, duration: number = 60) => {
@@ -284,6 +295,7 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
                   const meeting = getMeetingForTimeSlot(day, time);
                   const isBooked = meeting !== null;
                   const isSelected = selectedDate && isSameDay(day, selectedDate) && selectedTime === time;
+                  const isStartSlot = meeting && isMeetingStartSlot(day, time, meeting);
                   
                   return (
                     <button
@@ -293,7 +305,7 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
                       className={`
                         p-1 text-xs border border-gray-200 transition-colors min-h-[60px] flex flex-col justify-center
                         ${isPast ? 'bg-gray-100 text-gray-400 cursor-not-allowed' :
-                          isBooked ? 'bg-blue-50 text-blue-800 cursor-pointer hover:bg-blue-100' :
+                          isBooked ? (isStartSlot ? 'bg-blue-50 text-blue-800 cursor-pointer hover:bg-blue-100' : 'bg-blue-100/30 border-blue-200 cursor-pointer text-blue-600') :
                           isSelected ? 'bg-blue-100 text-blue-600 border-blue-300' :
                           'bg-white hover:bg-green-50 hover:border-green-300 cursor-pointer'}
                       `}
@@ -301,21 +313,27 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
                       {isPast ? (
                         <span>Past</span>
                       ) : isBooked && meeting ? (
-                        <div className="space-y-1">
-                          <div className="font-medium truncate text-blue-900">
-                            {meeting.title}
+                        isStartSlot ? (
+                          <div className="space-y-1">
+                            <div className="font-medium truncate text-blue-900">
+                              {meeting.title}
+                            </div>
+                            <div className="text-xs text-blue-700 truncate">
+                              {getAttendeeName(meeting)}
+                            </div>
+                            <Badge variant="outline" className="text-xs px-1 py-0">
+                              {meeting.duration || 60}분
+                            </Badge>
+                            <div className="flex items-center text-xs text-blue-600">
+                              <Edit className="h-3 w-3 mr-1" />
+                              Edit
+                            </div>
                           </div>
-                          <div className="text-xs text-blue-700 truncate">
-                            {getAttendeeName(meeting)}
+                        ) : (
+                          <div className="text-xs text-blue-600">
+                            ⬆ {meeting.title}
                           </div>
-                          <Badge variant="outline" className="text-xs px-1 py-0">
-                            {meeting.duration || 60}분
-                          </Badge>
-                          <div className="flex items-center text-xs text-blue-600">
-                            <Edit className="h-3 w-3 mr-1" />
-                            Edit
-                          </div>
-                        </div>
+                        )
                       ) : (
                         <span>Available</span>
                       )}
