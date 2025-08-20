@@ -32,6 +32,7 @@ function Router() {
         <Route path="/email" component={Email} />
         <Route path="/funds" component={Funds} />
         <Route path="/meeting-logs" component={MeetingLogs} />
+        <Route path="/meetings" component={MeetingLogs} />
 
         <Route path="/ndr-conferences" component={NdrConferences} />
         <Route path="/scheduling" component={Scheduling} />
