@@ -217,16 +217,25 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
   };
 
   const handleTimeSlotClick = (date: Date, time: string) => {
-    if (isBefore(date, startOfDay(new Date()))) return;
+    console.log("handleTimeSlotClick called:", { date, time });
+    
+    if (isBefore(date, startOfDay(new Date()))) {
+      console.log("Slot is in the past, ignoring click");
+      return;
+    }
     
     // Check if there's a meeting at this time slot
     const meeting = getMeetingForTimeSlot(date, time);
+    console.log("Meeting found:", meeting);
+    
     if (meeting) {
+      console.log("Navigating to edit meeting:", meeting.id);
       // Navigate to meetings page with meeting ID to edit
       window.location.href = `/meetings?edit=${meeting.id}`;
       return;
     }
 
+    console.log("No meeting found, opening booking dialog");
     setSelectedDate(date);
     setSelectedTime(time);
     setIsBookingOpen(true);
