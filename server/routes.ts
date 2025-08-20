@@ -1409,8 +1409,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Endpoint for updating document info after upload
-  app.post("/api/documents/upload", async (req, res) => {
+  // Endpoint for updating document info after object storage upload
+  app.post("/api/documents/upload-complete", async (req, res) => {
     try {
       const { uploadURL, fileName, fileSize, fileType, category, description, uploadedBy } = req.body;
       

@@ -34,19 +34,69 @@ export default function Documents() {
 
 
 
-  // Document upload handler
-  const handleUploadComplete = async (file: { name: string; size: number; url: string }) => {
+  // Direct file upload handler for documents
+  const handleDirectFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    // File size validation (50MB limit)
+    if (file.size > 52428800) {
+      toast({
+        title: "파일 크기 오류",
+        description: "파일 크기는 50MB를 초과할 수 없습니다.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsUploading(true);
+
     try {
-      const response = await fetch("/api/documents/upload", {
+      console.log('Starting direct file upload for document:', file.name);
+      
+      // Step 1: Get pre-signed URL
+      const uploadResponse = await fetch('/api/objects/upload', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error('업로드 URL 생성에 실패했습니다.');
+      }
+
+      const { uploadURL } = await uploadResponse.json();
+      console.log('Got upload URL, uploading document file...');
+
+      // Step 2: Upload file to pre-signed URL
+      const uploadFileResponse = await fetch(uploadURL, {
+        method: 'PUT',
+        body: file,
+        headers: {
+          'Content-Type': file.type,
+        },
+      });
+
+      if (!uploadFileResponse.ok) {
+        throw new Error('파일 업로드에 실패했습니다.');
+      }
+
+      console.log('File uploaded successfully, saving to database...');
+
+      // Step 3: Save document info to database
+      const response = await fetch("/api/documents/upload-complete", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          uploadURL: file.url,
+          uploadURL: uploadURL,
           fileName: file.name,
           fileSize: file.size,
-          fileType: "application/octet-stream", // Will be determined by file extension
+          fileType: file.type,
           category: uploadForm.category,
           description: uploadForm.description,
           uploadedBy: "User",
@@ -57,11 +107,12 @@ export default function Documents() {
 
       queryClient.invalidateQueries({ queryKey: ["/api/documents"] });
       
-      // Reset form
+      // Reset form and file input
       setUploadForm({
         category: "General",
         description: ""
       });
+      event.target.value = '';
       setIsUploadDialogOpen(false);
       
       toast({
@@ -69,12 +120,14 @@ export default function Documents() {
         description: "The document has been successfully uploaded / 문서가 성공적으로 업로드되었습니다",
       });
     } catch (error) {
-      console.error("Failed to save document:", error);
+      console.error("Failed to upload document:", error);
       toast({
         title: "Upload failed / 업로드 실패",
-        description: "Failed to save document information / 문서 정보 저장에 실패했습니다",
+        description: `Failed to upload document: ${error instanceof Error ? error.message : 'Unknown error'}`,
         variant: "destructive",
       });
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -152,15 +205,28 @@ export default function Documents() {
                   <div>
                     <Label>File Upload / 파일 업로드</Label>
                     <div className="mt-1">
-                      <SimpleFileUploader
-                        onUploadComplete={handleUploadComplete}
+                      <input
+                        type="file"
+                        accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
+                        onChange={handleDirectFileUpload}
+                        className="hidden"
+                        id="document-file-input"
+                        disabled={isUploading}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => document.getElementById('document-file-input')?.click()}
                         disabled={isUploading}
                       >
                         <div className="flex items-center gap-2">
                           <Upload className="h-4 w-4" />
-                          <span>Choose and Upload Document / 문서 선택 및 업로드</span>
+                          <span>
+                            {isUploading ? 'Uploading... / 업로드 중...' : 'Choose and Upload Document / 문서 선택 및 업로드'}
+                          </span>
                         </div>
-                      </SimpleFileUploader>
+                      </Button>
                     </div>
                   </div>
 
