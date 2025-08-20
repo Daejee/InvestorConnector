@@ -166,26 +166,37 @@ export default function Meetings() {
   const startEditingMeeting = (meeting: Meeting) => {
     console.log("startEditingMeeting called with:", meeting);
     
-    const scheduledDate = new Date(meeting.scheduledDate);
-    const dateStr = scheduledDate.toISOString().split('T')[0];
-    const timeStr = scheduledDate.toTimeString().split(' ')[0].substring(0, 5);
-    
-    const formData = {
-      title: meeting.title,
-      description: meeting.description || "",
-      attendeeType: meeting.attendeeType as "investor" | "analyst" | "other",
-      investorId: meeting.investorId,
-      analystId: meeting.analystId,
-      scheduledDate: dateStr,
-      scheduledTime: timeStr,
-      status: meeting.status as "scheduled" | "completed" | "cancelled"
-    };
-    
-    console.log("Form data to reset:", formData);
-    editForm.reset(formData);
-    
-    console.log("Setting editingMeeting to:", meeting);
-    setEditingMeeting(meeting);
+    try {
+      const scheduledDate = new Date(meeting.scheduledDate);
+      const dateStr = scheduledDate.toISOString().split('T')[0];
+      const timeStr = scheduledDate.toTimeString().split(' ')[0].substring(0, 5);
+      
+      const formData = {
+        title: meeting.title,
+        description: meeting.description || "",
+        attendeeType: meeting.attendeeType as "investor" | "analyst" | "other",
+        investorId: meeting.investorId,
+        analystId: meeting.analystId,
+        scheduledDate: dateStr,
+        scheduledTime: timeStr,
+        status: meeting.status as "scheduled" | "completed" | "cancelled"
+      };
+      
+      console.log("Form data to reset:", formData);
+      editForm.reset(formData);
+      
+      console.log("Setting editingMeeting to:", meeting);
+      setEditingMeeting(meeting);
+      
+      // Force state update with timeout
+      setTimeout(() => {
+        console.log("Force setting editingMeeting again");
+        setEditingMeeting(meeting);
+      }, 50);
+      
+    } catch (error) {
+      console.error("Error in startEditingMeeting:", error);
+    }
   };
 
   // Handle edit form submission
@@ -560,9 +571,14 @@ export default function Meetings() {
                       
                       <button
                         type="button"
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
                           console.log("Edit clicked - meeting:", meeting.id);
+                          console.log("startEditingMeeting function exists:", typeof startEditingMeeting);
+                          console.log("editingMeeting state before:", editingMeeting);
                           startEditingMeeting(meeting);
+                          console.log("editingMeeting state after:", editingMeeting);
                         }}
                         className="px-2 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600"
                       >
