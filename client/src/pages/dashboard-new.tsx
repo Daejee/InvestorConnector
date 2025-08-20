@@ -71,6 +71,33 @@ export default function Dashboard() {
     };
   };
 
+  // Calculate monthly meeting counts
+  const getMonthlyMeetingCounts = () => {
+    if (!allMeetings) return { thisMonth: 0, lastMonth: 0 };
+    
+    const now = new Date();
+    const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
+    
+    const thisMonthMeetings = allMeetings.filter(meeting => {
+      const meetingDate = new Date(meeting.scheduledDate);
+      return meetingDate >= thisMonthStart && meetingDate <= now;
+    });
+    
+    const lastMonthMeetings = allMeetings.filter(meeting => {
+      const meetingDate = new Date(meeting.scheduledDate);
+      return meetingDate >= lastMonthStart && meetingDate <= lastMonthEnd;
+    });
+    
+    return {
+      thisMonth: thisMonthMeetings.length,
+      lastMonth: lastMonthMeetings.length
+    };
+  };
+
+  const monthlyMeetingCounts = getMonthlyMeetingCounts();
+
   return (
     <div>
       {/* Dashboard Header */}
@@ -98,18 +125,34 @@ export default function Dashboard() {
       </div>
 
       {/* Meeting Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Meetings / 총 미팅</p>
+                <p className="text-sm font-medium text-gray-600">This Month / 이번 달</p>
                 <p className="text-3xl font-bold text-gray-900">
-                  {meetingsLoading ? "..." : allMeetings?.length || 0}
+                  {meetingsLoading ? "..." : monthlyMeetingCounts.thisMonth}
                 </p>
               </div>
               <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                 <Calendar className="text-blue-600 h-6 w-6" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Last Month / 지난 달</p>
+                <p className="text-3xl font-bold text-gray-900">
+                  {meetingsLoading ? "..." : monthlyMeetingCounts.lastMonth}
+                </p>
+              </div>
+              <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                <Calendar className="text-orange-600 h-6 w-6" />
               </div>
             </div>
           </CardContent>
