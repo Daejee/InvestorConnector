@@ -545,38 +545,6 @@ export default function Meetings() {
                   
                   {/* Action Buttons - Clean Right Aligned */}
                   <div className="flex-shrink-0 ml-4 flex flex-col items-end space-y-1">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setViewingMeeting(meeting)}
-                      className="h-7 px-2 text-xs"
-                    >
-                      <Eye className="mr-1 h-3 w-3" />
-                      상세보기
-                    </Button>
-                    
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => startEditingMeeting(meeting)}
-                      className="h-7 px-2 text-xs"
-                    >
-                      <Edit className="mr-1 h-3 w-3" />
-                      편집
-                    </Button>
-                    
-                    {meeting.minutesFilePath && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDownloadMinutes(meeting.id)}
-                        className="h-7 px-2 text-xs"
-                      >
-                        <Download className="mr-1 h-3 w-3" />
-                        회의록
-                      </Button>
-                    )}
-                    
                     {/* Action buttons - inline with spacing */}
                     <div className="flex space-x-2">
                       <button
