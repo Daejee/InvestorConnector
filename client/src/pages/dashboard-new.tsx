@@ -143,7 +143,6 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
-
       {/* Meeting Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <Card>
@@ -210,7 +209,6 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </div>
-
       {/* Meetings Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Today's Meetings */}
@@ -281,7 +279,7 @@ export default function Dashboard() {
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center space-x-2">
                 <Calendar className="h-5 w-5" />
-                <span>Future Meetings / 내일 이후 미팅</span>
+                <span>Upcomig Meetings /향후미팅</span>
               </CardTitle>
               <Link href="/meeting-logs">
                 <Button variant="ghost" size="sm">View All / 전체보기</Button>
