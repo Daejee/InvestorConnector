@@ -555,61 +555,63 @@ export default function Meetings() {
                   </div>
                   
                   {/* Action Buttons - Clean Right Aligned */}
-                  <div className="flex-shrink-0 ml-4 flex flex-col items-end space-y-1">
-                    {/* Action buttons - inline with spacing */}
-                    <div className="flex space-x-2">
-                      <button
-                        type="button"
-                        onClick={() => {
+                  <div className="flex-shrink-0 ml-4">
+                    <div className="flex flex-col space-y-2">
+                      <a
+                        href="#"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
                           console.log("View clicked - meeting:", meeting.id);
                           setViewingMeeting(meeting);
                         }}
-                        className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
+                        className="px-3 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 no-underline text-center"
                       >
-                        View
-                      </button>
+                        View / 보기
+                      </a>
                       
-                      <button
-                        type="button"
+                      <a
+                        href="#"
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
                           console.log("Edit clicked - meeting:", meeting.id);
-                          console.log("startEditingMeeting function exists:", typeof startEditingMeeting);
-                          console.log("editingMeeting state before:", editingMeeting);
                           startEditingMeeting(meeting);
-                          console.log("editingMeeting state after:", editingMeeting);
                         }}
-                        className="px-2 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600"
+                        className="px-3 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600 no-underline text-center"
                       >
-                        Edit
-                      </button>
+                        Edit / 편집
+                      </a>
                       
                       {meeting.minutesFilePath && (
-                        <button
-                          type="button"
-                          onClick={() => {
+                        <a
+                          href="#"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
                             console.log("Download clicked - meeting:", meeting.id);
                             handleDownloadMinutes(meeting.id);
                           }}
-                          className="px-2 py-1 text-xs bg-purple-500 text-white rounded hover:bg-purple-600"
+                          className="px-3 py-1 text-xs bg-purple-500 text-white rounded hover:bg-purple-600 no-underline text-center"
                         >
-                          Download
-                        </button>
+                          Download / 다운로드
+                        </a>
                       )}
                       
-                      <button
-                        type="button"
-                        onClick={() => {
+                      <a
+                        href="#"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
                           console.log("Delete clicked - meeting:", meeting.id);
                           if (confirm('정말 이 회의를 삭제하시겠습니까?')) {
                             deleteMutation.mutate(meeting.id);
                           }
                         }}
-                        className="px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600"
+                        className="px-3 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600 no-underline text-center"
                       >
-                        Delete
-                      </button>
+                        Delete / 삭제
+                      </a>
                     </div>
                   </div>
                 </div>
