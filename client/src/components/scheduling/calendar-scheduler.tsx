@@ -309,10 +309,14 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
                   return (
                     <button
                       key={`${dayIndex}-${time}`}
-                      onClick={() => handleTimeSlotClick(day, time)}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleTimeSlotClick(day, time);
+                      }}
                       disabled={isPast}
                       className={`
-                        p-1 text-xs border border-gray-200 transition-colors min-h-[60px] flex flex-col justify-center
+                        p-1 text-xs border border-gray-200 transition-colors min-h-[60px] flex flex-col justify-center relative
                         ${isPast ? 'bg-gray-100 text-gray-400 cursor-not-allowed' :
                           isBooked ? (isStartSlot ? 'bg-blue-50 text-blue-800 cursor-pointer hover:bg-blue-100' : 'bg-blue-100/30 border-blue-200 cursor-pointer text-blue-600') :
                           isSelected ? 'bg-blue-100 text-blue-600 border-blue-300' :
@@ -323,9 +327,17 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
                         <span>Past</span>
                       ) : isBooked && meeting ? (
                         isStartSlot ? (
-                          <div className="space-y-1">
+                          <div 
+                            className="space-y-1 w-full h-full"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              console.log("Meeting card clicked:", meeting.id);
+                              window.location.href = `/meetings?edit=${meeting.id}`;
+                            }}
+                          >
                             <div className="font-medium truncate text-blue-900">
-                              {meeting.title}
+                              {meeting.title || "No title"}
                             </div>
                             <div className="text-xs text-blue-700 truncate">
                               {getAttendeeName(meeting)}
@@ -339,8 +351,16 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
                             </div>
                           </div>
                         ) : (
-                          <div className="text-xs text-blue-600">
-                            ⬆ {meeting.title}
+                          <div 
+                            className="text-xs text-blue-600 w-full h-full flex items-center justify-center"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              console.log("Meeting continuation clicked:", meeting.id);
+                              window.location.href = `/meetings?edit=${meeting.id}`;
+                            }}
+                          >
+                            ⬆ {meeting.title || "Meeting"}
                           </div>
                         )
                       ) : (
