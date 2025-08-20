@@ -242,11 +242,11 @@ export default function Meetings() {
       return;
     }
 
-    // File size validation (10MB limit)
-    if (file.size > 10485760) {
+    // File size validation (50MB limit)
+    if (file.size > 52428800) {
       toast({
         title: "파일 크기 오류",
-        description: "파일 크기는 10MB를 초과할 수 없습니다.",
+        description: "파일 크기는 50MB를 초과할 수 없습니다.",
         variant: "destructive"
       });
       return;

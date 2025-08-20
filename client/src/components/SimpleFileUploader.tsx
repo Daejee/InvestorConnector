@@ -26,10 +26,10 @@ export function SimpleFileUploader({
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      if (file.size > 10485760) { // 10MB limit
+      if (file.size > 52428800) { // 50MB limit
         toast({
           title: "파일 크기 오류",
-          description: "파일 크기는 10MB를 초과할 수 없습니다.",
+          description: "파일 크기는 50MB를 초과할 수 없습니다.",
           variant: "destructive"
         });
         return;
