@@ -239,7 +239,7 @@ export default function Documents() {
                       <SelectContent>
                         <SelectItem value="General">General / 일반</SelectItem>
                         <SelectItem value="Financial Reports">Financial Reports / 재무보고서</SelectItem>
-                        <SelectItem value="Presentations">Presentations / 발표자료</SelectItem>
+                        <SelectItem value="IR Presentations">IR Presentations / IR 발표자료</SelectItem>
                         <SelectItem value="Legal Documents">Legal Documents / 법적문서</SelectItem>
                         <SelectItem value="Meeting Notes">Meeting Notes / 회의록</SelectItem>
                         <SelectItem value="Research">Research / 리서치</SelectItem>

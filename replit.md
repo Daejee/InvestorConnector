@@ -96,6 +96,13 @@ UI Language: Korean/English bilingual display - show both Korean and English tex
 
 ## Recent Updates (August 2025)
 
+### Document Upload System Improvements (August 20, 2025)
+- **Document Upload Redesign**: Completely overhauled document upload system with direct file input approach
+- **Schema Simplification**: Removed unnecessary fields (Link to Investor, Link to Company, Tags) from document uploads
+- **Upload Stability**: Fixed upload button issues and implemented reliable file upload flow
+- **File Size Limits**: Increased upload limits to 50MB across all upload components
+- **UI Streamlining**: Simplified upload dialog with only essential fields (Category, Description)
+
 ### File Upload System Completed
 - **SimpleFileUploader Component**: Replaced unstable Uppy.js system with native HTML file upload for maximum reliability
 - **Meeting Minutes Integration**: Complete CRUD operations for meeting documents with real-time UI updates
