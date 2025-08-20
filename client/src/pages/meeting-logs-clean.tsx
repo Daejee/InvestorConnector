@@ -505,7 +505,7 @@ export default function Meetings() {
           const time = format(meetingDate, "HH:mm");
           
           return (
-            <Card key={meeting.id} className="hover:shadow-md transition-shadow">
+            <Card key={meeting.id} className="hover:shadow-md transition-shadow relative">
               <CardContent className="p-6">
                 <div className="flex items-start space-x-4">
                   {/* Date Column */}
@@ -554,62 +554,90 @@ export default function Meetings() {
                     )}
                   </div>
                   
-                  {/* Action Buttons - Clean Right Aligned */}
-                  <div className="flex-shrink-0 ml-4">
-                    <div className="flex flex-col space-y-2">
-                      <a
-                        href="#"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          alert(`View clicked for meeting: ${meeting.title}`);
+                  {/* Action Buttons - Fixed positioning to avoid event conflicts */}
+                  <div className="absolute top-2 right-2 z-10">
+                    <div className="flex space-x-1">
+                      <span
+                        style={{
+                          display: 'inline-block',
+                          padding: '4px 8px',
+                          fontSize: '12px',
+                          backgroundColor: '#3b82f6',
+                          color: 'white',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          userSelect: 'none',
+                          zIndex: 1000
+                        }}
+                        onMouseDown={() => {
+                          alert(`View: ${meeting.title}`);
                           setViewingMeeting(meeting);
                         }}
-                        className="px-3 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 no-underline text-center"
                       >
-                        View / 보기
-                      </a>
+                        View
+                      </span>
                       
-                      <a
-                        href="#"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          alert(`Edit clicked for meeting: ${meeting.title}`);
+                      <span
+                        style={{
+                          display: 'inline-block',
+                          padding: '4px 8px',
+                          fontSize: '12px',
+                          backgroundColor: '#10b981',
+                          color: 'white',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          userSelect: 'none',
+                          zIndex: 1000
+                        }}
+                        onMouseDown={() => {
+                          alert(`Edit: ${meeting.title}`);
                           startEditingMeeting(meeting);
                         }}
-                        className="px-3 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600 no-underline text-center"
                       >
-                        Edit / 편집
-                      </a>
+                        Edit
+                      </span>
                       
                       {meeting.minutesFilePath && (
-                        <a
-                          href="#"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            console.log("Download clicked - meeting:", meeting.id);
+                        <span
+                          style={{
+                            display: 'inline-block',
+                            padding: '4px 8px',
+                            fontSize: '12px',
+                            backgroundColor: '#8b5cf6',
+                            color: 'white',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            userSelect: 'none',
+                            zIndex: 1000
+                          }}
+                          onMouseDown={() => {
                             handleDownloadMinutes(meeting.id);
                           }}
-                          className="px-3 py-1 text-xs bg-purple-500 text-white rounded hover:bg-purple-600 no-underline text-center"
                         >
-                          Download / 다운로드
-                        </a>
+                          Download
+                        </span>
                       )}
                       
-                      <a
-                        href="#"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          console.log("Delete clicked - meeting:", meeting.id);
+                      <span
+                        style={{
+                          display: 'inline-block',
+                          padding: '4px 8px',
+                          fontSize: '12px',
+                          backgroundColor: '#ef4444',
+                          color: 'white',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          userSelect: 'none',
+                          zIndex: 1000
+                        }}
+                        onMouseDown={() => {
                           if (confirm('정말 이 회의를 삭제하시겠습니까?')) {
                             deleteMutation.mutate(meeting.id);
                           }
                         }}
-                        className="px-3 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600 no-underline text-center"
                       >
-                        Delete / 삭제
-                      </a>
+                        Delete
+                      </span>
                     </div>
                   </div>
                 </div>
