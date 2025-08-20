@@ -72,6 +72,21 @@ export default function Meetings() {
     }
   }, [location]);
 
+  // Handle URL query parameter for auto-opening edit dialog
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const editMeetingId = urlParams.get('edit');
+    
+    if (editMeetingId && allMeetings.length > 0) {
+      const meetingToEdit = allMeetings.find(m => m.id === parseInt(editMeetingId));
+      if (meetingToEdit) {
+        startEditingMeeting(meetingToEdit);
+        // Clear the URL parameter after opening the dialog
+        window.history.replaceState({}, '', '/meetings');
+      }
+    }
+  }, [allMeetings]);
+
   const { data: allMeetings = [], isLoading } = useQuery<Meeting[]>({
     queryKey: ["/api/meetings"],
   });

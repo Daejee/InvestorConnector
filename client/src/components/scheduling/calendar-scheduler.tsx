@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format, addDays, startOfWeek, isSameDay, isToday, isBefore, startOfDay } from "date-fns";
-import { ChevronLeft, ChevronRight, Clock, MapPin } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock, MapPin, Edit, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import { insertMeetingSchema } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -173,15 +174,15 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
 
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(currentWeek, i));
 
-  const isTimeSlotBooked = (date: Date, time: string, duration: number = 60) => {
-    if (!meetings || meetings.length === 0) return false;
+  const getMeetingForTimeSlot = (date: Date, time: string) => {
+    if (!meetings || meetings.length === 0) return null;
     
     const [hours, minutes] = time.split(':').map(Number);
     const slotDateTime = new Date(date);
     slotDateTime.setHours(hours, minutes, 0, 0);
-    const slotEndTime = new Date(slotDateTime.getTime() + duration * 60000); // duration in minutes
+    const slotEndTime = new Date(slotDateTime.getTime() + 60 * 60000); // 1 hour slot
 
-    return meetings.some(meeting => {
+    return meetings.find(meeting => {
       const meetingDate = new Date(meeting.scheduledDate);
       const meetingDuration = meeting.duration || 60; // Default 1 hour
       const meetingEndTime = new Date(meetingDate.getTime() + meetingDuration * 60000);
@@ -197,16 +198,40 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
       const overlaps = (slotDateTime < meetingEndTime) && (slotEndTime > meetingDate);
       
       return overlaps;
-    });
+    }) || null;
+  };
+
+  const isTimeSlotBooked = (date: Date, time: string, duration: number = 60) => {
+    return getMeetingForTimeSlot(date, time) !== null;
   };
 
   const handleTimeSlotClick = (date: Date, time: string) => {
     if (isBefore(date, startOfDay(new Date()))) return;
-    if (isTimeSlotBooked(date, time)) return;
+    
+    // Check if there's a meeting at this time slot
+    const meeting = getMeetingForTimeSlot(date, time);
+    if (meeting) {
+      // Navigate to meetings page with meeting ID to edit
+      window.location.href = `/meetings?edit=${meeting.id}`;
+      return;
+    }
 
     setSelectedDate(date);
     setSelectedTime(time);
     setIsBookingOpen(true);
+  };
+
+  // Get attendee name for display
+  const getAttendeeName = (meeting: Meeting) => {
+    if (meeting.investorId) {
+      const investor = investors.find(inv => inv.id === meeting.investorId);
+      return investor ? investor.name : "Unknown";
+    }
+    if (meeting.analystId) {
+      const analyst = analysts.find(ana => ana.id === meeting.analystId);
+      return analyst ? analyst.name : "Unknown";
+    }
+    return "Other";
   };
 
   const navigateWeek = (direction: 'prev' | 'next') => {
@@ -256,23 +281,44 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
                 </div>
                 {weekDays.map((day, dayIndex) => {
                   const isPast = isBefore(day, startOfDay(new Date()));
-                  const isBooked = isTimeSlotBooked(day, time);
+                  const meeting = getMeetingForTimeSlot(day, time);
+                  const isBooked = meeting !== null;
                   const isSelected = selectedDate && isSameDay(day, selectedDate) && selectedTime === time;
                   
                   return (
                     <button
                       key={`${dayIndex}-${time}`}
                       onClick={() => handleTimeSlotClick(day, time)}
-                      disabled={isPast || isBooked}
+                      disabled={isPast}
                       className={`
-                        p-2 text-xs border border-gray-200 transition-colors
+                        p-1 text-xs border border-gray-200 transition-colors min-h-[60px] flex flex-col justify-center
                         ${isPast ? 'bg-gray-100 text-gray-400 cursor-not-allowed' :
-                          isBooked ? 'bg-red-100 text-red-600 cursor-not-allowed' :
+                          isBooked ? 'bg-blue-50 text-blue-800 cursor-pointer hover:bg-blue-100' :
                           isSelected ? 'bg-blue-100 text-blue-600 border-blue-300' :
                           'bg-white hover:bg-green-50 hover:border-green-300 cursor-pointer'}
                       `}
                     >
-                      {isPast ? 'Past' : isBooked ? 'Booked' : 'Available'}
+                      {isPast ? (
+                        <span>Past</span>
+                      ) : isBooked && meeting ? (
+                        <div className="space-y-1">
+                          <div className="font-medium truncate text-blue-900">
+                            {meeting.title}
+                          </div>
+                          <div className="text-xs text-blue-700 truncate">
+                            {getAttendeeName(meeting)}
+                          </div>
+                          <Badge variant="outline" className="text-xs px-1 py-0">
+                            {meeting.duration || 60}분
+                          </Badge>
+                          <div className="flex items-center text-xs text-blue-600">
+                            <Edit className="h-3 w-3 mr-1" />
+                            Edit
+                          </div>
+                        </div>
+                      ) : (
+                        <span>Available</span>
+                      )}
                     </button>
                   );
                 })}
