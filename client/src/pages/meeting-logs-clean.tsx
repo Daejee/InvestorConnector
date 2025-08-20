@@ -235,13 +235,86 @@ export default function Meetings() {
     }
   };
 
-  // Simple file upload handler for meeting minutes
-  const handleSimpleMinutesUpload = async (file: { name: string; size: number; url: string }) => {
-    if (!editingMeeting) {
+  // Direct file upload handler for meeting minutes
+  const handleDirectFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !editingMeeting) {
+      return;
+    }
+
+    // File size validation (10MB limit)
+    if (file.size > 10485760) {
+      toast({
+        title: "파일 크기 오류",
+        description: "파일 크기는 10MB를 초과할 수 없습니다.",
+        variant: "destructive"
+      });
       return;
     }
 
     setUploadingMinutes(true);
+
+    try {
+      console.log('Starting direct file upload:', file.name);
+      
+      // Step 1: Get pre-signed URL
+      const uploadResponse = await fetch('/api/objects/upload', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error('업로드 URL 생성에 실패했습니다.');
+      }
+
+      const { uploadURL } = await uploadResponse.json();
+      console.log('Got upload URL, uploading file...');
+
+      // Step 2: Upload file to pre-signed URL
+      const uploadFileResponse = await fetch(uploadURL, {
+        method: 'PUT',
+        body: file,
+        headers: {
+          'Content-Type': file.type,
+        },
+      });
+
+      if (!uploadFileResponse.ok) {
+        throw new Error('파일 업로드에 실패했습니다.');
+      }
+
+      console.log('File uploaded successfully, saving to meeting...');
+
+      // Step 3: Save to meeting
+      await handleMinutesSaveToMeeting({
+        name: file.name,
+        size: file.size,
+        url: uploadURL,
+      });
+
+    } catch (error) {
+      console.error('Direct upload error:', error);
+      toast({
+        title: "업로드 실패",
+        description: error instanceof Error ? error.message : "알 수 없는 오류가 발생했습니다.",
+        variant: "destructive"
+      });
+    } finally {
+      setUploadingMinutes(false);
+      // Clear the file input
+      if (event.target) {
+        event.target.value = '';
+      }
+    }
+  };
+
+  // Handle saving uploaded minutes to meeting
+  const handleMinutesSaveToMeeting = async (file: { name: string; size: number; url: string }) => {
+    if (!editingMeeting) {
+      return;
+    }
 
     try {
       console.log("Uploading minutes for meeting:", editingMeeting.id);
@@ -330,8 +403,6 @@ export default function Meetings() {
         description: `회의록 저장에 실패했습니다: ${errorMessage}`,
         variant: "destructive"
       });
-    } finally {
-      setUploadingMinutes(false);
     }
   };
 
@@ -894,15 +965,26 @@ export default function Meetings() {
                     <div className="bg-gray-50 p-3 rounded-lg">
                       <div className="text-center">
                         <p className="text-sm text-gray-500 mb-3">No meeting minutes uploaded yet / 회의록이 아직 업로드되지 않았습니다</p>
-                        <SimpleFileUploader
-                          onUploadComplete={handleSimpleMinutesUpload}
+                        <input
+                          type="file"
+                          accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
+                          onChange={handleDirectFileUpload}
                           disabled={uploadingMinutes}
+                          className="hidden"
+                          id={`file-upload-${editingMeeting.id}`}
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => document.getElementById(`file-upload-${editingMeeting.id}`)?.click()}
+                          disabled={uploadingMinutes}
+                          className="bg-blue-600 hover:bg-blue-700 text-white border-blue-600"
                         >
                           <div className="flex items-center space-x-2">
                             <Upload className="h-4 w-4" />
                             <span>{uploadingMinutes ? "Uploading... / 업로드 중..." : "Upload Minutes / 회의록 업로드"}</span>
                           </div>
-                        </SimpleFileUploader>
+                        </Button>
                       </div>
                     </div>
                   )}

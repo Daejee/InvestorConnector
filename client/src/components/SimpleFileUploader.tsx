@@ -46,6 +46,8 @@ export function SimpleFileUploader({
     setUploadProgress(10);
 
     try {
+      console.log('Starting file upload:', selectedFile.name);
+      
       // Step 1: Get pre-signed URL
       const uploadResponse = await fetch('/api/objects/upload', {
         method: 'POST',
@@ -60,6 +62,7 @@ export function SimpleFileUploader({
 
       const { uploadURL } = await uploadResponse.json();
       setUploadProgress(30);
+      console.log('Got upload URL, uploading file...');
 
       // Step 2: Upload file to pre-signed URL
       const uploadFileResponse = await fetch(uploadURL, {
@@ -74,16 +77,26 @@ export function SimpleFileUploader({
         throw new Error('파일 업로드에 실패했습니다.');
       }
 
-      setUploadProgress(80);
+      setUploadProgress(60);
+      console.log('File uploaded successfully, processing...');
 
       // Step 3: Complete upload callback
-      await onUploadComplete({
-        name: selectedFile.name,
-        size: selectedFile.size,
-        url: uploadURL,
-      });
+      try {
+        await onUploadComplete({
+          name: selectedFile.name,
+          size: selectedFile.size,
+          url: uploadURL,
+        });
+        console.log('Upload completion callback successful');
+      } catch (callbackError) {
+        console.error('Callback error:', callbackError);
+        throw callbackError;
+      }
 
       setUploadProgress(100);
+      
+      // Add a small delay to show completion
+      await new Promise(resolve => setTimeout(resolve, 500));
 
       // Clean up
       setSelectedFile(null);
