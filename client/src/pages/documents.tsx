@@ -19,6 +19,7 @@ import type { Document } from "@shared/schema";
 
 export default function Documents() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadForm, setUploadForm] = useState({
@@ -172,11 +173,15 @@ export default function Documents() {
     return "bg-gray-100 text-gray-800";
   };
 
-  const filteredDocuments = documents.filter(doc =>
-    doc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    doc.originalName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (doc.category || '').toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredDocuments = documents.filter(doc => {
+    const matchesSearch = doc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      doc.originalName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (doc.category || '').toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesCategory = selectedCategory === "All" || doc.category === selectedCategory;
+    
+    return matchesSearch && matchesCategory;
+  });
 
   return (
     <div>
@@ -284,14 +289,31 @@ export default function Documents() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle>Document Library / 문서 라이브러리</CardTitle>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                placeholder="Search documents... / 문서 검색..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 w-64"
-              />
+            <div className="flex items-center gap-4">
+              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Filter by category / 카테고리 필터" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="All">All Categories / 전체 카테고리</SelectItem>
+                  <SelectItem value="General">General / 일반</SelectItem>
+                  <SelectItem value="Financial Reports">Financial Reports / 재무보고서</SelectItem>
+                  <SelectItem value="IR Presentations">IR Presentations / IR 발표자료</SelectItem>
+                  <SelectItem value="Legal Documents">Legal Documents / 법적문서</SelectItem>
+                  <SelectItem value="Meeting Notes">Meeting Notes / 회의록</SelectItem>
+                  <SelectItem value="Research">Research / 리서치</SelectItem>
+                  <SelectItem value="Contracts">Contracts / 계약서</SelectItem>
+                </SelectContent>
+              </Select>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input
+                  placeholder="Search documents... / 문서 검색..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 w-64"
+                />
+              </div>
             </div>
           </div>
         </CardHeader>
