@@ -469,6 +469,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.put("/api/meetings/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const data = insertMeetingSchema.partial().parse(req.body);
+      const meeting = await storage.updateMeeting(id, data);
+      if (!meeting) {
+        return res.status(404).json({ message: "Meeting not found" });
+      }
+      res.json(meeting);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid meeting data", error });
+    }
+  });
+
   // Meeting minutes upload
   app.post("/api/meetings/:meetingId/minutes", async (req, res) => {
     try {
