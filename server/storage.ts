@@ -113,8 +113,6 @@ export interface IStorage {
   getDocuments(): Promise<Document[]>;
   getDocument(id: number): Promise<Document | undefined>;
   getDocumentsByCategory(category: string): Promise<Document[]>;
-  getDocumentsByInvestor(investorId: number): Promise<Document[]>;
-  getDocumentsByCompany(companyId: number): Promise<Document[]>;
   createDocument(document: InsertDocument): Promise<Document>;
   updateDocument(id: number, document: Partial<InsertDocument>): Promise<Document | undefined>;
   deleteDocument(id: number): Promise<boolean>;
@@ -551,13 +549,7 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(documents).where(eq(documents.category, category)).orderBy(desc(documents.createdAt));
   }
 
-  async getDocumentsByInvestor(investorId: number): Promise<Document[]> {
-    return await db.select().from(documents).where(eq(documents.investorId, investorId)).orderBy(desc(documents.createdAt));
-  }
 
-  async getDocumentsByCompany(companyId: number): Promise<Document[]> {
-    return await db.select().from(documents).where(eq(documents.companyId, companyId)).orderBy(desc(documents.createdAt));
-  }
 
   async createDocument(insertDocument: InsertDocument): Promise<Document> {
     const [document] = await db

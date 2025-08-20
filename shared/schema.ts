@@ -46,9 +46,6 @@ export const documents = pgTable("documents", {
   category: text("category").default("General"),
   description: text("description"),
   uploadedBy: text("uploaded_by").default("System"),
-  tags: text("tags").array(),
-  investorId: integer("investor_id").references(() => investors.id),
-  companyId: integer("company_id").references(() => companies.id),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

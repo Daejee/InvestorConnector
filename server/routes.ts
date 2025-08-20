@@ -1366,10 +1366,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         fileType: file.mimetype,
         category: category || 'General',
         description: description || '',
-        uploadedBy: 'System',
-        tags: tags ? tags.split(',').map((tag: string) => tag.trim()) : [],
-        investorId: investorId ? parseInt(investorId) : null,
-        companyId: companyId ? parseInt(companyId) : null
+        uploadedBy: 'System'
       };
 
       const document = await storage.createDocument(documentData);
@@ -1415,7 +1412,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Endpoint for updating document info after upload
   app.post("/api/documents/upload", async (req, res) => {
     try {
-      const { uploadURL, fileName, fileSize, fileType, category, description, uploadedBy, tags } = req.body;
+      const { uploadURL, fileName, fileSize, fileType, category, description, uploadedBy } = req.body;
       
       if (!uploadURL) {
         return res.status(400).json({ error: "uploadURL is required" });
@@ -1432,10 +1429,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         fileType: fileType || 'application/octet-stream',
         category: category || 'General',
         description: description || '',
-        uploadedBy: uploadedBy || 'System',
-        tags: tags ? tags.split(',').map((tag: string) => tag.trim()).filter(Boolean) : [],
-        investorId: null,
-        companyId: null
+        uploadedBy: uploadedBy || 'System'
       };
 
       const document = await storage.createDocument(documentData);

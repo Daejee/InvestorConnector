@@ -14,9 +14,8 @@ import { FileText, Upload, Download, Eye, Search, Trash2, Edit, MoreVertical } f
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { ObjectUploader } from "@/components/ObjectUploader";
-import type { UploadResult } from "@uppy/core";
-import type { Document, Investor, Company } from "@shared/schema";
+import { SimpleFileUploader } from "@/components/SimpleFileUploader";
+import type { Document } from "@shared/schema";
 
 export default function Documents() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -24,10 +23,7 @@ export default function Documents() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadForm, setUploadForm] = useState({
     category: "General",
-    description: "",
-    investorId: "",
-    companyId: "",
-    tags: ""
+    description: ""
   });
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -36,87 +32,49 @@ export default function Documents() {
     queryKey: ["/api/documents"],
   });
 
-  const { data: investors = [] } = useQuery<Investor[]>({
-    queryKey: ["/api/investors"],
-  });
 
-  const { data: companies = [] } = useQuery<Company[]>({
-    queryKey: ["/api/companies"],
-  });
 
-  // Document upload handlers for ObjectUploader
-  const handleGetUploadParameters = async () => {
+  // Document upload handler
+  const handleUploadComplete = async (file: { name: string; size: number; url: string }) => {
     try {
-      setIsUploading(true);
-      const response = await fetch("/api/objects/upload", {
+      const response = await fetch("/api/documents/upload", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({})
+        body: JSON.stringify({
+          uploadURL: file.url,
+          fileName: file.name,
+          fileSize: file.size,
+          fileType: "application/octet-stream", // Will be determined by file extension
+          category: uploadForm.category,
+          description: uploadForm.description,
+          uploadedBy: "User",
+        })
       });
-      if (!response.ok) throw new Error("Failed to get upload URL");
-      const data = await response.json();
-      return {
-        method: "PUT" as const,
-        url: data.uploadURL,
-      };
-    } catch (error) {
-      setIsUploading(false);
-      console.error("Failed to get upload URL:", error);
-      throw error;
-    }
-  };
-
-  const handleUploadComplete = async (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
-    setIsUploading(false);
-    
-    if (result.successful && result.successful.length > 0) {
-      const uploadedFile = result.successful[0];
       
-      try {
-        const response = await fetch("/api/documents/upload", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            uploadURL: uploadedFile.uploadURL,
-            fileName: uploadedFile.name,
-            fileSize: uploadedFile.size,
-            fileType: uploadedFile.type,
-            category: uploadForm.category,
-            description: uploadForm.description,
-            uploadedBy: "User",
-            tags: uploadForm.tags,
-          })
-        });
-        if (!response.ok) throw new Error("Failed to save document");
+      if (!response.ok) throw new Error("Failed to save document");
 
-        queryClient.invalidateQueries({ queryKey: ["/api/documents"] });
-        
-        // Reset form
-        setUploadForm({
-          category: "General",
-          description: "",
-          investorId: "",
-          companyId: "",
-          tags: ""
-        });
-        setIsUploadDialogOpen(false);
-        
-        toast({
-          title: "Document uploaded / 문서가 업로드되었습니다",
-          description: "The document has been successfully uploaded / 문서가 성공적으로 업로드되었습니다",
-        });
-      } catch (error) {
-        console.error("Failed to save document:", error);
-        toast({
-          title: "Upload failed / 업로드 실패",
-          description: "Failed to save document information / 문서 정보 저장에 실패했습니다",
-          variant: "destructive",
-        });
-      }
+      queryClient.invalidateQueries({ queryKey: ["/api/documents"] });
+      
+      // Reset form
+      setUploadForm({
+        category: "General",
+        description: ""
+      });
+      setIsUploadDialogOpen(false);
+      
+      toast({
+        title: "Document uploaded / 문서가 업로드되었습니다",
+        description: "The document has been successfully uploaded / 문서가 성공적으로 업로드되었습니다",
+      });
+    } catch (error) {
+      console.error("Failed to save document:", error);
+      toast({
+        title: "Upload failed / 업로드 실패",
+        description: "Failed to save document information / 문서 정보 저장에 실패했습니다",
+        variant: "destructive",
+      });
     }
   };
 
@@ -194,18 +152,15 @@ export default function Documents() {
                   <div>
                     <Label>File Upload / 파일 업로드</Label>
                     <div className="mt-1">
-                      <ObjectUploader
-                        maxNumberOfFiles={1}
-                        maxFileSize={52428800} // 50MB
-                        onGetUploadParameters={handleGetUploadParameters}
-                        onComplete={handleUploadComplete}
-                        buttonClassName="w-full"
+                      <SimpleFileUploader
+                        onUploadComplete={handleUploadComplete}
+                        disabled={isUploading}
                       >
                         <div className="flex items-center gap-2">
                           <Upload className="h-4 w-4" />
                           <span>Choose and Upload Document / 문서 선택 및 업로드</span>
                         </div>
-                      </ObjectUploader>
+                      </SimpleFileUploader>
                     </div>
                   </div>
 
@@ -237,46 +192,7 @@ export default function Documents() {
                     />
                   </div>
 
-                  <div>
-                    <Label>Link to Investor / 투자자 연결 (Optional)</Label>
-                    <Select value={uploadForm.investorId} onValueChange={(value) => setUploadForm(prev => ({ ...prev, investorId: value }))}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select investor / 투자자 선택" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {investors.map((investor) => (
-                          <SelectItem key={investor.id} value={investor.id.toString()}>
-                            {investor.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
 
-                  <div>
-                    <Label>Link to Company / 회사 연결 (Optional)</Label>
-                    <Select value={uploadForm.companyId} onValueChange={(value) => setUploadForm(prev => ({ ...prev, companyId: value }))}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select company / 회사 선택" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {companies.map((company) => (
-                          <SelectItem key={company.id} value={company.id.toString()}>
-                            {company.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <Label>Tags / 태그 (Optional)</Label>
-                    <Input
-                      value={uploadForm.tags}
-                      onChange={(e) => setUploadForm(prev => ({ ...prev, tags: e.target.value }))}
-                      placeholder="tag1, tag2, tag3"
-                    />
-                  </div>
 
                   <div className="text-center pt-4">
                     <p className="text-sm text-gray-500">
