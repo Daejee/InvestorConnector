@@ -77,18 +77,13 @@ export function SimpleFileUploader({
       setUploadProgress(80);
 
       // Step 3: Complete upload callback
-      onUploadComplete({
+      await onUploadComplete({
         name: selectedFile.name,
         size: selectedFile.size,
         url: uploadURL,
       });
 
       setUploadProgress(100);
-      
-      toast({
-        title: "업로드 완료",
-        description: "파일이 성공적으로 업로드되었습니다.",
-      });
 
       // Clean up
       setSelectedFile(null);
