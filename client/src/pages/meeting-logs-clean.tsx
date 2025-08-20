@@ -956,7 +956,11 @@ export default function Meetings() {
                       <FormItem>
                         <FormLabel>Duration / 길이</FormLabel>
                         <Select 
-                          onValueChange={(value) => field.onChange(parseInt(value))}
+                          onValueChange={(value) => {
+                            const numValue = parseInt(value);
+                            field.onChange(numValue);
+                            editForm.trigger("duration"); // Trigger validation
+                          }}
                           value={field.value?.toString() || "60"}
                         >
                           <FormControl>
@@ -1151,6 +1155,14 @@ export default function Meetings() {
                   <Button
                     type="submit"
                     disabled={editMeetingMutation.isPending || uploadingMinutes}
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                    onClick={() => {
+                      console.log("Form state:", {
+                        isValid: editForm.formState.isValid,
+                        errors: editForm.formState.errors,
+                        values: editForm.getValues()
+                      });
+                    }}
                   >
                     {editMeetingMutation.isPending ? "Updating... / 업데이트 중..." : "Update Meeting / 미팅 업데이트"}
                   </Button>
