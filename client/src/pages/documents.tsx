@@ -164,14 +164,19 @@ export default function Documents() {
   // Handler functions for document actions
   const handleView = (document: Document) => {
     // Open document in new tab for viewing
-    window.open(`/objects${document.filePath}`, '_blank');
+    const cleanPath = document.filePath.startsWith('/objects') ? document.filePath : `/objects${document.filePath}`;
+    window.open(cleanPath, '_blank');
   };
 
   const handleDownload = async (doc: Document) => {
     try {
       console.log('Starting download for document:', doc.name, 'FilePath:', doc.filePath);
       
-      const response = await fetch(`/objects${doc.filePath}`);
+      // Remove leading /objects if present to avoid duplication
+      const cleanPath = doc.filePath.startsWith('/objects') ? doc.filePath : `/objects${doc.filePath}`;
+      console.log('Clean download path:', cleanPath);
+      
+      const response = await fetch(cleanPath);
       if (!response.ok) {
         console.error('Download response not ok:', response.status, response.statusText);
         throw new Error(`Download failed: ${response.status}`);
