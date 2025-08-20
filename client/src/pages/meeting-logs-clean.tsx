@@ -569,8 +569,9 @@ export default function Meetings() {
                           userSelect: 'none',
                           zIndex: 1000
                         }}
-                        onMouseDown={() => {
-                          alert(`View: ${meeting.title}`);
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
                           setViewingMeeting(meeting);
                         }}
                       >
@@ -589,8 +590,9 @@ export default function Meetings() {
                           userSelect: 'none',
                           zIndex: 1000
                         }}
-                        onMouseDown={() => {
-                          alert(`Edit: ${meeting.title}`);
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
                           startEditingMeeting(meeting);
                         }}
                       >
@@ -610,7 +612,9 @@ export default function Meetings() {
                             userSelect: 'none',
                             zIndex: 1000
                           }}
-                          onMouseDown={() => {
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
                             handleDownloadMinutes(meeting.id);
                           }}
                         >
@@ -630,7 +634,9 @@ export default function Meetings() {
                           userSelect: 'none',
                           zIndex: 1000
                         }}
-                        onMouseDown={() => {
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
                           if (confirm('정말 이 회의를 삭제하시겠습니까?')) {
                             deleteMutation.mutate(meeting.id);
                           }
