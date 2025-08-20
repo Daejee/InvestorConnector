@@ -254,6 +254,19 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
     return "Other";
   };
 
+  // Get attendee company for display
+  const getAttendeeCompany = (meeting: Meeting) => {
+    if (meeting.investorId) {
+      const investor = investors.find(inv => inv.id === meeting.investorId);
+      return investor ? investor.company : "Unknown Company";
+    }
+    if (meeting.analystId) {
+      const analyst = analysts.find(ana => ana.id === meeting.analystId);
+      return analyst ? analyst.company : "Unknown Company";
+    }
+    return "Other";
+  };
+
   const navigateWeek = (direction: 'prev' | 'next') => {
     setCurrentWeek(prev => addDays(prev, direction === 'next' ? 7 : -7));
   };
@@ -341,6 +354,14 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
                             </div>
                             <div className="text-xs text-blue-700 truncate">
                               {getAttendeeName(meeting)}
+                            </div>
+                            <div className="text-xs text-blue-600 truncate">
+                              {meeting.investorId ? 
+                                (investors.find(inv => inv.id === meeting.investorId)?.company || "Unknown Company") :
+                                meeting.analystId ? 
+                                (analysts.find(ana => ana.id === meeting.analystId)?.company || "Unknown Company") :
+                                "Other"
+                              }
                             </div>
                             <Badge variant="outline" className="text-xs px-1 py-0">
                               {meeting.duration || 60}분
