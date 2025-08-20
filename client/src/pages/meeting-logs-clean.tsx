@@ -854,19 +854,9 @@ export default function Meetings() {
                   </div>
                 ) : (
                   <div className="mt-4 border-t pt-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <FileText className="h-5 w-5 text-gray-400" />
-                        <h4 className="text-sm font-medium text-gray-600">Meeting Minutes / 회의록</h4>
-                      </div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => startEditingMeeting(viewingMeeting)}
-                      >
-                        <Upload className="h-4 w-4 mr-1" />
-                        Upload / 업로드
-                      </Button>
+                    <div className="flex items-center space-x-2">
+                      <FileText className="h-5 w-5 text-gray-400" />
+                      <h4 className="text-sm font-medium text-gray-600">Meeting Minutes / 회의록</h4>
                     </div>
                     <div className="mt-2 bg-gray-50 p-3 rounded-lg">
                       <p className="text-sm text-gray-500">No meeting minutes uploaded yet / 회의록이 아직 업로드되지 않았습니다</p>
