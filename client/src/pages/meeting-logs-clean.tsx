@@ -585,17 +585,26 @@ export default function Meetings() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent>
-                        <DropdownMenuItem onClick={() => setViewingMeeting(meeting)}>
+                        <DropdownMenuItem onSelect={(e) => {
+                          e.preventDefault();
+                          console.log("View button clicked for meeting:", meeting);
+                          setViewingMeeting(meeting);
+                        }}>
                           <Eye className="mr-2 h-4 w-4" />
                           View / 보기
                         </DropdownMenuItem>
                         {meeting.minutesFilePath && (
-                          <DropdownMenuItem onClick={() => handleDownloadMinutes(meeting.id)}>
+                          <DropdownMenuItem onSelect={(e) => {
+                            e.preventDefault();
+                            console.log("Download button clicked for meeting:", meeting.id);
+                            handleDownloadMinutes(meeting.id);
+                          }}>
                             <Download className="mr-2 h-4 w-4" />
                             Download / 다운로드
                           </DropdownMenuItem>
                         )}
-                        <DropdownMenuItem onClick={() => {
+                        <DropdownMenuItem onSelect={(e) => {
+                          e.preventDefault();
                           console.log("Edit button clicked for meeting:", meeting);
                           startEditingMeeting(meeting);
                         }}>
@@ -603,7 +612,11 @@ export default function Meetings() {
                           Edit / 편집
                         </DropdownMenuItem>
                         <DropdownMenuItem 
-                          onClick={() => deleteMutation.mutate(meeting.id)}
+                          onSelect={(e) => {
+                            e.preventDefault();
+                            console.log("Delete button clicked for meeting:", meeting.id);
+                            deleteMutation.mutate(meeting.id);
+                          }}
                           className="text-red-600"
                         >
                           <Trash2 className="mr-2 h-4 w-4" />
