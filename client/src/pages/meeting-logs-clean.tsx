@@ -164,11 +164,13 @@ export default function Meetings() {
 
   // Function to populate edit form when editing a meeting
   const startEditingMeeting = (meeting: Meeting) => {
+    console.log("startEditingMeeting called with:", meeting);
+    
     const scheduledDate = new Date(meeting.scheduledDate);
     const dateStr = scheduledDate.toISOString().split('T')[0];
     const timeStr = scheduledDate.toTimeString().split(' ')[0].substring(0, 5);
     
-    editForm.reset({
+    const formData = {
       title: meeting.title,
       description: meeting.description || "",
       attendeeType: meeting.attendeeType as "investor" | "analyst" | "other",
@@ -177,8 +179,12 @@ export default function Meetings() {
       scheduledDate: dateStr,
       scheduledTime: timeStr,
       status: meeting.status as "scheduled" | "completed" | "cancelled"
-    });
+    };
     
+    console.log("Form data to reset:", formData);
+    editForm.reset(formData);
+    
+    console.log("Setting editingMeeting to:", meeting);
     setEditingMeeting(meeting);
   };
 
@@ -589,7 +595,10 @@ export default function Meetings() {
                             Download / 다운로드
                           </DropdownMenuItem>
                         )}
-                        <DropdownMenuItem onClick={() => startEditingMeeting(meeting)}>
+                        <DropdownMenuItem onClick={() => {
+                          console.log("Edit button clicked for meeting:", meeting);
+                          startEditingMeeting(meeting);
+                        }}>
                           <Edit className="mr-2 h-4 w-4" />
                           Edit / 편집
                         </DropdownMenuItem>
