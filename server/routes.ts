@@ -901,6 +901,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Meeting not found" });
       }
 
+      // Also add to Documents table with "Meeting Notes" category
+      try {
+        const meeting = await storage.getMeeting(meetingId);
+        const documentName = fileName.replace(/\.[^/.]+$/, ""); // Remove file extension
+        const fileType = fileName.split('.').pop() || 'unknown';
+        
+        const documentData = {
+          name: documentName,
+          originalName: fileName,
+          filePath: objectPath,
+          fileSize: fileSize || 0,
+          fileType: `application/${fileType}`,
+          category: "Meeting Notes",
+          description: meeting ? `Meeting minutes for: ${meeting.title}` : "Meeting minutes"
+        };
+
+        await storage.createDocument(documentData);
+        console.log("Document also saved to Documents table with Meeting Notes category");
+      } catch (docError) {
+        console.error("Failed to save to Documents table:", docError);
+        // Don't fail the main operation if document saving fails
+      }
+
       const response = { 
         success: true,
         message: "Meeting minutes uploaded successfully",
