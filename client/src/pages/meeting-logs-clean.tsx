@@ -31,6 +31,7 @@ const editMeetingSchema = z.object({
   analystId: z.number().nullable(),
   scheduledDate: z.string(),
   scheduledTime: z.string(),
+  duration: z.number().min(15, "Duration must be at least 15 minutes"),
   status: z.enum(["scheduled", "completed", "cancelled"])
 });
 
@@ -57,6 +58,7 @@ export default function Meetings() {
       analystId: null,
       scheduledDate: "",
       scheduledTime: "",
+      duration: 60,
       status: "scheduled"
     }
   });
@@ -179,6 +181,7 @@ export default function Meetings() {
         analystId: meeting.analystId,
         scheduledDate: dateStr,
         scheduledTime: timeStr,
+        duration: meeting.duration || 60,
         status: meeting.status as "scheduled" | "completed" | "cancelled"
       };
       
@@ -530,6 +533,9 @@ export default function Meetings() {
                         <Clock className="mr-1 h-3 w-3" />
                         {time}
                       </Badge>
+                      <Badge variant="outline" className="text-xs">
+                        {meeting.duration || 60}분
+                      </Badge>
                       <Badge className={getStatusBadgeColor(meeting.status)}>
                         {meeting.status}
                       </Badge>
@@ -622,6 +628,43 @@ export default function Meetings() {
                         </span>
                       )}
                       
+                      {meeting.status === "scheduled" && (
+                        <span
+                          style={{
+                            display: 'inline-block',
+                            padding: '4px 8px',
+                            fontSize: '12px',
+                            backgroundColor: '#f59e0b',
+                            color: 'white',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            userSelect: 'none',
+                            zIndex: 1000
+                          }}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            if (confirm('이 미팅을 취소하시겠습니까? / Cancel this meeting?')) {
+                              editMeetingMutation.mutate({
+                                ...meeting,
+                                id: meeting.id,
+                                title: meeting.title,
+                                description: meeting.description || "",
+                                attendeeType: meeting.attendeeType as "investor" | "analyst" | "other",
+                                investorId: meeting.investorId,
+                                analystId: meeting.analystId,
+                                scheduledDate: new Date(meeting.scheduledDate).toISOString().split('T')[0],
+                                scheduledTime: new Date(meeting.scheduledDate).toTimeString().split(' ')[0].substring(0, 5),
+                                duration: meeting.duration || 60,
+                                status: "cancelled" as "scheduled" | "completed" | "cancelled"
+                              });
+                            }
+                          }}
+                        >
+                          Cancel
+                        </span>
+                      )}
+                      
                       <span
                         style={{
                           display: 'inline-block',
@@ -637,7 +680,7 @@ export default function Meetings() {
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          if (confirm('정말 이 회의를 삭제하시겠습니까?')) {
+                          if (confirm('정말 이 회의를 삭제하시겠습니까? / Really delete this meeting?')) {
                             deleteMutation.mutate(meeting.id);
                           }
                         }}
@@ -740,6 +783,10 @@ export default function Meetings() {
                   <div>
                     <p className="text-sm font-medium text-gray-600">Type / 유형</p>
                     <p className="text-sm">{getAttendeeType(viewingMeeting)}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Duration / 길이</p>
+                    <p className="text-sm">{viewingMeeting.duration || 60}분</p>
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-600">Status / 상태</p>
@@ -871,7 +918,7 @@ export default function Meetings() {
                   )}
                 />
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-3 gap-4">
                   <FormField
                     control={editForm.control}
                     name="scheduledDate"
@@ -894,6 +941,32 @@ export default function Meetings() {
                         <FormControl>
                           <Input type="time" {...field} />
                         </FormControl>
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={editForm.control}
+                    name="duration"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Duration / 길이</FormLabel>
+                        <Select 
+                          onValueChange={(value) => field.onChange(parseInt(value))}
+                          value={field.value?.toString() || "60"}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="30">30분</SelectItem>
+                            <SelectItem value="60">1시간</SelectItem>
+                            <SelectItem value="90">1시간 30분</SelectItem>
+                            <SelectItem value="120">2시간</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </FormItem>
                     )}
                   />
