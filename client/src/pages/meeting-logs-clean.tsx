@@ -648,6 +648,23 @@ export default function Meetings() {
         </div>
       </div>
 
+      {/* Debug Info */}
+      <div className="mb-4 p-2 bg-gray-100 rounded text-xs">
+        <p>Debug: editingMeeting = {editingMeeting ? `ID: ${editingMeeting.id}, Title: ${editingMeeting.title}` : 'null'}</p>
+        <button 
+          onClick={() => {
+            const testMeeting = allMeetings[0];
+            if (testMeeting) {
+              console.log("Force test edit with first meeting:", testMeeting);
+              startEditingMeeting(testMeeting);
+            }
+          }}
+          className="mt-1 px-2 py-1 bg-blue-500 text-white rounded text-xs"
+        >
+          Test Edit First Meeting
+        </button>
+      </div>
+
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-2">
@@ -779,10 +796,13 @@ export default function Meetings() {
       </Dialog>
 
       {/* Edit Meeting Dialog with Full Form and Upload Functionality */}
-      <Dialog open={!!editingMeeting} onOpenChange={() => {
-        setEditingMeeting(null);
-        setUploadingMinutes(false);
-        editForm.reset();
+      <Dialog open={!!editingMeeting} onOpenChange={(open) => {
+        console.log("Dialog onOpenChange called with:", open);
+        if (!open) {
+          setEditingMeeting(null);
+          setUploadingMinutes(false);
+          editForm.reset();
+        }
       }}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
