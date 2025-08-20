@@ -669,16 +669,19 @@ export default function Meetings() {
                             e.preventDefault();
                             e.stopPropagation();
                             if (confirm('이 미팅을 취소하시겠습니까? / Cancel this meeting?')) {
+                              const scheduledDate = new Date(meeting.scheduledDate);
+                              const dateStr = scheduledDate.toISOString().split('T')[0];
+                              const timeStr = scheduledDate.toTimeString().split(' ')[0].substring(0, 5);
+                              
                               editMeetingMutation.mutate({
-                                ...meeting,
                                 id: meeting.id,
-                                title: meeting.title,
+                                title: meeting.title || "",
                                 description: meeting.description || "",
                                 attendeeType: meeting.attendeeType as "investor" | "analyst" | "other",
-                                investorId: meeting.investorId,
-                                analystId: meeting.analystId,
-                                scheduledDate: new Date(meeting.scheduledDate).toISOString().split('T')[0],
-                                scheduledTime: new Date(meeting.scheduledDate).toTimeString().split(' ')[0].substring(0, 5),
+                                investorId: meeting.investorId || null,
+                                analystId: meeting.analystId || null,
+                                scheduledDate: dateStr,
+                                scheduledTime: timeStr,
                                 duration: meeting.duration || 60,
                                 status: "cancelled" as "scheduled" | "completed" | "cancelled"
                               });
