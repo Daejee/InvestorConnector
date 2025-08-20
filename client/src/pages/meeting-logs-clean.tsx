@@ -72,6 +72,10 @@ export default function Meetings() {
     }
   }, [location]);
 
+  const { data: allMeetings = [], isLoading } = useQuery<Meeting[]>({
+    queryKey: ["/api/meetings"],
+  });
+
   // Handle URL query parameter for auto-opening edit dialog
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -86,10 +90,6 @@ export default function Meetings() {
       }
     }
   }, [allMeetings]);
-
-  const { data: allMeetings = [], isLoading } = useQuery<Meeting[]>({
-    queryKey: ["/api/meetings"],
-  });
 
   const { data: upcomingMeetings = [], isLoading: upcomingLoading } = useQuery<Meeting[]>({
     queryKey: ["/api/meetings/upcoming"],
