@@ -312,7 +312,7 @@ export default function Meetings() {
           minutesFilePath: responseData.objectPath || `/objects/uploads/${file.url.split('/').pop()?.split('?')[0]}`,
           minutesFileName: file.name,
           minutesFileSize: file.size,
-          minutesUploadedAt: new Date().toISOString()
+          minutesUploadedAt: new Date()
         };
         setEditingMeeting(updatedMeeting);
         console.log("Updated editing meeting with minutes:", updatedMeeting);
