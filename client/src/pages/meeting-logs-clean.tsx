@@ -577,53 +577,68 @@ export default function Meetings() {
                       </Button>
                     )}
                     
-                    {/* Delete button hidden in dropdown menu */}
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                          <MoreVertical className="h-3 w-3" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent>
-                        <DropdownMenuItem onSelect={(e) => {
-                          e.preventDefault();
+                    {/* Action buttons - direct approach */}
+                    <div className="flex flex-col space-y-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
                           console.log("View button clicked for meeting:", meeting);
                           setViewingMeeting(meeting);
-                        }}>
-                          <Eye className="mr-2 h-4 w-4" />
-                          View / 보기
-                        </DropdownMenuItem>
-                        {meeting.minutesFilePath && (
-                          <DropdownMenuItem onSelect={(e) => {
-                            e.preventDefault();
-                            console.log("Download button clicked for meeting:", meeting.id);
-                            handleDownloadMinutes(meeting.id);
-                          }}>
-                            <Download className="mr-2 h-4 w-4" />
-                            Download / 다운로드
-                          </DropdownMenuItem>
-                        )}
-                        <DropdownMenuItem onSelect={(e) => {
-                          e.preventDefault();
+                        }}
+                        className="h-6 px-2 text-xs justify-start"
+                      >
+                        <Eye className="mr-1 h-3 w-3" />
+                        View
+                      </Button>
+                      
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
                           console.log("Edit button clicked for meeting:", meeting);
                           startEditingMeeting(meeting);
-                        }}>
-                          <Edit className="mr-2 h-4 w-4" />
-                          Edit / 편집
-                        </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          onSelect={(e) => {
-                            e.preventDefault();
-                            console.log("Delete button clicked for meeting:", meeting.id);
-                            deleteMutation.mutate(meeting.id);
+                        }}
+                        className="h-6 px-2 text-xs justify-start"
+                      >
+                        <Edit className="mr-1 h-3 w-3" />
+                        Edit
+                      </Button>
+                      
+                      {meeting.minutesFilePath && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            console.log("Download button clicked for meeting:", meeting.id);
+                            handleDownloadMinutes(meeting.id);
                           }}
-                          className="text-red-600"
+                          className="h-6 px-2 text-xs justify-start"
                         >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Delete / 삭제
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                          <Download className="mr-1 h-3 w-3" />
+                          Download
+                        </Button>
+                      )}
+                      
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          console.log("Delete button clicked for meeting:", meeting.id);
+                          if (confirm('정말 이 회의를 삭제하시겠습니까?')) {
+                            deleteMutation.mutate(meeting.id);
+                          }
+                        }}
+                        className="h-6 px-2 text-xs justify-start text-red-600 hover:text-red-700"
+                      >
+                        <Trash2 className="mr-1 h-3 w-3" />
+                        Delete
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </CardContent>
