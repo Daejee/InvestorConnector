@@ -32,8 +32,28 @@ export default function Dashboard() {
     queryKey: ["/api/analysts"],
   });
 
-  // Filter meetings into completed and upcoming
+  // Filter meetings into today and future meetings
   const now = new Date();
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
+  // Today's meetings (scheduled for today)
+  const todayMeetings = allMeetings?.filter(meeting => {
+    const meetingDate = new Date(meeting.scheduledDate);
+    meetingDate.setHours(0, 0, 0, 0);
+    return meetingDate.getTime() === today.getTime();
+  }).sort((a, b) => new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime()) || [];
+
+  // Future meetings (tomorrow and beyond)
+  const futureMeetings = allMeetings?.filter(meeting => {
+    const meetingDate = new Date(meeting.scheduledDate);
+    return meetingDate >= tomorrow;
+  }).sort((a, b) => new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime()) || [];
+
+  // Keep existing for stats
   const completedMeetings = allMeetings?.filter(meeting => 
     new Date(meeting.scheduledDate) < now
   ).sort((a, b) => new Date(b.scheduledDate).getTime() - new Date(a.scheduledDate).getTime()) || [];
@@ -193,13 +213,13 @@ export default function Dashboard() {
 
       {/* Meetings Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Upcoming Meetings */}
+        {/* Today's Meetings */}
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center space-x-2">
                 <Clock className="h-5 w-5" />
-                <span>Upcoming Meetings / 예정된 미팅</span>
+                <span>Today's Meetings / 오늘 미팅</span>
               </CardTitle>
               <Link href="/meeting-logs">
                 <Button variant="ghost" size="sm">View All / 전체보기</Button>
@@ -207,12 +227,12 @@ export default function Dashboard() {
             </div>
           </CardHeader>
           <CardContent>
-            {upcomingLoading ? (
+            {meetingsLoading ? (
               <p className="text-gray-500">Loading meetings...</p>
-            ) : upcomingMeetingsList.length === 0 ? (
+            ) : todayMeetings.length === 0 ? (
               <div className="text-center py-8">
                 <Calendar className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-500">No upcoming meetings / 예정된 미팅이 없습니다</p>
+                <p className="text-gray-500">No meetings today / 오늘 미팅이 없습니다</p>
                 <Link href="/scheduling">
                   <Button variant="outline" className="mt-3">
                     Schedule Meeting / 미팅 예약
@@ -221,7 +241,7 @@ export default function Dashboard() {
               </div>
             ) : (
               <div className="space-y-4">
-                {upcomingMeetingsList.slice(0, 5).map((meeting) => {
+                {todayMeetings.slice(0, 5).map((meeting) => {
                   const attendeeInfo = getAttendeeInfo(meeting);
                   const dateTime = formatDateTime(meeting.scheduledDate);
                   
@@ -255,15 +275,15 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        {/* Completed Meetings */}
+        {/* Future Meetings */}
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center space-x-2">
-                <CheckCircle className="h-5 w-5" />
-                <span>Recent Completed / 최근 완료된 미팅</span>
+                <Calendar className="h-5 w-5" />
+                <span>Future Meetings / 내일 이후 미팅</span>
               </CardTitle>
-              <Link href="/meeting-logs?tab=completed">
+              <Link href="/meeting-logs">
                 <Button variant="ghost" size="sm">View All / 전체보기</Button>
               </Link>
             </div>
@@ -271,22 +291,22 @@ export default function Dashboard() {
           <CardContent>
             {meetingsLoading ? (
               <p className="text-gray-500">Loading meetings...</p>
-            ) : completedMeetings.length === 0 ? (
+            ) : futureMeetings.length === 0 ? (
               <div className="text-center py-8">
-                <CheckCircle className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-500">No completed meetings / 완료된 미팅이 없습니다</p>
+                <Calendar className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+                <p className="text-gray-500">No future meetings / 내일 이후 미팅이 없습니다</p>
               </div>
             ) : (
               <div className="space-y-4">
-                {completedMeetings.slice(0, 5).map((meeting) => {
+                {futureMeetings.slice(0, 5).map((meeting) => {
                   const attendeeInfo = getAttendeeInfo(meeting);
                   const dateTime = formatDateTime(meeting.scheduledDate);
                   
                   return (
                     <div key={meeting.id} className="flex items-center justify-between p-4 border rounded-lg">
                       <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                          <CheckCircle className="h-5 w-5 text-green-600" />
+                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                          <Clock className="h-5 w-5 text-blue-600" />
                         </div>
                         <div>
                           <p className="font-medium text-sm">{meeting.title || 'Meeting'}</p>
