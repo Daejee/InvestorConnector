@@ -748,7 +748,7 @@ export default function Meetings() {
           <div>
             <h2 className="text-2xl font-bold text-gray-900 flex items-center">
               <Calendar className="mr-3 h-6 w-6" />
-              Meetings / 미팅
+              미팅관리
             </h2>
             <p className="text-gray-600 mt-1">미팅 관리 및 회의록 업로드</p>
           </div>
