@@ -396,51 +396,6 @@ export default function Reports() {
                   </Select>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-                  {/* Meeting Categories */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-base">Meeting Categories / 미팅 카테고리</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-2">
-                        {["내방", "Conference Call", "국내CorpDay", "국내NDR", "해외CorpDay", "해외NDR", "기타"].map(category => {
-                          const count = filteredMeetings.filter(m => m.meetingCategory === category).length;
-                          return (
-                            <div key={category} className="flex justify-between items-center">
-                              <span className="text-sm text-gray-600">{category}</span>
-                              <Badge variant="outline">{count}</Badge>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Recent Meetings */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-base">Recent Meetings / 최근 미팅</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3">
-                        {filteredMeetings
-                          .sort((a, b) => new Date(b.scheduledDate).getTime() - new Date(a.scheduledDate).getTime())
-                          .slice(0, 5)
-                          .map((meeting) => (
-                            <div key={meeting.id} className="border-l-2 border-blue-200 pl-3">
-                              <h4 className="text-sm font-medium text-gray-900">{meeting.title}</h4>
-                              <p className="text-xs text-gray-500">
-                                {format(new Date(meeting.scheduledDate), "MM/dd HH:mm")}
-                              </p>
-                              <p className="text-xs text-gray-600">{meeting.meetingCategory}</p>
-                            </div>
-                          ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-
                 {/* Detailed Meeting List */}
                 <Card className="mt-6">
                   <CardHeader>
