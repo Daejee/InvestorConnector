@@ -468,6 +468,36 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
 
               </div>
 
+              {/* Meeting Category Selection */}
+              <FormField
+                control={form.control}
+                name="meetingCategory"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Meeting Category / 미팅 종류</FormLabel>
+                    <Select 
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select meeting category / 미팅 종류 선택" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="내방">내방</SelectItem>
+                        <SelectItem value="Conference Call">Conference Call</SelectItem>
+                        <SelectItem value="국내CorpDay">국내CorpDay</SelectItem>
+                        <SelectItem value="국내NDR">국내NDR</SelectItem>
+                        <SelectItem value="해외CorpDay">해외CorpDay</SelectItem>
+                        <SelectItem value="해외NDR">해외NDR</SelectItem>
+                        <SelectItem value="기타">기타</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormItem>
+                )}
+              />
+
               {watchedAttendeeType === "investor" && (
                 <FormField
                   control={form.control}

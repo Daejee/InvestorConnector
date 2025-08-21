@@ -31,7 +31,8 @@ const editMeetingSchema = z.object({
   analystId: z.number().nullable(),
   scheduledDate: z.string(),
   scheduledTime: z.string(),
-  duration: z.number().min(15, "Duration must be at least 15 minutes")
+  duration: z.number().min(15, "Duration must be at least 15 minutes"),
+  meetingCategory: z.string().optional()
 });
 
 type EditMeetingForm = z.infer<typeof editMeetingSchema>;
@@ -195,7 +196,7 @@ export default function Meetings() {
         scheduledDate: dateStr,
         scheduledTime: timeStr,
         duration: meeting.duration || 60,
-
+        meetingCategory: meeting.meetingCategory || "",
       };
       
       console.log("Form data to reset:", formData);
@@ -1045,6 +1046,32 @@ export default function Meetings() {
                     )}
                   />
                 )}
+
+                <FormField
+                  control={editForm.control}
+                  name="meetingCategory"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Meeting Category / 미팅 종류</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value || ""}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select meeting category / 미팅 종류 선택" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="내방">내방</SelectItem>
+                          <SelectItem value="Conference Call">Conference Call</SelectItem>
+                          <SelectItem value="국내CorpDay">국내CorpDay</SelectItem>
+                          <SelectItem value="국내NDR">국내NDR</SelectItem>
+                          <SelectItem value="해외CorpDay">해외CorpDay</SelectItem>
+                          <SelectItem value="해외NDR">해외NDR</SelectItem>
+                          <SelectItem value="기타">기타</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )}
+                />
 
                 <FormField
                   control={editForm.control}
