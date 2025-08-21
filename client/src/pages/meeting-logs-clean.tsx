@@ -771,7 +771,7 @@ export default function Meetings() {
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="upcoming" className="flex items-center space-x-2">
             <Clock className="h-4 w-4" />
-            <span>Upcoming / 예정</span>
+            <span>예정된 미팅</span>
           </TabsTrigger>
           <TabsTrigger value="completed" className="flex items-center space-x-2">
             <CheckCircle className="h-4 w-4" />
