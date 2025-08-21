@@ -47,6 +47,7 @@ UI Language: Korean/English bilingual display - show both Korean and English tex
 - Dashboard focused on meeting management metrics and quick actions.
 - Terminology updated to "Buyside" and "Sellside" for market distinction.
 - **Sidebar Navigation Structure**: Organized into logical sections - Main navigation, Event 관리 (NDR/컨퍼런스), Client DB관리 (investor/company data), and Quick Actions.
+- **Date Display Fix**: Fixed timezone conversion issues in NDR conferences to show correct dates without UTC offset (Date: 2025-08-21)
 
 ## External Dependencies
 
