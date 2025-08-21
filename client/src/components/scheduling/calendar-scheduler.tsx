@@ -80,6 +80,8 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
       scheduledDate: selectedDate || new Date(),
       scheduledTime: selectedTime || "09:00",
       status: "scheduled",
+      meetingCategory: "",
+      location: "",
     },
   });
 
@@ -131,6 +133,8 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
         scheduledDate: selectedDate || new Date(),
         scheduledTime: selectedTime || "09:00",
         status: "scheduled",
+        meetingCategory: "",
+        location: "",
       });
       setSelectedDate(null);
       setSelectedTime("");
@@ -172,6 +176,8 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
         scheduledDate: selectedDate || new Date(),
         scheduledTime: selectedTime || "09:00",
         status: "scheduled",
+        meetingCategory: "",
+        location: "",
       });
     }
   }, [isBookingOpen, selectedInvestor, selectedDate, selectedTime]);
@@ -468,35 +474,55 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
 
               </div>
 
-              {/* Meeting Category Selection */}
-              <FormField
-                control={form.control}
-                name="meetingCategory"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Meeting Category / 미팅 종류</FormLabel>
-                    <Select 
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
+              <div className="grid grid-cols-2 gap-4">
+                {/* Meeting Category Selection */}
+                <FormField
+                  control={form.control}
+                  name="meetingCategory"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Meeting Category / 미팅 종류</FormLabel>
+                      <Select 
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select meeting category / 미팅 종류 선택" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="내방">내방</SelectItem>
+                          <SelectItem value="Conference Call">Conference Call</SelectItem>
+                          <SelectItem value="국내CorpDay">국내CorpDay</SelectItem>
+                          <SelectItem value="국내NDR">국내NDR</SelectItem>
+                          <SelectItem value="해외CorpDay">해외CorpDay</SelectItem>
+                          <SelectItem value="해외NDR">해외NDR</SelectItem>
+                          <SelectItem value="기타">기타</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )}
+                />
+
+                {/* Location Field */}
+                <FormField
+                  control={form.control}
+                  name="location"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Location / 장소</FormLabel>
                       <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select meeting category / 미팅 종류 선택" />
-                        </SelectTrigger>
+                        <Input 
+                          {...field}
+                          placeholder="Enter meeting location / 미팅 장소 입력"
+                          className="w-full"
+                        />
                       </FormControl>
-                      <SelectContent>
-                        <SelectItem value="내방">내방</SelectItem>
-                        <SelectItem value="Conference Call">Conference Call</SelectItem>
-                        <SelectItem value="국내CorpDay">국내CorpDay</SelectItem>
-                        <SelectItem value="국내NDR">국내NDR</SelectItem>
-                        <SelectItem value="해외CorpDay">해외CorpDay</SelectItem>
-                        <SelectItem value="해외NDR">해외NDR</SelectItem>
-                        <SelectItem value="기타">기타</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FormItem>
-                )}
-              />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
               {watchedAttendeeType === "investor" && (
                 <FormField

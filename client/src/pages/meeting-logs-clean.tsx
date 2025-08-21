@@ -32,7 +32,8 @@ const editMeetingSchema = z.object({
   scheduledDate: z.string(),
   scheduledTime: z.string(),
   duration: z.number().min(15, "Duration must be at least 15 minutes"),
-  meetingCategory: z.string().optional()
+  meetingCategory: z.string().optional(),
+  location: z.string().optional()
 });
 
 type EditMeetingForm = z.infer<typeof editMeetingSchema>;
@@ -899,6 +900,21 @@ export default function Meetings() {
           setEditingMeeting(null);
           setUploadingMinutes(false);
           editForm.reset();
+        } else if (editingMeeting) {
+          // Initialize form with meeting data when dialog opens
+          const meetingDate = new Date(editingMeeting.scheduledDate);
+          editForm.reset({
+            title: editingMeeting.title || "",
+            description: editingMeeting.description || "",
+            attendeeType: editingMeeting.attendeeType as "investor" | "analyst" | "other",
+            investorId: editingMeeting.investorId,
+            analystId: editingMeeting.analystId,
+            scheduledDate: format(meetingDate, "yyyy-MM-dd"),
+            scheduledTime: format(meetingDate, "HH:mm"),
+            duration: editingMeeting.duration || 60,
+            meetingCategory: editingMeeting.meetingCategory || "",
+            location: editingMeeting.location || ""
+          });
         }
       }}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -1047,31 +1063,49 @@ export default function Meetings() {
                   />
                 )}
 
-                <FormField
-                  control={editForm.control}
-                  name="meetingCategory"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Meeting Category / 미팅 종류</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value || ""}>
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={editForm.control}
+                    name="meetingCategory"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Meeting Category / 미팅 종류</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value || ""}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select meeting category / 미팅 종류 선택" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="내방">내방</SelectItem>
+                            <SelectItem value="Conference Call">Conference Call</SelectItem>
+                            <SelectItem value="국내CorpDay">국내CorpDay</SelectItem>
+                            <SelectItem value="국내NDR">국내NDR</SelectItem>
+                            <SelectItem value="해외CorpDay">해외CorpDay</SelectItem>
+                            <SelectItem value="해외NDR">해외NDR</SelectItem>
+                            <SelectItem value="기타">기타</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={editForm.control}
+                    name="location"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Location / 장소</FormLabel>
                         <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select meeting category / 미팅 종류 선택" />
-                          </SelectTrigger>
+                          <Input 
+                            {...field} 
+                            placeholder="Enter meeting location / 미팅 장소 입력"
+                          />
                         </FormControl>
-                        <SelectContent>
-                          <SelectItem value="내방">내방</SelectItem>
-                          <SelectItem value="Conference Call">Conference Call</SelectItem>
-                          <SelectItem value="국내CorpDay">국내CorpDay</SelectItem>
-                          <SelectItem value="국내NDR">국내NDR</SelectItem>
-                          <SelectItem value="해외CorpDay">해외CorpDay</SelectItem>
-                          <SelectItem value="해외NDR">해외NDR</SelectItem>
-                          <SelectItem value="기타">기타</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </FormItem>
-                  )}
-                />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
                 <FormField
                   control={editForm.control}

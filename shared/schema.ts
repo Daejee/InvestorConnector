@@ -211,6 +211,7 @@ export const insertMeetingSchema = createInsertSchema(meetings).omit({
   investorId: z.number().optional().nullable(),
   analystId: z.number().optional().nullable(),
   meetingCategory: z.enum(["내방", "Conference Call", "국내CorpDay", "국내NDR", "해외CorpDay", "해외NDR", "기타"]).optional(),
+  location: z.string().optional(),
 });
 
 export const insertFundSchema = createInsertSchema(funds).omit({
