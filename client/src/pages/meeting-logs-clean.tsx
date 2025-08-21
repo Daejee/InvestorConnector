@@ -42,6 +42,7 @@ type EditMeetingForm = z.infer<typeof editMeetingSchema>;
 export default function Meetings() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("upcoming");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [viewingMeeting, setViewingMeeting] = useState<Meeting | null>(null);
   const [editingMeeting, setEditingMeeting] = useState<Meeting | null>(null);
   const [uploadingMinutes, setUploadingMinutes] = useState(false);
@@ -531,16 +532,26 @@ export default function Meetings() {
   };
 
   const filterMeetings = (meetings: Meeting[]) => {
-    if (!searchQuery) return meetings;
+    let filtered = meetings;
     
-    const query = searchQuery.toLowerCase();
-    return meetings.filter(meeting => {
-      const titleMatch = meeting.title.toLowerCase().includes(query);
-      const attendeeName = getAttendeeName(meeting).toLowerCase();
-      const attendeeCompany = getAttendeeCompany(meeting).toLowerCase();
-      
-      return titleMatch || attendeeName.includes(query) || attendeeCompany.includes(query);
-    });
+    // Filter by search query
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(meeting => {
+        const titleMatch = meeting.title.toLowerCase().includes(query);
+        const attendeeName = getAttendeeName(meeting).toLowerCase();
+        const attendeeCompany = getAttendeeCompany(meeting).toLowerCase();
+        
+        return titleMatch || attendeeName.includes(query) || attendeeCompany.includes(query);
+      });
+    }
+    
+    // Filter by category
+    if (categoryFilter !== "all") {
+      filtered = filtered.filter(meeting => meeting.meetingCategory === categoryFilter);
+    }
+    
+    return filtered;
   };
 
   const renderMeetingList = (meetings: Meeting[], loading: boolean, emptyMessage: string) => {
@@ -590,6 +601,11 @@ export default function Meetings() {
                       <Badge variant="outline" className="text-xs">
                         {meeting.duration || 60}분
                       </Badge>
+                      {meeting.meetingCategory && (
+                        <Badge variant="outline" className="text-xs bg-purple-50 text-purple-700 border-purple-200">
+                          {meeting.meetingCategory}
+                        </Badge>
+                      )}
                       <Badge className={getStatusBadgeColor(meeting.status)}>
                         {getStatusDisplayText(meeting.status)}
                       </Badge>
@@ -768,8 +784,8 @@ export default function Meetings() {
           </div>
         </div>
       </div>
-      {/* Search */}
-      <div className="mb-6">
+      {/* Search and Filter */}
+      <div className="mb-6 space-y-4">
         <div className="relative">
           <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
           <Input
@@ -778,6 +794,36 @@ export default function Meetings() {
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"
           />
+        </div>
+        
+        {/* Category Filter */}
+        <div className="flex items-center space-x-4">
+          <span className="text-sm font-medium text-gray-700">미팅 카테고리:</span>
+          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+            <SelectTrigger className="w-48">
+              <SelectValue placeholder="카테고리 선택" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">전체 (All)</SelectItem>
+              <SelectItem value="내방">내방</SelectItem>
+              <SelectItem value="Conference Call">Conference Call</SelectItem>
+              <SelectItem value="국내CorpDay">국내CorpDay</SelectItem>
+              <SelectItem value="국내NDR">국내NDR</SelectItem>
+              <SelectItem value="해외CorpDay">해외CorpDay</SelectItem>
+              <SelectItem value="해외NDR">해외NDR</SelectItem>
+              <SelectItem value="기타">기타</SelectItem>
+            </SelectContent>
+          </Select>
+          {categoryFilter !== "all" && (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => setCategoryFilter("all")}
+              className="text-xs"
+            >
+              필터 초기화
+            </Button>
+          )}
         </div>
       </div>
       {/* Tabs */}
