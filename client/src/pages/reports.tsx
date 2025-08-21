@@ -210,7 +210,17 @@ export default function Reports() {
                         </div>
                         <div>
                           <span className="text-sm font-medium text-gray-500">Position Type / 직급:</span>
-                          <p className="text-sm text-gray-900">{investorReport.investor.positionType || "N/A"}</p>
+                          <div className="text-sm text-gray-900">
+                            {investorReport.investor.positionType || "N/A"}
+                            {investorReport.investor.positionType === "Buyside Analyst" && investorReport.investor.specialty.length > 0 && (
+                              <div className="mt-1">
+                                <span className="text-xs text-gray-500">담당섹터: </span>
+                                <span className="text-xs text-blue-600">
+                                  {investorReport.investor.specialty.join(", ")}
+                                </span>
+                              </div>
+                            )}
+                          </div>
                         </div>
                         <div>
                           <span className="text-sm font-medium text-gray-500">Country / 국가:</span>
