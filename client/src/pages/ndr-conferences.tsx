@@ -72,7 +72,7 @@ export default function NdrConferences() {
       <div className="mb-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">NDR/Conferences / NDR/컨퍼런스</h2>
+            <h2 className="text-2xl font-bold text-gray-900">NDR/컨퍼런스/Corp Day</h2>
             <p className="text-gray-600 mt-1">Manage non-deal roadshows and conference events / 비거래 로드쇼 및 컨퍼런스 이벤트 관리</p>
           </div>
           <div className="mt-4 sm:mt-0">
@@ -99,7 +99,6 @@ export default function NdrConferences() {
           </div>
         </div>
       </div>
-
       <div className="mb-6">
         <Input
           placeholder="Search conferences by name, host company, city, or place..."
@@ -108,7 +107,6 @@ export default function NdrConferences() {
           className="max-w-md"
         />
       </div>
-
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <Table>
           <TableHeader>
