@@ -151,7 +151,7 @@ export default function Scheduling() {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         <TabsList>
           <TabsTrigger value="calendar">Calendar Scheduler</TabsTrigger>
-          <TabsTrigger value="upcoming">Upcoming Meetings / 예정된 미팅</TabsTrigger>
+          <TabsTrigger value="upcoming">예정된 미팅</TabsTrigger>
         </TabsList>
 
         <TabsContent value="calendar" className="space-y-4">
