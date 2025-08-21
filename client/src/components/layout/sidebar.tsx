@@ -182,7 +182,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
           {/* DATABASE Section */}
           <div className="mt-8">
             <h3 className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-              DATABASE / DB작성
+              Client DB관리
             </h3>
             <div className="mt-2 space-y-1">
               {navigation.slice(4).map((item) => {
