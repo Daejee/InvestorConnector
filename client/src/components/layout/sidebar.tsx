@@ -40,7 +40,7 @@ const navigation = [
   { name: "Email / 이메일", href: "/email", icon: Mail },
   { name: "Reports / 보고서", href: "/reports", icon: BarChart },
   { name: "투자자", href: "/investors", icon: Users },
-  { name: "Sellside / 애널리스트", href: "/analysts", icon: Users },
+  { name: "애널리스트/브로커", href: "/analysts", icon: Users },
   { 
     name: "자산운용사(국내외)", 
     href: "/companies", 
