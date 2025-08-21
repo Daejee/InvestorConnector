@@ -335,7 +335,7 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
                       `}
                     >
                       {isPast && !isBooked ? (
-                        <span className="text-gray-500">Add Record / 기록 추가</span>
+                        <span className="text-gray-500">Add Meeting</span>
                       ) : isBooked && meeting ? (
                         isStartSlot ? (
                           <div 
