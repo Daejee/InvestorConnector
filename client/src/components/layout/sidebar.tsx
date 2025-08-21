@@ -42,7 +42,7 @@ const navigation = [
   { name: "Buyside / 투자자", href: "/investors", icon: Users },
   { name: "Sellside / 애널리스트", href: "/analysts", icon: Users },
   { 
-    name: "AMC / 투신사", 
+    name: "자산운용사(국내외)", 
     href: "/companies", 
     icon: Building,
     submenu: [
