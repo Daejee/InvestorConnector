@@ -656,31 +656,7 @@ export default function Meetings() {
                         </span>
                       )}
                       
-                      {/* Past meetings get "Record" button, future meetings get "Cancel" button */}
-                      {isPastMeeting(meeting) && meeting.status === "scheduled" && !meeting.minutesFilePath && (
-                        <span
-                          style={{
-                            display: 'inline-block',
-                            padding: '4px 8px',
-                            fontSize: '12px',
-                            backgroundColor: '#10b981',
-                            color: 'white',
-                            borderRadius: '4px',
-                            cursor: 'pointer',
-                            userSelect: 'none',
-                            zIndex: 1000
-                          }}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            startEditingMeeting(meeting);
-                          }}
-                        >
-                          Record / 기록
-                        </span>
-                      )}
-                      
-                      {!isPastMeeting(meeting) && meeting.status === "scheduled" && (
+                      {meeting.status === "scheduled" && (
                         <span
                           style={{
                             display: 'inline-block',
