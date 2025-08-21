@@ -76,7 +76,7 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
   const form = useForm<any>({
     defaultValues: {
       attendeeType: selectedInvestor ? "investor" : "investor",
-      investorId: selectedInvestor?.id || null,
+      investorIds: selectedInvestor ? [selectedInvestor.id.toString()] : [],
       analystId: null,
       ndrConferenceId: null,
       title: "",
@@ -106,7 +106,7 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
       const formattedData = {
         ...data,
         scheduledDate: scheduledDateTime.toISOString(),
-        investorId: data.attendeeType === "investor" ? data.investorId : null,
+        investorIds: data.attendeeType === "investor" ? data.investorIds : null,
         analystId: data.attendeeType === "analyst" ? data.analystId : null,
         status: isPastMeeting ? "completed" : "scheduled",
       };
@@ -132,7 +132,7 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
       setIsBookingOpen(false);
       form.reset({
         attendeeType: "investor",
-        investorId: selectedInvestor?.id || null,
+        investorIds: selectedInvestor ? [selectedInvestor.id.toString()] : [],
         analystId: null,
         ndrConferenceId: null,
         title: "",
@@ -176,7 +176,7 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
     if (isBookingOpen) {
       form.reset({
         attendeeType: "investor",
-        investorId: selectedInvestor?.id || null,
+        investorIds: selectedInvestor ? [selectedInvestor.id.toString()] : [],
         analystId: null,
         ndrConferenceId: null,
         title: "",
@@ -431,7 +431,7 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
                         onValueChange={(value) => {
                           field.onChange(value);
                           // Reset IDs when changing type
-                          form.setValue("investorId", null);
+                          form.setValue("investorIds", []);
                           form.setValue("analystId", null);
                         }}
                         defaultValue={field.value}
@@ -566,27 +566,51 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
               {watchedAttendeeType === "investor" && (
                 <FormField
                   control={form.control}
-                  name="investorId"
+                  name="investorIds"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Select Investor / 투자자 선택</FormLabel>
-                      <Select 
-                        onValueChange={(value) => field.onChange(parseInt(value))}
-                        defaultValue={selectedInvestor?.id?.toString() || ""}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Choose investor / 투자자를 선택하세요" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {investors.map((investor) => (
-                            <SelectItem key={investor.id} value={investor.id.toString()}>
-                              {investor.name} - {investor.company}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <FormLabel>Select Investors / 투자자 선택</FormLabel>
+                      <div className="space-y-2">
+                        <div className="text-sm text-gray-600">
+                          {field.value && field.value.length > 0 
+                            ? `${field.value.length} investors selected / ${field.value.length}명의 투자자가 선택됨`
+                            : "No investors selected / 선택된 투자자 없음"
+                          }
+                        </div>
+                        <div className="border rounded-lg max-h-32 overflow-y-auto p-2">
+                          {investors.map((investor) => {
+                            const isSelected = field.value?.includes(investor.id.toString()) || false;
+                            return (
+                              <div key={investor.id} className="flex items-center space-x-2 py-1">
+                                <input
+                                  type="checkbox"
+                                  checked={isSelected}
+                                  onChange={(e) => {
+                                    const currentIds = field.value || [];
+                                    if (e.target.checked) {
+                                      field.onChange([...currentIds, investor.id.toString()]);
+                                    } else {
+                                      field.onChange(currentIds.filter(id => id !== investor.id.toString()));
+                                    }
+                                  }}
+                                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                />
+                                <label className="text-sm cursor-pointer flex-1" onClick={() => {
+                                  const currentIds = field.value || [];
+                                  const isCurrentlySelected = currentIds.includes(investor.id.toString());
+                                  if (isCurrentlySelected) {
+                                    field.onChange(currentIds.filter(id => id !== investor.id.toString()));
+                                  } else {
+                                    field.onChange([...currentIds, investor.id.toString()]);
+                                  }
+                                }}>
+                                  {investor.name} - {investor.company}
+                                </label>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
                     </FormItem>
                   )}
                 />

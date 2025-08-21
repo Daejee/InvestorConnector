@@ -16,7 +16,7 @@ import {
   type EmailLog, type InsertEmailLog
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, sql } from "drizzle-orm";
 
 export interface IStorage {
   // Investors
@@ -285,7 +285,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getMeetingsByInvestor(investorId: number): Promise<Meeting[]> {
-    return await db.select().from(meetings).where(eq(meetings.investorId, investorId));
+    // Since we now use investorIds array, need to check if the investorId is in the array
+    return await db.select().from(meetings).where(sql`${investorId}::text = ANY(investor_ids)`);
   }
 
   async getUpcomingMeetings(): Promise<Meeting[]> {

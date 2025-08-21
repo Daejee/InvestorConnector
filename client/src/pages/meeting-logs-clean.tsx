@@ -27,9 +27,9 @@ const editMeetingSchema = z.object({
   title: z.string().optional(),
   description: z.string().optional(),
   attendeeType: z.enum(["investor", "analyst", "other"]),
-  investorId: z.number().nullable(),
   analystId: z.number().nullable(),
   ndrConferenceId: z.number().nullable().optional(),
+  investorIds: z.array(z.string()).optional().nullable(),
   scheduledDate: z.string(),
   scheduledTime: z.string(),
   duration: z.number().min(15, "Duration must be at least 15 minutes"),
@@ -57,7 +57,7 @@ export default function Meetings() {
       title: "",
       description: "",
       attendeeType: "investor",
-      investorId: null,
+      investorIds: [],
       analystId: null,
       ndrConferenceId: null,
       scheduledDate: "",
@@ -480,9 +480,12 @@ export default function Meetings() {
   };
 
   const getAttendeeName = (meeting: Meeting) => {
-    if (meeting.investorId) {
-      const investor = investors.find(inv => inv.id === meeting.investorId);
-      return investor ? investor.name : "Unknown Investor";
+    if (meeting.investorIds && meeting.investorIds.length > 0) {
+      const investorNames = meeting.investorIds.map(id => {
+        const investor = investors.find(inv => inv.id.toString() === id);
+        return investor ? investor.name : "Unknown Investor";
+      });
+      return investorNames.join(", ");
     }
     if (meeting.analystId) {
       const analyst = analysts.find(ana => ana.id === meeting.analystId);
@@ -492,9 +495,12 @@ export default function Meetings() {
   };
 
   const getAttendeeCompany = (meeting: Meeting) => {
-    if (meeting.investorId) {
-      const investor = investors.find(inv => inv.id === meeting.investorId);
-      return investor ? investor.company : "";
+    if (meeting.investorIds && meeting.investorIds.length > 0) {
+      const companyNames = meeting.investorIds.map(id => {
+        const investor = investors.find(inv => inv.id.toString() === id);
+        return investor ? investor.company : "";
+      }).filter(company => company !== "");
+      return Array.from(new Set(companyNames)).join(", "); // Remove duplicates and join
     }
     if (meeting.analystId) {
       const analyst = analysts.find(ana => ana.id === meeting.analystId);
@@ -724,7 +730,7 @@ export default function Meetings() {
                                 title: meeting.title || "",
                                 description: meeting.description || "",
                                 attendeeType: meeting.attendeeType as "investor" | "analyst" | "other",
-                                investorId: meeting.investorId || null,
+                                investorIds: meeting.investorIds || [],
                                 analystId: meeting.analystId || null,
                                 scheduledDate: dateStr,
                                 scheduledTime: timeStr,
@@ -965,8 +971,9 @@ export default function Meetings() {
             title: editingMeeting.title || "",
             description: editingMeeting.description || "",
             attendeeType: editingMeeting.attendeeType as "investor" | "analyst" | "other",
-            investorId: editingMeeting.investorId,
+            investorIds: editingMeeting.investorIds || [],
             analystId: editingMeeting.analystId,
+            ndrConferenceId: editingMeeting.ndrConferenceId,
             scheduledDate: format(meetingDate, "yyyy-MM-dd"),
             scheduledTime: format(meetingDate, "HH:mm"),
             duration: editingMeeting.duration || 60,
@@ -1072,24 +1079,51 @@ export default function Meetings() {
                 {editForm.watch("attendeeType") === "investor" && (
                   <FormField
                     control={editForm.control}
-                    name="investorId"
+                    name="investorIds"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Select Investor / 투자자 선택</FormLabel>
-                        <Select onValueChange={(value) => field.onChange(value ? parseInt(value) : null)} value={field.value?.toString() || ""}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Choose investor" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {investors.map((investor) => (
-                              <SelectItem key={investor.id} value={investor.id.toString()}>
-                                {investor.name} - {investor.company}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <FormLabel>Select Investors / 투자자 선택</FormLabel>
+                        <div className="space-y-2">
+                          <div className="text-sm text-gray-600">
+                            {field.value && field.value.length > 0 
+                              ? `${field.value.length} investors selected / ${field.value.length}명의 투자자가 선택됨`
+                              : "No investors selected / 선택된 투자자 없음"
+                            }
+                          </div>
+                          <div className="border rounded-lg max-h-40 overflow-y-auto p-2">
+                            {investors.map((investor) => {
+                              const isSelected = field.value?.includes(investor.id.toString()) || false;
+                              return (
+                                <div key={investor.id} className="flex items-center space-x-2 py-1">
+                                  <input
+                                    type="checkbox"
+                                    checked={isSelected}
+                                    onChange={(e) => {
+                                      const currentIds = field.value || [];
+                                      if (e.target.checked) {
+                                        field.onChange([...currentIds, investor.id.toString()]);
+                                      } else {
+                                        field.onChange(currentIds.filter(id => id !== investor.id.toString()));
+                                      }
+                                    }}
+                                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                  />
+                                  <label className="text-sm cursor-pointer flex-1" onClick={() => {
+                                    const currentIds = field.value || [];
+                                    const isCurrentlySelected = currentIds.includes(investor.id.toString());
+                                    if (isCurrentlySelected) {
+                                      field.onChange(currentIds.filter(id => id !== investor.id.toString()));
+                                    } else {
+                                      field.onChange([...currentIds, investor.id.toString()]);
+                                    }
+                                  }}>
+                                    {investor.name} - {investor.company}
+                                  </label>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
                       </FormItem>
                     )}
                   />
