@@ -209,7 +209,7 @@ export default function Email() {
         </div>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Email Composition */}
+        {/* Email Composition and Attachments */}
         <div className="lg:col-span-2 space-y-6">
           <Card>
             <CardHeader>
@@ -284,9 +284,45 @@ export default function Email() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Document Attachments */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Paperclip className="h-5 w-5" />
+                <span>Attachments / 첨부파일</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ScrollArea className="h-64">
+                <div className="space-y-2">
+                  {documents.map((document) => (
+                    <div key={document.id} className="flex items-center space-x-2 p-2 border rounded hover:bg-gray-50">
+                      <Checkbox
+                        checked={attachments.includes(document.id)}
+                        onCheckedChange={() => toggleAttachment(document.id)}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">{document.originalName}</p>
+                        <div className="flex items-center space-x-2">
+                          <Badge variant="outline" className="text-xs">
+                            {document.category}
+                          </Badge>
+                          <span className="text-xs text-gray-500">
+                            {formatFileSize(document.fileSize)}
+                          </span>
+                        </div>
+                      </div>
+                      <FileText className="h-4 w-4 text-gray-400" />
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Recipients and Attachments Sidebar */}
+        {/* Recipients Sidebar */}
         <div className="space-y-6">
           {/* Recipients Selection */}
           <Card>
@@ -395,42 +431,6 @@ export default function Email() {
                   </div>
                 </ScrollArea>
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Document Attachments */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Paperclip className="h-5 w-5" />
-                <span>Attachments / 첨부파일</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ScrollArea className="h-64">
-                <div className="space-y-2">
-                  {documents.map((document) => (
-                    <div key={document.id} className="flex items-center space-x-2 p-2 border rounded hover:bg-gray-50">
-                      <Checkbox
-                        checked={attachments.includes(document.id)}
-                        onCheckedChange={() => toggleAttachment(document.id)}
-                      />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{document.originalName}</p>
-                        <div className="flex items-center space-x-2">
-                          <Badge variant="outline" className="text-xs">
-                            {document.category}
-                          </Badge>
-                          <span className="text-xs text-gray-500">
-                            {formatFileSize(document.fileSize)}
-                          </span>
-                        </div>
-                      </div>
-                      <FileText className="h-4 w-4 text-gray-400" />
-                    </div>
-                  ))}
-                </div>
-              </ScrollArea>
             </CardContent>
           </Card>
         </div>
