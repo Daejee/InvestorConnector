@@ -220,7 +220,7 @@ export default function Dashboard() {
                 <span>금일 미팅</span>
               </CardTitle>
               <Link href="/meeting-logs">
-                <Button variant="ghost" size="sm">View All / 전체보기</Button>
+                <Button variant="ghost" size="sm">전체보기</Button>
               </Link>
             </div>
           </CardHeader>
