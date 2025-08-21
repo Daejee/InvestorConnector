@@ -204,7 +204,7 @@ export default function Email() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">이메일링</h1>
+          <h1 className="text-3xl font-bold tracking-tight">이메일 보내기</h1>
           <p className="text-muted-foreground">Send emails to investors and analysts with document attachments / 문서 첨부와 함께 투자자 및 애널리스트에게 이메일 발송</p>
         </div>
       </div>
