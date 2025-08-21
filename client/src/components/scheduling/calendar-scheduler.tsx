@@ -92,11 +92,15 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
       const scheduledDateTime = new Date(selectedDate!);
       scheduledDateTime.setHours(hours, minutes, 0, 0);
       
+      // If the meeting is in the past, set status to "completed"
+      const isPastMeeting = scheduledDateTime < new Date();
+      
       const formattedData = {
         ...data,
         scheduledDate: scheduledDateTime.toISOString(),
         investorId: data.attendeeType === "investor" ? data.investorId : null,
         analystId: data.attendeeType === "analyst" ? data.analystId : null,
+        status: isPastMeeting ? "completed" : "scheduled",
       };
       
       console.log("Form data being submitted:", formattedData);
@@ -219,11 +223,6 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
   const handleTimeSlotClick = (date: Date, time: string) => {
     console.log("handleTimeSlotClick called:", { date, time });
     
-    if (isBefore(date, startOfDay(new Date()))) {
-      console.log("Slot is in the past, ignoring click");
-      return;
-    }
-    
     // Check if there's a meeting at this time slot
     const meeting = getMeetingForTimeSlot(date, time);
     console.log("Meeting found:", meeting);
@@ -327,17 +326,16 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
                         e.stopPropagation();
                         handleTimeSlotClick(day, time);
                       }}
-                      disabled={isPast}
                       className={`
                         p-1 text-xs border border-gray-200 transition-colors min-h-[60px] flex flex-col justify-center relative
-                        ${isPast ? 'bg-gray-100 text-gray-400 cursor-not-allowed' :
+                        ${isPast && !isBooked ? 'bg-gray-50 text-gray-500 cursor-pointer hover:bg-gray-100' :
                           isBooked ? (isStartSlot ? 'bg-blue-50 text-blue-800 cursor-pointer hover:bg-blue-100' : 'bg-blue-100/30 border-blue-200 cursor-pointer text-blue-600') :
                           isSelected ? 'bg-blue-100 text-blue-600 border-blue-300' :
                           'bg-white hover:bg-green-50 hover:border-green-300 cursor-pointer'}
                       `}
                     >
-                      {isPast ? (
-                        <span>Past</span>
+                      {isPast && !isBooked ? (
+                        <span className="text-gray-500">Add Record / 기록 추가</span>
                       ) : isBooked && meeting ? (
                         isStartSlot ? (
                           <div 
@@ -394,9 +392,17 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
       <Dialog open={isBookingOpen} onOpenChange={setIsBookingOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Book Meeting / 미팅 예약</DialogTitle>
+            <DialogTitle>
+              {selectedDate && isBefore(selectedDate, startOfDay(new Date())) ? 
+                "Record Past Meeting / 과거 미팅 기록" : 
+                "Book Meeting / 미팅 예약"
+              }
+            </DialogTitle>
             <DialogDescription>
-              Schedule a new meeting with flexible duration options / 유연한 시간 옵션으로 새 미팅 예약
+              {selectedDate && isBefore(selectedDate, startOfDay(new Date())) ? 
+                "Add a record of a meeting that already took place / 이미 진행된 미팅 기록 추가" :
+                "Schedule a new meeting with flexible duration options / 유연한 시간 옵션으로 새 미팅 예약"
+              }
             </DialogDescription>
           </DialogHeader>
           <Form {...form}>
