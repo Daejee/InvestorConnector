@@ -762,11 +762,10 @@ export default function Meetings() {
               <Calendar className="mr-3 h-6 w-6" />
               Meetings / 미팅
             </h2>
-            <p className="text-gray-600 mt-1">Manage your meetings and upload meeting minutes / 미팅 관리 및 회의록 업로드</p>
+            <p className="text-gray-600 mt-1">미팅 관리 및 회의록 업로드</p>
           </div>
         </div>
       </div>
-
       {/* Search */}
       <div className="mb-6">
         <div className="relative">
@@ -779,9 +778,6 @@ export default function Meetings() {
           />
         </div>
       </div>
-
-
-
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-2">
@@ -811,7 +807,6 @@ export default function Meetings() {
           )}
         </TabsContent>
       </Tabs>
-
       {/* View Meeting Dialog */}
       <Dialog open={!!viewingMeeting} onOpenChange={() => setViewingMeeting(null)}>
         <DialogContent className="max-w-2xl">
@@ -908,7 +903,6 @@ export default function Meetings() {
           )}
         </DialogContent>
       </Dialog>
-
       {/* Edit Meeting Dialog with Full Form and Upload Functionality */}
       <Dialog open={!!editingMeeting} onOpenChange={(open) => {
         console.log("Dialog onOpenChange called with:", open);
