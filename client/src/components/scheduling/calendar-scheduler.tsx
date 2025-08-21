@@ -275,7 +275,7 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
-            <span>Schedule Meeting / 미팅 일정 예약</span>
+            <span>미팅 일정 예약</span>
             <div className="flex items-center space-x-2">
               <Button variant="outline" size="sm" onClick={() => navigateWeek('prev')}>
                 <ChevronLeft className="h-4 w-4" />
@@ -387,7 +387,6 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
           </div>
         </CardContent>
       </Card>
-
       {/* Meeting Booking Dialog */}
       <Dialog open={isBookingOpen} onOpenChange={setIsBookingOpen}>
         <DialogContent className="max-w-2xl">
