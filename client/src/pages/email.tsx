@@ -343,7 +343,7 @@ export default function Email() {
                   <span>Attachments / 첨부파일</span>
                 </div>
                 <SimpleFileUploader onUploadComplete={handleFileUpload}>
-                  <div className="flex items-center space-x-2 px-3 py-1 bg-white border border-gray-300 rounded-md text-sm hover:bg-gray-50 cursor-pointer">
+                  <div className="flex items-center space-x-2 px-3 py-2 bg-blue-500 text-white border border-blue-500 rounded-md text-sm hover:bg-blue-600 cursor-pointer font-medium">
                     <Plus className="h-4 w-4" />
                     <span>PC 파일 첨부</span>
                   </div>
