@@ -149,7 +149,7 @@ export default function Dashboard() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">This Month / 이번 달</p>
+                <p className="text-sm font-medium text-gray-600">이번 달</p>
                 <p className="text-3xl font-bold text-gray-900">
                   {meetingsLoading ? "..." : monthlyMeetingCounts.thisMonth}
                 </p>
