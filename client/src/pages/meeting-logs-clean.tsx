@@ -785,7 +785,7 @@ export default function Meetings() {
             <Clock className="h-4 w-4" />
             <span>Upcoming / 예정</span>
           </TabsTrigger>
-          <TabsTrigger value="completed" className="flex items-center space-x-2 bg-[#dbd5d5]">
+          <TabsTrigger value="completed" className="flex items-center space-x-2 bg-[#f7e1e1]">
             <CheckCircle className="h-4 w-4" />
             <span>Completed / 완료</span>
           </TabsTrigger>
