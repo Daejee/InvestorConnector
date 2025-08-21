@@ -181,7 +181,7 @@ export default function Dashboard() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Upcoming / 예정된 미팅</p>
+                <p className="text-sm font-medium text-gray-600">예정된 미팅</p>
                 <p className="text-3xl font-bold text-gray-900">
                   {upcomingLoading ? "..." : upcomingMeetingsList.length}
                 </p>
@@ -197,7 +197,7 @@ export default function Dashboard() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Completed / 완료된 미팅</p>
+                <p className="text-sm font-medium text-gray-600">완료된 미팅</p>
                 <p className="text-3xl font-bold text-gray-900">
                   {meetingsLoading ? "..." : completedMeetings.length}
                 </p>
