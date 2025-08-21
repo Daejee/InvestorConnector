@@ -31,8 +31,7 @@ const editMeetingSchema = z.object({
   analystId: z.number().nullable(),
   scheduledDate: z.string(),
   scheduledTime: z.string(),
-  duration: z.number().min(15, "Duration must be at least 15 minutes"),
-  status: z.enum(["scheduled", "completed", "cancelled"])
+  duration: z.number().min(15, "Duration must be at least 15 minutes")
 });
 
 type EditMeetingForm = z.infer<typeof editMeetingSchema>;
@@ -58,8 +57,7 @@ export default function Meetings() {
       analystId: null,
       scheduledDate: "",
       scheduledTime: "",
-      duration: 60,
-      status: "scheduled"
+      duration: 60
     }
   });
 
@@ -125,7 +123,7 @@ export default function Meetings() {
 
   // Edit meeting mutation
   const editMeetingMutation = useMutation({
-    mutationFn: async (data: EditMeetingForm & { id: number }) => {
+    mutationFn: async (data: EditMeetingForm & { id: number; status: "scheduled" | "completed" | "cancelled" }) => {
       const { id, scheduledDate, scheduledTime, ...rest } = data;
       const scheduledDateTime = new Date(`${scheduledDate}T${scheduledTime}`);
       
@@ -197,7 +195,7 @@ export default function Meetings() {
         scheduledDate: dateStr,
         scheduledTime: timeStr,
         duration: meeting.duration || 60,
-        status: meeting.status as "scheduled" | "completed" | "cancelled"
+
       };
       
       console.log("Form data to reset:", formData);
@@ -220,7 +218,21 @@ export default function Meetings() {
   // Handle edit form submission
   const handleEditSubmit = (data: EditMeetingForm) => {
     if (!editingMeeting) return;
-    editMeetingMutation.mutate({ ...data, id: editingMeeting.id });
+    
+    // Automatically set status based on date
+    const meetingDateTime = new Date(`${data.scheduledDate}T${data.scheduledTime}:00`);
+    const now = new Date();
+    let status: "scheduled" | "completed" | "cancelled";
+    
+    // Keep cancelled status if it was already cancelled
+    if (editingMeeting.status === "cancelled") {
+      status = "cancelled";
+    } else {
+      // Set status based on whether the meeting is in the past or future
+      status = meetingDateTime < now ? "completed" : "scheduled";
+    }
+    
+    editMeetingMutation.mutate({ ...data, id: editingMeeting.id, status });
   };
 
   // Delete meeting minutes mutation
@@ -687,7 +699,7 @@ export default function Meetings() {
                                 scheduledDate: dateStr,
                                 scheduledTime: timeStr,
                                 duration: meeting.duration || 60,
-                                status: "cancelled" as "scheduled" | "completed" | "cancelled"
+                                status: "cancelled"
                               });
                             }
                           }}
@@ -900,27 +912,7 @@ export default function Meetings() {
               <form onSubmit={editForm.handleSubmit(handleEditSubmit)} className="space-y-4">
 
 
-                <FormField
-                  control={editForm.control}
-                  name="status"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Status / 상태</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="scheduled">Scheduled / 예정</SelectItem>
-                          <SelectItem value="completed">Completed / 완료</SelectItem>
-                          <SelectItem value="cancelled">Cancelled / 취소</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </FormItem>
-                  )}
-                />
+
 
                 <div className="grid grid-cols-3 gap-4">
                   <FormField
