@@ -393,8 +393,8 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
           <DialogHeader>
             <DialogTitle>
               {selectedDate && isBefore(selectedDate, startOfDay(new Date())) ? 
-                "Record Past Meeting / 과거 미팅 기록" : 
-                "Book Meeting / 미팅 예약"
+                "Record Meeting" : 
+                "Book Meeting"
               }
             </DialogTitle>
             <DialogDescription>
@@ -569,7 +569,7 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
                   Cancel / 취소
                 </Button>
                 <Button type="submit" disabled={createMeetingMutation.isPending}>
-                  {createMeetingMutation.isPending ? "Booking..." : "Book Meeting / 미팅 예약"}
+                  {createMeetingMutation.isPending ? "Booking..." : "Book Meeting"}
                 </Button>
               </div>
             </form>
