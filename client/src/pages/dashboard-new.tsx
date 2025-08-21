@@ -165,7 +165,7 @@ export default function Dashboard() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Last Month / 지난 달</p>
+                <p className="text-sm font-medium text-gray-600">지난 달</p>
                 <p className="text-3xl font-bold text-gray-900">
                   {meetingsLoading ? "..." : monthlyMeetingCounts.lastMonth}
                 </p>
