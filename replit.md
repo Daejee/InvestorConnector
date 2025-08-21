@@ -96,6 +96,17 @@ UI Language: Korean/English bilingual display - show both Korean and English tex
 
 ## Recent Updates (August 2025)
 
+### Meeting Scheduling and Status Management (August 21, 2025)
+- **Past Meeting Recording**: Enabled scheduling system to accept past dates for recording historical meetings
+- **Automatic Status Logic**: Implemented intelligent status assignment based on meeting date/time
+  - Future meetings: automatically set to "scheduled"  
+  - Past meetings: automatically set to "completed"
+  - Cancelled meetings: status preserved when already cancelled
+- **UI Streamlining**: Removed manual status selection dropdown from Edit Meeting dialog
+- **Calendar Enhancements**: Past date slots now clickable with "Past" label, allowing historical meeting entry
+- **Button Logic Optimization**: Removed redundant "Record" button, maintained Cancel functionality for scheduled meetings only
+- **Korean/English Dialog Headers**: Dynamic dialog titles based on meeting timing (past vs future)
+
 ### Document Upload System Improvements (August 20, 2025)
 - **Document Upload Redesign**: Completely overhauled document upload system with direct file input approach
 - **Schema Simplification**: Removed unnecessary fields (Link to Investor, Link to Company, Tags) from document uploads
