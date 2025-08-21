@@ -69,11 +69,16 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
     queryKey: ["/api/analysts"],
   });
 
+  const { data: ndrConferences = [] } = useQuery<any[]>({
+    queryKey: ["/api/ndr-conferences"],
+  });
+
   const form = useForm<any>({
     defaultValues: {
       attendeeType: selectedInvestor ? "investor" : "investor",
       investorId: selectedInvestor?.id || null,
       analystId: null,
+      ndrConferenceId: null,
       title: "",
       description: "",
       duration: 60, // Default 1 hour
@@ -86,6 +91,7 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
   });
 
   const watchedAttendeeType = form.watch("attendeeType");
+  const watchedMeetingCategory = form.watch("meetingCategory");
 
   const createMeetingMutation = useMutation({
     mutationFn: async (data: any) => {
@@ -128,6 +134,7 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
         attendeeType: "investor",
         investorId: selectedInvestor?.id || null,
         analystId: null,
+        ndrConferenceId: null,
         title: "",
         description: "",
         scheduledDate: selectedDate || new Date(),
@@ -171,6 +178,7 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
         attendeeType: "investor",
         investorId: selectedInvestor?.id || null,
         analystId: null,
+        ndrConferenceId: null,
         title: "",
         description: "",
         scheduledDate: selectedDate || new Date(),
@@ -523,6 +531,37 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
                   )}
                 />
               </div>
+
+              {/* NDR/Conference Selection - Show when NDR or CorpDay categories are selected */}
+              {(watchedMeetingCategory === "국내CorpDay" || watchedMeetingCategory === "국내NDR" || 
+                watchedMeetingCategory === "해외CorpDay" || watchedMeetingCategory === "해외NDR") && (
+                <FormField
+                  control={form.control}
+                  name="ndrConferenceId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Select NDR/Conference / NDR/컨퍼런스 선택</FormLabel>
+                      <Select 
+                        onValueChange={(value) => field.onChange(value ? parseInt(value) : null)}
+                        value={field.value?.toString() || ""}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Choose NDR/Conference / NDR/컨퍼런스를 선택하세요" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {ndrConferences.map((conference) => (
+                            <SelectItem key={conference.id} value={conference.id.toString()}>
+                              {conference.name} - {conference.cityHeld}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )}
+                />
+              )}
 
               {watchedAttendeeType === "investor" && (
                 <FormField

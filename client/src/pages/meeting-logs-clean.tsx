@@ -29,6 +29,7 @@ const editMeetingSchema = z.object({
   attendeeType: z.enum(["investor", "analyst", "other"]),
   investorId: z.number().nullable(),
   analystId: z.number().nullable(),
+  ndrConferenceId: z.number().nullable().optional(),
   scheduledDate: z.string(),
   scheduledTime: z.string(),
   duration: z.number().min(15, "Duration must be at least 15 minutes"),
@@ -57,11 +58,16 @@ export default function Meetings() {
       attendeeType: "investor",
       investorId: null,
       analystId: null,
+      ndrConferenceId: null,
       scheduledDate: "",
       scheduledTime: "",
-      duration: 60
+      duration: 60,
+      meetingCategory: "",
+      location: ""
     }
   });
+
+  const watchedEditMeetingCategory = editForm.watch("meetingCategory");
 
   // Check URL parameters to set default tab
   useEffect(() => {
@@ -101,6 +107,10 @@ export default function Meetings() {
 
   const { data: analysts = [] } = useQuery<Analyst[]>({
     queryKey: ["/api/analysts"],
+  });
+
+  const { data: ndrConferences = [] } = useQuery<any[]>({
+    queryKey: ["/api/ndr-conferences"],
   });
 
   // Filter completed meetings
@@ -194,10 +204,12 @@ export default function Meetings() {
         attendeeType: meeting.attendeeType as "investor" | "analyst" | "other",
         investorId: meeting.investorId,
         analystId: meeting.analystId,
+        ndrConferenceId: meeting.ndrConferenceId,
         scheduledDate: dateStr,
         scheduledTime: timeStr,
         duration: meeting.duration || 60,
         meetingCategory: meeting.meetingCategory || "",
+        location: meeting.location || "",
       };
       
       console.log("Form data to reset:", formData);
@@ -1106,6 +1118,37 @@ export default function Meetings() {
                     )}
                   />
                 </div>
+
+                {/* NDR/Conference Selection - Show when NDR or CorpDay categories are selected */}
+                {(watchedEditMeetingCategory === "국내CorpDay" || watchedEditMeetingCategory === "국내NDR" || 
+                  watchedEditMeetingCategory === "해외CorpDay" || watchedEditMeetingCategory === "해외NDR") && (
+                  <FormField
+                    control={editForm.control}
+                    name="ndrConferenceId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Select NDR/Conference / NDR/컨퍼런스 선택</FormLabel>
+                        <Select 
+                          onValueChange={(value) => field.onChange(value ? parseInt(value) : null)}
+                          value={field.value?.toString() || ""}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Choose NDR/Conference / NDR/컨퍼런스를 선택하세요" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {ndrConferences.map((conference) => (
+                              <SelectItem key={conference.id} value={conference.id.toString()}>
+                                {conference.name} - {conference.cityHeld}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+                )}
 
                 <FormField
                   control={editForm.control}
