@@ -10,9 +10,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { Mail, Users, FileText, Send, X, Paperclip, User, Building, Search } from "lucide-react";
+import { Mail, Users, FileText, Send, X, Paperclip, User, Building, Search, Upload, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { SimpleFileUploader } from "@/components/SimpleFileUploader";
 import type { Investor, Analyst, Document } from "@shared/schema";
 
 export default function Email() {
@@ -24,6 +25,7 @@ export default function Email() {
     analysts: []
   });
   const [attachments, setAttachments] = useState<number[]>([]);
+  const [uploadedFiles, setUploadedFiles] = useState<{id: string; name: string; size: number; url: string}[]>([]);
   const [emailData, setEmailData] = useState({
     subject: "",
     content: "",
@@ -59,6 +61,7 @@ export default function Email() {
       // Reset form
       setRecipients({ investors: [], analysts: [] });
       setAttachments([]);
+      setUploadedFiles([]);
       setEmailData({ subject: "", content: "", recipientType: "individuals" });
     },
     onError: () => {
@@ -94,6 +97,24 @@ export default function Email() {
         ? prev.filter(id => id !== documentId)
         : [...prev, documentId]
     );
+  };
+
+  const handleFileUpload = (file: { name: string; size: number; url: string }) => {
+    const newFile = {
+      id: `uploaded_${Date.now()}_${Math.random()}`,
+      name: file.name,
+      size: file.size,
+      url: file.url
+    };
+    setUploadedFiles(prev => [...prev, newFile]);
+    toast({
+      title: "파일 업로드 완료",
+      description: `${file.name} 파일이 첨부되었습니다.`,
+    });
+  };
+
+  const removeUploadedFile = (fileId: string) => {
+    setUploadedFiles(prev => prev.filter(file => file.id !== fileId));
   };
 
   const selectAllInvestors = () => {
@@ -169,7 +190,8 @@ export default function Email() {
       subject: emailData.subject,
       content: emailData.content,
       recipients: recipients,
-      attachments: attachments
+      attachments: attachments,
+      uploadedFiles: uploadedFiles
     });
   };
 
@@ -178,6 +200,7 @@ export default function Email() {
   };
 
   const totalRecipients = recipients.investors.length + recipients.analysts.length;
+  const totalAttachments = attachments.length + uploadedFiles.length;
 
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return "0 Bytes";
@@ -239,13 +262,14 @@ export default function Email() {
               </div>
 
               {/* Attachments Preview */}
-              {attachments.length > 0 && (
+              {totalAttachments > 0 && (
                 <div>
                   <Label className="flex items-center space-x-2">
                     <Paperclip className="h-4 w-4" />
-                    <span>Attachments / 첨부파일 ({attachments.length})</span>
+                    <span>Attachments / 첨부파일 ({totalAttachments})</span>
                   </Label>
                   <div className="mt-2 space-y-2">
+                    {/* Existing Documents */}
                     {getSelectedDocuments().map((doc) => (
                       <div key={doc.id} className="flex items-center justify-between bg-gray-50 p-2 rounded">
                         <div className="flex items-center space-x-2">
@@ -254,11 +278,36 @@ export default function Email() {
                           <Badge variant="outline" className="text-xs">
                             {formatFileSize(doc.fileSize)}
                           </Badge>
+                          <Badge variant="secondary" className="text-xs">
+                            DB
+                          </Badge>
                         </div>
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => toggleAttachment(doc.id)}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ))}
+                    {/* Uploaded Files */}
+                    {uploadedFiles.map((file) => (
+                      <div key={file.id} className="flex items-center justify-between bg-blue-50 p-2 rounded">
+                        <div className="flex items-center space-x-2">
+                          <Upload className="h-4 w-4 text-blue-500" />
+                          <span className="text-sm">{file.name}</span>
+                          <Badge variant="outline" className="text-xs">
+                            {formatFileSize(file.size)}
+                          </Badge>
+                          <Badge variant="default" className="text-xs">
+                            PC
+                          </Badge>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeUploadedFile(file.id)}
                         >
                           <X className="h-3 w-3" />
                         </Button>
@@ -288,36 +337,60 @@ export default function Email() {
           {/* Document Attachments */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Paperclip className="h-5 w-5" />
-                <span>Attachments / 첨부파일</span>
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Paperclip className="h-5 w-5" />
+                  <span>Attachments / 첨부파일</span>
+                </div>
+                <SimpleFileUploader onUploadComplete={handleFileUpload}>
+                  <div className="flex items-center space-x-2 px-3 py-1 bg-white border border-gray-300 rounded-md text-sm hover:bg-gray-50 cursor-pointer">
+                    <Plus className="h-4 w-4" />
+                    <span>PC 파일 첨부</span>
+                  </div>
+                </SimpleFileUploader>
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <ScrollArea className="h-64">
-                <div className="space-y-2">
-                  {documents.map((document) => (
-                    <div key={document.id} className="flex items-center space-x-2 p-2 border rounded hover:bg-gray-50">
-                      <Checkbox
-                        checked={attachments.includes(document.id)}
-                        onCheckedChange={() => toggleAttachment(document.id)}
-                      />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{document.originalName}</p>
-                        <div className="flex items-center space-x-2">
-                          <Badge variant="outline" className="text-xs">
-                            {document.category}
-                          </Badge>
-                          <span className="text-xs text-gray-500">
-                            {formatFileSize(document.fileSize)}
-                          </span>
+            <CardContent className="space-y-4">
+              <div className="text-sm text-gray-600">
+                <p>• Database documents / DB 문서: 아래 목록에서 선택</p>
+                <p>• PC files / PC 파일: 우상단 "PC 파일 첨부" 버튼 사용</p>
+              </div>
+              
+              <Separator />
+              
+              <div>
+                <Label className="text-sm font-medium">Select from Database / DB에서 선택</Label>
+                <ScrollArea className="h-48 mt-2">
+                  <div className="space-y-2">
+                    {documents.length === 0 ? (
+                      <p className="text-sm text-gray-500 text-center py-4">
+                        No documents available / 사용 가능한 문서가 없습니다
+                      </p>
+                    ) : (
+                      documents.map((document) => (
+                        <div key={document.id} className="flex items-center space-x-2 p-2 border rounded hover:bg-gray-50">
+                          <Checkbox
+                            checked={attachments.includes(document.id)}
+                            onCheckedChange={() => toggleAttachment(document.id)}
+                          />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate">{document.originalName}</p>
+                            <div className="flex items-center space-x-2">
+                              <Badge variant="outline" className="text-xs">
+                                {document.category}
+                              </Badge>
+                              <span className="text-xs text-gray-500">
+                                {formatFileSize(document.fileSize)}
+                              </span>
+                            </div>
+                          </div>
+                          <FileText className="h-4 w-4 text-gray-400" />
                         </div>
-                      </div>
-                      <FileText className="h-4 w-4 text-gray-400" />
-                    </div>
-                  ))}
-                </div>
-              </ScrollArea>
+                      ))
+                    )}
+                  </div>
+                </ScrollArea>
+              </div>
             </CardContent>
           </Card>
         </div>
