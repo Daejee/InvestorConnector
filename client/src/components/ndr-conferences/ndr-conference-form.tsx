@@ -23,6 +23,7 @@ const formSchema = insertNdrConferenceSchema.extend({
   startDate: z.string().min(1, "Start date is required"),
   endDate: z.string().min(1, "End date is required"),
   participatingCompanies: z.array(z.string()).default([]),
+  conferenceType: z.string().min(1, "Conference type is required"),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -39,6 +40,7 @@ export default function NdrConferenceForm({ conference, onSuccess, onCancel }: N
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: conference?.name || "",
+      conferenceType: conference?.conferenceType || "국내NDR",
       startDate: conference?.startDate ? new Date(conference.startDate).toISOString().split('T')[0] : "",
       endDate: conference?.endDate ? new Date(conference.endDate).toISOString().split('T')[0] : "",
       place: conference?.place || "",
@@ -127,6 +129,30 @@ export default function NdrConferenceForm({ conference, onSuccess, onCancel }: N
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <FormField
+            control={form.control}
+            name="conferenceType"
+            render={({ field }) => (
+              <FormItem className="md:col-span-2">
+                <FormLabel>Conference Type / 컨퍼런스 유형</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select conference type / 컨퍼런스 유형 선택" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="국내NDR">국내NDR</SelectItem>
+                    <SelectItem value="국내CorpDay">국내CorpDay</SelectItem>
+                    <SelectItem value="해외NDR">해외NDR</SelectItem>
+                    <SelectItem value="해외CorpDay">해외CorpDay</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
           <FormField
             control={form.control}
             name="name"

@@ -139,7 +139,12 @@ export default function NdrConferences() {
                   <TableCell className="font-medium">
                     <div className="flex items-center space-x-2">
                       <Calendar className="h-4 w-4 text-gray-500" />
-                      <span>{conference.name}</span>
+                      <div className="flex flex-col">
+                        <span>{conference.name}</span>
+                        <Badge variant="outline" className="w-fit text-xs mt-1">
+                          {conference.conferenceType || "국내NDR"}
+                        </Badge>
+                      </div>
                     </div>
                   </TableCell>
                   <TableCell>

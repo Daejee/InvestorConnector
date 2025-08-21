@@ -126,6 +126,7 @@ export const meetingLogs = pgTable("meeting_logs", {
 export const ndrConferences = pgTable("ndr_conferences", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
+  conferenceType: text("conference_type").notNull().default("국내NDR"), // 국내NDR, 국내CorpDay, 해외NDR, 해외CorpDay
   startDate: timestamp("start_date").notNull(),
   endDate: timestamp("end_date").notNull(),
   place: text("place").notNull(),
