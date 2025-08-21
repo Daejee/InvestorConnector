@@ -396,46 +396,7 @@ export default function Reports() {
                   </Select>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-                  {/* Meeting Statistics */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-base">Meeting Statistics / 미팅 통계</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3">
-                        <div className="flex justify-between">
-                          <span className="text-sm text-gray-600">Total Meetings / 총 미팅</span>
-                          <span className="text-sm font-medium">{filteredMeetings.length}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-sm text-gray-600">Completed / 완료</span>
-                          <span className="text-sm font-medium">
-                            {filteredMeetings.filter(m => m.status === "completed").length}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-sm text-gray-600">Scheduled / 예정</span>
-                          <span className="text-sm font-medium">
-                            {filteredMeetings.filter(m => m.status === "scheduled").length}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-sm text-gray-600">Investor Meetings / 투자자 미팅</span>
-                          <span className="text-sm font-medium">
-                            {filteredMeetings.filter(m => m.attendeeType === "investor").length}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-sm text-gray-600">Analyst Meetings / 애널리스트 미팅</span>
-                          <span className="text-sm font-medium">
-                            {filteredMeetings.filter(m => m.attendeeType === "analyst").length}
-                          </span>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
                   {/* Meeting Categories */}
                   <Card>
                     <CardHeader>
