@@ -1682,7 +1682,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Email sending endpoint
   app.post("/api/email/send", async (req, res) => {
     try {
-      const { subject, content, recipients, attachments } = req.body;
+      const { subject, content, recipients, attachments, uploadedFiles } = req.body;
       
       // Get recipient emails
       const investorEmails: string[] = [];
@@ -1714,6 +1714,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Get attachment files if any
       const attachmentFiles: any[] = [];
+      
+      // Add database documents
       if (attachments && attachments.length > 0) {
         for (const docId of attachments) {
           const document = await storage.getDocument(docId);
@@ -1721,9 +1723,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
             attachmentFiles.push({
               filename: document.originalName,
               path: document.filePath,
-              contentType: document.fileType
+              contentType: document.fileType,
+              source: 'database'
             });
           }
+        }
+      }
+      
+      // Add uploaded files from PC
+      if (uploadedFiles && uploadedFiles.length > 0) {
+        for (const file of uploadedFiles) {
+          attachmentFiles.push({
+            filename: file.name,
+            url: file.url,
+            contentType: 'application/octet-stream',
+            source: 'upload'
+          });
         }
       }
       
