@@ -29,7 +29,7 @@ interface SidebarProps {
 const navigation = [
   { name: "Dashboard", href: "/", icon: BarChart3 },
   { 
-    name: "Meetings / 회의", 
+    name: "Meeting 관리", 
     href: "/meeting-logs", 
     icon: Calendar,
     submenu: [
