@@ -50,7 +50,7 @@ const navigation = [
     ]
   },
   { name: "증권사", href: "/securities-firms", icon: Building },
-  { name: "Documents / 문서", href: "/documents", icon: FileText },
+  { name: "문서", href: "/documents", icon: FileText },
 ];
 
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
