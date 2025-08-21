@@ -17,7 +17,8 @@ import {
   insertEmailCampaignSchema,
   insertAnalystSchema,
   insertDocumentSchema,
-  insertSecuritiesFirmSchema
+  insertSecuritiesFirmSchema,
+  insertEmailLogSchema
 } from "@shared/schema";
 import { EmailService } from "./email-service";
 import {
@@ -1736,10 +1737,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
             html: content.replace(/\n/g, '<br>'),
             from: 'noreply@ircrm.com'
           });
-          results.push({ email, success });
+          
+          // Log the email
+          const emailLog = await storage.createEmailLog({
+            recipientEmail: email,
+            subject: subject,
+            content: content,
+            status: success ? 'sent' : 'failed',
+            sentAt: new Date()
+          });
+          
+          results.push({ email, success, emailLogId: emailLog.id });
         } catch (error) {
           console.error(`Failed to send email to ${email}:`, error);
-          results.push({ email, success: false, error: error instanceof Error ? error.message : 'Unknown error' });
+          
+          // Log failed email
+          try {
+            const emailLog = await storage.createEmailLog({
+              recipientEmail: email,
+              subject: subject,
+              content: content,
+              status: 'failed',
+              sentAt: new Date()
+            });
+            results.push({ email, success: false, error: error instanceof Error ? error.message : 'Unknown error', emailLogId: emailLog.id });
+          } catch (logError) {
+            console.error('Failed to log email:', logError);
+            results.push({ email, success: false, error: error instanceof Error ? error.message : 'Unknown error' });
+          }
         }
       }
       
@@ -1928,6 +1953,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error getting meeting minutes:", error);
       res.status(500).json({ error: "Failed to get meeting minutes" });
+    }
+  });
+
+  // Email Logs routes
+  app.get("/api/email-logs", async (req, res) => {
+    try {
+      const emailLogs = await storage.getEmailLogs();
+      res.json(emailLogs);
+    } catch (error) {
+      console.error('Get email logs error:', error);
+      res.status(500).json({ error: "Failed to fetch email logs" });
+    }
+  });
+
+  app.get("/api/email-logs/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const emailLog = await storage.getEmailLog(id);
+      if (!emailLog) {
+        return res.status(404).json({ message: "Email log not found" });
+      }
+      res.json(emailLog);
+    } catch (error) {
+      console.error('Get email log error:', error);
+      res.status(500).json({ error: "Failed to fetch email log" });
+    }
+  });
+
+  app.get("/api/email-logs/recipient/:email", async (req, res) => {
+    try {
+      const email = req.params.email;
+      const emailLogs = await storage.getEmailLogsByRecipient(email);
+      res.json(emailLogs);
+    } catch (error) {
+      console.error('Get email logs by recipient error:', error);
+      res.status(500).json({ error: "Failed to fetch email logs for recipient" });
+    }
+  });
+
+  app.post("/api/email-logs", async (req, res) => {
+    try {
+      const emailLogData = insertEmailLogSchema.parse(req.body);
+      const emailLog = await storage.createEmailLog(emailLogData);
+      res.status(201).json(emailLog);
+    } catch (error) {
+      res.status(400).json({ error: "Invalid email log data", details: error });
     }
   });
 

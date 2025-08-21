@@ -37,7 +37,14 @@ const navigation = [
       { name: "NDR/컨퍼런스", href: "/ndr-conferences", icon: CalendarDays }
     ]
   },
-  { name: "Email / 이메일", href: "/email", icon: Mail },
+  { 
+    name: "Email / 이메일", 
+    href: "/email", 
+    icon: Mail,
+    submenu: [
+      { name: "이메일 로그", href: "/email-logs", icon: FileEdit }
+    ]
+  },
   { name: "Reports / 보고서", href: "/reports", icon: BarChart },
   { name: "투자자", href: "/investors", icon: Users },
   { name: "애널리스트/브로커", href: "/analysts", icon: Users },

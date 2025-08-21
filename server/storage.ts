@@ -1,5 +1,5 @@
 import { 
-  investors, companies, investments, communications, meetings, funds, meetingLogs, ndrConferences, emailTemplates, emailCampaigns, analysts, documents, securitiesFirms,
+  investors, companies, investments, communications, meetings, funds, meetingLogs, ndrConferences, emailTemplates, emailCampaigns, analysts, documents, securitiesFirms, emailLogs,
   type Investor, type InsertInvestor,
   type Company, type InsertCompany,
   type Investment, type InsertInvestment,
@@ -12,7 +12,8 @@ import {
   type EmailCampaign, type InsertEmailCampaign,
   type Analyst, type InsertAnalyst,
   type Document, type InsertDocument,
-  type SecuritiesFirm, type InsertSecuritiesFirm
+  type SecuritiesFirm, type InsertSecuritiesFirm,
+  type EmailLog, type InsertEmailLog
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc } from "drizzle-orm";
@@ -123,6 +124,12 @@ export interface IStorage {
   createSecuritiesFirm(firm: InsertSecuritiesFirm): Promise<SecuritiesFirm>;
   updateSecuritiesFirm(id: number, firm: Partial<InsertSecuritiesFirm>): Promise<SecuritiesFirm | undefined>;
   deleteSecuritiesFirm(id: number): Promise<boolean>;
+
+  // Email Logs
+  getEmailLogs(): Promise<EmailLog[]>;
+  getEmailLog(id: number): Promise<EmailLog | undefined>;
+  createEmailLog(emailLog: InsertEmailLog): Promise<EmailLog>;
+  getEmailLogsByRecipient(email: string): Promise<EmailLog[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -603,6 +610,30 @@ export class DatabaseStorage implements IStorage {
   async deleteSecuritiesFirm(id: number): Promise<boolean> {
     const result = await db.delete(securitiesFirms).where(eq(securitiesFirms.id, id));
     return result.rowCount !== null && result.rowCount > 0;
+  }
+
+  // Email Logs
+  async getEmailLogs(): Promise<EmailLog[]> {
+    return await db.select().from(emailLogs).orderBy(desc(emailLogs.sentAt));
+  }
+
+  async getEmailLog(id: number): Promise<EmailLog | undefined> {
+    const [emailLog] = await db.select().from(emailLogs).where(eq(emailLogs.id, id));
+    return emailLog || undefined;
+  }
+
+  async createEmailLog(insertEmailLog: InsertEmailLog): Promise<EmailLog> {
+    const [emailLog] = await db
+      .insert(emailLogs)
+      .values(insertEmailLog)
+      .returning();
+    return emailLog;
+  }
+
+  async getEmailLogsByRecipient(email: string): Promise<EmailLog[]> {
+    return await db.select().from(emailLogs)
+      .where(eq(emailLogs.recipientEmail, email))
+      .orderBy(desc(emailLogs.sentAt));
   }
 }
 

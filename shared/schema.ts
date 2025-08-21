@@ -170,6 +170,20 @@ export const securitiesFirms = pgTable("securities_firms", {
   status: text("status").notNull().default("active"), // active, archived
 });
 
+export const emailLogs = pgTable("email_logs", {
+  id: serial("id").primaryKey(),
+  recipientEmail: text("recipient_email").notNull(),
+  recipientName: text("recipient_name").notNull(),
+  recipientType: text("recipient_type").notNull(), // investor, analyst
+  subject: text("subject").notNull(),
+  content: text("content").notNull(),
+  status: text("status").notNull().default("sent"), // sent, failed, delivered
+  sentAt: timestamp("sent_at").defaultNow(),
+  documentAttached: text("document_attached"), // document name if attached
+  region: text("region"), // Korea, International, etc.
+  language: text("language").default("Korean"), // Korean, English
+});
+
 export const insertInvestorSchema = createInsertSchema(investors).omit({
   id: true,
 });
@@ -236,6 +250,11 @@ export const insertSecuritiesFirmSchema = createInsertSchema(securitiesFirms).om
   id: true,
 });
 
+export const insertEmailLogSchema = createInsertSchema(emailLogs).omit({
+  id: true,
+  sentAt: true,
+});
+
 export type InsertInvestor = z.infer<typeof insertInvestorSchema>;
 export type Investor = typeof investors.$inferSelect;
 
@@ -274,3 +293,6 @@ export type Document = typeof documents.$inferSelect;
 
 export type InsertSecuritiesFirm = z.infer<typeof insertSecuritiesFirmSchema>;
 export type SecuritiesFirm = typeof securitiesFirms.$inferSelect;
+
+export type InsertEmailLog = z.infer<typeof insertEmailLogSchema>;
+export type EmailLog = typeof emailLogs.$inferSelect;
