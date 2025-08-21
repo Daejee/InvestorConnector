@@ -33,7 +33,7 @@ const navigation = [
     href: "/meeting-logs", 
     icon: Calendar,
     submenu: [
-      { name: "Schedule / 일정 예약", href: "/scheduling", icon: Plus },
+      { name: "미팅예약", href: "/scheduling", icon: Plus },
       { name: "NDR/컨퍼런스", href: "/ndr-conferences", icon: CalendarDays }
     ]
   },
