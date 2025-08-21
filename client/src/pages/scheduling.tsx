@@ -142,13 +142,12 @@ export default function Scheduling() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Meeting Scheduler / 미팅 스케줄러</h1>
+          <h1 className="text-3xl font-bold tracking-tight">미팅 스케줄러</h1>
           <p className="text-muted-foreground">
             Schedule meetings with investors using our interactive calendar / 대화형 캘린더로 투자자와 미팅을 예약하세요
           </p>
         </div>
       </div>
-
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         <TabsList>
           <TabsTrigger value="calendar">Calendar Scheduler / 캘린더 스케줄러</TabsTrigger>
@@ -280,7 +279,6 @@ export default function Scheduling() {
           </Card>
         </TabsContent>
       </Tabs>
-
       {/* Edit Meeting Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
@@ -420,7 +418,6 @@ export default function Scheduling() {
           </Form>
         </DialogContent>
       </Dialog>
-
       {/* View Meeting Dialog */}
       <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
         <DialogContent className="sm:max-w-[750px]">
