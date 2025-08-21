@@ -45,8 +45,8 @@ export default function NdrConferences() {
 
   const getStatusBadge = (startDate: Date, endDate: Date) => {
     const now = new Date();
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+    const start = new Date(startDate.toString().split('T')[0] + 'T00:00:00');
+    const end = new Date(endDate.toString().split('T')[0] + 'T23:59:59');
     
     if (now < start) {
       return <Badge variant="outline" className="bg-blue-50 text-blue-700">Upcoming</Badge>;
@@ -144,8 +144,8 @@ export default function NdrConferences() {
                   </TableCell>
                   <TableCell>
                     <div className="text-sm">
-                      <div>{format(new Date(conference.startDate), "MMM dd, yyyy")}</div>
-                      <div className="text-gray-500">to {format(new Date(conference.endDate), "MMM dd, yyyy")}</div>
+                      <div>{format(new Date(conference.startDate.toString().split('T')[0] + 'T00:00:00'), "MMM dd, yyyy")}</div>
+                      <div className="text-gray-500">to {format(new Date(conference.endDate.toString().split('T')[0] + 'T00:00:00'), "MMM dd, yyyy")}</div>
                     </div>
                   </TableCell>
                   <TableCell>
