@@ -31,10 +31,7 @@ const navigation = [
   { 
     name: "Meeting 관리", 
     href: "/meeting-logs", 
-    icon: Calendar,
-    submenu: [
-      { name: "미팅예약", href: "/scheduling", icon: Plus }
-    ]
+    icon: Calendar
   },
   { 
     name: "Email / 이메일", 
@@ -97,6 +94,18 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         </div>
         
         <nav className="mt-6 px-3 lg:mt-0">
+          {/* Persistent Meeting Booking Button */}
+          <div className="mb-6">
+            <Button 
+              onClick={() => setIsBookMeetingOpen(true)}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium"
+              size="lg"
+            >
+              <Calendar className="mr-2 h-5 w-5" />
+              미팅예약
+            </Button>
+          </div>
+          
           <div className="space-y-1">
             {navigation.slice(0, 4).map((item) => {
               const isActive = location === item.href;
