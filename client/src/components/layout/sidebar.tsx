@@ -31,7 +31,10 @@ const navigation = [
   { 
     name: "Meeting 관리", 
     href: "/meeting-logs", 
-    icon: Calendar
+    icon: Calendar,
+    submenu: [
+      { name: "미팅예약", href: "/scheduling", icon: Plus }
+    ]
   },
   { 
     name: "Email / 이메일", 
@@ -58,7 +61,7 @@ const navigation = [
 
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const [location] = useLocation();
-  const [expandedItems, setExpandedItems] = useState<string[]>(["Companies / 회사", "Meetings / 회의"]);
+  const [expandedItems, setExpandedItems] = useState<string[]>(["Meeting 관리", "Companies / 회사", "Meetings / 회의"]);
   const [isBookMeetingOpen, setIsBookMeetingOpen] = useState(false);
 
   const toggleExpanded = (itemName: string) => {
@@ -94,18 +97,6 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         </div>
         
         <nav className="mt-6 px-3 lg:mt-0">
-          {/* Persistent Meeting Booking Button */}
-          <div className="mb-6">
-            <Button 
-              onClick={() => setIsBookMeetingOpen(true)}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium"
-              size="lg"
-            >
-              <Calendar className="mr-2 h-5 w-5" />
-              미팅예약
-            </Button>
-          </div>
-          
           <div className="space-y-1">
             {navigation.slice(0, 4).map((item) => {
               const isActive = location === item.href;
