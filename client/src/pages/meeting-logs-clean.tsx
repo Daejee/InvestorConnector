@@ -203,7 +203,7 @@ export default function Meetings() {
         title: meeting.title,
         description: meeting.description || "",
         attendeeType: meeting.attendeeType as "investor" | "analyst" | "other",
-        investorId: meeting.investorId,
+        investorIds: meeting.investorIds || [],
         analystId: meeting.analystId,
         ndrConferenceId: meeting.ndrConferenceId,
         scheduledDate: dateStr,
@@ -487,6 +487,14 @@ export default function Meetings() {
       });
       return investorNames.join(", ");
     }
+    if (meeting.analystIds && meeting.analystIds.length > 0) {
+      const analystNames = meeting.analystIds.map(id => {
+        const analyst = analysts.find(ana => ana.id.toString() === id);
+        return analyst ? analyst.name : "Unknown Analyst";
+      });
+      return analystNames.join(", ");
+    }
+    // Backward compatibility
     if (meeting.analystId) {
       const analyst = analysts.find(ana => ana.id === meeting.analystId);
       return analyst ? analyst.name : "Unknown Analyst";
@@ -502,6 +510,14 @@ export default function Meetings() {
       }).filter(company => company !== "");
       return Array.from(new Set(companyNames)).join(", "); // Remove duplicates and join
     }
+    if (meeting.analystIds && meeting.analystIds.length > 0) {
+      const companyNames = meeting.analystIds.map(id => {
+        const analyst = analysts.find(ana => ana.id.toString() === id);
+        return analyst ? analyst.company : "";
+      }).filter(company => company !== "");
+      return Array.from(new Set(companyNames)).join(", ");
+    }
+    // Backward compatibility - check legacy analystId field
     if (meeting.analystId) {
       const analyst = analysts.find(ana => ana.id === meeting.analystId);
       return analyst ? analyst.company : "";

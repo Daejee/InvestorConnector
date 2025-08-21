@@ -77,7 +77,7 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
     defaultValues: {
       attendeeType: selectedInvestor ? "investor" : "investor",
       investorIds: selectedInvestor ? [selectedInvestor.id.toString()] : [],
-      analystId: null,
+      analystIds: [],
       ndrConferenceId: null,
       title: "",
       description: "",
@@ -107,7 +107,7 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
         ...data,
         scheduledDate: scheduledDateTime.toISOString(),
         investorIds: data.attendeeType === "investor" ? data.investorIds : null,
-        analystId: data.attendeeType === "analyst" ? data.analystId : null,
+        analystIds: data.attendeeType === "analyst" ? data.analystIds : null,
         status: isPastMeeting ? "completed" : "scheduled",
       };
       
@@ -256,10 +256,21 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
 
   // Get attendee name for display
   const getAttendeeName = (meeting: Meeting) => {
-    if (meeting.investorId) {
-      const investor = investors.find(inv => inv.id === meeting.investorId);
-      return investor ? investor.name : "Unknown";
+    if (meeting.investorIds && meeting.investorIds.length > 0) {
+      const names = meeting.investorIds.map(id => {
+        const investor = investors.find(inv => inv.id.toString() === id);
+        return investor ? investor.name : "Unknown";
+      });
+      return names.join(", ");
     }
+    if (meeting.analystIds && meeting.analystIds.length > 0) {
+      const names = meeting.analystIds.map(id => {
+        const analyst = analysts.find(ana => ana.id.toString() === id);
+        return analyst ? analyst.name : "Unknown";
+      });
+      return names.join(", ");
+    }
+    // Backward compatibility
     if (meeting.analystId) {
       const analyst = analysts.find(ana => ana.id === meeting.analystId);
       return analyst ? analyst.name : "Unknown";
@@ -269,10 +280,21 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
 
   // Get attendee company for display
   const getAttendeeCompany = (meeting: Meeting) => {
-    if (meeting.investorId) {
-      const investor = investors.find(inv => inv.id === meeting.investorId);
-      return investor ? investor.company : "Unknown Company";
+    if (meeting.investorIds && meeting.investorIds.length > 0) {
+      const companies = meeting.investorIds.map(id => {
+        const investor = investors.find(inv => inv.id.toString() === id);
+        return investor ? investor.company : "";
+      }).filter(c => c !== "");
+      return Array.from(new Set(companies)).join(", ");
     }
+    if (meeting.analystIds && meeting.analystIds.length > 0) {
+      const companies = meeting.analystIds.map(id => {
+        const analyst = analysts.find(ana => ana.id.toString() === id);
+        return analyst ? analyst.company : "";
+      }).filter(c => c !== "");
+      return Array.from(new Set(companies)).join(", ");
+    }
+    // Backward compatibility
     if (meeting.analystId) {
       const analyst = analysts.find(ana => ana.id === meeting.analystId);
       return analyst ? analyst.company : "Unknown Company";
@@ -365,12 +387,7 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
                               {getAttendeeName(meeting)}
                             </div>
                             <div className="text-xs text-blue-600 truncate">
-                              {meeting.investorId ? 
-                                (investors.find(inv => inv.id === meeting.investorId)?.company || "Unknown Company") :
-                                meeting.analystId ? 
-                                (analysts.find(ana => ana.id === meeting.analystId)?.company || "Unknown Company") :
-                                "Other"
-                              }
+                              {getAttendeeCompany(meeting)}
                             </div>
                             <div className="flex items-center text-xs text-blue-600">
                               <Edit className="h-3 w-3 mr-1" />
@@ -432,7 +449,7 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
                           field.onChange(value);
                           // Reset IDs when changing type
                           form.setValue("investorIds", []);
-                          form.setValue("analystId", null);
+                          form.setValue("analystIds", []);
                         }}
                         defaultValue={field.value}
                       >
@@ -585,12 +602,12 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
                                 <input
                                   type="checkbox"
                                   checked={isSelected}
-                                  onChange={(e) => {
+                                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                                     const currentIds = field.value || [];
                                     if (e.target.checked) {
                                       field.onChange([...currentIds, investor.id.toString()]);
                                     } else {
-                                      field.onChange(currentIds.filter(id => id !== investor.id.toString()));
+                                      field.onChange(currentIds.filter((id: string) => id !== investor.id.toString()));
                                     }
                                   }}
                                   className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
@@ -599,7 +616,7 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
                                   const currentIds = field.value || [];
                                   const isCurrentlySelected = currentIds.includes(investor.id.toString());
                                   if (isCurrentlySelected) {
-                                    field.onChange(currentIds.filter(id => id !== investor.id.toString()));
+                                    field.onChange(currentIds.filter((id: string) => id !== investor.id.toString()));
                                   } else {
                                     field.onChange([...currentIds, investor.id.toString()]);
                                   }
@@ -619,26 +636,51 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
               {watchedAttendeeType === "analyst" && (
                 <FormField
                   control={form.control}
-                  name="analystId"
+                  name="analystIds"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Select Analyst / 애널리스트 선택</FormLabel>
-                      <Select 
-                        onValueChange={(value) => field.onChange(parseInt(value))}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Choose analyst / 애널리스트를 선택하세요" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {analysts.map((analyst) => (
-                            <SelectItem key={analyst.id} value={analyst.id.toString()}>
-                              {analyst.name} - {analyst.company}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <FormLabel>Select Analysts / 애널리스트 선택</FormLabel>
+                      <div className="space-y-2">
+                        <div className="text-sm text-gray-600">
+                          {field.value && field.value.length > 0 
+                            ? `${field.value.length} analysts selected / ${field.value.length}명의 애널리스트가 선택됨`
+                            : "No analysts selected / 선택된 애널리스트 없음"
+                          }
+                        </div>
+                        <div className="border rounded-lg max-h-32 overflow-y-auto p-2">
+                          {analysts.map((analyst) => {
+                            const isSelected = field.value?.includes(analyst.id.toString()) || false;
+                            return (
+                              <div key={analyst.id} className="flex items-center space-x-2 py-1">
+                                <input
+                                  type="checkbox"
+                                  checked={isSelected}
+                                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                    const currentIds = field.value || [];
+                                    if (e.target.checked) {
+                                      field.onChange([...currentIds, analyst.id.toString()]);
+                                    } else {
+                                      field.onChange(currentIds.filter((id: string) => id !== analyst.id.toString()));
+                                    }
+                                  }}
+                                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                />
+                                <label className="text-sm cursor-pointer flex-1" onClick={() => {
+                                  const currentIds = field.value || [];
+                                  const isCurrentlySelected = currentIds.includes(analyst.id.toString());
+                                  if (isCurrentlySelected) {
+                                    field.onChange(currentIds.filter((id: string) => id !== analyst.id.toString()));
+                                  } else {
+                                    field.onChange([...currentIds, analyst.id.toString()]);
+                                  }
+                                }}>
+                                  {analyst.name} - {analyst.company}
+                                </label>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
                     </FormItem>
                   )}
                 />

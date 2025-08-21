@@ -87,7 +87,8 @@ export const meetings = pgTable("meetings", {
   id: serial("id").primaryKey(),
   attendeeType: text("attendee_type").notNull(), // investor, analyst, other
   investorIds: text("investor_ids").array(), // Array of investor IDs for multiple investor meetings
-  analystId: integer("analyst_id"), // Optional - for analyst meetings
+  analystId: integer("analyst_id"), // Backward compatibility - will be deprecated
+  analystIds: text("analyst_ids").array(), // Array of analyst IDs for multiple analyst meetings
   ndrConferenceId: integer("ndr_conference_id"), // Optional - for NDR/Conference meetings
   title: text("title").notNull(),
   description: text("description"),

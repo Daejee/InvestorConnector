@@ -289,6 +289,13 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(meetings).where(sql`${investorId}::text = ANY(investor_ids)`);
   }
 
+  async getMeetingsByAnalyst(analystId: number): Promise<Meeting[]> {
+    // Check meetings where analystId is in the analystIds array or matches the legacy analystId field
+    return await db.select().from(meetings).where(
+      sql`${analystId}::text = ANY(analyst_ids) OR analyst_id = ${analystId}`
+    );
+  }
+
   async getUpcomingMeetings(): Promise<Meeting[]> {
     const now = new Date();
     const allMeetings = await db.select().from(meetings);
