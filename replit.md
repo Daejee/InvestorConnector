@@ -40,12 +40,13 @@ UI Language: Korean/English bilingual display - show both Korean and English tex
     - Consolidated investor/analyst information display with meeting history.
 
 ### UI/UX Decisions
-- Consistent header and sidebar navigation.
+- Consistent header and sidebar navigation with categorized sections.
 - Use of Radix UI and shadcn/ui for accessible and themable components.
 - Tailwind CSS for utility-first styling.
 - Clear, intuitive layouts for data tables and forms.
 - Dashboard focused on meeting management metrics and quick actions.
 - Terminology updated to "Buyside" and "Sellside" for market distinction.
+- **Sidebar Navigation Structure**: Organized into logical sections - Main navigation, Event 관리 (NDR/컨퍼런스), Client DB관리 (investor/company data), and Quick Actions.
 
 ## External Dependencies
 
@@ -131,3 +132,10 @@ UI Language: Korean/English bilingual display - show both Korean and English tex
 - **Error Handling**: Comprehensive error handling with graceful degradation for JSON parsing issues
 - **Object Storage**: Successfully integrated with Replit Object Storage (bucket ID: replit-objstore-0c0dfa6c-0b7d-43c9-9f94-4143807bd434)
 - **UI Improvements**: Immediate state updates for upload/delete operations, eliminating refresh delays
+
+### Sidebar Navigation Restructuring (August 21, 2025)
+- **Navigation Categories**: Reorganized sidebar into logical sections for improved user experience
+- **Event 관리 Section**: Created new category for event-related features, moved NDR/컨퍼런스 from Meeting 관리 submenu
+- **Client DB관리 Section**: Renamed from "DATABASE / DB작성" for clearer purpose identification
+- **Menu Simplification**: Removed NDR/컨퍼런스 from Meeting 관리 submenu, keeping only 미팅예약
+- **Visual Hierarchy**: Improved sidebar organization with dedicated sections for different functional areas
