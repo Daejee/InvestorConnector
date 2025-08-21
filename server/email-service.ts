@@ -1,13 +1,35 @@
 import { MailService } from '@sendgrid/mail';
+import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
 import type { EmailTemplate, Investor } from '@shared/schema';
 
-if (!process.env.SENDGRID_API_KEY) {
-  console.warn("SENDGRID_API_KEY not found. Email functionality will be limited.");
+// Check for email service configuration
+const hasAWS = process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY && process.env.AWS_REGION;
+const hasSendGrid = process.env.SENDGRID_API_KEY;
+
+if (!hasAWS && !hasSendGrid) {
+  console.warn("No email service configured. Email functionality will be limited.");
+} else if (hasAWS) {
+  console.log("Using AWS SES for email service");
+} else if (hasSendGrid) {
+  console.log("Using SendGrid for email service");
 }
 
+// Initialize SendGrid
 const mailService = new MailService();
 if (process.env.SENDGRID_API_KEY) {
   mailService.setApiKey(process.env.SENDGRID_API_KEY);
+}
+
+// Initialize AWS SES
+let sesClient: SESClient | null = null;
+if (hasAWS) {
+  sesClient = new SESClient({
+    region: process.env.AWS_REGION || 'us-east-1',
+    credentials: {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+    }
+  });
 }
 
 interface EmailParams {
@@ -27,23 +49,61 @@ export class EmailService {
   private static readonly DEFAULT_FROM = 'noreply@ircrm.com';
 
   static async sendSingleEmail(params: EmailParams): Promise<boolean> {
-    if (!process.env.SENDGRID_API_KEY) {
+    // If no email service is configured, log for development
+    if (!hasAWS && !hasSendGrid) {
       console.log('Email would be sent:', params);
       return true; // Mock success for development
     }
 
-    try {
-      await mailService.send({
-        to: params.to,
-        from: params.from || this.DEFAULT_FROM,
-        subject: params.subject,
-        html: params.html,
-      });
-      return true;
-    } catch (error) {
-      console.error('SendGrid email error:', error);
-      return false;
+    // Prefer AWS SES if configured
+    if (hasAWS && sesClient) {
+      try {
+        const command = new SendEmailCommand({
+          Source: params.from || this.DEFAULT_FROM,
+          Destination: {
+            ToAddresses: [params.to],
+          },
+          Message: {
+            Subject: {
+              Data: params.subject,
+              Charset: 'UTF-8',
+            },
+            Body: {
+              Html: {
+                Data: params.html,
+                Charset: 'UTF-8',
+              },
+            },
+          },
+        });
+
+        await sesClient.send(command);
+        console.log(`Email sent via AWS SES to: ${params.to}`);
+        return true;
+      } catch (error) {
+        console.error('AWS SES email error:', error);
+        return false;
+      }
     }
+
+    // Fallback to SendGrid
+    if (hasSendGrid) {
+      try {
+        await mailService.send({
+          to: params.to,
+          from: params.from || this.DEFAULT_FROM,
+          subject: params.subject,
+          html: params.html,
+        });
+        console.log(`Email sent via SendGrid to: ${params.to}`);
+        return true;
+      } catch (error) {
+        console.error('SendGrid email error:', error);
+        return false;
+      }
+    }
+
+    return false;
   }
 
   static async sendEarningsReport(params: SendCampaignParams): Promise<{
