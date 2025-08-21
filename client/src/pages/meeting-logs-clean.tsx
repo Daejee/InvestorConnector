@@ -775,7 +775,7 @@ export default function Meetings() {
           </TabsTrigger>
           <TabsTrigger value="completed" className="flex items-center space-x-2">
             <CheckCircle className="h-4 w-4" />
-            <span>Completed / 완료</span>
+            <span>완료된 미팅</span>
           </TabsTrigger>
         </TabsList>
         
