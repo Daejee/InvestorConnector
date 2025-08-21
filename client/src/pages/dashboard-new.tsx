@@ -125,7 +125,7 @@ export default function Dashboard() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-2xl font-bold text-gray-900">Dashboard</h2>
-            <p className="text-gray-600 mt-1">Meeting overview and management / 미팅 개요 및 관리</p>
+            <p className="text-gray-600 mt-1">미팅 개요 및 관리</p>
           </div>
           <div className="mt-4 sm:mt-0 flex gap-3">
             <Link href="/email">
