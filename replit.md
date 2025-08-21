@@ -96,6 +96,17 @@ UI Language: Korean/English bilingual display - show both Korean and English tex
 
 ## Recent Updates (August 2025)
 
+### Meeting Category and Location Fields (August 21, 2025)
+- **Meeting Category System**: Added comprehensive 7-type meeting category selection
+  - Categories: 내방, Conference Call, 국내CorpDay, 국내NDR, 해외CorpDay, 해외NDR, 기타
+  - Integrated into both booking and editing dialogs
+- **Location Field**: Added location input field alongside meeting category
+  - Side-by-side layout for category and location selection
+  - Integrated into database schema and all meeting forms
+- **Enhanced Meeting Forms**: Updated both calendar scheduler and meeting management pages
+  - Consistent UI layout with Korean/English bilingual labels
+  - Proper form validation and data persistence
+
 ### Meeting Scheduling and Status Management (August 21, 2025)
 - **Past Meeting Recording**: Enabled scheduling system to accept past dates for recording historical meetings
 - **Automatic Status Logic**: Implemented intelligent status assignment based on meeting date/time

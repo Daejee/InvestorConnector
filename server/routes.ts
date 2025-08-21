@@ -1741,10 +1741,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Log the email
           const emailLog = await storage.createEmailLog({
             recipientEmail: email,
+            recipientName: email,
+            recipientType: 'investor',
             subject: subject,
             content: content,
-            status: success ? 'sent' : 'failed',
-            sentAt: new Date()
+            status: success ? 'sent' : 'failed'
           });
           
           results.push({ email, success, emailLogId: emailLog.id });
@@ -1755,10 +1756,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           try {
             const emailLog = await storage.createEmailLog({
               recipientEmail: email,
+              recipientName: email,
+              recipientType: 'investor', 
               subject: subject,
               content: content,
-              status: 'failed',
-              sentAt: new Date()
+              status: 'failed'
             });
             results.push({ email, success: false, error: error instanceof Error ? error.message : 'Unknown error', emailLogId: emailLog.id });
           } catch (logError) {
