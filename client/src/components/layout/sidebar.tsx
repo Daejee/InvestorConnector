@@ -27,7 +27,7 @@ interface SidebarProps {
 }
 
 const navigation = [
-  { name: "Dashboard / 대시보드", href: "/", icon: BarChart3 },
+  { name: "Dashboard", href: "/", icon: BarChart3 },
   { 
     name: "Meetings / 회의", 
     href: "/meeting-logs", 
