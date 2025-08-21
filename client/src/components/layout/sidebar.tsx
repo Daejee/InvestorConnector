@@ -33,8 +33,7 @@ const navigation = [
     href: "/meeting-logs", 
     icon: Calendar,
     submenu: [
-      { name: "미팅예약", href: "/scheduling", icon: Plus },
-      { name: "NDR/컨퍼런스", href: "/ndr-conferences", icon: CalendarDays }
+      { name: "미팅예약", href: "/scheduling", icon: Plus }
     ]
   },
   { 
@@ -177,6 +176,28 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                 </div>
               );
             })}
+          </div>
+          
+          {/* EVENT Section */}
+          <div className="mt-8">
+            <h3 className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+              Event 관리
+            </h3>
+            <div className="mt-2 space-y-1">
+              <Link href="/ndr-conferences">
+                <div className={cn(
+                  "group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer",
+                  location === "/ndr-conferences"
+                    ? "bg-primary text-white"
+                    : "text-gray-700 hover:bg-gray-50"
+                )}
+                onClick={() => onClose()}
+                >
+                  <CalendarDays className="mr-3 h-5 w-5" />
+                  NDR/컨퍼런스
+                </div>
+              </Link>
+            </div>
           </div>
           
           {/* DATABASE Section */}
