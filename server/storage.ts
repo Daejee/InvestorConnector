@@ -1,5 +1,5 @@
 import { 
-  investors, companies, investments, communications, meetings, funds, meetingLogs, ndrConferences, emailTemplates, emailCampaigns, analysts, documents, securitiesFirms, emailLogs,
+  investors, companies, investments, communications, meetings, funds, meetingLogs, ndrConferences, otherEvents, emailTemplates, emailCampaigns, analysts, documents, securitiesFirms, emailLogs,
   type Investor, type InsertInvestor,
   type Company, type InsertCompany,
   type Investment, type InsertInvestment,
@@ -8,6 +8,7 @@ import {
   type Fund, type InsertFund,
   type MeetingLog, type InsertMeetingLog,
   type NdrConference, type InsertNdrConference,
+  type OtherEvent, type InsertOtherEvent,
   type EmailTemplate, type InsertEmailTemplate,
   type EmailCampaign, type InsertEmailCampaign,
   type Analyst, type InsertAnalyst,
@@ -87,6 +88,13 @@ export interface IStorage {
   createNdrConference(ndrConference: InsertNdrConference): Promise<NdrConference>;
   updateNdrConference(id: number, ndrConference: Partial<InsertNdrConference>): Promise<NdrConference | undefined>;
   deleteNdrConference(id: number): Promise<boolean>;
+
+  // Other Events
+  getOtherEvents(): Promise<OtherEvent[]>;
+  getOtherEvent(id: number): Promise<OtherEvent | undefined>;
+  createOtherEvent(otherEvent: InsertOtherEvent): Promise<OtherEvent>;
+  updateOtherEvent(id: number, otherEvent: Partial<InsertOtherEvent>): Promise<OtherEvent | undefined>;
+  deleteOtherEvent(id: number): Promise<boolean>;
 
   // Email Templates
   getEmailTemplates(): Promise<EmailTemplate[]>;
@@ -447,6 +455,38 @@ export class DatabaseStorage implements IStorage {
 
   async deleteNdrConference(id: number): Promise<boolean> {
     const result = await db.delete(ndrConferences).where(eq(ndrConferences.id, id));
+    return result.rowCount! > 0;
+  }
+
+  // Other Events CRUD operations
+  async getOtherEvents(): Promise<OtherEvent[]> {
+    return await db.select().from(otherEvents).orderBy(desc(otherEvents.startDate));
+  }
+
+  async getOtherEvent(id: number): Promise<OtherEvent | undefined> {
+    const [event] = await db.select().from(otherEvents).where(eq(otherEvents.id, id));
+    return event || undefined;
+  }
+
+  async createOtherEvent(insertEvent: InsertOtherEvent): Promise<OtherEvent> {
+    const [event] = await db
+      .insert(otherEvents)
+      .values(insertEvent)
+      .returning();
+    return event;
+  }
+
+  async updateOtherEvent(id: number, updateData: Partial<InsertOtherEvent>): Promise<OtherEvent | undefined> {
+    const [event] = await db
+      .update(otherEvents)
+      .set(updateData)
+      .where(eq(otherEvents.id, id))
+      .returning();
+    return event || undefined;
+  }
+
+  async deleteOtherEvent(id: number): Promise<boolean> {
+    const result = await db.delete(otherEvents).where(eq(otherEvents.id, id));
     return result.rowCount! > 0;
   }
 

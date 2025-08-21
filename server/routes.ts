@@ -13,6 +13,7 @@ import {
   insertFundSchema,
   insertMeetingLogSchema,
   insertNdrConferenceSchema,
+  insertOtherEventSchema,
   insertEmailTemplateSchema,
   insertEmailCampaignSchema,
   insertAnalystSchema,
@@ -1042,6 +1043,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(204).send();
     } else {
       res.status(404).json({ message: "Conference not found" });
+    }
+  });
+
+  // Other Events routes
+  app.get("/api/other-events", async (req, res) => {
+    const events = await storage.getOtherEvents();
+    res.json(events);
+  });
+
+  app.get("/api/other-events/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    const event = await storage.getOtherEvent(id);
+    if (!event) {
+      return res.status(404).json({ message: "Event not found" });
+    }
+    res.json(event);
+  });
+
+  app.post("/api/other-events", async (req, res) => {
+    try {
+      const requestData = {
+        ...req.body,
+        startDate: req.body.startDate ? new Date(req.body.startDate) : undefined,
+        endDate: req.body.endDate ? new Date(req.body.endDate) : undefined
+      };
+      const data = insertOtherEventSchema.parse(requestData);
+      const event = await storage.createOtherEvent(data);
+      res.status(201).json(event);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid event data", error });
+    }
+  });
+
+  app.patch("/api/other-events/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const requestData = {
+        ...req.body,
+        startDate: req.body.startDate ? new Date(req.body.startDate) : undefined,
+        endDate: req.body.endDate ? new Date(req.body.endDate) : undefined
+      };
+      const data = insertOtherEventSchema.partial().parse(requestData);
+      const event = await storage.updateOtherEvent(id, data);
+      if (event) {
+        res.json(event);
+      } else {
+        res.status(404).json({ message: "Event not found" });
+      }
+    } catch (error) {
+      res.status(400).json({ message: "Invalid event data", error });
+    }
+  });
+
+  app.delete("/api/other-events/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    const success = await storage.deleteOtherEvent(id);
+    if (success) {
+      res.status(204).send();
+    } else {
+      res.status(404).json({ message: "Event not found" });
     }
   });
 

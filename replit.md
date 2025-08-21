@@ -140,3 +140,13 @@ UI Language: Korean/English bilingual display - show both Korean and English tex
 - **Client DB관리 Section**: Renamed from "DATABASE / DB작성" for clearer purpose identification
 - **Menu Simplification**: Removed NDR/컨퍼런스 from Meeting 관리 submenu, keeping only 미팅예약
 - **Visual Hierarchy**: Improved sidebar organization with dedicated sections for different functional areas
+
+### Other Events Management System (August 21, 2025)
+- **Complete Other Events CRUD**: Built comprehensive event management system for non-NDR/conference events
+- **Event Categories**: Added support for 5 event types: Roadshow, Workshop, Conference, Meeting, Other
+- **Bilingual Interface**: Korean/English labels throughout with "기타이벤트" / "Other Events" terminology
+- **Advanced Features**: Multi-day event support, attendee management with badge UI, status tracking
+- **Database Integration**: New `otherEvents` table with full schema and type safety via Drizzle ORM
+- **Event Status Logic**: Automatic status determination (Upcoming/Ongoing/Completed) based on dates
+- **Search & Filter**: Real-time search across event name, type, location, and organizer fields
+- **Navigation Integration**: Added to Event 관리 section in sidebar navigation structure

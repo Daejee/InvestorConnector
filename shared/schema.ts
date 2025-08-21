@@ -136,6 +136,21 @@ export const ndrConferences = pgTable("ndr_conferences", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const otherEvents = pgTable("other_events", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  eventType: text("event_type").notNull(), // Roadshow, Workshop, Conference, Meeting, Other
+  startDate: timestamp("start_date").notNull(),
+  endDate: timestamp("end_date"),
+  location: text("location").notNull(),
+  organizer: text("organizer").notNull(),
+  description: text("description"),
+  attendees: text("attendees").array().default([]), // List of attendee names/companies
+  status: text("status").notNull().default("scheduled"), // scheduled, ongoing, completed, cancelled
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 export const emailTemplates = pgTable("email_templates", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
@@ -233,6 +248,12 @@ export const insertNdrConferenceSchema = createInsertSchema(ndrConferences).omit
   createdAt: true,
 });
 
+export const insertOtherEventSchema = createInsertSchema(otherEvents).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export const insertEmailTemplateSchema = createInsertSchema(emailTemplates).omit({
   id: true,
   createdAt: true,
@@ -285,6 +306,9 @@ export type MeetingLog = typeof meetingLogs.$inferSelect;
 
 export type InsertNdrConference = z.infer<typeof insertNdrConferenceSchema>;
 export type NdrConference = typeof ndrConferences.$inferSelect;
+
+export type InsertOtherEvent = z.infer<typeof insertOtherEventSchema>;
+export type OtherEvent = typeof otherEvents.$inferSelect;
 
 export type InsertEmailTemplate = z.infer<typeof insertEmailTemplateSchema>;
 export type EmailTemplate = typeof emailTemplates.$inferSelect;
