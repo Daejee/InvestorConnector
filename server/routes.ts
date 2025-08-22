@@ -265,49 +265,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }
             
             try {
-              // Check which required fields are missing (case-insensitive)
-              const missingFields = [];
-              
-              // Check for name field (mapped from header)
+              // Extract required fields with fallbacks
               const nameValue = data.name;
-              if (!nameValue || nameValue.toString().trim() === '') missingFields.push('name');
-              
-              // Check for hqLocation field (mapped from header)
               const hqLocationValue = data.hqLocation;
-              if (!hqLocationValue || hqLocationValue.toString().trim() === '') missingFields.push('hqLocation');
-              
-              // Check for aum field - prioritize 억원 column from mapped headers
+              const typeValue = data.type;
               const aumFromWonColumn = data.aumWon;
               const aumFromMappedColumn = data.aum;
-              const aumFieldValue = aumFromWonColumn || aumFromMappedColumn;
+              const areaValue = data.area || data.areaKor || 'Korea';
               
-              console.log(`Line ${lineNumber} AUM check: wonColumn="${aumFromWonColumn}", mappedColumn="${aumFromMappedColumn}", final="${aumFieldValue}"`);
+              console.log(`Line ${lineNumber} debugging:`, {
+                name: nameValue,
+                hqLocation: hqLocationValue,
+                type: typeValue,
+                aumWon: aumFromWonColumn,
+                aum: aumFromMappedColumn,
+                area: areaValue,
+                allKeys: Object.keys(data)
+              });
               
-              // Don't require AUM - we'll handle missing AUM data later by skipping those entries
-              
-              // Check for type field (mapped from header)
-              const typeValue = data.type;
+              // Check only essential required fields
+              const missingFields = [];
+              if (!nameValue || nameValue.toString().trim() === '') missingFields.push('name');
+              if (!hqLocationValue || hqLocationValue.toString().trim() === '') missingFields.push('hqLocation');
               if (!typeValue || typeValue.toString().trim() === '') missingFields.push('type');
-              
-              // Check for area field (mapped from header) - try both area and Korean area columns
-              const areaValue = data.area || data.areaKor;
-              console.log(`Line ${lineNumber} area check: area="${data.area}", areaKor="${data.areaKor}", final="${areaValue}"`);
-              
-              // Don't require area - use default if missing
-              // if (!areaValue || areaValue.toString().trim() === '' || areaValue.toString().trim() === '0') missingFields.push('area');
 
               if (missingFields.length > 0) {
-                console.log(`Line ${lineNumber} data:`, data);
+                console.log(`Line ${lineNumber} missing fields:`, missingFields);
                 errors.push(`Line ${lineNumber}: Missing required fields: ${missingFields.join(', ')}`);
                 return;
               }
 
-              // Use the flexible field values we found
+              // Use the extracted field values
               const finalName = nameValue.toString().trim();
               const finalHqLocation = hqLocationValue.toString().trim();
               const finalType = typeValue.toString().trim();
-              const finalArea = (data.areaKor || areaValue || 'Korea').toString().trim();
-              const finalAum = (aumFromWonColumn || aumFromMappedColumn).toString().trim();
+              const finalArea = areaValue.toString().trim();
+              const finalAum = (aumFromWonColumn || aumFromMappedColumn || '0').toString().trim();
 
               // Validate company type (allow any non-empty string)
               if (!finalType) {
