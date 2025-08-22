@@ -7,6 +7,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import Layout from "@/components/layout/layout";
 import Dashboard from "@/pages/dashboard-new";
 import Investors from "@/pages/investors";
+import OverseasInvestors from "@/pages/overseas-investors";
 import Companies from "@/pages/companies";
 import Email from "@/pages/email";
 import Documents from "@/pages/documents";
@@ -28,6 +29,7 @@ function Router() {
       <Switch>
         <Route path="/" component={Dashboard} />
         <Route path="/investors" component={Investors} />
+        <Route path="/overseas-investors" component={OverseasInvestors} />
         <Route path="/analysts" component={Analysts} />
         <Route path="/companies" component={Companies} />
         <Route path="/securities-firms" component={SecuritiesFirms} />

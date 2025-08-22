@@ -46,6 +46,7 @@ const navigation = [
   },
   { name: "Reports / 보고서", href: "/reports", icon: BarChart },
   { name: "투자자", href: "/investors", icon: Users },
+  { name: "해외투자가", href: "/overseas-investors", icon: Users },
   { name: "애널리스트/브로커", href: "/analysts", icon: Users },
   { 
     name: "자산운용사(국내외)", 
