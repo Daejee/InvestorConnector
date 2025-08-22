@@ -382,7 +382,7 @@ export default function Companies() {
                   <TableHead>HQ Location / 본사 위치</TableHead>
                   <TableHead>Area / 지역</TableHead>
                   <TableHead>AUM ($Bil)</TableHead>
-                  <TableHead>AUM (조원)</TableHead>
+                  <TableHead>AUM (억원)</TableHead>
                   <TableHead>주주여부</TableHead>
                   <TableHead className="w-[100px]">Actions / 작업</TableHead>
                 </TableRow>
@@ -395,7 +395,7 @@ export default function Companies() {
                     <TableCell>{company.hqLocation}</TableCell>
                     <TableCell>{company.area || 'US'}</TableCell>
                     <TableCell>{(parseFloat(company.aum) / 1000000000).toFixed(1)}</TableCell>
-                    <TableCell>{company.aumKrw ? (parseFloat(company.aumKrw) / 1000000000).toFixed(1) : ((parseFloat(company.aum) * 1.4) / 1000000000).toFixed(1)}</TableCell>
+                    <TableCell>{company.aumKrw ? (parseFloat(company.aumKrw) / 100000000).toFixed(0) : ((parseFloat(company.aum) * 1.4) / 100000000).toFixed(0)}</TableCell>
                     <TableCell>
                       {company.shareholderStatus === "Yes" && company.shareCount ? 
                         `Yes (${company.shareCount})` : 
