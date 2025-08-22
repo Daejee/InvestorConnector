@@ -218,8 +218,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 case 'hq_location':
                 case '본사 위치':
                   return 'hqLocation';
-                case 'aum':
                 case 'aum (억원)':
+                  return 'aumWon';  // Map to dedicated field for 억원 data
+                case 'aum':
                 case 'assets under management':
                 case 'total aum':
                 case 'aum (bil)':
@@ -237,12 +238,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
                   return 'type';
                 case 'area':
                 case 'area / 지역':
-                case 'area(지역)':
                 case 'region':
                 case 'geography':
                 case 'investment_area':
                 case '지역':
                   return 'area';
+                case 'area(지역)':
+                  return 'areaKor'; // Map to dedicated field for Korean area data
                 default:
                   return header;
               }
@@ -269,8 +271,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
               const hqLocationValue = data.hqLocation;
               if (!hqLocationValue || hqLocationValue.toString().trim() === '') missingFields.push('hqLocation');
               
-              // Check for aum field - prioritize 억원 column from original headers
-              const aumFromWonColumn = data['AUM (억원)'];
+              // Check for aum field - prioritize 억원 column from mapped headers
+              const aumFromWonColumn = data.aumWon;
               const aumFromMappedColumn = data.aum;
               const aumFieldValue = aumFromWonColumn || aumFromMappedColumn;
               
@@ -282,8 +284,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
               const typeValue = data.type;
               if (!typeValue || typeValue.toString().trim() === '') missingFields.push('type');
               
-              // Check for area field (mapped from header) - try both area and area(지역) columns
-              const areaValue = data.area || data['AREA(지역)'] || data['area(지역)'];
+              // Check for area field (mapped from header) - try both area and Korean area columns
+              const areaValue = data.area || data.areaKor;
               if (!areaValue || areaValue.toString().trim() === '' || areaValue.toString().trim() === '0') missingFields.push('area');
 
               if (missingFields.length > 0) {
@@ -296,8 +298,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
               const finalName = nameValue.toString().trim();
               const finalHqLocation = hqLocationValue.toString().trim();
               const finalType = typeValue.toString().trim();
-              const finalArea = (data['AREA(지역)'] || data['area(지역)'] || areaValue).toString().trim();
-              const finalAum = (aumFromWonColumn || aumFromMappedColumn || aumFieldValue).toString().trim();
+              const finalArea = (data.areaKor || areaValue).toString().trim();
+              const finalAum = (aumFromWonColumn || aumFromMappedColumn).toString().trim();
 
               // Validate company type (allow any non-empty string)
               if (!finalType) {
