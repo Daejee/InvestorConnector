@@ -356,10 +356,11 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel }
                         <FormControl>
                           <Input 
                             type="number" 
-                            placeholder="예: 5" 
+                            step="0.1"
+                            placeholder="예: 5.5" 
                             {...field} 
                             value={field.value ?? ""}
-                            onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
                           />
                         </FormControl>
                         <FormMessage />
@@ -376,10 +377,11 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel }
                         <FormControl>
                           <Input 
                             type="number" 
-                            placeholder="예: 3" 
+                            step="0.1"
+                            placeholder="예: 3.2" 
                             {...field} 
                             value={field.value ?? ""}
-                            onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
                           />
                         </FormControl>
                         <FormMessage />
