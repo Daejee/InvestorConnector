@@ -6,7 +6,9 @@ import { Readable } from "stream";
 import { storage } from "./storage";
 import { 
   insertInvestorSchema, 
+  insertOverseasInvestorSchema,
   insertCompanySchema, 
+  insertOverseasCompanySchema,
   insertInvestmentSchema, 
   insertCommunicationSchema,
   insertMeetingSchema,
@@ -111,6 +113,82 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error('Error deleting investor:', error);
       res.status(500).json({ 
         message: "Failed to delete investor", 
+        error: error.message 
+      });
+    }
+  });
+
+  // Overseas Investors routes
+  app.get("/api/overseas-investors", async (req, res) => {
+    const investors = await storage.getOverseasInvestors();
+    res.json(investors);
+  });
+
+  app.get("/api/overseas-investors/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    const investor = await storage.getOverseasInvestor(id);
+    if (!investor) {
+      return res.status(404).json({ message: "Overseas investor not found" });
+    }
+    res.json(investor);
+  });
+
+  app.post("/api/overseas-investors", async (req, res) => {
+    try {
+      const data = insertOverseasInvestorSchema.parse(req.body);
+      const investor = await storage.createOverseasInvestor(data);
+      res.status(201).json(investor);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid overseas investor data", error });
+    }
+  });
+
+  app.put("/api/overseas-investors/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const data = insertOverseasInvestorSchema.partial().parse(req.body);
+      const investor = await storage.updateOverseasInvestor(id, data);
+      if (!investor) {
+        return res.status(404).json({ message: "Overseas investor not found" });
+      }
+      res.json(investor);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid overseas investor data", error });
+    }
+  });
+
+  app.patch("/api/overseas-investors/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const data = insertOverseasInvestorSchema.partial().parse(req.body);
+      const investor = await storage.updateOverseasInvestor(id, data);
+      if (!investor) {
+        return res.status(404).json({ message: "Overseas investor not found" });
+      }
+      res.json(investor);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid overseas investor data", error });
+    }
+  });
+
+  app.delete("/api/overseas-investors/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      
+      const investor = await storage.getOverseasInvestor(id);
+      if (!investor) {
+        return res.status(404).json({ message: "Overseas investor not found" });
+      }
+      
+      const deleted = await storage.deleteOverseasInvestor(id);
+      if (!deleted) {
+        return res.status(500).json({ message: "Failed to delete overseas investor" });
+      }
+      res.status(204).send();
+    } catch (error: any) {
+      console.error('Error deleting overseas investor:', error);
+      res.status(500).json({ 
+        message: "Failed to delete overseas investor", 
         error: error.message 
       });
     }
@@ -432,6 +510,82 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       res.status(500).json({ 
         message: "Failed to process CSV file", 
+        error: error.message 
+      });
+    }
+  });
+
+  // Overseas Companies routes
+  app.get("/api/overseas-companies", async (req, res) => {
+    const companies = await storage.getOverseasCompanies();
+    res.json(companies);
+  });
+
+  app.get("/api/overseas-companies/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    const company = await storage.getOverseasCompany(id);
+    if (!company) {
+      return res.status(404).json({ message: "Overseas company not found" });
+    }
+    res.json(company);
+  });
+
+  app.post("/api/overseas-companies", async (req, res) => {
+    try {
+      const data = insertOverseasCompanySchema.parse(req.body);
+      const company = await storage.createOverseasCompany(data);
+      res.status(201).json(company);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid overseas company data", error });
+    }
+  });
+
+  app.put("/api/overseas-companies/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const data = insertOverseasCompanySchema.partial().parse(req.body);
+      const company = await storage.updateOverseasCompany(id, data);
+      if (!company) {
+        return res.status(404).json({ message: "Overseas company not found" });
+      }
+      res.json(company);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid overseas company data", error });
+    }
+  });
+
+  app.patch("/api/overseas-companies/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const data = insertOverseasCompanySchema.partial().parse(req.body);
+      const company = await storage.updateOverseasCompany(id, data);
+      if (!company) {
+        return res.status(404).json({ message: "Overseas company not found" });
+      }
+      res.json(company);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid overseas company data", error });
+    }
+  });
+
+  app.delete("/api/overseas-companies/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      
+      const company = await storage.getOverseasCompany(id);
+      if (!company) {
+        return res.status(404).json({ message: "Overseas company not found" });
+      }
+      
+      const deleted = await storage.deleteOverseasCompany(id);
+      if (!deleted) {
+        return res.status(500).json({ message: "Failed to delete overseas company" });
+      }
+      res.status(204).send();
+    } catch (error: any) {
+      console.error('Error deleting overseas company:', error);
+      res.status(500).json({ 
+        message: "Failed to delete overseas company", 
         error: error.message 
       });
     }

@@ -7,25 +7,25 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import CompanyForm from "@/components/companies/company-form";
+import OverseasCompanyForm from "@/components/companies/overseas-company-form";
 import { Plus, Search, Upload, Download, FileText, Edit, Archive, Trash2, MoreVertical } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import type { Company } from "@shared/schema";
+import type { OverseasCompany } from "@shared/schema";
 
 export default function OverseasCompanies() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [editingCompany, setEditingCompany] = useState<Company | null>(null);
+  const [editingCompany, setEditingCompany] = useState<OverseasCompany | null>(null);
   const [uploadResult, setUploadResult] = useState<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const { data: companies, isLoading } = useQuery<Company[]>({
-    queryKey: ["/api/companies"],
+  const { data: companies, isLoading } = useQuery<OverseasCompany[]>({
+    queryKey: ["/api/overseas-companies"],
   });
 
   // Helper function to check if text contains Korean characters
@@ -69,7 +69,7 @@ export default function OverseasCompanies() {
       const formData = new FormData();
       formData.append('csvFile', file);
       
-      const response = await fetch('/api/companies/upload-csv', {
+      const response = await fetch('/api/overseas-companies/upload-csv', {
         method: 'POST',
         body: formData,
       });
@@ -86,7 +86,7 @@ export default function OverseasCompanies() {
       return response.json();
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["/api/companies"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/overseas-companies"] });
       queryClient.invalidateQueries({ queryKey: ["/api/dashboard/stats"] });
       setUploadResult(data);
       toast({
@@ -107,11 +107,11 @@ export default function OverseasCompanies() {
 
   const deleteCompanyMutation = useMutation({
     mutationFn: async (companyId: number) => {
-      const response = await apiRequest("DELETE", `/api/companies/${companyId}`);
+      const response = await apiRequest("DELETE", `/api/overseas-companies/${companyId}`);
       return response;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/companies"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/overseas-companies"] });
       toast({
         title: "Success",
         description: "Company deleted successfully",
@@ -128,11 +128,11 @@ export default function OverseasCompanies() {
 
   const archiveCompanyMutation = useMutation({
     mutationFn: async (companyId: number) => {
-      const response = await apiRequest("PUT", `/api/companies/${companyId}/archive`);
+      const response = await apiRequest("PUT", `/api/overseas-companies/${companyId}/archive`);
       return response;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/companies"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/overseas-companies"] });
       toast({
         title: "Success",
         description: "Company archived successfully",
@@ -345,7 +345,7 @@ export default function OverseasCompanies() {
                 <DialogHeader>
                   <DialogTitle>새 국내자산운용사 추가</DialogTitle>
                 </DialogHeader>
-                <CompanyForm 
+                <OverseasCompanyForm 
                   onSuccess={() => setIsDialogOpen(false)}
                   onCancel={() => setIsDialogOpen(false)}
                 />
@@ -456,7 +456,7 @@ export default function OverseasCompanies() {
             <DialogTitle>국내자산운용사 편집</DialogTitle>
           </DialogHeader>
           {editingCompany && (
-            <CompanyForm 
+            <OverseasCompanyForm 
               company={editingCompany}
               onSuccess={() => {
                 setIsEditDialogOpen(false);

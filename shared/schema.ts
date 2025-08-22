@@ -26,6 +26,30 @@ export const investors = pgTable("investors", {
   numberOfManagedFunds: integer("number_of_managed_funds"), // 운용펀드수
 });
 
+export const overseasInvestors = pgTable("overseas_investors", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  email: text("email").notNull().unique(),
+  phone: text("phone"),
+  company: text("company").notNull(),
+  fund: text("fund"), // Fund name from funds table
+  position: text("position"),
+  positionType: text("position_type"), // PM, Buyside Analyst, Other
+  specialty: text("specialty").array().default([]), // Combined industry and regional specialties
+  ownsOurShare: text("owns_our_share"), // Yes, No
+  shareAmount: text("share_amount"), // amount owned if ownsOurShare is Yes
+  note: text("note"), // free text field for any notes
+  avatarInitials: text("avatar_initials"),
+  country: text("country").default("Korea"), // Korea, US, UK, Japan, Singapore, Other
+  language: text("language").default("Korean"), // Korean, English, Japanese
+  timezone: text("timezone").default("Asia/Seoul"),
+  // New portfolio management fields
+  totalExperience: integer("total_experience"), // 총운용경력 (years)
+  currentCompanyExperience: integer("current_company_experience"), // 현회사운용경력 (years)
+  managedFundAum: decimal("managed_fund_aum", { precision: 20, scale: 2 }), // 운용펀드AUM
+  numberOfManagedFunds: integer("number_of_managed_funds"), // 운용펀드수
+});
+
 export const analysts = pgTable("analysts", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
@@ -56,6 +80,19 @@ export const documents = pgTable("documents", {
 });
 
 export const companies = pgTable("companies", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  hqLocation: text("hq_location").notNull(),
+  aum: decimal("aum", { precision: 20, scale: 2 }).notNull(),
+  aumKrw: decimal("aum_krw", { precision: 20, scale: 2 }), // AUM in Korean Won (trillion)
+  type: text("type").notNull(), // VC, PE, Hedge Fund, etc.
+  area: text("area"), // US, EU, Hong Kong, Singapore, Korea, Other
+  shareholderStatus: text("shareholder_status").default("N/A"), // Yes, No, N/A
+  shareCount: text("share_count"), // Number of shares if shareholderStatus is Yes
+  status: text("status").notNull().default("active"), // active, archived
+});
+
+export const overseasCompanies = pgTable("overseas_companies", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   hqLocation: text("hq_location").notNull(),
@@ -212,7 +249,15 @@ export const insertInvestorSchema = createInsertSchema(investors).omit({
   id: true,
 });
 
+export const insertOverseasInvestorSchema = createInsertSchema(overseasInvestors).omit({
+  id: true,
+});
+
 export const insertCompanySchema = createInsertSchema(companies).omit({
+  id: true,
+});
+
+export const insertOverseasCompanySchema = createInsertSchema(overseasCompanies).omit({
   id: true,
 });
 
@@ -291,8 +336,14 @@ export const insertEmailLogSchema = createInsertSchema(emailLogs).omit({
 export type InsertInvestor = z.infer<typeof insertInvestorSchema>;
 export type Investor = typeof investors.$inferSelect;
 
+export type InsertOverseasInvestor = z.infer<typeof insertOverseasInvestorSchema>;
+export type OverseasInvestor = typeof overseasInvestors.$inferSelect;
+
 export type InsertCompany = z.infer<typeof insertCompanySchema>;
 export type Company = typeof companies.$inferSelect;
+
+export type InsertOverseasCompany = z.infer<typeof insertOverseasCompanySchema>;
+export type OverseasCompany = typeof overseasCompanies.$inferSelect;
 
 export type InsertInvestment = z.infer<typeof insertInvestmentSchema>;
 export type Investment = typeof investments.$inferSelect;

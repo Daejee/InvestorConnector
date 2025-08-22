@@ -5,16 +5,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import InvestorTable from "@/components/investors/investor-table";
-import InvestorFormSimplified from "@/components/investors/investor-form-simplified";
+import OverseasInvestorForm from "@/components/investors/overseas-investor-form";
 import { Plus, Search } from "lucide-react";
-import type { Investor } from "@shared/schema";
+import type { OverseasInvestor } from "@shared/schema";
 
 export default function OverseasInvestors() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const { data: investors, isLoading } = useQuery<Investor[]>({
-    queryKey: ["/api/investors"],
+  const { data: investors, isLoading } = useQuery<OverseasInvestor[]>({
+    queryKey: ["/api/overseas-investors"],
   });
 
   const filteredInvestors = investors?.filter(investor =>
@@ -43,7 +43,7 @@ export default function OverseasInvestors() {
                 <DialogHeader>
                   <DialogTitle>새 해외투자가 추가</DialogTitle>
                 </DialogHeader>
-                <InvestorFormSimplified 
+                <OverseasInvestorForm 
                   onSuccess={() => setIsDialogOpen(false)}
                   onCancel={() => setIsDialogOpen(false)}
                 />
