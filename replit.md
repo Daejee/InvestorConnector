@@ -5,7 +5,7 @@ IR CRM is a comprehensive investor relations management system designed to centr
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
-UI Language: Korean/English bilingual display - show both Korean and English text throughout the interface.
+UI Language: Korean only display - use only Korean text for all new features and modifications (changed from bilingual on August 22, 2025).
 
 ## System Architecture
 
