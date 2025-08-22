@@ -58,7 +58,6 @@ const navigation = [
   },
   { name: "애널리스트/브로커", href: "/analysts", icon: Users },
   { name: "증권사", href: "/securities-firms", icon: Building },
-  { name: "문서", href: "/documents", icon: FileText },
 ];
 
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
@@ -304,16 +303,22 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
           
           <div className="mt-8">
             <h3 className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-              Quick Actions / 빠른 작업
+              기타DB
             </h3>
             <div className="mt-2 space-y-1">
-              <Link href="/investors">
-                <div className="w-full text-left text-gray-700 hover:bg-gray-50 group flex items-center px-3 py-2 text-sm font-medium rounded-lg cursor-pointer">
-                  <Plus className="mr-3 h-4 w-4" />
-                  Add Investor / 투자자 추가
+              <Link href="/documents">
+                <div className={cn(
+                  "group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer",
+                  location === "/documents"
+                    ? "bg-primary text-white"
+                    : "text-gray-700 hover:bg-gray-50"
+                )}
+                onClick={() => onClose()}
+                >
+                  <FileText className="mr-3 h-5 w-5" />
+                  문서
                 </div>
               </Link>
-
             </div>
           </div>
         </nav>
