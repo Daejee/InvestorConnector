@@ -46,6 +46,7 @@ const navigation = [
   },
   { name: "Reports / 보고서", href: "/reports", icon: BarChart },
   { name: "투자자(국내)", href: "/investors", icon: Users },
+  { name: "자산운용사(국내)", href: "/overseas-companies", icon: Building },
   { name: "투자자(해외)", href: "/overseas-investors", icon: Users },
   { 
     name: "자산운용사(해외)", 
@@ -55,7 +56,6 @@ const navigation = [
       { name: "Funds / 펀드", href: "/funds", icon: Wallet }
     ]
   },
-  { name: "자산운용사(국내)", href: "/overseas-companies", icon: Building },
   { name: "애널리스트/브로커", href: "/analysts", icon: Users },
   { name: "증권사", href: "/securities-firms", icon: Building },
   { name: "문서", href: "/documents", icon: FileText },
