@@ -203,6 +203,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
               detectedHeaders.push(header);
               
               const normalized = header.toLowerCase().trim();
+              console.log(`Mapping header: "${header}" -> normalized: "${normalized}"`);
+              
               switch (normalized) {
                 case 'name':
                 case 'company name':
@@ -219,6 +221,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 case '본사 위치':
                   return 'hqLocation';
                 case 'aum (억원)':
+                  console.log(`Mapping "aum (억원)" to aumWon`);
                   return 'aumWon';  // Map to dedicated field for 억원 data
                 case 'aum':
                 case 'assets under management':
@@ -244,8 +247,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 case '지역':
                   return 'area';
                 case 'area(지역)':
+                  console.log(`Mapping "area(지역)" to areaKor`);
                   return 'areaKor'; // Map to dedicated field for Korean area data
                 default:
+                  console.log(`No mapping for header: "${header}", keeping as: "${header}"`);
                   return header;
               }
             }
@@ -253,10 +258,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           .on('data', (data) => {
             lineNumber++;
             
-            // Log first data row for debugging
-            if (lineNumber === 2) {
-              console.log('First data row:', data);
-              console.log('Mapped data keys:', Object.keys(data));
+            // Log first few data rows for debugging
+            if (lineNumber <= 3) {
+              console.log(`Row ${lineNumber-1} data:`, data);
+              console.log(`Row ${lineNumber-1} data keys:`, Object.keys(data));
             }
             
             try {
