@@ -93,7 +93,7 @@ export default function OtherEvents() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-2xl font-bold text-gray-900">기타이벤트 / Other Events</h2>
-            <p className="text-gray-600 mt-1">Manage other business events and activities / 기타 비즈니스 이벤트 및 활동 관리</p>
+            <p className="text-gray-600 mt-1">기타 IR 이벤트 Database</p>
           </div>
           <div className="mt-4 sm:mt-0">
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
