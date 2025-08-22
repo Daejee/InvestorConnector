@@ -190,7 +190,7 @@ export default function SecuritiesFirms() {
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Securities Firms / 증권사</h2>
+          <h2 className="text-2xl font-bold text-gray-900">증권사/ Brokerage Firms</h2>
           <p className="text-gray-600 mt-1">Manage securities firms and brokerage companies / 증권사 및 중개업체 관리</p>
         </div>
         <div className="flex gap-3">
