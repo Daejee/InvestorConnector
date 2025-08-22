@@ -267,7 +267,7 @@ export default function Documents() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-2xl font-bold text-gray-900">Documents / 문서</h2>
-            <p className="text-gray-600 mt-1">Manage investor documents and attachments / 투자자 문서 및 첨부파일 관리</p>
+            <p className="text-gray-600 mt-1">투자자 문서 및 첨부파일 관리</p>
           </div>
           <div className="mt-4 sm:mt-0">
             <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
