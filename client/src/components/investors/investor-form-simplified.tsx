@@ -392,7 +392,7 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel }
                     name="managedFundAum"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>운용펀드AUM (백만 USD)</FormLabel>
+                        <FormLabel>운용펀드AUM (억원)</FormLabel>
                         <FormControl>
                           <Input 
                             type="number" 
