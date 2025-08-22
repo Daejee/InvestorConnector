@@ -209,97 +209,6 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel }
           />
         </div>
 
-        {/* Portfolio Management Experience Fields - Always Visible */}
-        <div className="space-y-4 border-t pt-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-gray-900">포트폴리오 운용 경력</h3>
-            <span className="text-xs text-gray-500 italic">PM 및 애널리스트용</span>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField
-              control={form.control}
-              name="totalExperience"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>총운용경력 (년)</FormLabel>
-                  <FormControl>
-                    <Input 
-                      type="number" 
-                      placeholder="예: 5" 
-                      {...field} 
-                      value={field.value ?? ""}
-                      onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="currentCompanyExperience"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>현회사운용경력 (년)</FormLabel>
-                  <FormControl>
-                    <Input 
-                      type="number" 
-                      placeholder="예: 3" 
-                      {...field} 
-                      value={field.value ?? ""}
-                      onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="managedFundAum"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>운용펀드AUM (백만 USD)</FormLabel>
-                  <FormControl>
-                    <Input 
-                      type="number" 
-                      step="0.01"
-                      placeholder="예: 500.00" 
-                      {...field} 
-                      value={field.value ?? ""}
-                      onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="numberOfManagedFunds"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>운용펀드수</FormLabel>
-                  <FormControl>
-                    <Input 
-                      type="number" 
-                      placeholder="예: 3" 
-                      {...field} 
-                      value={field.value ?? ""}
-                      onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-        </div>
-
         {/* Additional Details - Collapsible */}
         <Collapsible open={showDetails} onOpenChange={setShowDetails}>
           <CollapsibleTrigger asChild>
@@ -430,7 +339,96 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel }
               />
             )}
 
+            {/* Portfolio Management Experience Fields */}
+            <div className="space-y-4 border-t pt-4">
+              <div className="flex items-center justify-between">
+                <h4 className="text-base font-semibold text-gray-800">포트폴리오 운용 경력</h4>
+                <span className="text-xs text-gray-500 italic">PM 및 애널리스트용</span>
+              </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="totalExperience"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>총운용경력 (년)</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="number" 
+                            placeholder="예: 5" 
+                            {...field} 
+                            value={field.value ?? ""}
+                            onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
+                  <FormField
+                    control={form.control}
+                    name="currentCompanyExperience"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>현회사운용경력 (년)</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="number" 
+                            placeholder="예: 3" 
+                            {...field} 
+                            value={field.value ?? ""}
+                            onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="managedFundAum"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>운용펀드AUM (백만 USD)</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="number" 
+                            step="0.01"
+                            placeholder="예: 500.00" 
+                            {...field} 
+                            value={field.value ?? ""}
+                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="numberOfManagedFunds"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>운용펀드수</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="number" 
+                            placeholder="예: 3" 
+                            {...field} 
+                            value={field.value ?? ""}
+                            onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField

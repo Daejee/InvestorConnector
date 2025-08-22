@@ -158,7 +158,7 @@ UI Language: Korean only display - use only Korean text for all new features and
   - 운용펀드AUM (Managed Fund AUM) - Total assets under management in Million USD
   - 운용펀드수 (Number of Managed Funds) - Count of funds managed
 - **Database Schema**: Added new columns to investors table with proper data types (integer, decimal)
-- **Form Integration**: Enhanced investor form with bilingual Korean/English labels
-- **Conditional Display**: Fields always visible in form with helpful labels indicating relevance for PM/Analysts
+- **Form Integration**: Enhanced investor form with Korean-only labels (removed English text for cleaner appearance)
+- **Conditional Display**: Fields remain in collapsible R&R section (user initially wanted them always visible but reverted this decision)
 - **Detail View**: Updated investor detail view to show portfolio management experience in organized format
 - **Data Validation**: Proper number input validation and formatting for experience years and AUM amounts
