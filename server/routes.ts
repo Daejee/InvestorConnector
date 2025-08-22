@@ -206,33 +206,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
               switch (normalized) {
                 case 'name':
                 case 'company name':
+                case 'company name / 회사명':
                 case 'company':
                 case '회사명':
                   return 'name';
                 case 'hq location':
+                case 'hq location / 본사 위치':
                 case 'hq':
                 case 'location':
                 case 'headquarters':
                 case 'hq_location':
+                case '본사 위치':
                   return 'hqLocation';
                 case 'aum':
+                case 'aum (억원)':
                 case 'assets under management':
                 case 'total aum':
                 case 'aum (bil)':
                 case 'aum ($bil)':
                 case 'aum (billion usd)':
                 case 'aum_bil':
+                case '운용자산':
                   return 'aum';
                 case 'type':
+                case 'type / 유형':
                 case 'company type':
                 case 'fund type':
                 case 'investment_type':
                 case '유형':
                   return 'type';
                 case 'area':
+                case 'area / 지역':
+                case 'area(지역)':
                 case 'region':
                 case 'geography':
                 case 'investment_area':
+                case '지역':
                   return 'area';
                 default:
                   return header;
@@ -260,17 +269,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
               const hqLocationValue = data.hqLocation;
               if (!hqLocationValue || hqLocationValue.toString().trim() === '') missingFields.push('hqLocation');
               
-              // Check for aum field (mapped from header)
-              const aumFieldValue = data.aum;
-              if (!aumFieldValue || aumFieldValue.toString().trim() === '') missingFields.push('aum');
+              // Check for aum field (mapped from header) - prioritize 억원 column
+              const aumFieldValue = data['AUM (억원)'] || data.aum;
+              if (!aumFieldValue || aumFieldValue.toString().trim() === '' || aumFieldValue.toString().trim() === '-' || aumFieldValue.toString().trim() === '0') missingFields.push('aum');
               
               // Check for type field (mapped from header)
               const typeValue = data.type;
               if (!typeValue || typeValue.toString().trim() === '') missingFields.push('type');
               
-              // Check for area field (mapped from header)
-              const areaValue = data.area;
-              if (!areaValue || areaValue.toString().trim() === '') missingFields.push('area');
+              // Check for area field (mapped from header) - try both area and area(지역) columns
+              const areaValue = data.area || data['AREA(지역)'] || data['area(지역)'];
+              if (!areaValue || areaValue.toString().trim() === '' || areaValue.toString().trim() === '0') missingFields.push('area');
 
               if (missingFields.length > 0) {
                 console.log(`Line ${lineNumber} data:`, data);
@@ -282,8 +291,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
               const finalName = nameValue.toString().trim();
               const finalHqLocation = hqLocationValue.toString().trim();
               const finalType = typeValue.toString().trim();
-              const finalArea = areaValue.toString().trim();
-              const finalAum = aumFieldValue.toString().trim();
+              const finalArea = (data['AREA(지역)'] || data['area(지역)'] || areaValue).toString().trim();
+              const finalAum = (data['AUM (억원)'] || aumFieldValue).toString().trim();
 
               // Validate company type (allow any non-empty string)
               if (!finalType) {
@@ -297,12 +306,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 return;
               }
 
-              // Parse AUM value - handle various formats like ">$66B", "~$130B", "$30B+", "66"
+              // Parse AUM value - handle Korean number format with commas and spaces
               const parseAumValue = (aumString: string): number => {
-                // Remove common prefixes and suffixes
+                // Remove common prefixes, suffixes, spaces, and commas
                 let cleanedAum = aumString
-                  .replace(/[>~$+]/g, '') // Remove >, ~, $, + symbols
-                  .replace(/\s*\(.*?\)\s*/g, '') // Remove parenthetical content like "(incl. non-hedge assets)"
+                  .replace(/[>~$+\s]/g, '') // Remove >, ~, $, +, spaces
+                  .replace(/,/g, '') // Remove commas
+                  .replace(/"/g, '') // Remove quotes
+                  .replace(/\s*\(.*?\)\s*/g, '') // Remove parenthetical content
                   .replace(/[Bb]/g, '') // Remove B for billions
                   .trim();
                 
@@ -312,18 +323,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
               
               const aumNumericValue = parseAumValue(finalAum);
               if (isNaN(aumNumericValue) || aumNumericValue < 0) {
-                errors.push(`Line ${lineNumber}: AUM must be a valid positive number in billions, got "${finalAum}"`);
+                errors.push(`Line ${lineNumber}: AUM must be a valid positive number, got "${finalAum}"`);
                 return;
               }
 
-              // Store AUM value directly (already in billions from CSV)
+              // Store AUM value directly (already in 억원 from CSV)
               const aumInFullAmount = aumNumericValue.toString();
 
               const companyData = {
                 name: finalName,
                 hqLocation: finalHqLocation,
-                aum: aumInFullAmount,
-                aumKrw: (aumNumericValue * 1.4).toString(), // Auto-calculate KRW with 1.4x multiplier
+                aum: aumInFullAmount, // This is now in 억원 units
+                aumKrw: aumInFullAmount, // Same as aum since it's already in 억원
                 type: finalType,
                 area: finalArea
               };
