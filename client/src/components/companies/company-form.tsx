@@ -121,9 +121,9 @@ export default function CompanyForm({ company, onSuccess, onCancel }: CompanyFor
           name="aum"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>AUM / 운용자산</FormLabel>
+              <FormLabel>AUM / 운용자산 (10억 USD 단위)</FormLabel>
               <FormControl>
-                <Input type="number" placeholder="Enter AUM in billions (e.g., 9000 for $9T)" {...field} />
+                <Input type="number" placeholder="예: 9000 (9조 달러), 32.14 (321억 달러)" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
