@@ -21,6 +21,23 @@ import { apiRequest } from "@/lib/queryClient";
 import { SimpleFileUploader } from "@/components/SimpleFileUploader";
 import type { Document } from "@shared/schema";
 
+// Category translation mapping
+const getCategoryDisplayName = (category: string): string => {
+  const categoryMap: Record<string, string> = {
+    "IR Presentations": "IR 발표자료",
+    "Meeting Notes": "회의록",
+    "Financial Reports": "재무자료",
+    "Research Reports": "분석리포트",
+    "Others": "기타",
+    // Legacy categories for backward compatibility
+    "General": "일반",
+    "Legal Documents": "법적문서",
+    "Research": "리서치",
+    "Contracts": "계약서"
+  };
+  return categoryMap[category] || category;
+};
+
 export default function Documents() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -414,7 +431,7 @@ export default function Documents() {
                         {document.fileType.split('/')[1]?.toUpperCase() || 'FILE'}
                       </Badge>
                     </TableCell>
-                    <TableCell>{document.category}</TableCell>
+                    <TableCell>{getCategoryDisplayName(document.category || "")}</TableCell>
                     <TableCell>{formatFileSize(document.fileSize)}</TableCell>
                     <TableCell>
                       {new Date(document.createdAt!).toLocaleDateString()}
