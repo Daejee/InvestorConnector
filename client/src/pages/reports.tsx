@@ -344,7 +344,7 @@ export default function Reports() {
                             <div key={fund.id} className="bg-white p-3 rounded border">
                               <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                                 <div>
-                                  <span className="text-xs font-medium text-gray-500">AUM:</span>
+                                  <span className="text-xs font-medium text-gray-500">운용자산(AUM in $billion):</span>
                                   <p className="text-sm text-gray-900">{fund.aum}</p>
                                 </div>
                                 <div>
