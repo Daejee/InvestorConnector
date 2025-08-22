@@ -291,7 +291,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
               
               // Check for area field (mapped from header) - try both area and Korean area columns
               const areaValue = data.area || data.areaKor;
-              if (!areaValue || areaValue.toString().trim() === '' || areaValue.toString().trim() === '0') missingFields.push('area');
+              console.log(`Line ${lineNumber} area check: area="${data.area}", areaKor="${data.areaKor}", final="${areaValue}"`);
+              
+              // Don't require area - use default if missing
+              // if (!areaValue || areaValue.toString().trim() === '' || areaValue.toString().trim() === '0') missingFields.push('area');
 
               if (missingFields.length > 0) {
                 console.log(`Line ${lineNumber} data:`, data);
@@ -303,7 +306,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               const finalName = nameValue.toString().trim();
               const finalHqLocation = hqLocationValue.toString().trim();
               const finalType = typeValue.toString().trim();
-              const finalArea = (data.areaKor || areaValue).toString().trim();
+              const finalArea = (data.areaKor || areaValue || 'Korea').toString().trim();
               const finalAum = (aumFromWonColumn || aumFromMappedColumn).toString().trim();
 
               // Validate company type (allow any non-empty string)
