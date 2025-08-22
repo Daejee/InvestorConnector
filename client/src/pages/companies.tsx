@@ -216,39 +216,39 @@ export default function Companies() {
               </DialogTrigger>
               <DialogContent className="max-w-2xl">
                 <DialogHeader>
-                  <DialogTitle>Upload Companies from CSV / CSV로 회사 업로드</DialogTitle>
+                  <DialogTitle>CSV로 회사 정보 업로드</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-6">
                   <div>
                     <p className="text-sm text-gray-600 mb-4">
-                      Upload a CSV file with the following columns:
+                      다음 형식의 CSV 파일을 업로드하세요:
                     </p>
                     <div className="bg-gray-50 p-4 rounded-lg">
-                      <p className="font-medium text-gray-900 mb-3">CSV Format Requirements:</p>
+                      <p className="font-medium text-gray-900 mb-3">CSV 형식 요구사항:</p>
                       <div className="space-y-4">
                         <div>
-                          <strong>Required Headers (first row):</strong>
+                          <strong>필수 헤더 (첫 번째 행):</strong>
                           <p className="text-sm text-gray-600 mt-1 font-mono bg-white p-2 rounded border">
                             Company Name,HQ Location,AUM,Type,Area
                           </p>
                         </div>
                         <div>
-                          <strong>Example Data Row:</strong>
+                          <strong>데이터 행 예시:</strong>
                           <p className="text-sm text-gray-600 mt-1 font-mono bg-white p-2 rounded border">
-                            HSBC Asset Management,Hong Kong,620,"Institutional, ESG",Hong Kong
+                            교보악사자산운용,서울,502862,투신사,Korea
                           </p>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
-                            <strong>Notes:</strong>
+                            <strong>참고사항:</strong>
                             <ul className="mt-2 space-y-1 text-sm text-gray-600">
-                              <li>• AUM values should be in billions</li>
-                              <li>• Use quotes for multi-word types</li>
-                              <li>• Headers are case-insensitive</li>
+                              <li>• AUM 값은 억원 단위로 입력</li>
+                              <li>• 여러 단어로 된 유형은 따옴표 사용</li>
+                              <li>• 헤더는 대소문자 구분 안함</li>
                             </ul>
                           </div>
                           <div>
-                            <strong>Area Options:</strong>
+                            <strong>지역 옵션:</strong>
                             <ul className="mt-2 space-y-1 text-sm text-gray-600">
                               <li>• US • EU • Hong Kong</li>
                               <li>• Singapore • Korea • Other</li>
@@ -263,7 +263,7 @@ export default function Companies() {
                     <FileText className="mx-auto h-12 w-12 text-gray-400 mb-4" />
                     <div className="space-y-2">
                       <p className="text-sm text-gray-600">
-                        Click to select a CSV file or drag and drop
+                        CSV 파일을 선택하거나 드래그 앤 드롭하세요
                       </p>
                       <input
                         ref={fileInputRef}
@@ -278,7 +278,7 @@ export default function Companies() {
                         onClick={() => fileInputRef.current?.click()}
                         disabled={uploadCSVMutation.isPending}
                       >
-                        {uploadCSVMutation.isPending ? "Uploading..." : "Select CSV File"}
+                        {uploadCSVMutation.isPending ? "업로드 중..." : "CSV 파일 선택"}
                       </Button>
                     </div>
                   </div>
