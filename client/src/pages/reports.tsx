@@ -62,6 +62,7 @@ interface Fund {
 export default function Reports() {
   const [selectedInvestor, setSelectedInvestor] = useState<string>("");
   const [selectedDateRange, setSelectedDateRange] = useState<string>("all");
+  const [activeTab, setActiveTab] = useState<string>("investor-reports");
 
   const { data: investors = [] } = useQuery<Investor[]>({
     queryKey: ["/api/investors"],
@@ -128,6 +129,82 @@ export default function Reports() {
   const filteredMeetings = filterMeetingsByDate(meetings);
   const investorReport = selectedInvestor ? generateInvestorReport(selectedInvestor) : null;
 
+  // Export report function
+  const exportReport = () => {
+    if (activeTab === "investor-reports" && investorReport) {
+      // Export investor report as CSV
+      const csvData = [
+        ["Field", "Value"],
+        ["Name / 이름", investorReport.investor.name],
+        ["Email / 이메일", investorReport.investor.email],
+        ["Phone / 전화", investorReport.investor.phone || "N/A"],
+        ["Company / 소속기관", investorReport.investor.company],
+        ["Position / 직책", investorReport.investor.position || "N/A"],
+        ["Position Type / 직급", investorReport.investor.positionType || "N/A"],
+        ["Country / 국가", investorReport.investor.country || "Korea"],
+        ["Language / 언어", investorReport.investor.language || "Korean"],
+        ["Specialties / 전문분야", investorReport.investor.specialty.join(", ")],
+        ["Owns Our Shares / 당사 지분 보유", investorReport.investor.ownsOurShare || "No"],
+        ["Share Amount / 보유량", investorReport.investor.shareAmount || "N/A"],
+        ["Notes / 메모", investorReport.investor.note || "N/A"]
+      ];
+      
+      const csvContent = csvData.map(row => row.join(",")).join("\n");
+      const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", `investor_report_${investorReport.investor.name}_${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = "hidden";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else if (activeTab === "meeting-reports") {
+      // Export meeting reports as CSV
+      const csvData = [
+        ["Title", "Date", "Status", "Category", "Location", "Duration", "Attendees", "Description"]
+      ];
+      
+      filteredMeetings.forEach((meeting) => {
+        const attendeeNames = [];
+        if (meeting.attendeeType === "investor" && meeting.investorIds) {
+          const meetingInvestors = investors.filter(inv => 
+            meeting.investorIds?.includes(inv.id.toString())
+          );
+          attendeeNames.push(...meetingInvestors.map(inv => `${inv.name} (${inv.company})`));
+        }
+        if (meeting.attendeeType === "analyst" && meeting.analystIds) {
+          const meetingAnalysts = analysts.filter(analyst => 
+            meeting.analystIds?.includes(analyst.id.toString())
+          );
+          attendeeNames.push(...meetingAnalysts.map(analyst => `${analyst.name} (${analyst.company})`));
+        }
+        
+        csvData.push([
+          meeting.title,
+          format(new Date(meeting.scheduledDate), "yyyy-MM-dd HH:mm"),
+          meeting.status,
+          meeting.meetingCategory || "N/A",
+          meeting.location || "N/A",
+          `${meeting.duration || 60} minutes`,
+          attendeeNames.join("; "),
+          meeting.description || "N/A"
+        ]);
+      });
+      
+      const csvContent = csvData.map(row => row.map(cell => `"${cell}"`).join(",")).join("\n");
+      const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", `meeting_reports_${selectedDateRange}_${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = "hidden";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
   return (
     <div>
       <div className="mb-8">
@@ -137,7 +214,7 @@ export default function Reports() {
             <p className="text-gray-600 mt-1">Generate comprehensive investor and meeting reports / 투자자 및 미팅 종합 보고서 생성</p>
           </div>
           <div className="mt-4 sm:mt-0">
-            <Button>
+            <Button onClick={exportReport} disabled={activeTab === "investor-reports" && !investorReport}>
               <Download className="mr-2 h-4 w-4" />
               Export Report / 보고서 내보내기
             </Button>
@@ -145,7 +222,7 @@ export default function Reports() {
         </div>
       </div>
 
-      <Tabs defaultValue="investor-reports" className="space-y-6">
+      <Tabs defaultValue="investor-reports" className="space-y-6" onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="investor-reports">Investor Reports / 투자자 보고서</TabsTrigger>
           <TabsTrigger value="meeting-reports">Meeting Reports / 미팅 보고서</TabsTrigger>
