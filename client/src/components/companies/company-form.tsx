@@ -13,9 +13,10 @@ interface CompanyFormProps {
   company?: Company;
   onSuccess?: () => void;
   onCancel?: () => void;
+  apiPath?: string;
 }
 
-export default function CompanyForm({ company, onSuccess, onCancel }: CompanyFormProps) {
+export default function CompanyForm({ company, onSuccess, onCancel, apiPath = "/api/companies" }: CompanyFormProps) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -34,11 +35,11 @@ export default function CompanyForm({ company, onSuccess, onCancel }: CompanyFor
 
   const createCompanyMutation = useMutation({
     mutationFn: async (data: InsertCompany) => {
-      const response = await apiRequest("POST", "/api/companies", data);
+      const response = await apiRequest("POST", apiPath, data);
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/companies"] });
+      queryClient.invalidateQueries({ queryKey: [apiPath] });
       toast({
         title: "Success",
         description: "Company created successfully",
@@ -57,11 +58,11 @@ export default function CompanyForm({ company, onSuccess, onCancel }: CompanyFor
 
   const updateCompanyMutation = useMutation({
     mutationFn: async (data: InsertCompany) => {
-      const response = await apiRequest("PUT", `/api/companies/${company!.id}`, data);
+      const response = await apiRequest("PUT", `${apiPath}/${company!.id}`, data);
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/companies"] });
+      queryClient.invalidateQueries({ queryKey: [apiPath] });
       toast({
         title: "Success",
         description: "Company updated successfully",

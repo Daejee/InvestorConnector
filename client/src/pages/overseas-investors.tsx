@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import InvestorTable from "@/components/investors/investor-table";
-import OverseasInvestorForm from "@/components/investors/overseas-investor-form";
+import InvestorFormSimplified from "@/components/investors/investor-form-simplified";
 import { Plus, Search } from "lucide-react";
 import type { OverseasInvestor } from "@shared/schema";
 
@@ -43,9 +43,11 @@ export default function OverseasInvestors() {
                 <DialogHeader>
                   <DialogTitle>새 해외투자가 추가</DialogTitle>
                 </DialogHeader>
-                <OverseasInvestorForm 
+                <InvestorFormSimplified 
                   onSuccess={() => setIsDialogOpen(false)}
                   onCancel={() => setIsDialogOpen(false)}
+                  apiBasePath="/api/overseas-investors"
+                  companiesApiPath="/api/overseas-companies"
                 />
               </DialogContent>
             </Dialog>

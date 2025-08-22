@@ -7,7 +7,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import OverseasCompanyForm from "@/components/companies/overseas-company-form";
+import CompanyForm from "@/components/companies/company-form";
 import { Plus, Search, Upload, Download, FileText, Edit, Archive, Trash2, MoreVertical } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
@@ -343,11 +343,12 @@ export default function OverseasCompanies() {
               </DialogTrigger>
               <DialogContent className="max-w-md">
                 <DialogHeader>
-                  <DialogTitle>새 국내자산운용사 추가</DialogTitle>
+                  <DialogTitle>새 해외자산운용사 추가</DialogTitle>
                 </DialogHeader>
-                <OverseasCompanyForm 
+                <CompanyForm 
                   onSuccess={() => setIsDialogOpen(false)}
                   onCancel={() => setIsDialogOpen(false)}
+                  apiPath="/api/overseas-companies"
                 />
               </DialogContent>
             </Dialog>
@@ -456,7 +457,7 @@ export default function OverseasCompanies() {
             <DialogTitle>국내자산운용사 편집</DialogTitle>
           </DialogHeader>
           {editingCompany && (
-            <OverseasCompanyForm 
+            <CompanyForm 
               company={editingCompany}
               onSuccess={() => {
                 setIsEditDialogOpen(false);

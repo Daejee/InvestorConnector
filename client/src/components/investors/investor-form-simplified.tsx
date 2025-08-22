@@ -19,15 +19,17 @@ interface InvestorFormProps {
   investor?: Investor;
   onSuccess?: () => void;
   onCancel?: () => void;
+  apiBasePath?: string;
+  companiesApiPath?: string;
 }
 
-export default function InvestorFormSimplified({ investor, onSuccess, onCancel }: InvestorFormProps) {
+export default function InvestorFormSimplified({ investor, onSuccess, onCancel, apiBasePath = "/api/investors", companiesApiPath = "/api/companies" }: InvestorFormProps) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const [showDetails, setShowDetails] = useState(false);
 
   const { data: companies } = useQuery<Company[]>({
-    queryKey: ["/api/companies"],
+    queryKey: [companiesApiPath],
   });
 
   const { data: funds } = useQuery<Fund[]>({
@@ -61,11 +63,11 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel }
 
   const createInvestorMutation = useMutation({
     mutationFn: async (data: InsertInvestor) => {
-      const response = await apiRequest("POST", "/api/investors", data);
+      const response = await apiRequest("POST", apiBasePath, data);
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/investors"] });
+      queryClient.invalidateQueries({ queryKey: [apiBasePath] });
       toast({
         title: "Success",
         description: "Investor has been created successfully.",
@@ -83,11 +85,11 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel }
 
   const updateInvestorMutation = useMutation({
     mutationFn: async (data: InsertInvestor) => {
-      const response = await apiRequest("PATCH", `/api/investors/${investor!.id}`, data);
+      const response = await apiRequest("PATCH", `${apiBasePath}/${investor!.id}`, data);
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/investors"] });
+      queryClient.invalidateQueries({ queryKey: [apiBasePath] });
       toast({
         title: "Success",
         description: "Investor has been updated successfully.",
