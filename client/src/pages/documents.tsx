@@ -273,7 +273,7 @@ export default function Documents() {
                     <div className="mt-1">
                       <input
                         type="file"
-                        accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
+                        accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.hwp,.xls,.xlsx,.csv"
                         onChange={handleDirectFileUpload}
                         className="hidden"
                         id="document-file-input"

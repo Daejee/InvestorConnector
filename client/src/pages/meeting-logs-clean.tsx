@@ -1308,7 +1308,7 @@ export default function Meetings() {
                         <p className="text-sm text-gray-500 mb-3">No meeting minutes uploaded yet / 회의록이 아직 업로드되지 않았습니다</p>
                         <input
                           type="file"
-                          accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
+                          accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.hwp,.xls,.xlsx,.csv"
                           onChange={handleDirectFileUpload}
                           disabled={uploadingMinutes}
                           className="hidden"
