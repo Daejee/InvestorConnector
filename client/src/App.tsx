@@ -22,6 +22,7 @@ import Scheduling from "@/pages/scheduling";
 import Analysts from "@/pages/analysts";
 import SecuritiesFirms from "@/pages/securities-firms";
 import EmailLogs from "@/pages/email-logs";
+import Users from "@/pages/users";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -46,6 +47,7 @@ function Router() {
         <Route path="/scheduling" component={Scheduling} />
         <Route path="/schedule" component={Scheduling} />
         <Route path="/documents" component={Documents} />
+        <Route path="/users" component={Users} />
         <Route path="/reports" component={Reports} />
         <Route component={NotFound} />
       </Switch>
