@@ -84,12 +84,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.delete("/api/investors/:id", async (req, res) => {
-    const id = parseInt(req.params.id);
-    const deleted = await storage.deleteInvestor(id);
-    if (!deleted) {
-      return res.status(404).json({ message: "Investor not found" });
+    try {
+      const id = parseInt(req.params.id);
+      
+      // Check if investor exists
+      const investor = await storage.getInvestor(id);
+      if (!investor) {
+        return res.status(404).json({ message: "Investor not found" });
+      }
+      
+      // Check if investor has related meeting logs
+      const meetingLogs = await storage.getMeetingLogsByInvestor(id);
+      if (meetingLogs.length > 0) {
+        return res.status(409).json({ 
+          message: "Cannot delete investor with existing meeting logs",
+          details: `This investor has ${meetingLogs.length} meeting log(s). Please delete the meeting logs first.`
+        });
+      }
+      
+      const deleted = await storage.deleteInvestor(id);
+      if (!deleted) {
+        return res.status(500).json({ message: "Failed to delete investor" });
+      }
+      res.status(204).send();
+    } catch (error: any) {
+      console.error('Error deleting investor:', error);
+      res.status(500).json({ 
+        message: "Failed to delete investor", 
+        error: error.message 
+      });
     }
-    res.status(204).send();
   });
 
   // Companies routes
@@ -308,11 +332,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 return;
               }
 
-              // Validate area (allow any non-empty string)
-              if (!finalArea) {
-                errors.push(`Line ${lineNumber}: Area cannot be empty`);
-                return;
-              }
+              // Area is optional - no validation needed since schema allows null
 
               // Parse AUM value - handle Korean number format with commas and spaces
               const parseAumValue = (aumString: string): number => {
@@ -368,7 +388,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           processedRows: lineNumber - 1,
           detectedHeaders: detectedHeaders,
           expectedFormat: {
-            requiredColumns: ["Name", "HQ Location", "AUM (in bil)", "Type", "Area"],
+            requiredColumns: ["Name", "HQ Location", "AUM (in bil)", "Type"],
+            optionalColumns: ["Area"],
             acceptedVariations: {
               name: ["name", "company name", "company"],
               hqLocation: ["hq location", "hq", "location", "headquarters", "hq_location"],
