@@ -49,7 +49,7 @@ const navigation = [
   { name: "해외투자가", href: "/overseas-investors", icon: Users },
   { name: "애널리스트/브로커", href: "/analysts", icon: Users },
   { 
-    name: "자산운용사(국내외)", 
+    name: "자산운용사(국내)", 
     href: "/companies", 
     icon: Building,
     submenu: [
