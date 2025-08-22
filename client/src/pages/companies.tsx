@@ -395,7 +395,7 @@ export default function Companies() {
                     <TableCell>{company.hqLocation}</TableCell>
                     <TableCell>{company.area || 'US'}</TableCell>
                     <TableCell>{(parseFloat(company.aum) / 1000000000).toFixed(1)}</TableCell>
-                    <TableCell>{company.aumKrw ? (parseFloat(company.aumKrw) / 100000000).toFixed(0) : ((parseFloat(company.aum) * 1.4) / 100000000).toFixed(0)}</TableCell>
+                    <TableCell>{parseFloat(company.aum).toLocaleString()}</TableCell>
                     <TableCell>
                       {company.shareholderStatus === "Yes" && company.shareCount ? 
                         `Yes (${company.shareCount})` : 
