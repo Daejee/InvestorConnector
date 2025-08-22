@@ -303,13 +303,11 @@ export default function Documents() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="General">General / 일반</SelectItem>
-                        <SelectItem value="Financial Reports">Financial Reports / 재무보고서</SelectItem>
-                        <SelectItem value="IR Presentations">IR Presentations / IR 발표자료</SelectItem>
-                        <SelectItem value="Legal Documents">Legal Documents / 법적문서</SelectItem>
-                        <SelectItem value="Meeting Notes">Meeting Notes / 회의록</SelectItem>
-                        <SelectItem value="Research">Research / 리서치</SelectItem>
-                        <SelectItem value="Contracts">Contracts / 계약서</SelectItem>
+                        <SelectItem value="IR Presentations">IR Presentations</SelectItem>
+                        <SelectItem value="Meeting Notes">회의록</SelectItem>
+                        <SelectItem value="Financial Reports">재무자료</SelectItem>
+                        <SelectItem value="Research Reports">분석리포트</SelectItem>
+                        <SelectItem value="Others">기타</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -357,13 +355,11 @@ export default function Documents() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="All">All Categories / 전체 카테고리</SelectItem>
-                  <SelectItem value="General">General / 일반</SelectItem>
-                  <SelectItem value="Financial Reports">Financial Reports / 재무보고서</SelectItem>
-                  <SelectItem value="IR Presentations">IR Presentations / IR 발표자료</SelectItem>
-                  <SelectItem value="Legal Documents">Legal Documents / 법적문서</SelectItem>
-                  <SelectItem value="Meeting Notes">Meeting Notes / 회의록</SelectItem>
-                  <SelectItem value="Research">Research / 리서치</SelectItem>
-                  <SelectItem value="Contracts">Contracts / 계약서</SelectItem>
+                  <SelectItem value="IR Presentations">IR Presentations</SelectItem>
+                  <SelectItem value="Meeting Notes">회의록</SelectItem>
+                  <SelectItem value="Financial Reports">재무자료</SelectItem>
+                  <SelectItem value="Research Reports">분석리포트</SelectItem>
+                  <SelectItem value="Others">기타</SelectItem>
                 </SelectContent>
               </Select>
               <div className="relative">
@@ -586,13 +582,11 @@ function EditDocumentForm({ document, onClose, onSuccess }: EditDocumentFormProp
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="General">General / 일반</SelectItem>
-                  <SelectItem value="Financial Reports">Financial Reports / 재무보고서</SelectItem>
-                  <SelectItem value="IR Presentations">IR Presentations / IR 발표자료</SelectItem>
-                  <SelectItem value="Legal Documents">Legal Documents / 법적문서</SelectItem>
-                  <SelectItem value="Meeting Notes">Meeting Notes / 회의록</SelectItem>
-                  <SelectItem value="Research">Research / 리서치</SelectItem>
-                  <SelectItem value="Contracts">Contracts / 계약서</SelectItem>
+                  <SelectItem value="IR Presentations">IR Presentations</SelectItem>
+                  <SelectItem value="Meeting Notes">회의록</SelectItem>
+                  <SelectItem value="Financial Reports">재무자료</SelectItem>
+                  <SelectItem value="Research Reports">분석리포트</SelectItem>
+                  <SelectItem value="Others">기타</SelectItem>
                 </SelectContent>
               </Select>
             </FormItem>
