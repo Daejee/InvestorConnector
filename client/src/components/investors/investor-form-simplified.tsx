@@ -342,7 +342,7 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel }
             {/* Portfolio Management Experience Fields */}
             <div className="space-y-4 border-t pt-4">
               <div className="flex items-center justify-between">
-                <h4 className="text-base font-semibold text-gray-800">포트폴리오 운용경력(2025년8월기준)</h4>
+                <h4 className="text-base font-semibold text-gray-800">포트폴리오 운용현황(2025년8월기준)</h4>
               </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
