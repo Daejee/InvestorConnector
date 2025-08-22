@@ -14,7 +14,9 @@ function InvestorDetailView({ investor }: { investor: Investor }) {
     queryKey: ["/api/meetings"],
   });
 
-  const investorMeetings = meetings.filter(meeting => meeting.investorId === investor.id);
+  const investorMeetings = meetings.filter(meeting => 
+    meeting.investorIds?.includes(investor.id.toString()) || false
+  );
 
   return (
     <div className="space-y-6">
@@ -76,6 +78,41 @@ function InvestorDetailView({ investor }: { investor: Investor }) {
                     {spec}
                   </Badge>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {/* Portfolio Management Experience */}
+          {(investor.positionType === "PM" || investor.positionType === "Buyside Analyst") && (
+            investor.totalExperience || investor.currentCompanyExperience || investor.managedFundAum || investor.numberOfManagedFunds
+          ) && (
+            <div>
+              <h4 className="text-sm font-medium text-gray-500 mb-2">Portfolio Management Experience / 포트폴리오 운용 경력</h4>
+              <div className="space-y-2 bg-gray-50 p-3 rounded-lg">
+                {investor.totalExperience && (
+                  <div className="flex justify-between">
+                    <span className="text-xs text-gray-600">Total Experience / 총운용경력:</span>
+                    <span className="text-xs font-medium">{investor.totalExperience} years</span>
+                  </div>
+                )}
+                {investor.currentCompanyExperience && (
+                  <div className="flex justify-between">
+                    <span className="text-xs text-gray-600">Current Company / 현회사운용경력:</span>
+                    <span className="text-xs font-medium">{investor.currentCompanyExperience} years</span>
+                  </div>
+                )}
+                {investor.managedFundAum && (
+                  <div className="flex justify-between">
+                    <span className="text-xs text-gray-600">Managed Fund AUM / 운용펀드AUM:</span>
+                    <span className="text-xs font-medium">${investor.managedFundAum}M</span>
+                  </div>
+                )}
+                {investor.numberOfManagedFunds && (
+                  <div className="flex justify-between">
+                    <span className="text-xs text-gray-600">Number of Funds / 운용펀드수:</span>
+                    <span className="text-xs font-medium">{investor.numberOfManagedFunds}</span>
+                  </div>
+                )}
               </div>
             </div>
           )}

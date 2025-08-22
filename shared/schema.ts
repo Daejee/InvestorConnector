@@ -19,6 +19,11 @@ export const investors = pgTable("investors", {
   country: text("country").default("Korea"), // Korea, US, UK, Japan, Singapore, Other
   language: text("language").default("Korean"), // Korean, English, Japanese
   timezone: text("timezone").default("Asia/Seoul"),
+  // New portfolio management fields
+  totalExperience: integer("total_experience"), // 총운용경력 (years)
+  currentCompanyExperience: integer("current_company_experience"), // 현회사운용경력 (years)
+  managedFundAum: decimal("managed_fund_aum", { precision: 20, scale: 2 }), // 운용펀드AUM
+  numberOfManagedFunds: integer("number_of_managed_funds"), // 운용펀드수
 });
 
 export const analysts = pgTable("analysts", {

@@ -52,6 +52,10 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel }
       shareAmount: investor?.shareAmount ?? "",
       note: investor?.note ?? "",
       avatarInitials: investor?.avatarInitials ?? "",
+      totalExperience: investor?.totalExperience ?? undefined,
+      currentCompanyExperience: investor?.currentCompanyExperience ?? undefined,
+      managedFundAum: investor?.managedFundAum ?? undefined,
+      numberOfManagedFunds: investor?.numberOfManagedFunds ?? undefined,
     },
   });
 
@@ -333,6 +337,96 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel }
                   </FormItem>
                 )}
               />
+            )}
+
+            {/* Portfolio Management Experience Fields */}
+            {(form.watch("positionType") === "PM" || form.watch("positionType") === "Buyside Analyst") && (
+              <div className="space-y-4 border-t pt-4">
+                <h4 className="text-base font-semibold text-gray-800">Portfolio Management Experience / 포트폴리오 운용 경력</h4>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="totalExperience"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Total Experience / 총운용경력 (Years)</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="number" 
+                            placeholder="e.g., 5" 
+                            {...field} 
+                            value={field.value ?? ""}
+                            onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="currentCompanyExperience"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Current Company Experience / 현회사운용경력 (Years)</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="number" 
+                            placeholder="e.g., 3" 
+                            {...field} 
+                            value={field.value ?? ""}
+                            onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="managedFundAum"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Managed Fund AUM / 운용펀드AUM (Million USD)</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="number" 
+                            step="0.01"
+                            placeholder="e.g., 500.00" 
+                            {...field} 
+                            value={field.value ?? ""}
+                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="numberOfManagedFunds"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Number of Managed Funds / 운용펀드수</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="number" 
+                            placeholder="e.g., 3" 
+                            {...field} 
+                            value={field.value ?? ""}
+                            onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
             )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
