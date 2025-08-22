@@ -65,6 +65,16 @@ export const analysts = pgTable("analysts", {
   notes: text("notes").default(""),
 });
 
+export const users = pgTable("users", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  email: text("email").notNull().unique(),
+  role: text("role").notNull(),
+  status: text("status").default("active"), // active, inactive
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 export const documents = pgTable("documents", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
@@ -328,10 +338,19 @@ export const insertSecuritiesFirmSchema = createInsertSchema(securitiesFirms).om
   id: true,
 });
 
+export const insertUserSchema = createInsertSchema(users).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export const insertEmailLogSchema = createInsertSchema(emailLogs).omit({
   id: true,
   sentAt: true,
 });
+
+export type InsertUser = z.infer<typeof insertUserSchema>;
+export type User = typeof users.$inferSelect;
 
 export type InsertInvestor = z.infer<typeof insertInvestorSchema>;
 export type Investor = typeof investors.$inferSelect;

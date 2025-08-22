@@ -1,5 +1,5 @@
 import { 
-  investors, overseasInvestors, companies, overseasCompanies, investments, communications, meetings, funds, meetingLogs, ndrConferences, otherEvents, emailTemplates, emailCampaigns, analysts, documents, securitiesFirms, emailLogs,
+  investors, overseasInvestors, companies, overseasCompanies, investments, communications, meetings, funds, meetingLogs, ndrConferences, otherEvents, emailTemplates, emailCampaigns, analysts, documents, securitiesFirms, emailLogs, users,
   type Investor, type InsertInvestor, type OverseasInvestor, type InsertOverseasInvestor,
   type Company, type InsertCompany, type OverseasCompany, type InsertOverseasCompany,
   type Investment, type InsertInvestment,
@@ -14,7 +14,8 @@ import {
   type Analyst, type InsertAnalyst,
   type Document, type InsertDocument,
   type SecuritiesFirm, type InsertSecuritiesFirm,
-  type EmailLog, type InsertEmailLog
+  type EmailLog, type InsertEmailLog,
+  type User, type InsertUser
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, sql } from "drizzle-orm";
@@ -153,6 +154,14 @@ export interface IStorage {
   getEmailLog(id: number): Promise<EmailLog | undefined>;
   createEmailLog(emailLog: InsertEmailLog): Promise<EmailLog>;
   getEmailLogsByRecipient(email: string): Promise<EmailLog[]>;
+
+  // Users
+  getUsers(): Promise<User[]>;
+  getUser(id: number): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
+  createUser(user: InsertUser): Promise<User>;
+  updateUser(id: number, user: Partial<InsertUser>): Promise<User | undefined>;
+  deleteUser(id: number): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -766,6 +775,43 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(emailLogs)
       .where(eq(emailLogs.recipientEmail, email))
       .orderBy(desc(emailLogs.sentAt));
+  }
+
+  // Users
+  async getUsers(): Promise<User[]> {
+    return await db.select().from(users).orderBy(desc(users.createdAt));
+  }
+
+  async getUser(id: number): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user || undefined;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
+    return user;
+  }
+
+  async updateUser(id: number, updateData: Partial<InsertUser>): Promise<User | undefined> {
+    const [user] = await db
+      .update(users)
+      .set({ ...updateData, updatedAt: new Date() })
+      .where(eq(users.id, id))
+      .returning();
+    return user || undefined;
+  }
+
+  async deleteUser(id: number): Promise<boolean> {
+    const result = await db.delete(users).where(eq(users.id, id));
+    return result.rowCount! > 0;
   }
 }
 
