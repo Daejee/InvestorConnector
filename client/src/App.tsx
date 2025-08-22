@@ -9,6 +9,7 @@ import Dashboard from "@/pages/dashboard-new";
 import Investors from "@/pages/investors";
 import OverseasInvestors from "@/pages/overseas-investors";
 import Companies from "@/pages/companies";
+import OverseasCompanies from "@/pages/overseas-companies";
 import Email from "@/pages/email";
 import Documents from "@/pages/documents";
 import Reports from "@/pages/reports";
@@ -32,6 +33,7 @@ function Router() {
         <Route path="/overseas-investors" component={OverseasInvestors} />
         <Route path="/analysts" component={Analysts} />
         <Route path="/companies" component={Companies} />
+        <Route path="/overseas-companies" component={OverseasCompanies} />
         <Route path="/securities-firms" component={SecuritiesFirms} />
         <Route path="/email" component={Email} />
         <Route path="/email-logs" component={EmailLogs} />

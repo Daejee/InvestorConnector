@@ -56,6 +56,7 @@ const navigation = [
       { name: "Funds / 펀드", href: "/funds", icon: Wallet }
     ]
   },
+  { name: "해외자산운용사", href: "/overseas-companies", icon: Building },
   { name: "증권사", href: "/securities-firms", icon: Building },
   { name: "문서", href: "/documents", icon: FileText },
 ];
