@@ -269,9 +269,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
               const hqLocationValue = data.hqLocation;
               if (!hqLocationValue || hqLocationValue.toString().trim() === '') missingFields.push('hqLocation');
               
-              // Check for aum field (mapped from header) - prioritize 억원 column
-              const aumFieldValue = data['AUM (억원)'] || data.aum;
-              if (!aumFieldValue || aumFieldValue.toString().trim() === '' || aumFieldValue.toString().trim() === '-' || aumFieldValue.toString().trim() === '0') missingFields.push('aum');
+              // Check for aum field - prioritize 억원 column from original headers
+              const aumFromWonColumn = data['AUM (억원)'];
+              const aumFromMappedColumn = data.aum;
+              const aumFieldValue = aumFromWonColumn || aumFromMappedColumn;
+              
+              console.log(`Line ${lineNumber} AUM check: wonColumn="${aumFromWonColumn}", mappedColumn="${aumFromMappedColumn}", final="${aumFieldValue}"`);
+              
+              // Don't require AUM - we'll handle missing AUM data later by skipping those entries
               
               // Check for type field (mapped from header)
               const typeValue = data.type;
@@ -292,7 +297,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               const finalHqLocation = hqLocationValue.toString().trim();
               const finalType = typeValue.toString().trim();
               const finalArea = (data['AREA(지역)'] || data['area(지역)'] || areaValue).toString().trim();
-              const finalAum = (data['AUM (억원)'] || aumFieldValue).toString().trim();
+              const finalAum = (aumFromWonColumn || aumFromMappedColumn || aumFieldValue).toString().trim();
 
               // Validate company type (allow any non-empty string)
               if (!finalType) {
@@ -322,8 +327,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
               };
               
               const aumNumericValue = parseAumValue(finalAum);
-              if (isNaN(aumNumericValue) || aumNumericValue < 0) {
-                errors.push(`Line ${lineNumber}: AUM must be a valid positive number, got "${finalAum}"`);
+              if (isNaN(aumNumericValue) || aumNumericValue <= 0) {
+                // Skip companies with no AUM data instead of erroring
+                console.log(`Skipping line ${lineNumber} (${finalName}): No valid AUM data`);
                 return;
               }
 
