@@ -495,7 +495,7 @@ export default function Documents() {
       <Alert className="mt-6">
         <FileText className="h-4 w-4" />
         <AlertDescription>
-          <strong>Supported file types / 지원 파일 형식:</strong> PDF, DOC, DOCX, TXT, JPEG, PNG
+          <strong>Supported file types / 지원 파일 형식:</strong> PDF, DOC, DOCX, TXT, JPEG, PNG, HWP, Excel, CSV
           <br />
           <strong>Maximum file size / 최대 파일 크기:</strong> 50MB
         </AlertDescription>
