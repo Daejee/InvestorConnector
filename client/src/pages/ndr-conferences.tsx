@@ -73,7 +73,7 @@ export default function NdrConferences() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-2xl font-bold text-gray-900">NDR/컨퍼런스/Corp Day</h2>
-            <p className="text-gray-600 mt-1">실적발표회, NDR, Corporate Day 등의 IR Conference 데이타관리</p>
+            <p className="text-gray-600 mt-1">실적발표회, NDR, Corporate Day 등의 IR Conference Database</p>
           </div>
           <div className="mt-4 sm:mt-0">
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
