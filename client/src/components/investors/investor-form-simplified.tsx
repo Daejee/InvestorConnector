@@ -340,9 +340,11 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel }
             )}
 
             {/* Portfolio Management Experience Fields */}
-            {(form.watch("positionType") === "PM" || form.watch("positionType") === "Buyside Analyst") && (
-              <div className="space-y-4 border-t pt-4">
+            <div className="space-y-4 border-t pt-4">
+              <div className="flex items-center justify-between">
                 <h4 className="text-base font-semibold text-gray-800">Portfolio Management Experience / 포트폴리오 운용 경력</h4>
+                <span className="text-xs text-gray-500 italic">For PM & Buyside Analysts / PM 및 애널리스트용</span>
+              </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
@@ -427,7 +429,6 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel }
                   />
                 </div>
               </div>
-            )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
