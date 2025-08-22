@@ -342,8 +342,8 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel }
             {/* Portfolio Management Experience Fields */}
             <div className="space-y-4 border-t pt-4">
               <div className="flex items-center justify-between">
-                <h4 className="text-base font-semibold text-gray-800">Portfolio Management Experience / 포트폴리오 운용 경력</h4>
-                <span className="text-xs text-gray-500 italic">For PM & Buyside Analysts / PM 및 애널리스트용</span>
+                <h4 className="text-base font-semibold text-gray-800">포트폴리오 운용 경력</h4>
+                <span className="text-xs text-gray-500 italic">PM 및 애널리스트용</span>
               </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -352,11 +352,11 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel }
                     name="totalExperience"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Total Experience / 총운용경력 (Years)</FormLabel>
+                        <FormLabel>총운용경력 (년)</FormLabel>
                         <FormControl>
                           <Input 
                             type="number" 
-                            placeholder="e.g., 5" 
+                            placeholder="예: 5" 
                             {...field} 
                             value={field.value ?? ""}
                             onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
@@ -372,11 +372,11 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel }
                     name="currentCompanyExperience"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Current Company Experience / 현회사운용경력 (Years)</FormLabel>
+                        <FormLabel>현회사운용경력 (년)</FormLabel>
                         <FormControl>
                           <Input 
                             type="number" 
-                            placeholder="e.g., 3" 
+                            placeholder="예: 3" 
                             {...field} 
                             value={field.value ?? ""}
                             onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
@@ -392,12 +392,12 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel }
                     name="managedFundAum"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Managed Fund AUM / 운용펀드AUM (Million USD)</FormLabel>
+                        <FormLabel>운용펀드AUM (백만 USD)</FormLabel>
                         <FormControl>
                           <Input 
                             type="number" 
                             step="0.01"
-                            placeholder="e.g., 500.00" 
+                            placeholder="예: 500.00" 
                             {...field} 
                             value={field.value ?? ""}
                             onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
@@ -413,11 +413,11 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel }
                     name="numberOfManagedFunds"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Number of Managed Funds / 운용펀드수</FormLabel>
+                        <FormLabel>운용펀드수</FormLabel>
                         <FormControl>
                           <Input 
                             type="number" 
-                            placeholder="e.g., 3" 
+                            placeholder="예: 3" 
                             {...field} 
                             value={field.value ?? ""}
                             onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
