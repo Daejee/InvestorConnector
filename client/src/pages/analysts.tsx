@@ -171,7 +171,7 @@ export default function Analysts() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Sellside / 애널리스트</h1>
+        <h1 className="text-3xl font-bold">애널리스트/Broker 리스트</h1>
         <div className="flex gap-2">
           <Button
             variant="outline"
