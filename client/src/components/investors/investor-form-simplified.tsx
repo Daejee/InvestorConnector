@@ -126,7 +126,7 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel }
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         {/* Essential Information */}
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Essential Information</h3>
+          <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">기본 정보</h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
@@ -134,9 +134,9 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel }
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name *</FormLabel>
+                  <FormLabel>이름 *</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter investor name" {...field} />
+                    <Input placeholder="투자자 이름을 입력하세요" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -148,9 +148,9 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel }
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email *</FormLabel>
+                  <FormLabel>이메일 *</FormLabel>
                   <FormControl>
-                    <Input type="email" placeholder="Enter email address" {...field} />
+                    <Input type="email" placeholder="이메일 주소를 입력하세요" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
