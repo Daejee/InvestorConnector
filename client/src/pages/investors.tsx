@@ -29,7 +29,7 @@ export default function Investors() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-2xl font-bold text-gray-900">Buyside / 투자자</h2>
-            <p className="text-gray-600 mt-1">Manage your buyside contacts and relationships / 투자자 연락처 및 관계 관리</p>
+            <p className="text-gray-600 mt-1">투자자 Profile 관리</p>
           </div>
           <div className="mt-4 sm:mt-0">
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
