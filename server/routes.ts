@@ -1474,19 +1474,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const file = req.file;
       const { category, description, investorId, companyId, tags } = req.body;
 
-      // Validate file type (PDF, DOC, DOCX, etc.)
+      // Validate file type (PDF, DOC, DOCX, HWP, Excel, CSV, etc.)
       const allowedTypes = [
         'application/pdf',
         'application/msword',
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         'text/plain',
         'image/jpeg',
-        'image/png'
+        'image/png',
+        'application/x-hwp',
+        'application/haansofthwp',
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'text/csv'
       ];
 
       if (!allowedTypes.includes(file.mimetype)) {
         return res.status(400).json({ 
-          error: "Invalid file type. Allowed types: PDF, DOC, DOCX, TXT, JPEG, PNG" 
+          error: "Invalid file type. Allowed types: PDF, DOC, DOCX, TXT, JPEG, PNG, HWP, Excel, CSV" 
         });
       }
 

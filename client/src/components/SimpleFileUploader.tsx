@@ -155,7 +155,7 @@ export function SimpleFileUploader({
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
+                  accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.hwp,.xls,.xlsx,.csv"
                   onChange={handleFileSelect}
                   className="hidden"
                 />
