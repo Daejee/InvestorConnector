@@ -28,11 +28,41 @@ export default function Companies() {
     queryKey: ["/api/companies"],
   });
 
+  // Helper function to check if text contains Korean characters
+  const hasKorean = (text: string) => /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/.test(text);
+
+  // Custom sorting function: Korean names first (가나다 order), then English (ABC order)
+  const sortCompaniesByName = (a: Company, b: Company) => {
+    const aHasKorean = hasKorean(a.name);
+    const bHasKorean = hasKorean(b.name);
+    
+    // If both are Korean, sort by Korean alphabetical order
+    if (aHasKorean && bHasKorean) {
+      return a.name.localeCompare(b.name, 'ko-KR');
+    }
+    
+    // If both are English, sort by English alphabetical order
+    if (!aHasKorean && !bHasKorean) {
+      return a.name.localeCompare(b.name, 'en-US');
+    }
+    
+    // Korean names come first, English names second
+    if (aHasKorean && !bHasKorean) {
+      return -1;
+    }
+    
+    if (!aHasKorean && bHasKorean) {
+      return 1;
+    }
+    
+    return 0;
+  };
+
   const filteredCompanies = companies?.filter(company =>
     company.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     company.hqLocation.toLowerCase().includes(searchQuery.toLowerCase()) ||
     company.type.toLowerCase().includes(searchQuery.toLowerCase())
-  ).sort((a, b) => parseFloat(b.aum) - parseFloat(a.aum)) || [];
+  ).sort(sortCompaniesByName) || [];
 
   const uploadCSVMutation = useMutation({
     mutationFn: async (file: File) => {
