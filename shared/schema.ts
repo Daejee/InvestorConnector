@@ -99,6 +99,12 @@ export const companies = pgTable("companies", {
   area: text("area"), // US, EU, Hong Kong, Singapore, Korea, Other
   shareholderStatus: text("shareholder_status").default("N/A"), // Yes, No, N/A
   shareCount: text("share_count"), // Number of shares if shareholderStatus is Yes
+  // New fields for Korean companies
+  fundManagerCount: integer("fund_manager_count"), // 펀드 매니저수
+  establishedDate: date("established_date"), // 설립일자
+  address: text("address"), // 주소
+  phone: text("phone"), // TEL
+  website: text("website"), // WEB주소
   status: text("status").notNull().default("active"), // active, archived
 });
 

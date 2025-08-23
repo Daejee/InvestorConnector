@@ -128,7 +128,7 @@ export default function Companies() {
 
   const archiveCompanyMutation = useMutation({
     mutationFn: async (companyId: number) => {
-      const response = await apiRequest("PUT", `/api/companies/${companyId}/archive`);
+      const response = await apiRequest(`/api/companies/${companyId}/archive`, { method: "PUT" });
       return response;
     },
     onSuccess: () => {
@@ -164,10 +164,10 @@ export default function Companies() {
 
   const downloadSampleCSV = () => {
     const sampleData = [
-      ['Company Name', 'HQ Location', 'AUM', 'Type', 'Area'],
-      ['BOCOM International Asset Management', 'Hong Kong', '85', 'China Fixed Income, Equity', 'Hong Kong'],
-      ['China Southern Asset Management (HK)', 'Hong Kong', '90', 'China Mutual Funds, ETFs', 'Hong Kong'],
-      ['CICC Asset Management (HK)', 'Hong Kong', '110', 'Institutional, China Equities', 'Hong Kong'],
+      ['회사명', 'AUM', '펀드 매니저수', '설립일자', '주소', 'TEL', 'WEB주소'],
+      ['미래에셋자산운용', '1006554', '83', '1997-07-18', '서울 종로구 종로33 (더 그랑서울 TOWER1) 13층', '1588-1888', 'https://www.miraeasset.co.kr'],
+      ['삼성자산운용', '1226449', '57', '1998-09-15', '서울 서초구 서초대로74길 11 (삼성자산운용)', '02-3774-7600', 'https://www.samsungam.com'],
+      ['KB자산운용', '442773', '62', '1998-04-28', '서울 영등포구 국제금융로 8길 26, KB자산운용타워', '02-2167-8200', 'https://www.kbam.co.kr'],
     ];
     
     // Properly escape CSV fields that contain commas
@@ -383,6 +383,11 @@ export default function Companies() {
                   <TableHead>Area / 지역</TableHead>
                   <TableHead>AUM ($Bil)</TableHead>
                   <TableHead>AUM (억원)</TableHead>
+                  <TableHead>펀드 매니저수</TableHead>
+                  <TableHead>설립일자</TableHead>
+                  <TableHead>주소</TableHead>
+                  <TableHead>전화번호</TableHead>
+                  <TableHead>웹사이트</TableHead>
                   <TableHead>주주여부</TableHead>
                   <TableHead className="w-[100px]">Actions / 작업</TableHead>
                 </TableRow>
@@ -393,9 +398,20 @@ export default function Companies() {
                     <TableCell className="font-medium">{company.name}</TableCell>
                     <TableCell>{company.type}</TableCell>
                     <TableCell>{company.hqLocation}</TableCell>
-                    <TableCell>{company.area || 'US'}</TableCell>
+                    <TableCell>{company.area || 'Korea'}</TableCell>
                     <TableCell>{(parseFloat(company.aum) / 1000000000).toFixed(1)}</TableCell>
                     <TableCell>{parseFloat(company.aum).toLocaleString()}</TableCell>
+                    <TableCell>{company.fundManagerCount || '-'}</TableCell>
+                    <TableCell>{company.establishedDate || '-'}</TableCell>
+                    <TableCell className="max-w-[200px] truncate" title={company.address || ''}>{company.address || '-'}</TableCell>
+                    <TableCell>{company.phone || '-'}</TableCell>
+                    <TableCell>
+                      {company.website ? (
+                        <a href={company.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
+                          {company.website.length > 30 ? `${company.website.substring(0, 30)}...` : company.website}
+                        </a>
+                      ) : '-'}
+                    </TableCell>
                     <TableCell>
                       {company.shareholderStatus === "Yes" && company.shareCount ? 
                         `Yes (${company.shareCount})` : 

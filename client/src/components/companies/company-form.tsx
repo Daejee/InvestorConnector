@@ -30,12 +30,18 @@ export default function CompanyForm({ company, onSuccess, onCancel, apiPath = "/
       area: company?.area || "",
       shareholderStatus: company?.shareholderStatus || "N/A",
       shareCount: company?.shareCount || "",
+      // New fields
+      fundManagerCount: company?.fundManagerCount || undefined,
+      establishedDate: company?.establishedDate || "",
+      address: company?.address || "",
+      phone: company?.phone || "",
+      website: company?.website || "",
     },
   });
 
   const createCompanyMutation = useMutation({
     mutationFn: async (data: InsertCompany) => {
-      const response = await apiRequest("POST", apiPath, data);
+      const response = await apiRequest(apiPath, { method: "POST", body: data });
       return response.json();
     },
     onSuccess: () => {
@@ -58,7 +64,7 @@ export default function CompanyForm({ company, onSuccess, onCancel, apiPath = "/
 
   const updateCompanyMutation = useMutation({
     mutationFn: async (data: InsertCompany) => {
-      const response = await apiRequest("PUT", `${apiPath}/${company!.id}`, data);
+      const response = await apiRequest(`${apiPath}/${company!.id}`, { method: "PUT", body: data });
       return response.json();
     },
     onSuccess: () => {
@@ -214,6 +220,77 @@ export default function CompanyForm({ company, onSuccess, onCancel, apiPath = "/
             )}
           />
         )}
+
+        {/* New Fields */}
+        <FormField
+          control={form.control}
+          name="fundManagerCount"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>펀드 매니저수</FormLabel>
+              <FormControl>
+                <Input type="number" placeholder="펀드 매니저 수를 입력하세요" value={field.value || ""} onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : null)} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="establishedDate"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>설립일자</FormLabel>
+              <FormControl>
+                <Input type="date" placeholder="설립일자를 선택하세요" value={field.value || ""} onChange={field.onChange} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="address"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>주소</FormLabel>
+              <FormControl>
+                <Input placeholder="회사 주소를 입력하세요" value={field.value || ""} onChange={field.onChange} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="phone"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>전화번호</FormLabel>
+              <FormControl>
+                <Input placeholder="전화번호를 입력하세요" value={field.value || ""} onChange={field.onChange} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="website"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>웹사이트</FormLabel>
+              <FormControl>
+                <Input placeholder="웹사이트 주소를 입력하세요" value={field.value || ""} onChange={field.onChange} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <div className="flex justify-end space-x-4">
           {onCancel && (

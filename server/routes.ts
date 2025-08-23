@@ -352,6 +352,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 case 'area(지역)':
                   console.log(`Mapping "area(지역)" to areaKor`);
                   return 'areaKor'; // Map to dedicated field for Korean area data
+                case '펀드 매니저수':
+                case 'fund manager count':
+                case 'fund managers':
+                case 'managers':
+                  return 'fundManagerCount';
+                case '설립일자':
+                case 'established date':
+                case 'establishment date':
+                case 'founding date':
+                case 'founded':
+                  return 'establishedDate';
+                case '주소':
+                case 'address':
+                case 'location':
+                case 'office address':
+                  return 'address';
+                case 'tel':
+                case 'phone':
+                case 'telephone':
+                case '전화번호':
+                case '연락처':
+                  return 'phone';
+                case 'web주소':
+                case 'website':
+                case 'web':
+                case 'homepage':
+                case 'url':
+                  return 'website';
                 default:
                   console.log(`No mapping for header: "${header}", keeping as: "${header}"`);
                   return header;
@@ -375,6 +403,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
               const aumFromWonColumn = data.aumWon;
               const aumFromMappedColumn = data.aum;
               const areaValue = data.area || data.areaKor || 'Korea';
+              
+              // Extract new optional fields
+              const fundManagerCountValue = data.fundManagerCount;
+              const establishedDateValue = data.establishedDate;
+              const addressValue = data.address;
+              const phoneValue = data.phone;
+              const websiteValue = data.website;
               
               console.log(`Line ${lineNumber} debugging:`, {
                 name: nameValue,
@@ -444,7 +479,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 aum: aumInFullAmount, // This is now in 억원 units
                 aumKrw: aumInFullAmount, // Same as aum since it's already in 억원
                 type: finalType,
-                area: finalArea
+                area: finalArea,
+                // Add new optional fields
+                fundManagerCount: fundManagerCountValue ? parseInt(fundManagerCountValue.toString().trim()) : null,
+                establishedDate: establishedDateValue ? establishedDateValue.toString().trim() : null,
+                address: addressValue ? addressValue.toString().trim() : null,
+                phone: phoneValue ? phoneValue.toString().trim() : null,
+                website: websiteValue ? websiteValue.toString().trim() : null
               };
 
               // Validate with Zod schema
