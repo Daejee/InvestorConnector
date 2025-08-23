@@ -142,6 +142,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
               Object.keys(row).forEach(key => {
                 const cleanKey = key.replace(/\uFEFF/g, '').trim(); // Remove BOM
                 cleanRow[cleanKey] = row[key];
+                // Also keep original key for fallback
+                if (cleanKey !== key) {
+                  cleanRow[key] = row[key];
+                }
               });
               
               // Parse experience strings like "10년7개월"
@@ -186,11 +190,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 return `${nameSlug}@${companySlug}.com`;
               };
 
-              const name = (cleanRow['성명'] || cleanRow['name'] || '').trim();
-              const company = (cleanRow['운용사'] || cleanRow['company'] || '').trim();
+              // Try multiple ways to get the company and name
+              const name = (cleanRow['성명'] || row['성명'] || cleanRow['name'] || '').trim();
+              const company = (cleanRow['운용사'] || row['운용사'] || cleanRow['company'] || '').trim();
               
               console.log(`Processing row ${index}: name=${name}, company=${company}`);
               console.log(`Available keys:`, Object.keys(cleanRow));
+              console.log(`Raw row keys:`, Object.keys(row));
+              console.log(`CleanRow content:`, cleanRow);
               
               const email = cleanRow['email'] || generateEmail(name, company);
 
@@ -221,15 +228,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
             // Validate and insert investors
             const created = [];
+            console.log(`Total investors to process: ${investors.length}`);
             for (const inv of investors) {
+              console.log(`Checking investor: company='${inv.company}', name='${inv.name}', email='${inv.email}'`);
               if (inv.company && inv.name && inv.email) {
                 try {
                   const validatedData = insertInvestorSchema.parse(inv);
                   const createdInvestor = await storage.createInvestor(validatedData);
                   created.push(createdInvestor);
+                  console.log(`Successfully created investor: ${inv.name}`);
                 } catch (validationError) {
                   console.error('Validation error for investor:', inv, validationError);
                 }
+              } else {
+                console.log(`Skipping investor due to missing required fields: company='${inv.company}', name='${inv.name}', email='${inv.email}'`);
               }
             }
 
