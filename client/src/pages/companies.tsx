@@ -107,7 +107,7 @@ export default function Companies() {
 
   const deleteCompanyMutation = useMutation({
     mutationFn: async (companyId: number) => {
-      const response = await apiRequest("DELETE", `/api/companies/${companyId}`);
+      const response = await apiRequest("DELETE", `/api/companies/${companyId}`, {});
       return response;
     },
     onSuccess: () => {
@@ -128,7 +128,7 @@ export default function Companies() {
 
   const archiveCompanyMutation = useMutation({
     mutationFn: async (companyId: number) => {
-      const response = await apiRequest(`/api/companies/${companyId}/archive`, { method: "PUT" });
+      const response = await apiRequest("PUT", `/api/companies/${companyId}/archive`, {});
       return response;
     },
     onSuccess: () => {
@@ -374,7 +374,8 @@ export default function Companies() {
           {filteredCompanies.length === 0 ? (
             <p className="text-gray-500 text-center py-8">No companies found</p>
           ) : (
-            <Table>
+            <div className="overflow-x-auto">
+            <Table className="[&_table]:table-fixed [&_table]:w-full">
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-[220px] min-w-[220px]">회사명</TableHead>
@@ -457,6 +458,7 @@ export default function Companies() {
                 ))}
               </TableBody>
             </Table>
+            </div>
           )}
         </CardContent>
       </Card>
