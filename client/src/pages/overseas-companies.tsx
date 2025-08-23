@@ -203,8 +203,8 @@ export default function OverseasCompanies() {
       <div className="mb-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">국내자산운용사</h2>
-            <p className="text-gray-600 mt-1">국내자산운용사 정보</p>
+            <h2 className="text-2xl font-bold text-gray-900">해외자산운용사</h2>
+            <p className="text-gray-600 mt-1">해외자산운용사 정보</p>
           </div>
           <div className="mt-4 sm:mt-0 flex space-x-3">
             <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
@@ -216,7 +216,7 @@ export default function OverseasCompanies() {
               </DialogTrigger>
               <DialogContent className="max-w-2xl">
                 <DialogHeader>
-                  <DialogTitle>CSV로 국내자산운용사 정보 업로드</DialogTitle>
+                  <DialogTitle>CSV로 해외자산운용사 정보 업로드</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-6">
                   <div>
@@ -338,7 +338,7 @@ export default function OverseasCompanies() {
               <DialogTrigger asChild>
                 <Button>
                   <Plus className="mr-2 h-4 w-4" />
-                  국내자산운용사 추가
+                  해외자산운용사 추가
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-md">
@@ -359,11 +359,11 @@ export default function OverseasCompanies() {
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>전체 국내자산운용사</CardTitle>
+            <CardTitle>전체 해외자산운용사</CardTitle>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
-                placeholder="국내자산운용사 검색..."
+                placeholder="해외자산운용사 검색..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10 w-64"
@@ -454,7 +454,7 @@ export default function OverseasCompanies() {
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>국내자산운용사 편집</DialogTitle>
+            <DialogTitle>해외자산운용사 편집</DialogTitle>
           </DialogHeader>
           {editingCompany && (
             <CompanyForm 
