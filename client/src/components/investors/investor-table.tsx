@@ -3,6 +3,7 @@ import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Eye, Edit, Trash2, Calendar, Users, Mail, Phone, Building, Briefcase } from "lucide-react";
@@ -207,23 +208,46 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
   const { toast } = useToast();
   const [editingInvestor, setEditingInvestor] = useState<Investor | null>(null);
   const [viewingInvestor, setViewingInvestor] = useState<Investor | null>(null);
+  const [deletingInvestor, setDeletingInvestor] = useState<Investor | null>(null);
 
   const deleteInvestorMutation = useMutation({
     mutationFn: async (id: number) => {
-      await apiRequest("DELETE", `/api/investors/${id}`);
+      const response = await apiRequest("DELETE", `/api/investors/${id}`);
+      return response;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/investors"] });
       queryClient.invalidateQueries({ queryKey: ["/api/dashboard/stats"] });
+      setDeletingInvestor(null);
       toast({
         title: "Success",
         description: "Investor deleted successfully",
       });
     },
-    onError: () => {
+    onError: (error: any) => {
+      console.error('Delete investor error:', error);
+      let errorMessage = "Failed to delete investor";
+      
+      try {
+        // Try to extract detailed error message from server response
+        if (error.message && error.message.includes(':')) {
+          const serverResponse = error.message.split(': ')[1];
+          const errorData = JSON.parse(serverResponse);
+          if (errorData.details) {
+            errorMessage = errorData.details;
+          } else if (errorData.message) {
+            errorMessage = errorData.message;
+          }
+        }
+      } catch (parseError) {
+        // Use the original error message if parsing fails
+        errorMessage = error.message || "Failed to delete investor";
+      }
+      
+      setDeletingInvestor(null);
       toast({
-        title: "Error",
-        description: "Failed to delete investor",
+        title: "Delete Failed",
+        description: errorMessage,
         variant: "destructive",
       });
     },
@@ -352,14 +376,42 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
                   >
                     <Edit className="h-4 w-4" />
                   </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => deleteInvestorMutation.mutate(investor.id)}
-                    disabled={deleteInvestorMutation.isPending}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        disabled={deleteInvestorMutation.isPending}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete Investor / 투자자 삭제</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to delete <strong>{investor.name}</strong>? This action cannot be undone.
+                          <br /><br />
+                          <strong>Note:</strong> If this investor has meeting records, you must delete those meetings first before deleting the investor.
+                          <br /><br />
+                          <strong>참고:</strong> 이 투자자에게 미팅 기록이 있다면, 투자자를 삭제하기 전에 먼저 미팅을 삭제해야 합니다.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel / 취소</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => {
+                            setDeletingInvestor(investor);
+                            deleteInvestorMutation.mutate(investor.id);
+                          }}
+                          disabled={deleteInvestorMutation.isPending}
+                          className="bg-red-600 hover:bg-red-700"
+                        >
+                          {deleteInvestorMutation.isPending ? "Deleting..." : "Delete / 삭제"}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </div>
               </td>
             </tr>
