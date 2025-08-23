@@ -8,10 +8,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import CompanyForm from "@/components/companies/company-form";
-import { Plus, Search, Upload, Download, FileText, Edit, Archive, Trash2, MoreVertical } from "lucide-react";
+import { Plus, Search, Upload, Download, FileText, Edit, Archive, Trash2, MoreVertical, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import type { Company } from "@shared/schema";
+
+type SortField = 'name' | 'hqLocation' | 'area' | 'aum' | 'fundManagerCount' | 'establishedDate' | 'shareholderStatus';
+type SortDirection = 'asc' | 'desc';
 
 export default function Companies() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -20,6 +23,8 @@ export default function Companies() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingCompany, setEditingCompany] = useState<Company | null>(null);
   const [uploadResult, setUploadResult] = useState<any>(null);
+  const [sortField, setSortField] = useState<SortField>('name');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -58,11 +63,68 @@ export default function Companies() {
     return 0;
   };
 
-  const filteredCompanies = companies?.filter(company =>
-    company.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    company.hqLocation.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    company.type.toLowerCase().includes(searchQuery.toLowerCase())
-  ).sort(sortCompaniesByName) || [];
+  // Handle header click to change sort
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
+  // Get sort icon for header
+  const getSortIcon = (field: SortField) => {
+    if (sortField !== field) {
+      return <ArrowUpDown className="h-4 w-4 text-gray-400" />;
+    }
+    return sortDirection === 'asc' ? 
+      <ArrowUp className="h-4 w-4 text-blue-600" /> : 
+      <ArrowDown className="h-4 w-4 text-blue-600" />;
+  };
+
+  // Sort companies based on current sort field and direction
+  const sortCompanies = (companies: Company[]) => {
+    return [...companies].sort((a, b) => {
+      let result = 0;
+      
+      switch (sortField) {
+        case 'name':
+          result = sortCompaniesByName(a, b);
+          break;
+        case 'hqLocation':
+          result = a.hqLocation.localeCompare(b.hqLocation, 'ko-KR');
+          break;
+        case 'area':
+          result = (a.area || 'Korea').localeCompare(b.area || 'Korea', 'ko-KR');
+          break;
+        case 'aum':
+          result = parseFloat(a.aum) - parseFloat(b.aum);
+          break;
+        case 'fundManagerCount':
+          result = (a.fundManagerCount || 0) - (b.fundManagerCount || 0);
+          break;
+        case 'establishedDate':
+          result = (a.establishedDate || '').localeCompare(b.establishedDate || '');
+          break;
+        case 'shareholderStatus':
+          result = (a.shareholderStatus || 'N/A').localeCompare(b.shareholderStatus || 'N/A');
+          break;
+        default:
+          result = 0;
+      }
+      
+      return sortDirection === 'desc' ? -result : result;
+    });
+  };
+
+  const filteredCompanies = companies ? sortCompanies(
+    companies.filter(company =>
+      company.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      company.hqLocation.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      company.type.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+  ) : [];
 
   const uploadCSVMutation = useMutation({
     mutationFn: async (file: File) => {
@@ -107,7 +169,7 @@ export default function Companies() {
 
   const deleteCompanyMutation = useMutation({
     mutationFn: async (companyId: number) => {
-      const response = await apiRequest("DELETE", `/api/companies/${companyId}`);
+      const response = await apiRequest("DELETE", `/api/companies/${companyId}`, {});
       return response;
     },
     onSuccess: () => {
@@ -128,7 +190,7 @@ export default function Companies() {
 
   const archiveCompanyMutation = useMutation({
     mutationFn: async (companyId: number) => {
-      const response = await apiRequest("PUT", `/api/companies/${companyId}/archive`);
+      const response = await apiRequest("PUT", `/api/companies/${companyId}/archive`, {});
       return response;
     },
     onSuccess: () => {
@@ -233,95 +295,83 @@ export default function Companies() {
                           </p>
                         </div>
                         <div>
-                          <strong>데이터 행 예시:</strong>
+                          <strong>새로운 선택적 헤더 (가능하면 포함):</strong>
                           <p className="text-sm text-gray-600 mt-1 font-mono bg-white p-2 rounded border">
-                            교보악사자산운용,서울,502862,투신사,Korea
+                            Manager Count,Established Date,Address,Phone,Website
                           </p>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <strong>참고사항:</strong>
-                            <ul className="mt-2 space-y-1 text-sm text-gray-600">
-                              <li>• AUM 값은 억원 단위로 입력</li>
-                              <li>• 여러 단어로 된 유형은 따옴표 사용</li>
-                              <li>• 헤더는 대소문자 구분 안함</li>
-                            </ul>
-                          </div>
-                          <div>
-                            <strong>지역 옵션:</strong>
-                            <ul className="mt-2 space-y-1 text-sm text-gray-600">
-                              <li>• US • EU • Hong Kong</li>
-                              <li>• Singapore • Korea • Other</li>
-                            </ul>
-                          </div>
+                        <div>
+                          <strong>완전한 헤더:</strong>
+                          <p className="text-sm text-gray-600 mt-1 font-mono bg-white p-2 rounded border">
+                            Company Name,HQ Location,AUM,Type,Area,Manager Count,Established Date,Address,Phone,Website
+                          </p>
+                        </div>
+                        <div>
+                          <strong>데이터 형식 주의사항:</strong>
+                          <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
+                            <li>AUM: 숫자만 (단위: 억원)</li>
+                            <li>펀드 매니저수: 숫자만</li>
+                            <li>설립일자: YYYY-MM-DD 형식 (예: 2024-01-15)</li>
+                            <li>주소: 텍스트 형식, 쉼표 포함 시 따옴표로 감싸기</li>
+                            <li>전화번호: 하이픈 포함 형식 (예: 02-1234-5678)</li>
+                            <li>웹사이트: https:// 로 시작하는 전체 URL</li>
+                          </ul>
                         </div>
                       </div>
                     </div>
-                  </div>
-
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                    <FileText className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                    <div className="space-y-2">
-                      <p className="text-sm text-gray-600">
-                        CSV 파일을 선택하거나 드래그 앤 드롭하세요
-                      </p>
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept=".csv"
-                        onChange={handleFileUpload}
-                        className="hidden"
-                      />
+                    <div className="mt-6 flex space-x-4">
                       <Button
-                        type="button"
+                        onClick={downloadSampleCSV}
                         variant="outline"
+                        className="w-full"
+                      >
+                        <Download className="mr-2 h-4 w-4" />
+                        샘플 CSV 다운로드
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <div className="border-t pt-6">
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleFileUpload}
+                      accept=".csv"
+                      className="hidden"
+                    />
+                    <div className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-6">
+                      <FileText className="h-8 w-8 text-gray-400 mb-4" />
+                      <p className="text-sm text-gray-600 mb-4">CSV 파일을 선택하세요</p>
+                      <Button
                         onClick={() => fileInputRef.current?.click()}
                         disabled={uploadCSVMutation.isPending}
                       >
-                        {uploadCSVMutation.isPending ? "업로드 중..." : "CSV 파일 선택"}
+                        {uploadCSVMutation.isPending ? "업로드 중..." : "파일 선택"}
                       </Button>
                     </div>
                   </div>
 
                   {uploadResult && (
-                    <Alert>
+                    <Alert className={uploadResult.success ? "border-green-200 bg-green-50" : "border-red-200 bg-red-50"}>
                       <AlertDescription>
-                        <div className="space-y-3">
-                          <p className="font-medium">{uploadResult.message}</p>
-                          
-                          {uploadResult.detectedHeaders && (
-                            <div className="bg-blue-50 p-3 rounded">
-                              <p className="text-sm font-medium text-blue-800 mb-2">Detected CSV Headers:</p>
-                              <p className="text-sm text-blue-700">{uploadResult.detectedHeaders.join(', ')}</p>
-                            </div>
+                        <div className="space-y-2">
+                          <p className={uploadResult.success ? "text-green-800" : "text-red-800"}>
+                            {uploadResult.message}
+                          </p>
+                          {uploadResult.processed && (
+                            <p className="text-sm text-gray-600">
+                              처리된 항목: {uploadResult.processed}개 (새로 추가: {uploadResult.newCompanies}개, 업데이트: {uploadResult.updatedCompanies}개)
+                            </p>
                           )}
-                          
-                          {uploadResult.expectedFormat && (
-                            <div className="bg-green-50 p-3 rounded">
-                              <p className="text-sm font-medium text-green-800 mb-2">Expected Format:</p>
-                              <p className="text-sm text-green-700 mb-2">Required columns: {uploadResult.expectedFormat.requiredColumns.join(', ')}</p>
-                              <details className="text-sm text-green-700">
-                                <summary className="cursor-pointer font-medium">Accepted column name variations</summary>
-                                <div className="mt-2 space-y-1">
-                                  {Object.entries(uploadResult.expectedFormat.acceptedVariations).map(([field, variations]: [string, any]) => (
-                                    <div key={field}>
-                                      <strong>{field}:</strong> {variations.join(', ')}
-                                    </div>
-                                  ))}
-                                </div>
-                              </details>
-                            </div>
-                          )}
-                          
                           {uploadResult.errors && uploadResult.errors.length > 0 && (
-                            <div>
-                              <p className="text-sm font-medium text-red-600 mb-1">Errors:</p>
-                              <ul className="text-sm text-red-600 space-y-1">
+                            <div className="text-sm">
+                              <p className="font-medium text-red-800">오류:</p>
+                              <ul className="list-disc list-inside text-red-700">
                                 {uploadResult.errors.slice(0, 5).map((error: string, index: number) => (
-                                  <li key={index}>• {error}</li>
+                                  <li key={index}>{error}</li>
                                 ))}
                                 {uploadResult.errors.length > 5 && (
-                                  <li>... and {uploadResult.errors.length - 5} more errors</li>
+                                  <li>... 및 {uploadResult.errors.length - 5}개 더</li>
                                 )}
                               </ul>
                             </div>
@@ -333,152 +383,194 @@ export default function Companies() {
                 </div>
               </DialogContent>
             </Dialog>
-
+            
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
                 <Button>
                   <Plus className="mr-2 h-4 w-4" />
-                  Add Company
+                  회사추가
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-md">
+              <DialogContent className="max-w-2xl">
                 <DialogHeader>
-                  <DialogTitle>Add New Company</DialogTitle>
+                  <DialogTitle>새 회사 추가</DialogTitle>
                 </DialogHeader>
-                <CompanyForm 
-                  onSuccess={() => setIsDialogOpen(false)}
-                  onCancel={() => setIsDialogOpen(false)}
+                <CompanyForm
+                  onSuccess={() => {
+                    setIsDialogOpen(false);
+                    queryClient.invalidateQueries({ queryKey: ["/api/companies"] });
+                  }}
                 />
               </DialogContent>
             </Dialog>
           </div>
         </div>
+
+        <div className="relative mt-4">
+          <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+          <Input
+            placeholder="회사명, 위치 또는 유형으로 검색..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10"
+          />
+        </div>
       </div>
 
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>All Companies / 전체 회사</CardTitle>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                placeholder="Search companies... / 회사 검색..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 w-64"
-              />
-            </div>
-          </div>
+          <CardTitle>자산운용사 목록 ({filteredCompanies.length}개)</CardTitle>
         </CardHeader>
-        <CardContent className="p-0">
-          {filteredCompanies.length === 0 ? (
-            <p className="text-gray-500 text-center py-8">No companies found</p>
-          ) : (
-            <div className="overflow-x-auto">
-            <Table className="[&_table]:table-fixed [&_table]:w-full">
+        <CardContent>
+          <div className="overflow-x-auto">
+            <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[220px] min-w-[220px]">회사명</TableHead>
-                  <TableHead className="w-[180px] text-center">본사 위치</TableHead>
-                  <TableHead className="w-[80px] text-center">지역</TableHead>
-                  <TableHead className="w-[110px] text-right">AUM(억원)</TableHead>
-                  <TableHead className="w-[140px] text-center">펀드 매니저수</TableHead>
-                  <TableHead className="w-[100px] text-center">설립일자</TableHead>
-                  <TableHead className="w-[200px]">주소</TableHead>
-                  <TableHead className="w-[120px] text-center">전화번호</TableHead>
-                  <TableHead className="w-[140px] text-center">웹사이트</TableHead>
-                  <TableHead className="w-[100px] text-center">주주여부</TableHead>
-                  <TableHead className="w-[80px] text-center">작업</TableHead>
+                  <TableHead 
+                    className="cursor-pointer hover:bg-gray-50 w-[150px]"
+                    onClick={() => handleSort('name')}
+                  >
+                    <div className="flex items-center space-x-1">
+                      <span>회사명</span>
+                      {getSortIcon('name')}
+                    </div>
+                  </TableHead>
+                  <TableHead 
+                    className="cursor-pointer hover:bg-gray-50 w-[180px] text-center"
+                    onClick={() => handleSort('hqLocation')}
+                  >
+                    <div className="flex items-center justify-center space-x-1">
+                      <span>본사 위치</span>
+                      {getSortIcon('hqLocation')}
+                    </div>
+                  </TableHead>
+                  <TableHead 
+                    className="cursor-pointer hover:bg-gray-50 w-[120px] text-right"
+                    onClick={() => handleSort('aum')}
+                  >
+                    <div className="flex items-center justify-end space-x-1">
+                      <span>AUM(억원)</span>
+                      {getSortIcon('aum')}
+                    </div>
+                  </TableHead>
+                  <TableHead 
+                    className="cursor-pointer hover:bg-gray-50 w-[140px] text-center"
+                    onClick={() => handleSort('fundManagerCount')}
+                  >
+                    <div className="flex items-center justify-center space-x-1">
+                      <span>펀드 매니저수</span>
+                      {getSortIcon('fundManagerCount')}
+                    </div>
+                  </TableHead>
+                  <TableHead 
+                    className="cursor-pointer hover:bg-gray-50 text-center"
+                    onClick={() => handleSort('establishedDate')}
+                  >
+                    <div className="flex items-center justify-center space-x-1">
+                      <span>설립일자</span>
+                      {getSortIcon('establishedDate')}
+                    </div>
+                  </TableHead>
+                  <TableHead className="w-[200px] text-center">주소</TableHead>
+                  <TableHead className="text-center">연락처</TableHead>
+                  <TableHead className="text-center">웹사이트</TableHead>
+                  <TableHead className="w-[80px] text-center">액션</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredCompanies.map((company) => (
-                  <TableRow key={company.id}>
-                    <TableCell className="font-medium w-[220px] min-w-[220px] whitespace-nowrap">{company.name}</TableCell>
-                    <TableCell className="text-center w-[180px] py-3 px-2 whitespace-normal break-words">{company.hqLocation}</TableCell>
-                    <TableCell className="text-center w-[80px]">{company.area || 'Korea'}</TableCell>
-                    <TableCell className="text-right font-mono w-[110px]">{parseFloat(company.aum).toLocaleString()}</TableCell>
-                    <TableCell className="text-center w-[140px] py-3 px-2 whitespace-normal">{company.fundManagerCount ? `${company.fundManagerCount}명` : '-'}</TableCell>
-                    <TableCell className="text-center w-[100px]">{company.establishedDate || '-'}</TableCell>
-                    <TableCell className="w-[200px] truncate" title={company.address || ''}>{company.address || '-'}</TableCell>
-                    <TableCell className="text-center w-[120px] font-mono text-sm">{company.phone || '-'}</TableCell>
-                    <TableCell className="w-[140px]">
-                      {company.website ? (
-                        <a href={company.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline text-sm truncate block">
-                          {company.website.length > 20 ? `${company.website.substring(0, 20)}...` : company.website}
-                        </a>
-                      ) : <span className="text-center block">-</span>}
-                    </TableCell>
-                    <TableCell className="text-center w-[100px]">
-                      {company.shareholderStatus === "Yes" && company.shareCount ? 
-                        `Yes (${company.shareCount})` : 
-                        company.shareholderStatus || "N/A"
-                      }
-                    </TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem 
-                            onClick={() => {
-                              setEditingCompany(company);
-                              setIsEditDialogOpen(true);
-                            }}
-                          >
-                            <Edit className="mr-2 h-4 w-4" />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            onClick={() => archiveCompanyMutation.mutate(company.id)}
-                            disabled={archiveCompanyMutation.isPending}
-                          >
-                            <Archive className="mr-2 h-4 w-4" />
-                            Archive
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            onClick={() => {
-                              if (confirm("Are you sure you want to delete this company? This action cannot be undone.")) {
-                                deleteCompanyMutation.mutate(company.id);
-                              }
-                            }}
-                            disabled={deleteCompanyMutation.isPending}
-                            className="text-red-600 focus:text-red-600"
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                {filteredCompanies.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={9} className="text-center py-8 text-gray-500">
+                      {searchQuery ? "검색 결과가 없습니다." : "등록된 회사가 없습니다."}
                     </TableCell>
                   </TableRow>
-                ))}
+                ) : (
+                  filteredCompanies.map((company) => (
+                    <TableRow key={company.id}>
+                      <TableCell className="font-medium">{company.name}</TableCell>
+                      <TableCell className="text-center w-[180px] py-3 px-2 whitespace-normal break-words">{company.hqLocation}</TableCell>
+                      <TableCell className="text-right">
+                        {parseFloat(company.aum).toLocaleString()}
+                      </TableCell>
+                      <TableCell className="text-center w-[140px] py-3 px-2 whitespace-normal">{company.fundManagerCount ? `${company.fundManagerCount}명` : '-'}</TableCell>
+                      <TableCell className="text-center">{company.establishedDate || '-'}</TableCell>
+                      <TableCell className="text-center w-[200px] py-3 px-2 whitespace-normal break-words text-sm">
+                        {company.address ? (
+                          <div title={company.address}>
+                            {company.address.length > 30 ? `${company.address.substring(0, 30)}...` : company.address}
+                          </div>
+                        ) : '-'}
+                      </TableCell>
+                      <TableCell className="text-center text-sm">{company.phone || '-'}</TableCell>
+                      <TableCell className="text-center text-sm">
+                        {company.website ? (
+                          <a 
+                            href={company.website} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:text-blue-800"
+                            title={company.website}
+                          >
+                            링크
+                          </a>
+                        ) : '-'}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={() => {
+                                setEditingCompany(company);
+                                setIsEditDialogOpen(true);
+                              }}
+                            >
+                              <Edit className="mr-2 h-4 w-4" />
+                              수정
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => archiveCompanyMutation.mutate(company.id)}
+                              disabled={archiveCompanyMutation.isPending}
+                            >
+                              <Archive className="mr-2 h-4 w-4" />
+                              보관
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => deleteCompanyMutation.mutate(company.id)}
+                              disabled={deleteCompanyMutation.isPending}
+                              className="text-red-600"
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              삭제
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
-            </div>
-          )}
+          </div>
         </CardContent>
       </Card>
 
-      {/* Edit Company Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Edit Company</DialogTitle>
+            <DialogTitle>회사 정보 수정</DialogTitle>
           </DialogHeader>
           {editingCompany && (
-            <CompanyForm 
+            <CompanyForm
               company={editingCompany}
               onSuccess={() => {
                 setIsEditDialogOpen(false);
                 setEditingCompany(null);
-              }}
-              onCancel={() => {
-                setIsEditDialogOpen(false);
-                setEditingCompany(null);
+                queryClient.invalidateQueries({ queryKey: ["/api/companies"] });
               }}
             />
           )}
