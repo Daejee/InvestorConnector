@@ -305,7 +305,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             mapHeaders: ({ header }) => {
               detectedHeaders.push(header);
               
-              const normalized = header.toLowerCase().trim();
+              // Remove newlines and normalize header
+              const normalized = header.toLowerCase().replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
               console.log(`Mapping header: "${header}" -> normalized: "${normalized}"`);
               
               switch (normalized) {
@@ -352,6 +353,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 case 'area(지역)':
                   console.log(`Mapping "area(지역)" to areaKor`);
                   return 'areaKor'; // Map to dedicated field for Korean area data
+                case '펀드 매니저수':
                 case '펀드 매니저수':
                 case 'fund manager count':
                 case 'fund managers':
@@ -421,11 +423,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 allKeys: Object.keys(data)
               });
               
-              // Check only essential required fields
+              // Check only essential required fields for Korean companies
               const missingFields = [];
               if (!nameValue || nameValue.toString().trim() === '') missingFields.push('name');
-              if (!hqLocationValue || hqLocationValue.toString().trim() === '') missingFields.push('hqLocation');
-              if (!typeValue || typeValue.toString().trim() === '') missingFields.push('type');
+              // For Korean companies, hqLocation and type are optional since we can default them
+              // if (!hqLocationValue || hqLocationValue.toString().trim() === '') missingFields.push('hqLocation');
+              // if (!typeValue || typeValue.toString().trim() === '') missingFields.push('type');
 
               if (missingFields.length > 0) {
                 console.log(`Line ${lineNumber} missing fields:`, missingFields);
@@ -433,18 +436,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 return;
               }
 
-              // Use the extracted field values
+              // Use the extracted field values with defaults for Korean companies
               const finalName = nameValue.toString().trim();
-              const finalHqLocation = hqLocationValue.toString().trim();
-              const finalType = typeValue.toString().trim();
-              const finalArea = areaValue.toString().trim();
+              const finalHqLocation = hqLocationValue ? hqLocationValue.toString().trim() : '서울'; // Default to Seoul
+              const finalType = typeValue ? typeValue.toString().trim() : 'Asset Management'; // Default type for Korean companies
+              const finalArea = areaValue.toString().trim() || 'Korea';
               const finalAum = (aumFromWonColumn || aumFromMappedColumn || '0').toString().trim();
 
-              // Validate company type (allow any non-empty string)
-              if (!finalType) {
-                errors.push(`Line ${lineNumber}: Company type cannot be empty`);
-                return;
-              }
+              // Type is now defaulted for Korean companies, no validation needed
 
               // Area is optional - no validation needed since schema allows null
 
