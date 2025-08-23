@@ -377,18 +377,18 @@ export default function Companies() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Company Name / 회사명</TableHead>
-                  <TableHead>Type / 유형</TableHead>
-                  <TableHead>HQ Location / 본사 위치</TableHead>
-                  <TableHead>Area / 지역</TableHead>
-                  <TableHead>AUM (억원)</TableHead>
+                  <TableHead>회사명</TableHead>
+                  <TableHead>유형</TableHead>
+                  <TableHead>본사 위치</TableHead>
+                  <TableHead>지역</TableHead>
+                  <TableHead>AUM(억원)</TableHead>
                   <TableHead>펀드 매니저수</TableHead>
                   <TableHead>설립일자</TableHead>
                   <TableHead>주소</TableHead>
                   <TableHead>전화번호</TableHead>
                   <TableHead>웹사이트</TableHead>
                   <TableHead>주주여부</TableHead>
-                  <TableHead className="w-[100px]">Actions / 작업</TableHead>
+                  <TableHead className="w-[100px]">작업</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
