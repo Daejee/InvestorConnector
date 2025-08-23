@@ -36,14 +36,14 @@ export default function Analysts() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/analysts"] });
       toast({
-        title: "Success / 성공",
-        description: "Analyst deleted successfully / 애널리스트가 성공적으로 삭제되었습니다",
+        title: "성공",
+        description: "애널리스트가 성공적으로 삭제되었습니다",
       });
     },
     onError: () => {
       toast({
-        title: "Error / 오류",
-        description: "Failed to delete analyst / 애널리스트 삭제에 실패했습니다",
+        title: "오류",
+        description: "애널리스트 삭제에 실패했습니다",
         variant: "destructive",
       });
     },
@@ -68,7 +68,7 @@ export default function Analysts() {
     onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ["/api/analysts"] });
       toast({
-        title: "Upload Success / 업로드 성공",
+        title: "업로드 성공",
         description: result.message,
       });
       if (fileInputRef.current) {
@@ -77,8 +77,8 @@ export default function Analysts() {
     },
     onError: (error: Error) => {
       toast({
-        title: "Upload Error / 업로드 오류",
-        description: error.message || "Failed to upload CSV / CSV 업로드에 실패했습니다",
+        title: "업로드 오류",
+        description: error.message || "CSV 업로드에 실패했습니다",
         variant: "destructive",
       });
     },
@@ -119,7 +119,7 @@ export default function Analysts() {
   };
 
   const handleDelete = (analyst: Analyst) => {
-    if (window.confirm(`Are you sure you want to delete ${analyst.name}? / ${analyst.name}을(를) 삭제하시겠습니까?`)) {
+    if (window.confirm(`${analyst.name}을(를) 삭제하시겠습니까?`)) {
       deleteAnalystMutation.mutate(analyst.id);
     }
   };
@@ -135,8 +135,8 @@ export default function Analysts() {
       uploadMutation.mutate(file);
     } else {
       toast({
-        title: "Invalid File / 잘못된 파일",
-        description: "Please select a CSV file / CSV 파일을 선택해주세요",
+        title: "잘못된 파일",
+        description: "CSV 파일을 선택해주세요",
         variant: "destructive",
       });
     }
@@ -163,7 +163,7 @@ export default function Analysts() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-lg">Loading analysts... / 애널리스트 로딩 중...</div>
+        <div className="text-lg">애널리스트 로딩 중...</div>
       </div>
     );
   }
@@ -179,7 +179,7 @@ export default function Analysts() {
             disabled={uploadMutation.isPending}
           >
             <Upload className="mr-2 h-4 w-4" />
-            {uploadMutation.isPending ? "Uploading... / 업로드 중..." : "Upload CSV / CSV 업로드"}
+            {uploadMutation.isPending ? "업로드 중..." : "CSV 업로드"}
           </Button>
           <input
             ref={fileInputRef}
@@ -192,13 +192,13 @@ export default function Analysts() {
             <DialogTrigger asChild>
               <Button onClick={() => setSelectedAnalyst(null)}>
                 <Plus className="mr-2 h-4 w-4" />
-                Add Sellside / 애널리스트 추가
+                애널리스트 추가
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-2xl">
               <DialogHeader>
                 <DialogTitle>
-                  {selectedAnalyst ? "Edit Sellside / 애널리스트 수정" : "Add Sellside / 애널리스트 추가"}
+                  {selectedAnalyst ? "애널리스트 수정" : "애널리스트 추가"}
                 </DialogTitle>
               </DialogHeader>
               <AnalystForm
@@ -212,11 +212,11 @@ export default function Analysts() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Search Sellside / 애널리스트 검색</CardTitle>
+          <CardTitle>애널리스트 검색</CardTitle>
           <div className="flex items-center space-x-2">
             <Search className="h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search by name, email, company, or specialization... / 이름, 이메일, 회사, 전문분야로 검색..."
+              placeholder="이름, 이메일, 회사, 전문분야로 검색..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="max-w-sm"
@@ -227,21 +227,21 @@ export default function Analysts() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name / 이름</TableHead>
-                <TableHead>Company / 회사</TableHead>
-                <TableHead>Position / 직책</TableHead>
-                <TableHead>Specialization / 담당분야</TableHead>
-                <TableHead>Phone / 전화번호</TableHead>
-                <TableHead>Email / 이메일</TableHead>
-                <TableHead>Coverage / 커버리지여부</TableHead>
-                <TableHead className="w-[120px]">Actions / 작업</TableHead>
+                <TableHead>이름</TableHead>
+                <TableHead>회사</TableHead>
+                <TableHead>직책</TableHead>
+                <TableHead>담당분야</TableHead>
+                <TableHead>전화번호</TableHead>
+                <TableHead>이메일</TableHead>
+                <TableHead>커버리지여부</TableHead>
+                <TableHead className="w-[120px]">작업</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredAnalysts.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={8} className="text-center py-8">
-                    No sellside found / 애널리스트를 찾을 수 없습니다
+                    애널리스트를 찾을 수 없습니다
                   </TableCell>
                 </TableRow>
               ) : (
@@ -296,33 +296,33 @@ export default function Analysts() {
       <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Sellside Details / 애널리스트 상세정보</DialogTitle>
+            <DialogTitle>애널리스트 상세정보</DialogTitle>
           </DialogHeader>
           {selectedAnalyst && (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium">Name / 이름</label>
+                  <label className="text-sm font-medium">이름</label>
                   <p className="text-sm text-muted-foreground">{selectedAnalyst.name}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium">Email / 이메일</label>
+                  <label className="text-sm font-medium">이메일</label>
                   <p className="text-sm text-muted-foreground">{selectedAnalyst.email}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium">Phone / 전화번호</label>
+                  <label className="text-sm font-medium">전화번호</label>
                   <p className="text-sm text-muted-foreground">{selectedAnalyst.phone || "N/A"}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium">Company / 회사</label>
+                  <label className="text-sm font-medium">회사</label>
                   <p className="text-sm text-muted-foreground">{selectedAnalyst?.company}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium">Position / 직책</label>
+                  <label className="text-sm font-medium">직책</label>
                   <p className="text-sm text-muted-foreground">{selectedAnalyst?.position || "N/A"}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium">Specialization / 담당분야</label>
+                  <label className="text-sm font-medium">담당분야</label>
                   <p className="text-sm text-muted-foreground">
                     {Array.isArray(selectedAnalyst?.specialization) && selectedAnalyst.specialization.length > 0 
                       ? selectedAnalyst.specialization.join(", ") 
@@ -330,25 +330,25 @@ export default function Analysts() {
                   </p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium">Coverage / 담당 영역</label>
+                  <label className="text-sm font-medium">담당 영역</label>
                   <p className="text-sm text-muted-foreground">{selectedAnalyst?.coverage || "N/A"}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium">Email / 이메일</label>
+                  <label className="text-sm font-medium">이메일</label>
                   <p className="text-sm text-muted-foreground">{selectedAnalyst?.email || "N/A"}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium">Language / 언어</label>
+                  <label className="text-sm font-medium">언어</label>
                   <p className="text-sm text-muted-foreground">{selectedAnalyst?.language}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium">Coverage / 커버리지여부</label>
+                  <label className="text-sm font-medium">커버리지여부</label>
                   <div>{getCoverageBadge(selectedAnalyst?.status || "No")}</div>
                 </div>
               </div>
               {selectedAnalyst.notes && (
                 <div>
-                  <label className="text-sm font-medium">Notes / 메모</label>
+                  <label className="text-sm font-medium">메모</label>
                   <p className="text-sm text-muted-foreground whitespace-pre-wrap">{selectedAnalyst.notes}</p>
                 </div>
               )}
