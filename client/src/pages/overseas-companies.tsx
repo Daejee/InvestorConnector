@@ -8,10 +8,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import CompanyForm from "@/components/companies/company-form";
-import { Plus, Search, Upload, Download, FileText, Edit, Archive, Trash2, MoreVertical } from "lucide-react";
+import { Plus, Search, Upload, Download, FileText, Edit, Archive, Trash2, MoreVertical, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import type { OverseasCompany } from "@shared/schema";
+
+type SortField = 'name' | 'type' | 'hqLocation' | 'area' | 'aum' | 'shareholderStatus';
+type SortDirection = 'asc' | 'desc';
 
 export default function OverseasCompanies() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -20,6 +23,8 @@ export default function OverseasCompanies() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingCompany, setEditingCompany] = useState<OverseasCompany | null>(null);
   const [uploadResult, setUploadResult] = useState<any>(null);
+  const [sortField, setSortField] = useState<SortField>('name');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -32,7 +37,7 @@ export default function OverseasCompanies() {
   const hasKorean = (text: string) => /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/.test(text);
 
   // Custom sorting function: Korean names first (가나다 order), then English (ABC order)
-  const sortCompaniesByName = (a: Company, b: Company) => {
+  const sortCompaniesByName = (a: OverseasCompany, b: OverseasCompany) => {
     const aHasKorean = hasKorean(a.name);
     const bHasKorean = hasKorean(b.name);
     
@@ -58,11 +63,65 @@ export default function OverseasCompanies() {
     return 0;
   };
 
-  const filteredCompanies = companies?.filter(company =>
-    company.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    company.hqLocation.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    company.type.toLowerCase().includes(searchQuery.toLowerCase())
-  ).sort(sortCompaniesByName) || [];
+  // Handle header click to change sort
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
+  // Get sort icon for header
+  const getSortIcon = (field: SortField) => {
+    if (sortField !== field) {
+      return <ArrowUpDown className="h-4 w-4 text-gray-400" />;
+    }
+    return sortDirection === 'asc' ? 
+      <ArrowUp className="h-4 w-4 text-blue-600" /> : 
+      <ArrowDown className="h-4 w-4 text-blue-600" />;
+  };
+
+  // Sort companies based on current sort field and direction
+  const sortCompanies = (companies: OverseasCompany[]) => {
+    return [...companies].sort((a, b) => {
+      let result = 0;
+      
+      switch (sortField) {
+        case 'name':
+          result = sortCompaniesByName(a, b);
+          break;
+        case 'type':
+          result = a.type.localeCompare(b.type);
+          break;
+        case 'hqLocation':
+          result = a.hqLocation.localeCompare(b.hqLocation);
+          break;
+        case 'area':
+          result = (a.area || 'US').localeCompare(b.area || 'US');
+          break;
+        case 'aum':
+          result = parseFloat(a.aum) - parseFloat(b.aum);
+          break;
+        case 'shareholderStatus':
+          result = (a.shareholderStatus || 'N/A').localeCompare(b.shareholderStatus || 'N/A');
+          break;
+        default:
+          result = 0;
+      }
+      
+      return sortDirection === 'desc' ? -result : result;
+    });
+  };
+
+  const filteredCompanies = companies ? sortCompanies(
+    companies.filter(company =>
+      company.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      company.hqLocation.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      company.type.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+  ) : [];
 
   const uploadCSVMutation = useMutation({
     mutationFn: async (file: File) => {
@@ -107,7 +166,7 @@ export default function OverseasCompanies() {
 
   const deleteCompanyMutation = useMutation({
     mutationFn: async (companyId: number) => {
-      const response = await apiRequest("DELETE", `/api/overseas-companies/${companyId}`);
+      const response = await apiRequest(`/api/overseas-companies/${companyId}`, { method: "DELETE" });
       return response;
     },
     onSuccess: () => {
@@ -128,7 +187,7 @@ export default function OverseasCompanies() {
 
   const archiveCompanyMutation = useMutation({
     mutationFn: async (companyId: number) => {
-      const response = await apiRequest("PUT", `/api/overseas-companies/${companyId}/archive`);
+      const response = await apiRequest(`/api/overseas-companies/${companyId}/archive`, { method: "PUT" });
       return response;
     },
     onSuccess: () => {
@@ -378,12 +437,60 @@ export default function OverseasCompanies() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>회사명</TableHead>
-                  <TableHead>유형</TableHead>
-                  <TableHead>본사 위치</TableHead>
-                  <TableHead>지역</TableHead>
-                  <TableHead>AUM ($Bil.)</TableHead>
-                  <TableHead>주주여부</TableHead>
+                  <TableHead 
+                    className="cursor-pointer hover:bg-gray-50 select-none"
+                    onClick={() => handleSort('name')}
+                  >
+                    <div className="flex items-center space-x-1">
+                      <span>회사명</span>
+                      {getSortIcon('name')}
+                    </div>
+                  </TableHead>
+                  <TableHead 
+                    className="cursor-pointer hover:bg-gray-50 select-none"
+                    onClick={() => handleSort('type')}
+                  >
+                    <div className="flex items-center space-x-1">
+                      <span>유형</span>
+                      {getSortIcon('type')}
+                    </div>
+                  </TableHead>
+                  <TableHead 
+                    className="cursor-pointer hover:bg-gray-50 select-none"
+                    onClick={() => handleSort('hqLocation')}
+                  >
+                    <div className="flex items-center space-x-1">
+                      <span>본사 위치</span>
+                      {getSortIcon('hqLocation')}
+                    </div>
+                  </TableHead>
+                  <TableHead 
+                    className="cursor-pointer hover:bg-gray-50 select-none"
+                    onClick={() => handleSort('area')}
+                  >
+                    <div className="flex items-center space-x-1">
+                      <span>지역</span>
+                      {getSortIcon('area')}
+                    </div>
+                  </TableHead>
+                  <TableHead 
+                    className="cursor-pointer hover:bg-gray-50 select-none"
+                    onClick={() => handleSort('aum')}
+                  >
+                    <div className="flex items-center space-x-1">
+                      <span>AUM ($Bil.)</span>
+                      {getSortIcon('aum')}
+                    </div>
+                  </TableHead>
+                  <TableHead 
+                    className="cursor-pointer hover:bg-gray-50 select-none"
+                    onClick={() => handleSort('shareholderStatus')}
+                  >
+                    <div className="flex items-center space-x-1">
+                      <span>주주여부</span>
+                      {getSortIcon('shareholderStatus')}
+                    </div>
+                  </TableHead>
                   <TableHead className="w-[100px]">작업</TableHead>
                 </TableRow>
               </TableHeader>
