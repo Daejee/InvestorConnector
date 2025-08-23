@@ -394,7 +394,7 @@ export default function OverseasCompanies() {
                     <TableCell>{company.type}</TableCell>
                     <TableCell>{company.hqLocation}</TableCell>
                     <TableCell>{company.area || 'US'}</TableCell>
-                    <TableCell>{(parseFloat(company.aum) / 1000000000).toFixed(1)}</TableCell>
+                    <TableCell>{parseFloat(company.aum).toLocaleString()}</TableCell>
                     <TableCell>
                       {company.shareholderStatus === "Yes" && company.shareCount ? 
                         `Yes (${company.shareCount})` : 
