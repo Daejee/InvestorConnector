@@ -382,7 +382,7 @@ export default function OverseasCompanies() {
                   <TableHead>유형</TableHead>
                   <TableHead>본사 위치</TableHead>
                   <TableHead>지역</TableHead>
-                  <TableHead>AUM (억원)</TableHead>
+                  <TableHead>AUM ($Bil.)</TableHead>
                   <TableHead>주주여부</TableHead>
                   <TableHead className="w-[100px]">작업</TableHead>
                 </TableRow>
@@ -394,7 +394,7 @@ export default function OverseasCompanies() {
                     <TableCell>{company.type}</TableCell>
                     <TableCell>{company.hqLocation}</TableCell>
                     <TableCell>{company.area || 'US'}</TableCell>
-                    <TableCell>{parseFloat(company.aum).toLocaleString()}</TableCell>
+                    <TableCell>{(parseFloat(company.aum) / 1000000000).toFixed(1)}</TableCell>
                     <TableCell>
                       {company.shareholderStatus === "Yes" && company.shareCount ? 
                         `Yes (${company.shareCount})` : 
