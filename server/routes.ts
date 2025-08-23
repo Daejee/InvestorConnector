@@ -22,8 +22,7 @@ import {
   insertDocumentSchema,
   insertSecuritiesFirmSchema,
   insertEmailLogSchema,
-  insertUserSchema,
-  insertFundManagerSchema
+  insertUserSchema
 } from "@shared/schema";
 import { EmailService } from "./email-service";
 import {
@@ -117,6 +116,105 @@ export async function registerRoutes(app: Express): Promise<Server> {
         message: "Failed to delete investor", 
         error: error.message 
       });
+    }
+  });
+
+  // Investor CSV upload
+  app.post("/api/investors/upload-csv", upload.single('file'), async (req, res) => {
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
+
+    try {
+      const results: any[] = [];
+      const readable = Readable.from(req.file.buffer);
+      
+      readable
+        .pipe(csvParser())
+        .on('data', (data) => results.push(data))
+        .on('end', async () => {
+          try {
+            console.log('CSV parsing results:', results.slice(0, 3)); // Debug first 3 rows
+            
+            const investors = results.map((row, index) => {
+              // Parse experience strings like "10년7개월"
+              const parseExperience = (exp: string) => {
+                if (!exp || exp === '' || exp.trim() === '') return null;
+                return exp.trim();
+              };
+
+              // Parse amount strings like "1,624,589" (백만원)
+              const parseAmount = (amount: string) => {
+                if (!amount || amount === '' || amount.trim() === '') return null;
+                const cleanAmount = amount.replace(/[,\s"]/g, '');
+                const parsed = parseFloat(cleanAmount);
+                return isNaN(parsed) ? null : parsed;
+              };
+
+              // Generate email if not provided
+              const generateEmail = (name: string, company: string) => {
+                if (!name || !company) return 'unknown@example.com';
+                const nameSlug = name.toLowerCase().replace(/[^a-z]/g, '');
+                const companySlug = company.toLowerCase().replace(/[^a-z0-9]/g, '');
+                return `${nameSlug}@${companySlug}.com`;
+              };
+
+              const name = (row['성명'] || row['name'] || '').trim();
+              const company = (row['운용사'] || row['company'] || '').trim();
+              const email = row['email'] || generateEmail(name, company);
+
+              const result = {
+                name,
+                email,
+                company,
+                phone: (row['phone'] || row['연락처'] || '').trim(),
+                position: (row['position'] || row['직책'] || 'Fund Manager').trim(),
+                positionType: 'PM', // Default to Portfolio Manager
+                totalExperience: parseExperience(row['총 운용경력'] || row['총운용경력']),
+                currentCompanyExperience: parseExperience(row['현회사 운용경력'] || row['현회사운용경력']),
+                numberOfManagedFunds: parseInt(row['펀드수'] || row['운용펀드수']) || 0,
+                totalAssets: parseAmount(row['설정원본'] || row['설정원본(백만원)']) || parseAmount(row['"설정원본\n(백만원)"']),
+                specialty: [row['전문분야'] || row['specialty'] || ''].filter(s => s),
+                country: 'Korea',
+                language: 'Korean',
+                avatarInitials: name.length >= 2 ? name.substring(0, 2).toUpperCase() : 'FM'
+              };
+              
+              if (index < 3) {
+                console.log(`Row ${index}:`, row);
+                console.log(`Parsed ${index}:`, result);
+              }
+              
+              return result;
+            });
+
+            // Validate and insert investors
+            const created = [];
+            for (const inv of investors) {
+              if (inv.company && inv.name && inv.email) {
+                try {
+                  const validatedData = insertInvestorSchema.parse(inv);
+                  const createdInvestor = await storage.createInvestor(validatedData);
+                  created.push(createdInvestor);
+                } catch (validationError) {
+                  console.error('Validation error for investor:', inv, validationError);
+                }
+              }
+            }
+
+            res.json({ 
+              message: `Successfully imported ${created.length} investors`,
+              imported: created.length,
+              total: results.length
+            });
+          } catch (error) {
+            console.error('Error processing investors:', error);
+            res.status(500).json({ message: "Error processing investors", error });
+          }
+        });
+    } catch (error) {
+      console.error('Error uploading investors CSV:', error);
+      res.status(500).json({ message: "Error uploading CSV", error });
     }
   });
 
@@ -2378,148 +2476,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Fund Manager routes
-  app.get("/api/fund-managers", async (req, res) => {
-    const fundManagers = await storage.getFundManagers();
-    res.json(fundManagers);
-  });
-
-  app.get("/api/fund-managers/:id", async (req, res) => {
-    const id = parseInt(req.params.id);
-    const fundManager = await storage.getFundManager(id);
-    if (!fundManager) {
-      return res.status(404).json({ message: "Fund Manager not found" });
-    }
-    res.json(fundManager);
-  });
-
-  app.post("/api/fund-managers", async (req, res) => {
-    try {
-      const data = insertFundManagerSchema.parse(req.body);
-      const fundManager = await storage.createFundManager(data);
-      res.status(201).json(fundManager);
-    } catch (error) {
-      res.status(400).json({ message: "Invalid data", error });
-    }
-  });
-
-  app.put("/api/fund-managers/:id", async (req, res) => {
-    try {
-      const id = parseInt(req.params.id);
-      const data = insertFundManagerSchema.partial().parse(req.body);
-      const fundManager = await storage.updateFundManager(id, data);
-      if (!fundManager) {
-        return res.status(404).json({ message: "Fund Manager not found" });
-      }
-      res.json(fundManager);
-    } catch (error) {
-      res.status(400).json({ message: "Invalid data", error });
-    }
-  });
-
-  app.delete("/api/fund-managers/:id", async (req, res) => {
-    const id = parseInt(req.params.id);
-    const success = await storage.deleteFundManager(id);
-    if (!success) {
-      return res.status(404).json({ message: "Fund Manager not found" });
-    }
-    res.status(204).send();
-  });
-
-  // Fund Manager CSV upload
-  app.post("/api/fund-managers/upload-csv", upload.single('file'), async (req, res) => {
-    if (!req.file) {
-      return res.status(400).json({ message: "No file uploaded" });
-    }
-
-    try {
-      const results: any[] = [];
-      const readable = Readable.from(req.file.buffer);
-      
-      readable
-        .pipe(csvParser())
-        .on('data', (data) => results.push(data))
-        .on('end', async () => {
-          try {
-            console.log('CSV parsing results:', results.slice(0, 3)); // Debug first 3 rows
-            
-            const fundManagers = results.map((row, index) => {
-              // Parse experience strings like "10년7개월"
-              const parseExperience = (exp: string) => {
-                if (!exp || exp === '' || exp.trim() === '') return null;
-                return exp.trim();
-              };
-
-              // Parse amount strings like "1,624,589" (백만원)
-              const parseAmount = (amount: string) => {
-                if (!amount || amount === '' || amount.trim() === '') return null;
-                const cleanAmount = amount.replace(/[,\s"]/g, ''); // Remove quotes too
-                const parsed = parseFloat(cleanAmount);
-                return isNaN(parsed) ? null : parsed;
-              };
-
-              // Try different possible column names for the amount field
-              const amountFields = [
-                '설정원본\n(백만원)',
-                '설정원본(백만원)', 
-                '설정원본',
-                '"설정원본\n(백만원)"'
-              ];
-              
-              let totalAssets = null;
-              for (const field of amountFields) {
-                if (row[field]) {
-                  totalAssets = parseAmount(row[field]);
-                  if (totalAssets !== null) break;
-                }
-              }
-
-              const result = {
-                company: (row['운용사'] || '').trim(),
-                name: (row['성명'] || '').trim(),
-                totalExperience: parseExperience(row['총 운용경력']),
-                currentCompanyExperience: parseExperience(row['현회사 운용경력']),
-                numberOfFunds: parseInt(row['펀드수']) || 0,
-                totalAssets
-              };
-              
-              if (index < 3) {
-                console.log(`Row ${index}:`, row);
-                console.log(`Parsed ${index}:`, result);
-              }
-              
-              return result;
-            });
-
-            // Validate and insert fund managers
-            const created = [];
-            for (const fm of fundManagers) {
-              if (fm.company && fm.name) {
-                try {
-                  const validatedData = insertFundManagerSchema.parse(fm);
-                  const createdFundManager = await storage.createFundManager(validatedData);
-                  created.push(createdFundManager);
-                } catch (validationError) {
-                  console.error('Validation error for fund manager:', fm, validationError);
-                }
-              }
-            }
-
-            res.json({ 
-              message: `Successfully imported ${created.length} fund managers`,
-              imported: created.length,
-              total: results.length
-            });
-          } catch (error) {
-            console.error('Error processing fund managers:', error);
-            res.status(500).json({ message: "Error processing fund managers", error });
-          }
-        });
-    } catch (error) {
-      console.error('Error uploading fund managers CSV:', error);
-      res.status(500).json({ message: "Error uploading CSV", error });
-    }
-  });
 
   const httpServer = createServer(app);
   return httpServer;

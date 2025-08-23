@@ -1,5 +1,5 @@
 import { 
-  investors, overseasInvestors, companies, overseasCompanies, investments, communications, meetings, funds, meetingLogs, ndrConferences, otherEvents, emailTemplates, emailCampaigns, analysts, documents, securitiesFirms, emailLogs, users, fundManagers,
+  investors, overseasInvestors, companies, overseasCompanies, investments, communications, meetings, funds, meetingLogs, ndrConferences, otherEvents, emailTemplates, emailCampaigns, analysts, documents, securitiesFirms, emailLogs, users,
   type Investor, type InsertInvestor, type OverseasInvestor, type InsertOverseasInvestor,
   type Company, type InsertCompany, type OverseasCompany, type InsertOverseasCompany,
   type Investment, type InsertInvestment,
@@ -15,8 +15,7 @@ import {
   type Document, type InsertDocument,
   type SecuritiesFirm, type InsertSecuritiesFirm,
   type EmailLog, type InsertEmailLog,
-  type User, type InsertUser,
-  type FundManager, type InsertFundManager
+  type User, type InsertUser
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, sql } from "drizzle-orm";
@@ -164,12 +163,6 @@ export interface IStorage {
   updateUser(id: number, user: Partial<InsertUser>): Promise<User | undefined>;
   deleteUser(id: number): Promise<boolean>;
 
-  // Fund Managers
-  getFundManagers(): Promise<FundManager[]>;
-  getFundManager(id: number): Promise<FundManager | undefined>;
-  createFundManager(fundManager: InsertFundManager): Promise<FundManager>;
-  updateFundManager(id: number, fundManager: Partial<InsertFundManager>): Promise<FundManager | undefined>;
-  deleteFundManager(id: number): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -822,37 +815,6 @@ export class DatabaseStorage implements IStorage {
     return result.rowCount! > 0;
   }
 
-  // Fund Managers
-  async getFundManagers(): Promise<FundManager[]> {
-    return await db.select().from(fundManagers).orderBy(desc(fundManagers.createdAt));
-  }
-
-  async getFundManager(id: number): Promise<FundManager | undefined> {
-    const [fundManager] = await db.select().from(fundManagers).where(eq(fundManagers.id, id));
-    return fundManager || undefined;
-  }
-
-  async createFundManager(insertFundManager: InsertFundManager): Promise<FundManager> {
-    const [fundManager] = await db
-      .insert(fundManagers)
-      .values(insertFundManager)
-      .returning();
-    return fundManager;
-  }
-
-  async updateFundManager(id: number, updateData: Partial<InsertFundManager>): Promise<FundManager | undefined> {
-    const [fundManager] = await db
-      .update(fundManagers)
-      .set({ ...updateData, updatedAt: new Date() })
-      .where(eq(fundManagers.id, id))
-      .returning();
-    return fundManager || undefined;
-  }
-
-  async deleteFundManager(id: number): Promise<boolean> {
-    const result = await db.delete(fundManagers).where(eq(fundManagers.id, id));
-    return result.rowCount! > 0;
-  }
 }
 
 export const storage = new DatabaseStorage();
