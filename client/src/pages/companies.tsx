@@ -378,12 +378,12 @@ export default function Companies() {
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-[220px] min-w-[220px]">회사명</TableHead>
-                  <TableHead className="w-[100px] text-center">본사 위치</TableHead>
+                  <TableHead className="w-[200px] text-center">본사 위치</TableHead>
                   <TableHead className="w-[80px] text-center">지역</TableHead>
                   <TableHead className="w-[110px] text-right">AUM(억원)</TableHead>
-                  <TableHead className="w-[100px] text-right">펀드 매니저수</TableHead>
+                  <TableHead className="w-[200px] text-right">펀드 매니저수</TableHead>
                   <TableHead className="w-[100px] text-center">설립일자</TableHead>
-                  <TableHead className="w-[250px]">주소</TableHead>
+                  <TableHead className="w-[200px]">주소</TableHead>
                   <TableHead className="w-[120px] text-center">전화번호</TableHead>
                   <TableHead className="w-[140px] text-center">웹사이트</TableHead>
                   <TableHead className="w-[100px] text-center">주주여부</TableHead>
@@ -394,12 +394,12 @@ export default function Companies() {
                 {filteredCompanies.map((company) => (
                   <TableRow key={company.id}>
                     <TableCell className="font-medium w-[220px] min-w-[220px] whitespace-nowrap">{company.name}</TableCell>
-                    <TableCell className="text-center w-[100px]">{company.hqLocation}</TableCell>
+                    <TableCell className="text-center w-[200px]">{company.hqLocation}</TableCell>
                     <TableCell className="text-center w-[80px]">{company.area || 'Korea'}</TableCell>
                     <TableCell className="text-right font-mono w-[110px]">{parseFloat(company.aum).toLocaleString()}</TableCell>
-                    <TableCell className="text-right w-[100px]">{company.fundManagerCount || '-'}</TableCell>
+                    <TableCell className="text-right w-[200px]">{company.fundManagerCount || '-'}</TableCell>
                     <TableCell className="text-center w-[100px]">{company.establishedDate || '-'}</TableCell>
-                    <TableCell className="w-[250px] truncate" title={company.address || ''}>{company.address || '-'}</TableCell>
+                    <TableCell className="w-[200px] truncate" title={company.address || ''}>{company.address || '-'}</TableCell>
                     <TableCell className="text-center w-[120px] font-mono text-sm">{company.phone || '-'}</TableCell>
                     <TableCell className="w-[140px]">
                       {company.website ? (
