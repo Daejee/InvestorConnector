@@ -111,36 +111,11 @@ export default function Investors() {
         </div>
       </div>
 
-      <Tabs defaultValue="investors" className="w-full">
+      <Tabs defaultValue="fund-managers" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="investors">투자자 (Buyside)</TabsTrigger>
           <TabsTrigger value="fund-managers">펀드매니저</TabsTrigger>
+          <TabsTrigger value="investors">투자자 (Buyside)</TabsTrigger>
         </TabsList>
-        
-        <TabsContent value="investors" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>All Buyside / 전체 투자자</CardTitle>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                  <Input
-                    placeholder="Search buyside... / 투자자 검색..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 w-64"
-                  />
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="p-0">
-              <InvestorTable 
-                investors={filteredInvestors} 
-                isLoading={isLoading} 
-              />
-            </CardContent>
-          </Card>
-        </TabsContent>
         
         <TabsContent value="fund-managers" className="space-y-4">
           <Card>
@@ -182,6 +157,31 @@ export default function Investors() {
               <FundManagerTable 
                 fundManagers={filteredFundManagers} 
                 isLoading={isFundManagersLoading} 
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="investors" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>All Buyside / 전체 투자자</CardTitle>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <Input
+                    placeholder="Search buyside... / 투자자 검색..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10 w-64"
+                  />
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-0">
+              <InvestorTable 
+                investors={filteredInvestors} 
+                isLoading={isLoading} 
               />
             </CardContent>
           </Card>
