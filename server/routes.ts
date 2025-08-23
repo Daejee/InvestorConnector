@@ -137,6 +137,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
             console.log('CSV parsing results:', results.slice(0, 3)); // Debug first 3 rows
             
             const investors = results.map((row, index) => {
+              // Clean up keys by removing BOM and trimming
+              const cleanRow: any = {};
+              Object.keys(row).forEach(key => {
+                const cleanKey = key.replace(/\uFEFF/g, '').trim(); // Remove BOM
+                cleanRow[cleanKey] = row[key];
+              });
+              
               // Parse experience strings like "10년7개월"
               const parseExperience = (exp: string) => {
                 if (!exp || exp === '' || exp.trim() === '') return null;
@@ -150,6 +157,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 const parsed = parseFloat(cleanAmount);
                 return isNaN(parsed) ? null : parsed;
               };
+              
+              // Try to find the assets field with different possible column names
+              const assetFields = [
+                '설정원본\n(백만원)',
+                '설정원본(백만원)',
+                '설정원본',
+                'assets',
+                'totalAssets'
+              ];
+              
+              let totalAssets = null;
+              for (const field of assetFields) {
+                if (cleanRow[field]) {
+                  totalAssets = parseAmount(cleanRow[field]);
+                  if (totalAssets !== null) {
+                    console.log(`Found assets in field '${field}': ${totalAssets}`);
+                    break;
+                  }
+                }
+              }
 
               // Generate email if not provided
               const generateEmail = (name: string, company: string) => {
@@ -159,22 +186,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 return `${nameSlug}@${companySlug}.com`;
               };
 
-              const name = (row['성명'] || row['name'] || '').trim();
-              const company = (row['운용사'] || row['company'] || '').trim();
-              const email = row['email'] || generateEmail(name, company);
+              const name = (cleanRow['성명'] || cleanRow['name'] || '').trim();
+              const company = (cleanRow['운용사'] || cleanRow['company'] || '').trim();
+              
+              console.log(`Processing row ${index}: name=${name}, company=${company}`);
+              console.log(`Available keys:`, Object.keys(cleanRow));
+              
+              const email = cleanRow['email'] || generateEmail(name, company);
 
               const result = {
                 name,
                 email,
                 company,
-                phone: (row['phone'] || row['연락처'] || '').trim(),
-                position: (row['position'] || row['직책'] || 'Fund Manager').trim(),
+                phone: (cleanRow['phone'] || cleanRow['연락처'] || '').trim(),
+                position: (cleanRow['position'] || cleanRow['직책'] || 'Fund Manager').trim(),
                 positionType: 'PM', // Default to Portfolio Manager
-                totalExperience: parseExperience(row['총 운용경력'] || row['총운용경력']),
-                currentCompanyExperience: parseExperience(row['현회사 운용경력'] || row['현회사운용경력']),
-                numberOfManagedFunds: parseInt(row['펀드수'] || row['운용펀드수']) || 0,
-                totalAssets: parseAmount(row['설정원본'] || row['설정원본(백만원)']) || parseAmount(row['"설정원본\n(백만원)"']),
-                specialty: [row['전문분야'] || row['specialty'] || ''].filter(s => s),
+                totalExperience: parseExperience(cleanRow['총 운용경력'] || cleanRow['총운용경력']),
+                currentCompanyExperience: parseExperience(cleanRow['현회사 운용경력'] || cleanRow['현회사운용경력']),
+                numberOfManagedFunds: parseInt(cleanRow['펀드수'] || cleanRow['운용펀드수']) || 0,
+                totalAssets,
+                specialty: [cleanRow['전문분야'] || cleanRow['specialty'] || ''].filter(s => s),
                 country: 'Korea',
                 language: 'Korean',
                 avatarInitials: name.length >= 2 ? name.substring(0, 2).toUpperCase() : 'FM'
