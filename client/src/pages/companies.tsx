@@ -107,7 +107,7 @@ export default function Companies() {
 
   const deleteCompanyMutation = useMutation({
     mutationFn: async (companyId: number) => {
-      const response = await apiRequest("DELETE", `/api/companies/${companyId}`, {});
+      const response = await apiRequest("DELETE", `/api/companies/${companyId}`);
       return response;
     },
     onSuccess: () => {
@@ -128,7 +128,7 @@ export default function Companies() {
 
   const archiveCompanyMutation = useMutation({
     mutationFn: async (companyId: number) => {
-      const response = await apiRequest("PUT", `/api/companies/${companyId}/archive`, {});
+      const response = await apiRequest("PUT", `/api/companies/${companyId}/archive`);
       return response;
     },
     onSuccess: () => {
@@ -379,10 +379,10 @@ export default function Companies() {
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-[220px] min-w-[220px]">회사명</TableHead>
-                  <TableHead className="w-[200px] text-center">본사 위치</TableHead>
+                  <TableHead className="w-[180px] text-center">본사 위치</TableHead>
                   <TableHead className="w-[80px] text-center">지역</TableHead>
                   <TableHead className="w-[110px] text-right">AUM(억원)</TableHead>
-                  <TableHead className="w-[200px] text-right">펀드 매니저수</TableHead>
+                  <TableHead className="w-[140px] text-center">펀드 매니저수</TableHead>
                   <TableHead className="w-[100px] text-center">설립일자</TableHead>
                   <TableHead className="w-[200px]">주소</TableHead>
                   <TableHead className="w-[120px] text-center">전화번호</TableHead>
@@ -395,10 +395,10 @@ export default function Companies() {
                 {filteredCompanies.map((company) => (
                   <TableRow key={company.id}>
                     <TableCell className="font-medium w-[220px] min-w-[220px] whitespace-nowrap">{company.name}</TableCell>
-                    <TableCell className="text-center w-[200px]">{company.hqLocation}</TableCell>
+                    <TableCell className="text-center w-[180px] py-3 px-2 whitespace-normal break-words">{company.hqLocation}</TableCell>
                     <TableCell className="text-center w-[80px]">{company.area || 'Korea'}</TableCell>
                     <TableCell className="text-right font-mono w-[110px]">{parseFloat(company.aum).toLocaleString()}</TableCell>
-                    <TableCell className="text-right w-[200px]">{company.fundManagerCount || '-'}</TableCell>
+                    <TableCell className="text-center w-[140px] py-3 px-2 whitespace-normal">{company.fundManagerCount ? `${company.fundManagerCount}명` : '-'}</TableCell>
                     <TableCell className="text-center w-[100px]">{company.establishedDate || '-'}</TableCell>
                     <TableCell className="w-[200px] truncate" title={company.address || ''}>{company.address || '-'}</TableCell>
                     <TableCell className="text-center w-[120px] font-mono text-sm">{company.phone || '-'}</TableCell>
