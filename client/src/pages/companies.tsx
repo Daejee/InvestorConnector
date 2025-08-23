@@ -377,40 +377,40 @@ export default function Companies() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>회사명</TableHead>
-                  <TableHead>유형</TableHead>
-                  <TableHead>본사 위치</TableHead>
-                  <TableHead>지역</TableHead>
-                  <TableHead>AUM(억원)</TableHead>
-                  <TableHead>펀드 매니저수</TableHead>
-                  <TableHead>설립일자</TableHead>
-                  <TableHead>주소</TableHead>
-                  <TableHead>전화번호</TableHead>
-                  <TableHead>웹사이트</TableHead>
-                  <TableHead>주주여부</TableHead>
-                  <TableHead className="w-[100px]">작업</TableHead>
+                  <TableHead className="w-[180px]">회사명</TableHead>
+                  <TableHead className="w-[120px] text-center">유형</TableHead>
+                  <TableHead className="w-[100px] text-center">본사 위치</TableHead>
+                  <TableHead className="w-[80px] text-center">지역</TableHead>
+                  <TableHead className="w-[110px] text-right">AUM(억원)</TableHead>
+                  <TableHead className="w-[100px] text-right">펀드 매니저수</TableHead>
+                  <TableHead className="w-[100px] text-center">설립일자</TableHead>
+                  <TableHead className="w-[250px]">주소</TableHead>
+                  <TableHead className="w-[120px] text-center">전화번호</TableHead>
+                  <TableHead className="w-[140px] text-center">웹사이트</TableHead>
+                  <TableHead className="w-[100px] text-center">주주여부</TableHead>
+                  <TableHead className="w-[80px] text-center">작업</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredCompanies.map((company) => (
                   <TableRow key={company.id}>
-                    <TableCell className="font-medium">{company.name}</TableCell>
-                    <TableCell>{company.type}</TableCell>
-                    <TableCell>{company.hqLocation}</TableCell>
-                    <TableCell>{company.area || 'Korea'}</TableCell>
-                    <TableCell>{parseFloat(company.aum).toLocaleString()}</TableCell>
-                    <TableCell>{company.fundManagerCount || '-'}</TableCell>
-                    <TableCell>{company.establishedDate || '-'}</TableCell>
-                    <TableCell className="max-w-[200px] truncate" title={company.address || ''}>{company.address || '-'}</TableCell>
-                    <TableCell>{company.phone || '-'}</TableCell>
-                    <TableCell>
+                    <TableCell className="font-medium w-[180px]">{company.name}</TableCell>
+                    <TableCell className="text-center w-[120px]">{company.type}</TableCell>
+                    <TableCell className="text-center w-[100px]">{company.hqLocation}</TableCell>
+                    <TableCell className="text-center w-[80px]">{company.area || 'Korea'}</TableCell>
+                    <TableCell className="text-right font-mono w-[110px]">{parseFloat(company.aum).toLocaleString()}</TableCell>
+                    <TableCell className="text-right w-[100px]">{company.fundManagerCount || '-'}</TableCell>
+                    <TableCell className="text-center w-[100px]">{company.establishedDate || '-'}</TableCell>
+                    <TableCell className="w-[250px] truncate" title={company.address || ''}>{company.address || '-'}</TableCell>
+                    <TableCell className="text-center w-[120px] font-mono text-sm">{company.phone || '-'}</TableCell>
+                    <TableCell className="w-[140px]">
                       {company.website ? (
-                        <a href={company.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
-                          {company.website.length > 30 ? `${company.website.substring(0, 30)}...` : company.website}
+                        <a href={company.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline text-sm truncate block">
+                          {company.website.length > 20 ? `${company.website.substring(0, 20)}...` : company.website}
                         </a>
-                      ) : '-'}
+                      ) : <span className="text-center block">-</span>}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="text-center w-[100px]">
                       {company.shareholderStatus === "Yes" && company.shareCount ? 
                         `Yes (${company.shareCount})` : 
                         company.shareholderStatus || "N/A"
