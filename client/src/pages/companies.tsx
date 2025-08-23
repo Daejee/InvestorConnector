@@ -378,7 +378,6 @@ export default function Companies() {
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-[220px] min-w-[220px]">회사명</TableHead>
-                  <TableHead className="w-[120px] text-center">유형</TableHead>
                   <TableHead className="w-[100px] text-center">본사 위치</TableHead>
                   <TableHead className="w-[80px] text-center">지역</TableHead>
                   <TableHead className="w-[110px] text-right">AUM(억원)</TableHead>
@@ -395,7 +394,6 @@ export default function Companies() {
                 {filteredCompanies.map((company) => (
                   <TableRow key={company.id}>
                     <TableCell className="font-medium w-[220px] min-w-[220px] whitespace-nowrap">{company.name}</TableCell>
-                    <TableCell className="text-center w-[120px]">{company.type}</TableCell>
                     <TableCell className="text-center w-[100px]">{company.hqLocation}</TableCell>
                     <TableCell className="text-center w-[80px]">{company.area || 'Korea'}</TableCell>
                     <TableCell className="text-right font-mono w-[110px]">{parseFloat(company.aum).toLocaleString()}</TableCell>
