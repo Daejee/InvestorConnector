@@ -46,10 +46,10 @@ const navigation = [
   },
   { name: "Reports / 보고서", href: "/reports", icon: BarChart },
   { name: "투자자(국내)", href: "/investors", icon: Users },
-  { name: "자산운용사(국내)", href: "/overseas-companies", icon: Building },
+  { name: "자산운용사(해외)", href: "/overseas-companies", icon: Building },
   { name: "투자자(해외)", href: "/overseas-investors", icon: Users },
   { 
-    name: "자산운용사(해외)", 
+    name: "자산운용사(국내)", 
     href: "/companies", 
     icon: Building,
     submenu: [
