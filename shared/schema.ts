@@ -75,6 +75,18 @@ export const users = pgTable("users", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+export const fundManagers = pgTable("fund_managers", {
+  id: serial("id").primaryKey(),
+  company: text("company").notNull(), // 운용사
+  name: text("name").notNull(), // 성명
+  totalExperience: text("total_experience"), // 총 운용경력 (e.g., "10년7개월")
+  currentCompanyExperience: text("current_company_experience"), // 현회사 운용경력
+  numberOfFunds: integer("number_of_funds"), // 펀드수
+  totalAssets: decimal("total_assets", { precision: 20, scale: 2 }), // 설정원본 (백만원)
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 export const documents = pgTable("documents", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
@@ -350,6 +362,12 @@ export const insertUserSchema = createInsertSchema(users).omit({
   updatedAt: true,
 });
 
+export const insertFundManagerSchema = createInsertSchema(fundManagers).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export const insertEmailLogSchema = createInsertSchema(emailLogs).omit({
   id: true,
   sentAt: true,
@@ -357,6 +375,9 @@ export const insertEmailLogSchema = createInsertSchema(emailLogs).omit({
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
+
+export type InsertFundManager = z.infer<typeof insertFundManagerSchema>;
+export type FundManager = typeof fundManagers.$inferSelect;
 
 export type InsertInvestor = z.infer<typeof insertInvestorSchema>;
 export type Investor = typeof investors.$inferSelect;

@@ -22,7 +22,8 @@ import {
   insertDocumentSchema,
   insertSecuritiesFirmSchema,
   insertEmailLogSchema,
-  insertUserSchema
+  insertUserSchema,
+  insertFundManagerSchema
 } from "@shared/schema";
 import { EmailService } from "./email-service";
 import {
@@ -2374,6 +2375,124 @@ export async function registerRoutes(app: Express): Promise<Server> {
         message: "Failed to delete user", 
         error: error.message 
       });
+    }
+  });
+
+  // Fund Manager routes
+  app.get("/api/fund-managers", async (req, res) => {
+    const fundManagers = await storage.getFundManagers();
+    res.json(fundManagers);
+  });
+
+  app.get("/api/fund-managers/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    const fundManager = await storage.getFundManager(id);
+    if (!fundManager) {
+      return res.status(404).json({ message: "Fund Manager not found" });
+    }
+    res.json(fundManager);
+  });
+
+  app.post("/api/fund-managers", async (req, res) => {
+    try {
+      const data = insertFundManagerSchema.parse(req.body);
+      const fundManager = await storage.createFundManager(data);
+      res.status(201).json(fundManager);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid data", error });
+    }
+  });
+
+  app.put("/api/fund-managers/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const data = insertFundManagerSchema.partial().parse(req.body);
+      const fundManager = await storage.updateFundManager(id, data);
+      if (!fundManager) {
+        return res.status(404).json({ message: "Fund Manager not found" });
+      }
+      res.json(fundManager);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid data", error });
+    }
+  });
+
+  app.delete("/api/fund-managers/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    const success = await storage.deleteFundManager(id);
+    if (!success) {
+      return res.status(404).json({ message: "Fund Manager not found" });
+    }
+    res.status(204).send();
+  });
+
+  // Fund Manager CSV upload
+  app.post("/api/fund-managers/upload-csv", upload.single('file'), async (req, res) => {
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
+
+    try {
+      const results: any[] = [];
+      const readable = Readable.from(req.file.buffer);
+      
+      readable
+        .pipe(csvParser())
+        .on('data', (data) => results.push(data))
+        .on('end', async () => {
+          try {
+            const fundManagers = results.map(row => {
+              // Parse experience strings like "10년7개월"
+              const parseExperience = (exp: string) => {
+                if (!exp || exp === '') return null;
+                return exp.trim();
+              };
+
+              // Parse amount strings like "1,624,589" (백만원)
+              const parseAmount = (amount: string) => {
+                if (!amount || amount === '') return null;
+                const cleanAmount = amount.replace(/[,\s]/g, '');
+                const parsed = parseFloat(cleanAmount);
+                return isNaN(parsed) ? null : parsed;
+              };
+
+              return {
+                company: row['운용사'] || '',
+                name: row['성명'] || '',
+                totalExperience: parseExperience(row['총 운용경력']),
+                currentCompanyExperience: parseExperience(row['현회사 운용경력']),
+                numberOfFunds: parseInt(row['펀드수']) || 0,
+                totalAssets: parseAmount(row['설정원본\n(백만원)']) || parseAmount(row['설정원본(백만원)']) || parseAmount(row['설정원본'])
+              };
+            });
+
+            // Validate and insert fund managers
+            const created = [];
+            for (const fm of fundManagers) {
+              if (fm.company && fm.name) {
+                try {
+                  const validatedData = insertFundManagerSchema.parse(fm);
+                  const createdFundManager = await storage.createFundManager(validatedData);
+                  created.push(createdFundManager);
+                } catch (validationError) {
+                  console.error('Validation error for fund manager:', fm, validationError);
+                }
+              }
+            }
+
+            res.json({ 
+              message: `Successfully imported ${created.length} fund managers`,
+              imported: created.length,
+              total: results.length
+            });
+          } catch (error) {
+            console.error('Error processing fund managers:', error);
+            res.status(500).json({ message: "Error processing fund managers", error });
+          }
+        });
+    } catch (error) {
+      console.error('Error uploading fund managers CSV:', error);
+      res.status(500).json({ message: "Error uploading CSV", error });
     }
   });
 
