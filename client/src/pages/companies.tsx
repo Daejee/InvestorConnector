@@ -377,7 +377,7 @@ export default function Companies() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[180px]">회사명</TableHead>
+                  <TableHead className="w-[220px] min-w-[220px]">회사명</TableHead>
                   <TableHead className="w-[120px] text-center">유형</TableHead>
                   <TableHead className="w-[100px] text-center">본사 위치</TableHead>
                   <TableHead className="w-[80px] text-center">지역</TableHead>
@@ -394,7 +394,7 @@ export default function Companies() {
               <TableBody>
                 {filteredCompanies.map((company) => (
                   <TableRow key={company.id}>
-                    <TableCell className="font-medium w-[180px]">{company.name}</TableCell>
+                    <TableCell className="font-medium w-[220px] min-w-[220px] whitespace-nowrap">{company.name}</TableCell>
                     <TableCell className="text-center w-[120px]">{company.type}</TableCell>
                     <TableCell className="text-center w-[100px]">{company.hqLocation}</TableCell>
                     <TableCell className="text-center w-[80px]">{company.area || 'Korea'}</TableCell>
