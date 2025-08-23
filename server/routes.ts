@@ -2441,29 +2441,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .on('data', (data) => results.push(data))
         .on('end', async () => {
           try {
-            const fundManagers = results.map(row => {
+            console.log('CSV parsing results:', results.slice(0, 3)); // Debug first 3 rows
+            
+            const fundManagers = results.map((row, index) => {
               // Parse experience strings like "10년7개월"
               const parseExperience = (exp: string) => {
-                if (!exp || exp === '') return null;
+                if (!exp || exp === '' || exp.trim() === '') return null;
                 return exp.trim();
               };
 
               // Parse amount strings like "1,624,589" (백만원)
               const parseAmount = (amount: string) => {
-                if (!amount || amount === '') return null;
-                const cleanAmount = amount.replace(/[,\s]/g, '');
+                if (!amount || amount === '' || amount.trim() === '') return null;
+                const cleanAmount = amount.replace(/[,\s"]/g, ''); // Remove quotes too
                 const parsed = parseFloat(cleanAmount);
                 return isNaN(parsed) ? null : parsed;
               };
 
-              return {
-                company: row['운용사'] || '',
-                name: row['성명'] || '',
+              // Try different possible column names for the amount field
+              const amountFields = [
+                '설정원본\n(백만원)',
+                '설정원본(백만원)', 
+                '설정원본',
+                '"설정원본\n(백만원)"'
+              ];
+              
+              let totalAssets = null;
+              for (const field of amountFields) {
+                if (row[field]) {
+                  totalAssets = parseAmount(row[field]);
+                  if (totalAssets !== null) break;
+                }
+              }
+
+              const result = {
+                company: (row['운용사'] || '').trim(),
+                name: (row['성명'] || '').trim(),
                 totalExperience: parseExperience(row['총 운용경력']),
                 currentCompanyExperience: parseExperience(row['현회사 운용경력']),
                 numberOfFunds: parseInt(row['펀드수']) || 0,
-                totalAssets: parseAmount(row['설정원본\n(백만원)']) || parseAmount(row['설정원본(백만원)']) || parseAmount(row['설정원본'])
+                totalAssets
               };
+              
+              if (index < 3) {
+                console.log(`Row ${index}:`, row);
+                console.log(`Parsed ${index}:`, result);
+              }
+              
+              return result;
             });
 
             // Validate and insert fund managers
