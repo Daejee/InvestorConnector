@@ -130,10 +130,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const readable = Readable.from(req.file.buffer);
       
       readable
-        .pipe(csvParser({
-          skipEmptyLines: true, // Skip empty lines
-          stripBOM: true        // Remove BOM
-        }))
+        .pipe(csvParser())
         .on('data', (data) => {
           // Skip rows where all main fields are empty
           const hasData = data['운용사'] || data['성명'] || data['company'] || data['name'];
@@ -171,41 +168,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 return exp.trim();
               };
 
-              // Parse amount strings like "1,624,589" (백만원) - keep as string for decimal type
+              // Parse amount strings like "1,624,589" (백만원) - ALWAYS return string for decimal type
               const parseAmount = (amount: string) => {
                 if (!amount || amount === '' || amount.trim() === '') return null;
                 const cleanAmount = amount.replace(/[,\s"]/g, '').trim();
                 const parsed = parseFloat(cleanAmount);
                 if (isNaN(parsed)) return null;
-                return cleanAmount; // Always return string for decimal type
+                console.log(`Parsing amount: '${amount}' -> '${cleanAmount}' (string)`);
+                return String(cleanAmount); // FORCE string conversion
               };
               
-              // Try to find the assets field with different possible column names
+              // Try to find the assets field - exact column name from CSV
               const assetFields = [
-                '설정원본\n(백만원)',
-                '설정원본(백만원)',
-                '설정원본',
+                '설정원본 (백만원)',  // After cleaning: "설정원본 (백만원)"
+                '설정원본\n(백만원)',    // Original with newline
+                '설정원본(백만원)',     // Without space
+                '설정원본',                     // Just "설정원본"
                 'assets',
                 'totalAssets'
               ];
               
               let totalAssets = null;
               for (const field of assetFields) {
-                if (cleanRow[field] || row[field]) {
-                  totalAssets = parseAmount(cleanRow[field] || row[field]);
+                const value = cleanRow[field] || row[field];
+                if (value) {
+                  totalAssets = parseAmount(value);
                   if (totalAssets !== null) {
-                    console.log(`Found assets in field '${field}': ${totalAssets}`);
+                    console.log(`Found assets in field '${field}': '${totalAssets}' (type: ${typeof totalAssets})`);
                     break;
                   }
                 }
               }
 
-              // Generate email if not provided
+              // Generate unique email
               const generateEmail = (name: string, company: string) => {
-                if (!name || !company) return 'unknown@example.com';
-                const nameSlug = name.toLowerCase().replace(/[^a-z]/g, '');
-                const companySlug = company.toLowerCase().replace(/[^a-z0-9]/g, '');
-                return `${nameSlug}@${companySlug}.com`;
+                if (!name || !company) return `unknown${Date.now()}@example.com`;
+                const nameSlug = name.toLowerCase().replace(/[^a-z]/g, '').slice(0, 5);
+                let companySlug = company.toLowerCase()
+                  .replace(/자산운용/g, 'asset')  
+                  .replace(/[^a-z0-9]/g, '')
+                  .slice(0, 8);
+                  
+                if (!companySlug) companySlug = 'company';
+                
+                // Add timestamp and random number to ensure uniqueness
+                const timestamp = Date.now().toString().slice(-4);
+                const random = Math.floor(Math.random() * 99);
+                return `${nameSlug}${timestamp}${random}@${companySlug}.com`;
               };
 
               // Try multiple ways to get the company and name
@@ -217,7 +226,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
               console.log(`Raw row keys:`, Object.keys(row));
               console.log(`CleanRow content:`, cleanRow);
               
-              const email = cleanRow['email'] || generateEmail(name, company);
+              // Always generate email since CSV doesn't contain email field
+              const email = generateEmail(name, company);
+              console.log(`Generated email for ${name}: ${email}`);
 
               const result = {
                 name,
@@ -254,9 +265,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
               console.log(`Checking investor: company='${inv.company}', name='${inv.name}', email='${inv.email}'`);
               if (inv.company && inv.name && inv.email) {
                 try {
-                  // Convert totalAssets to string if it's a number
-                  if (typeof inv.totalAssets === 'number') {
-                    inv.totalAssets = inv.totalAssets.toString();
+                  // FORCE convert totalAssets to string if it exists
+                  if (inv.totalAssets !== null && inv.totalAssets !== undefined) {
+                    inv.totalAssets = String(inv.totalAssets);
                   }
                   
                   const validatedData = insertInvestorSchema.parse(inv);
