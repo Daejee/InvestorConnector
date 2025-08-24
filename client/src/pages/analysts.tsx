@@ -132,8 +132,8 @@ export default function Analysts() {
           bValue = b.company;
           break;
         case 'specialization':
-          aValue = Array.isArray(a.specialization) ? a.specialization.join(', ') : '';
-          bValue = Array.isArray(b.specialization) ? b.specialization.join(', ') : '';
+          aValue = translateSpecializationArray(a.specialization || []);
+          bValue = translateSpecializationArray(b.specialization || []);
           break;
         default:
           aValue = a.name;
@@ -184,6 +184,116 @@ export default function Analysts() {
         variant: "destructive",
       });
     }
+  };
+
+  // 담당분야 영어 -> 한국어 변환 함수
+  const translateSpecialization = (spec: string): string => {
+    const translations: Record<string, string> = {
+      // 산업분야
+      "Semiconductor": "반도체",
+      "Technology": "기술",
+      "Defense": "방산",
+      "Industrial": "산업재",
+      "Utilities": "유틸리티",
+      "Machinery": "기계",
+      "Healthcare": "헬스케어",
+      "Pharmaceuticals": "제약",
+      "Biotech": "바이오",
+      "Energy": "에너지",
+      "Oil": "석유",
+      "Gas": "가스",
+      "Renewable": "신재생에너지",
+      "Financial": "금융",
+      "Banking": "은행",
+      "Insurance": "보험",
+      "Real Estate": "부동산",
+      "Construction": "건설",
+      "Materials": "소재",
+      "Steel": "철강",
+      "Chemical": "화학",
+      "Petrochemical": "석유화학",
+      "Consumer": "소비재",
+      "Food": "식품",
+      "Beverage": "음료",
+      "Retail": "유통",
+      "Automotive": "자동차",
+      "Shipping": "해운",
+      "Airlines": "항공",
+      "Transportation": "운송",
+      "Logistics": "물류",
+      "Telecom": "통신",
+      "Media": "미디어",
+      "Entertainment": "엔터테인먼트",
+      "Gaming": "게임",
+      "Internet": "인터넷",
+      "Software": "소프트웨어",
+      "Hardware": "하드웨어",
+      "IT": "IT",
+      "Electronics": "전자",
+      "Display": "디스플레이",
+      "Battery": "배터리",
+      "Solar": "태양광",
+      "Wind": "풍력",
+      "Nuclear": "원자력",
+      "Coal": "석탄",
+      "Mining": "광업",
+      "Agriculture": "농업",
+      "Fisheries": "수산업",
+      "Forestry": "임업",
+      "Textiles": "섬유",
+      "Apparel": "의류",
+      "Cosmetics": "화장품",
+      "Household": "생활용품",
+      "Sports": "스포츠",
+      "Tourism": "관광",
+      "Hotels": "호텔",
+      "Education": "교육",
+      "Healthcare Services": "의료서비스",
+      "Hospitals": "병원",
+      "Medical Equipment": "의료기기",
+      "REIT": "리츠",
+      "Investment": "투자",
+      "Asset Management": "자산운용",
+      "Private Equity": "사모펀드",
+      "Venture Capital": "벤처캐피털",
+      "ESG": "ESG",
+      "Green Finance": "그린파이낸스",
+      "Digital Transformation": "디지털 전환",
+      "AI": "인공지능",
+      "IoT": "사물인터넷",
+      "Cloud": "클라우드",
+      "Cybersecurity": "사이버보안",
+      "Fintech": "핀테크",
+      "E-commerce": "전자상거래",
+      "Platform": "플랫폼",
+      "Subscription": "구독서비스",
+      "SaaS": "SaaS",
+      "Big Data": "빅데이터",
+      "Blockchain": "블록체인",
+      "Cryptocurrency": "암호화폐",
+      "NFT": "NFT",
+      "Metaverse": "메타버스",
+      "VR": "가상현실",
+      "AR": "증강현실",
+      "5G": "5G",
+      "6G": "6G",
+      "Space": "우주",
+      "Satellite": "위성"
+    };
+    
+    return translations[spec] || spec;
+  };
+
+  // 담당분야 배열을 한국어로 변환
+  const translateSpecializationArray = (specializations: string[]): string => {
+    if (!Array.isArray(specializations) || specializations.length === 0) {
+      return "N/A";
+    }
+    
+    return specializations
+      .map(spec => translateSpecialization(spec.trim()))
+      .filter(spec => spec !== "")
+      .join(", ");
   };
 
   const getCoverageBadge = (status: string) => {
@@ -308,9 +418,7 @@ export default function Analysts() {
                     <TableCell className="font-medium w-[120px]">{analyst.name}</TableCell>
                     <TableCell className="w-[180px]">{analyst.company}</TableCell>
                     <TableCell>
-                      {Array.isArray(analyst.specialization) && analyst.specialization.length > 0 
-                        ? analyst.specialization.join(", ") 
-                        : "N/A"}
+                      {translateSpecializationArray(analyst.specialization)}
                     </TableCell>
                     <TableCell className="w-[140px]">{analyst.phone || "N/A"}</TableCell>
                     <TableCell>{analyst.email || "N/A"}</TableCell>
@@ -381,9 +489,7 @@ export default function Analysts() {
                 <div>
                   <label className="text-sm font-medium">담당분야</label>
                   <p className="text-sm text-muted-foreground">
-                    {Array.isArray(selectedAnalyst?.specialization) && selectedAnalyst.specialization.length > 0 
-                      ? selectedAnalyst.specialization.join(", ") 
-                      : "N/A"}
+                    {translateSpecializationArray(selectedAnalyst?.specialization || [])}
                   </p>
                 </div>
                 <div>
