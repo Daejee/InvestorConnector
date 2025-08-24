@@ -306,31 +306,31 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
           {investors.map((investor) => (
             <tr key={investor.id} className="hover:bg-gray-50">
               <td className="pl-1 pr-1 py-4 whitespace-nowrap">
-                <div className="text-xs font-medium text-gray-900">{investor.name}</div>
+                <div className="text-sm font-medium text-gray-900">{investor.name}</div>
               </td>
               <td className="px-1 py-4 whitespace-nowrap">
-                <div className="text-xs text-gray-900">{investor.company}</div>
+                <div className="text-sm text-gray-900">{investor.company}</div>
               </td>
               <td className="px-1 py-4 whitespace-nowrap">
-                <div className="text-xs text-gray-900">
+                <div className="text-sm text-gray-900">
                   {investor.totalAssets ? `${Number(investor.totalAssets).toLocaleString()}` : '-'}
                 </div>
               </td>
               <td className="px-1 py-4 whitespace-nowrap">
-                <div className="text-xs text-gray-900">
+                <div className="text-sm text-gray-900">
                   {investor.ownsOurShare === "Yes" ? (
                     <div>
-                      <span className="text-xs bg-green-100 text-green-800 px-1 py-0 rounded">Yes</span>
+                      <span className="text-sm bg-green-100 text-green-800 px-1 py-0 rounded">Yes</span>
                       {investor.shareAmount && (
-                        <div className="text-xs text-gray-500 mt-1">{investor.shareAmount}</div>
+                        <div className="text-sm text-gray-500 mt-1">{investor.shareAmount}</div>
                       )}
                     </div>
                   ) : investor.ownsOurShare === "No" ? (
-                    <span className="text-xs bg-gray-100 text-gray-600 px-1 py-0 rounded">No</span>
+                    <span className="text-sm bg-gray-100 text-gray-600 px-1 py-0 rounded">No</span>
                   ) : investor.ownsOurShare === "N/A" ? (
-                    <span className="text-xs bg-yellow-100 text-yellow-800 px-1 py-0 rounded">N/A</span>
+                    <span className="text-sm bg-yellow-100 text-yellow-800 px-1 py-0 rounded">N/A</span>
                   ) : (
-                    <span className="text-gray-400 italic text-xs">N/A</span>
+                    <span className="text-gray-400 italic text-sm">N/A</span>
                   )}
                 </div>
               </td>
