@@ -162,3 +162,20 @@ UI Language: Korean only display - use only Korean text for all new features and
 - **Conditional Display**: Fields remain in collapsible R&R section (user initially wanted them always visible but reverted this decision)
 - **Detail View**: Updated investor detail view to show portfolio management experience in organized format
 - **Data Validation**: Proper number input validation and formatting for experience years and AUM amounts
+
+### Analyst Table and Form Improvements (August 24, 2025)
+- **Position Column Removal**: Removed the Position/직책 column from analyst table for cleaner layout
+  - Updated table header to remove unnecessary position information
+  - Adjusted table colspan from 8 to 7 for proper alignment
+  - Streamlined table structure focusing on essential analyst information
+- **Phone Number Column Expansion**: Increased phone number column width to 140px for better visibility
+  - Enhanced phone number display area for better readability
+  - Improved overall table balance and layout
+- **Complete Korean Interface**: Achieved 100% Korean-only interface in analyst forms
+  - Removed all bilingual labels (English/Korean → Korean only)
+  - Updated form validation messages to Korean-only
+  - Converted all placeholders to Korean format
+  - Changed phone format from "+82-10-1234-5678" to "010-1234-5678"
+  - Updated email placeholder to Korean domain (.co.kr)
+  - Eliminated English text from dropdown options, buttons, and toast messages
+  - Maintained consistency with user preference for Korean-only UI
