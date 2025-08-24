@@ -391,7 +391,7 @@ export default function Companies() {
                   회사추가
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-2xl">
+              <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>새 회사 추가</DialogTitle>
                 </DialogHeader>
@@ -560,7 +560,7 @@ export default function Companies() {
       </Card>
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>회사 정보 수정</DialogTitle>
           </DialogHeader>
