@@ -361,22 +361,22 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
       <table className="w-full min-w-[1100px]">
         <thead className="bg-gray-50">
           <tr>
-            <th className="pl-1 pr-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[14%]">
+            <th className="pl-1 pr-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[18%]">
               {renderSortButton('name', 'PM')}
             </th>
             <th className="px-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[12%]">
               {renderSortButton('company', '투신사')}
             </th>
-            <th className="px-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[10%]">
+            <th className="px-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[9%]">
               {renderSortButton('totalAssets', 'AUM')}
             </th>
-            <th className="px-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[8%]">
+            <th className="px-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[7%]">
               {renderSortButton('currentCompanyExperience', '현회사운용경력')}
             </th>
-            <th className="px-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[7%]">
+            <th className="px-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[6%]">
               {renderSortButton('numberOfManagedFunds', '운용펀드수')}
             </th>
-            <th className="px-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[9%]">
+            <th className="px-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[8%]">
               {renderSortButton('ownsOurShare', '당사지분보유')}
             </th>
             <th className="px-1 pr-4 py-3 text-right text-sm font-medium text-gray-500 uppercase tracking-wider w-[40%]">
