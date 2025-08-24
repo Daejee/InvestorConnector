@@ -229,9 +229,8 @@ export default function Analysts() {
               <TableRow>
                 <TableHead className="w-[120px]">이름</TableHead>
                 <TableHead className="w-[180px]">회사</TableHead>
-                <TableHead>직책</TableHead>
                 <TableHead>담당분야</TableHead>
-                <TableHead>전화번호</TableHead>
+                <TableHead className="w-[140px]">전화번호</TableHead>
                 <TableHead>이메일</TableHead>
                 <TableHead>커버리지여부</TableHead>
                 <TableHead className="w-[120px]">작업</TableHead>
@@ -240,7 +239,7 @@ export default function Analysts() {
             <TableBody>
               {filteredAnalysts.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-8">
+                  <TableCell colSpan={7} className="text-center py-8">
                     애널리스트를 찾을 수 없습니다
                   </TableCell>
                 </TableRow>
@@ -249,13 +248,12 @@ export default function Analysts() {
                   <TableRow key={analyst.id}>
                     <TableCell className="font-medium w-[120px]">{analyst.name}</TableCell>
                     <TableCell className="w-[180px]">{analyst.company}</TableCell>
-                    <TableCell>{analyst.position || "N/A"}</TableCell>
                     <TableCell>
                       {Array.isArray(analyst.specialization) && analyst.specialization.length > 0 
                         ? analyst.specialization.join(", ") 
                         : "N/A"}
                     </TableCell>
-                    <TableCell>{analyst.phone || "N/A"}</TableCell>
+                    <TableCell className="w-[140px]">{analyst.phone || "N/A"}</TableCell>
                     <TableCell>{analyst.email || "N/A"}</TableCell>
                     <TableCell>{getCoverageBadge(analyst.status || "No")}</TableCell>
                     <TableCell>
