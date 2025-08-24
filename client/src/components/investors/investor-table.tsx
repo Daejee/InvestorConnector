@@ -368,7 +368,7 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
               {renderSortButton('company', '투신사')}
             </th>
             <th className="px-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[11%]">
-              {renderSortButton('totalAssets', '설정원본(백만원)')}
+              {renderSortButton('totalAssets', 'AUM')}
             </th>
             <th className="px-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[9%]">
               {renderSortButton('currentCompanyExperience', '현회사운용경력')}
