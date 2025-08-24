@@ -306,16 +306,7 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
           {investors.map((investor) => (
             <tr key={investor.id} className="hover:bg-gray-50">
               <td className="pl-1 pr-1 py-4 whitespace-nowrap">
-                <div className="flex items-center">
-                  <div className="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center">
-                    <span className="text-gray-600 font-medium text-xs">
-                      {investor.avatarInitials || getInitials(investor.name)}
-                    </span>
-                  </div>
-                  <div className="ml-1">
-                    <div className="text-xs font-medium text-gray-900">{investor.name}</div>
-                  </div>
-                </div>
+                <div className="text-xs font-medium text-gray-900">{investor.name}</div>
               </td>
               <td className="px-1 py-4 whitespace-nowrap">
                 <div className="text-xs text-gray-900">{investor.company}</div>
