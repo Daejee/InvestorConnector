@@ -23,12 +23,12 @@ import { eq, desc, sql } from "drizzle-orm";
 
 export interface IStorage {
   // Investors
-  getInvestors(): Promise<Investor[]>;
-  getInvestor(id: number): Promise<Investor | undefined>;
-  getInvestorByEmail(email: string): Promise<Investor | undefined>;
-  createInvestor(investor: InsertInvestor): Promise<Investor>;
-  updateInvestor(id: number, investor: Partial<InsertInvestor>): Promise<Investor | undefined>;
-  deleteInvestor(id: number): Promise<boolean>;
+  getInvestors(organizationId: number): Promise<Investor[]>;
+  getInvestor(id: number, organizationId: number): Promise<Investor | undefined>;
+  getInvestorByEmail(email: string, organizationId: number): Promise<Investor | undefined>;
+  createInvestor(investor: InsertInvestor, organizationId: number): Promise<Investor>;
+  updateInvestor(id: number, investor: Partial<InsertInvestor>, organizationId: number): Promise<Investor | undefined>;
+  deleteInvestor(id: number, organizationId: number): Promise<boolean>;
   clearAllEmails(): Promise<void>;
 
   // Overseas Investors
@@ -40,11 +40,11 @@ export interface IStorage {
   deleteOverseasInvestor(id: number): Promise<boolean>;
 
   // Companies
-  getCompanies(): Promise<Company[]>;
-  getCompany(id: number): Promise<Company | undefined>;
-  createCompany(company: InsertCompany): Promise<Company>;
-  updateCompany(id: number, company: Partial<InsertCompany>): Promise<Company | undefined>;
-  deleteCompany(id: number): Promise<boolean>;
+  getCompanies(organizationId: number): Promise<Company[]>;
+  getCompany(id: number, organizationId: number): Promise<Company | undefined>;
+  createCompany(company: InsertCompany, organizationId: number): Promise<Company>;
+  updateCompany(id: number, company: Partial<InsertCompany>, organizationId: number): Promise<Company | undefined>;
+  deleteCompany(id: number, organizationId: number): Promise<boolean>;
 
   // Overseas Companies
   getOverseasCompanies(): Promise<OverseasCompany[]>;
@@ -70,13 +70,13 @@ export interface IStorage {
   deleteCommunication(id: number): Promise<boolean>;
 
   // Meetings
-  getMeetings(): Promise<Meeting[]>;
-  getMeeting(id: number): Promise<Meeting | undefined>;
-  getMeetingsByInvestor(investorId: number): Promise<Meeting[]>;
-  getUpcomingMeetings(): Promise<Meeting[]>;
-  createMeeting(meeting: InsertMeeting): Promise<Meeting>;
-  updateMeeting(id: number, meeting: Partial<InsertMeeting>): Promise<Meeting | undefined>;
-  deleteMeeting(id: number): Promise<boolean>;
+  getMeetings(organizationId: number): Promise<Meeting[]>;
+  getMeeting(id: number, organizationId: number): Promise<Meeting | undefined>;
+  getMeetingsByInvestor(investorId: number, organizationId: number): Promise<Meeting[]>;
+  getUpcomingMeetings(organizationId: number): Promise<Meeting[]>;
+  createMeeting(meeting: InsertMeeting, organizationId: number): Promise<Meeting>;
+  updateMeeting(id: number, meeting: Partial<InsertMeeting>, organizationId: number): Promise<Meeting | undefined>;
+  deleteMeeting(id: number, organizationId: number): Promise<boolean>;
   updateMeetingMinutes(meetingId: number, minutesData: {
     minutesFilePath: string;
     minutesFileName: string;
@@ -129,12 +129,12 @@ export interface IStorage {
   updateEmailCampaign(id: number, campaign: Partial<InsertEmailCampaign>): Promise<EmailCampaign | undefined>;
 
   // Analysts
-  getAnalysts(): Promise<Analyst[]>;
-  getAnalyst(id: number): Promise<Analyst | undefined>;
-  getAnalystByEmail(email: string): Promise<Analyst | undefined>;
-  createAnalyst(analyst: InsertAnalyst): Promise<Analyst>;
-  updateAnalyst(id: number, analyst: Partial<InsertAnalyst>): Promise<Analyst | undefined>;
-  deleteAnalyst(id: number): Promise<boolean>;
+  getAnalysts(organizationId: number): Promise<Analyst[]>;
+  getAnalyst(id: number, organizationId: number): Promise<Analyst | undefined>;
+  getAnalystByEmail(email: string, organizationId: number): Promise<Analyst | undefined>;
+  createAnalyst(analyst: InsertAnalyst, organizationId: number): Promise<Analyst>;
+  updateAnalyst(id: number, analyst: Partial<InsertAnalyst>, organizationId: number): Promise<Analyst | undefined>;
+  deleteAnalyst(id: number, organizationId: number): Promise<boolean>;
 
   // Documents
   getDocuments(): Promise<Document[]>;
@@ -169,39 +169,45 @@ export interface IStorage {
 
 export class DatabaseStorage implements IStorage {
   // Investors
-  async getInvestors(): Promise<Investor[]> {
-    return await db.select().from(investors);
+  async getInvestors(organizationId: number): Promise<Investor[]> {
+    return await db.select().from(investors).where(eq(investors.organizationId, organizationId));
   }
 
-  async getInvestor(id: number): Promise<Investor | undefined> {
-    const [investor] = await db.select().from(investors).where(eq(investors.id, id));
+  async getInvestor(id: number, organizationId: number): Promise<Investor | undefined> {
+    const [investor] = await db.select().from(investors).where(
+      sql`${investors.id} = ${id} AND ${investors.organizationId} = ${organizationId}`
+    );
     return investor || undefined;
   }
 
-  async getInvestorByEmail(email: string): Promise<Investor | undefined> {
-    const [investor] = await db.select().from(investors).where(eq(investors.email, email));
+  async getInvestorByEmail(email: string, organizationId: number): Promise<Investor | undefined> {
+    const [investor] = await db.select().from(investors).where(
+      sql`${investors.email} = ${email} AND ${investors.organizationId} = ${organizationId}`
+    );
     return investor || undefined;
   }
 
-  async createInvestor(insertInvestor: InsertInvestor): Promise<Investor> {
+  async createInvestor(insertInvestor: InsertInvestor, organizationId: number): Promise<Investor> {
     const [investor] = await db
       .insert(investors)
-      .values(insertInvestor)
+      .values({ ...insertInvestor, organizationId })
       .returning();
     return investor;
   }
 
-  async updateInvestor(id: number, updateData: Partial<InsertInvestor>): Promise<Investor | undefined> {
+  async updateInvestor(id: number, updateData: Partial<InsertInvestor>, organizationId: number): Promise<Investor | undefined> {
     const [investor] = await db
       .update(investors)
       .set(updateData)
-      .where(eq(investors.id, id))
+      .where(sql`${investors.id} = ${id} AND ${investors.organizationId} = ${organizationId}`)
       .returning();
     return investor || undefined;
   }
 
-  async deleteInvestor(id: number): Promise<boolean> {
-    const result = await db.delete(investors).where(eq(investors.id, id));
+  async deleteInvestor(id: number, organizationId: number): Promise<boolean> {
+    const result = await db.delete(investors).where(
+      sql`${investors.id} = ${id} AND ${investors.organizationId} = ${organizationId}`
+    );
     return result.rowCount! > 0;
   }
 
@@ -250,34 +256,40 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Companies
-  async getCompanies(): Promise<Company[]> {
-    return await db.select().from(companies).where(eq(companies.status, 'active'));
+  async getCompanies(organizationId: number): Promise<Company[]> {
+    return await db.select().from(companies).where(
+      sql`${companies.status} = 'active' AND ${companies.organizationId} = ${organizationId}`
+    );
   }
 
-  async getCompany(id: number): Promise<Company | undefined> {
-    const [company] = await db.select().from(companies).where(eq(companies.id, id));
+  async getCompany(id: number, organizationId: number): Promise<Company | undefined> {
+    const [company] = await db.select().from(companies).where(
+      sql`${companies.id} = ${id} AND ${companies.organizationId} = ${organizationId}`
+    );
     return company || undefined;
   }
 
-  async createCompany(insertCompany: InsertCompany): Promise<Company> {
+  async createCompany(insertCompany: InsertCompany, organizationId: number): Promise<Company> {
     const [company] = await db
       .insert(companies)
-      .values(insertCompany)
+      .values({ ...insertCompany, organizationId })
       .returning();
     return company;
   }
 
-  async updateCompany(id: number, updateData: Partial<InsertCompany>): Promise<Company | undefined> {
+  async updateCompany(id: number, updateData: Partial<InsertCompany>, organizationId: number): Promise<Company | undefined> {
     const [company] = await db
       .update(companies)
       .set(updateData)
-      .where(eq(companies.id, id))
+      .where(sql`${companies.id} = ${id} AND ${companies.organizationId} = ${organizationId}`)
       .returning();
     return company || undefined;
   }
 
-  async deleteCompany(id: number): Promise<boolean> {
-    const result = await db.delete(companies).where(eq(companies.id, id));
+  async deleteCompany(id: number, organizationId: number): Promise<boolean> {
+    const result = await db.delete(companies).where(
+      sql`${companies.id} = ${id} AND ${companies.organizationId} = ${organizationId}`
+    );
     return result.rowCount! > 0;
   }
 
@@ -386,18 +398,22 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Meetings
-  async getMeetings(): Promise<Meeting[]> {
-    return await db.select().from(meetings);
+  async getMeetings(organizationId: number): Promise<Meeting[]> {
+    return await db.select().from(meetings).where(eq(meetings.organizationId, organizationId));
   }
 
-  async getMeeting(id: number): Promise<Meeting | undefined> {
-    const [meeting] = await db.select().from(meetings).where(eq(meetings.id, id));
+  async getMeeting(id: number, organizationId: number): Promise<Meeting | undefined> {
+    const [meeting] = await db.select().from(meetings).where(
+      sql`${meetings.id} = ${id} AND ${meetings.organizationId} = ${organizationId}`
+    );
     return meeting || undefined;
   }
 
-  async getMeetingsByInvestor(investorId: number): Promise<Meeting[]> {
+  async getMeetingsByInvestor(investorId: number, organizationId: number): Promise<Meeting[]> {
     // Since we now use investorIds array, need to check if the investorId is in the array
-    return await db.select().from(meetings).where(sql`${investorId}::text = ANY(investor_ids)`);
+    return await db.select().from(meetings).where(
+      sql`${investorId}::text = ANY(investor_ids) AND ${meetings.organizationId} = ${organizationId}`
+    );
   }
 
   async getMeetingsByAnalyst(analystId: number): Promise<Meeting[]> {
@@ -407,9 +423,9 @@ export class DatabaseStorage implements IStorage {
     );
   }
 
-  async getUpcomingMeetings(): Promise<Meeting[]> {
+  async getUpcomingMeetings(organizationId: number): Promise<Meeting[]> {
     const now = new Date();
-    const allMeetings = await db.select().from(meetings);
+    const allMeetings = await db.select().from(meetings).where(eq(meetings.organizationId, organizationId));
     
     // For development/testing, consider meetings in the near past as "upcoming" if they're within the last day
     const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
@@ -419,25 +435,27 @@ export class DatabaseStorage implements IStorage {
       .sort((a, b) => new Date(a.scheduledDate!).getTime() - new Date(b.scheduledDate!).getTime());
   }
 
-  async createMeeting(insertMeeting: InsertMeeting): Promise<Meeting> {
+  async createMeeting(insertMeeting: InsertMeeting, organizationId: number): Promise<Meeting> {
     const [meeting] = await db
       .insert(meetings)
-      .values(insertMeeting)
+      .values({ ...insertMeeting, organizationId })
       .returning();
     return meeting;
   }
 
-  async updateMeeting(id: number, updateData: Partial<InsertMeeting>): Promise<Meeting | undefined> {
+  async updateMeeting(id: number, updateData: Partial<InsertMeeting>, organizationId: number): Promise<Meeting | undefined> {
     const [meeting] = await db
       .update(meetings)
       .set(updateData)
-      .where(eq(meetings.id, id))
+      .where(sql`${meetings.id} = ${id} AND ${meetings.organizationId} = ${organizationId}`)
       .returning();
     return meeting || undefined;
   }
 
-  async deleteMeeting(id: number): Promise<boolean> {
-    const result = await db.delete(meetings).where(eq(meetings.id, id));
+  async deleteMeeting(id: number, organizationId: number): Promise<boolean> {
+    const result = await db.delete(meetings).where(
+      sql`${meetings.id} = ${id} AND ${meetings.organizationId} = ${organizationId}`
+    );
     return result.rowCount! > 0;
   }
 
@@ -657,39 +675,45 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Analysts
-  async getAnalysts(): Promise<Analyst[]> {
-    return await db.select().from(analysts);
+  async getAnalysts(organizationId: number): Promise<Analyst[]> {
+    return await db.select().from(analysts).where(eq(analysts.organizationId, organizationId));
   }
 
-  async getAnalyst(id: number): Promise<Analyst | undefined> {
-    const [analyst] = await db.select().from(analysts).where(eq(analysts.id, id));
+  async getAnalyst(id: number, organizationId: number): Promise<Analyst | undefined> {
+    const [analyst] = await db.select().from(analysts).where(
+      sql`${analysts.id} = ${id} AND ${analysts.organizationId} = ${organizationId}`
+    );
     return analyst || undefined;
   }
 
-  async getAnalystByEmail(email: string): Promise<Analyst | undefined> {
-    const [analyst] = await db.select().from(analysts).where(eq(analysts.email, email));
+  async getAnalystByEmail(email: string, organizationId: number): Promise<Analyst | undefined> {
+    const [analyst] = await db.select().from(analysts).where(
+      sql`${analysts.email} = ${email} AND ${analysts.organizationId} = ${organizationId}`
+    );
     return analyst || undefined;
   }
 
-  async createAnalyst(insertAnalyst: InsertAnalyst): Promise<Analyst> {
+  async createAnalyst(insertAnalyst: InsertAnalyst, organizationId: number): Promise<Analyst> {
     const [analyst] = await db
       .insert(analysts)
-      .values(insertAnalyst)
+      .values({ ...insertAnalyst, organizationId })
       .returning();
     return analyst;
   }
 
-  async updateAnalyst(id: number, updateData: Partial<InsertAnalyst>): Promise<Analyst | undefined> {
+  async updateAnalyst(id: number, updateData: Partial<InsertAnalyst>, organizationId: number): Promise<Analyst | undefined> {
     const [analyst] = await db
       .update(analysts)
       .set(updateData)
-      .where(eq(analysts.id, id))
+      .where(sql`${analysts.id} = ${id} AND ${analysts.organizationId} = ${organizationId}`)
       .returning();
     return analyst || undefined;
   }
 
-  async deleteAnalyst(id: number): Promise<boolean> {
-    const result = await db.delete(analysts).where(eq(analysts.id, id));
+  async deleteAnalyst(id: number, organizationId: number): Promise<boolean> {
+    const result = await db.delete(analysts).where(
+      sql`${analysts.id} = ${id} AND ${analysts.organizationId} = ${organizationId}`
+    );
     return result.rowCount !== null && result.rowCount > 0;
   }
 

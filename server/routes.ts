@@ -35,13 +35,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const upload = multer({ storage: multer.memoryStorage() });
   // Investors routes
   app.get("/api/investors", async (req, res) => {
-    const investors = await storage.getInvestors();
+    const organizationId = 1; // TODO: Extract from auth context
+    const investors = await storage.getInvestors(organizationId);
     res.json(investors);
   });
 
   app.get("/api/investors/:id", async (req, res) => {
     const id = parseInt(req.params.id);
-    const investor = await storage.getInvestor(id);
+    const organizationId = 1; // TODO: Extract from auth context
+    const investor = await storage.getInvestor(id, organizationId);
     if (!investor) {
       return res.status(404).json({ message: "Investor not found" });
     }
@@ -51,7 +53,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/investors", async (req, res) => {
     try {
       const data = insertInvestorSchema.parse(req.body);
-      const investor = await storage.createInvestor(data);
+      const organizationId = 1; // TODO: Extract from auth context
+      const investor = await storage.createInvestor(data, organizationId);
       res.status(201).json(investor);
     } catch (error) {
       res.status(400).json({ message: "Invalid investor data", error });
@@ -62,7 +65,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       const data = insertInvestorSchema.partial().parse(req.body);
-      const investor = await storage.updateInvestor(id, data);
+      const organizationId = 1; // TODO: Extract from auth context
+      const investor = await storage.updateInvestor(id, data, organizationId);
       if (!investor) {
         return res.status(404).json({ message: "Investor not found" });
       }
@@ -76,7 +80,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       const data = insertInvestorSchema.partial().parse(req.body);
-      const investor = await storage.updateInvestor(id, data);
+      const organizationId = 1; // TODO: Extract from auth context
+      const investor = await storage.updateInvestor(id, data, organizationId);
       if (!investor) {
         return res.status(404).json({ message: "Investor not found" });
       }
@@ -90,8 +95,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       
+      const organizationId = 1; // TODO: Extract from auth context
+      
       // Check if investor exists
-      const investor = await storage.getInvestor(id);
+      const investor = await storage.getInvestor(id, organizationId);
       if (!investor) {
         return res.status(404).json({ message: "Investor not found" });
       }
@@ -105,7 +112,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      const deleted = await storage.deleteInvestor(id);
+      const deleted = await storage.deleteInvestor(id, organizationId);
       if (!deleted) {
         return res.status(500).json({ message: "Failed to delete investor" });
       }
@@ -375,7 +382,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Companies routes
   app.get("/api/companies", async (req, res) => {
-    const companies = await storage.getCompanies();
+    const organizationId = 1; // TODO: Extract from auth context
+    const companies = await storage.getCompanies(organizationId);
     res.json(companies);
   });
 
@@ -390,7 +398,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Auto-calculate AUM in KRW (trillion won) with 1.4x multiplier
         data.aumKrw = (aumValue * 1.4).toString();
       }
-      const company = await storage.createCompany(data);
+      const organizationId = 1; // TODO: Extract from auth context
+      const company = await storage.createCompany(data, organizationId);
       res.status(201).json(company);
     } catch (error) {
       res.status(400).json({ message: "Invalid company data", error });
@@ -415,7 +424,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       console.log('Final data for update:', data);
-      const company = await storage.updateCompany(id, data);
+      const organizationId = 1; // TODO: Extract from auth context
+      const company = await storage.updateCompany(id, data, organizationId);
       if (!company) {
         return res.status(404).json({ message: "Company not found" });
       }
@@ -428,7 +438,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/companies/:id", async (req, res) => {
     const id = parseInt(req.params.id);
-    const deleted = await storage.deleteCompany(id);
+    const organizationId = 1; // TODO: Extract from auth context
+    const deleted = await storage.deleteCompany(id, organizationId);
     if (!deleted) {
       return res.status(404).json({ message: "Company not found" });
     }
@@ -438,7 +449,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/companies/:id/archive", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const company = await storage.updateCompany(id, { status: 'archived' });
+      const organizationId = 1; // TODO: Extract from auth context
+      const company = await storage.updateCompany(id, { status: 'archived' }, organizationId);
       if (!company) {
         return res.status(404).json({ message: "Company not found" });
       }
@@ -451,7 +463,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/companies/:id/restore", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const company = await storage.updateCompany(id, { status: 'active' });
+      const organizationId = 1; // TODO: Extract from auth context
+      const company = await storage.updateCompany(id, { status: 'active' }, organizationId);
       if (!company) {
         return res.status(404).json({ message: "Company not found" });
       }
@@ -703,7 +716,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       for (const companyData of results) {
         try {
           // Check if company already exists
-          const existingCompany = await storage.getCompanies();
+          const organizationId = 1; // TODO: Extract from auth context
+          const existingCompany = await storage.getCompanies(organizationId);
           const duplicate = existingCompany.find(c => c.name.toLowerCase() === companyData.name.toLowerCase());
           
           if (duplicate) {
@@ -711,7 +725,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             continue;
           }
           
-          const company = await storage.createCompany(companyData);
+          const company = await storage.createCompany(companyData, organizationId);
           createdCompanies.push(company);
         } catch (error: any) {
           errors.push(`Failed to create company "${companyData.name}": ${error.message}`);
@@ -871,14 +885,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.get("/api/meetings/upcoming", async (req, res) => {
-    const meetings = await storage.getUpcomingMeetings();
+    const organizationId = 1; // TODO: Extract from auth context
+    const meetings = await storage.getUpcomingMeetings(organizationId);
     res.json(meetings);
   });
 
   app.post("/api/meetings", async (req, res) => {
     try {
       const data = insertMeetingSchema.parse(req.body);
-      const meeting = await storage.createMeeting(data);
+      const organizationId = 1; // TODO: Extract from auth context
+      const meeting = await storage.createMeeting(data, organizationId);
       res.status(201).json(meeting);
     } catch (error) {
       res.status(400).json({ message: "Invalid meeting data", error });
@@ -889,7 +905,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       const data = insertMeetingSchema.partial().parse(req.body);
-      const meeting = await storage.updateMeeting(id, data);
+      const organizationId = 1; // TODO: Extract from auth context
+      const meeting = await storage.updateMeeting(id, data, organizationId);
       if (!meeting) {
         return res.status(404).json({ message: "Meeting not found" });
       }
@@ -1522,12 +1539,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Dashboard stats
   app.get("/api/dashboard/stats", async (req, res) => {
-    const investors = await storage.getInvestors();
+    const organizationId = 1; // TODO: Extract from auth context
+    const investors = await storage.getInvestors(organizationId);
     const investments = await storage.getInvestments();
-    const meetings = await storage.getMeetings();
-    const upcomingMeetings = await storage.getUpcomingMeetings();
+    const meetings = await storage.getMeetings(organizationId);
+    const upcomingMeetings = await storage.getUpcomingMeetings(organizationId);
 
-    const companies = await storage.getCompanies();
+    const companies = await storage.getCompanies(organizationId);
     const totalAum = companies.reduce((sum, company) => {
       return sum + (parseFloat(company.aum || "0"));
     }, 0);
@@ -1676,13 +1694,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Analysts routes
   app.get("/api/analysts", async (req, res) => {
-    const analysts = await storage.getAnalysts();
+    const organizationId = 1; // TODO: Extract from auth context
+    const analysts = await storage.getAnalysts(organizationId);
     res.json(analysts);
   });
 
   app.get("/api/analysts/:id", async (req, res) => {
     const id = parseInt(req.params.id);
-    const analyst = await storage.getAnalyst(id);
+    const organizationId = 1; // TODO: Extract from auth context
+    const analyst = await storage.getAnalyst(id, organizationId);
     if (!analyst) {
       return res.status(404).json({ error: "Analyst not found" });
     }
@@ -1692,7 +1712,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/analysts", async (req, res) => {
     try {
       const analystData = insertAnalystSchema.parse(req.body);
-      const analyst = await storage.createAnalyst(analystData);
+      const organizationId = 1; // TODO: Extract from auth context
+      const analyst = await storage.createAnalyst(analystData, organizationId);
       res.status(201).json(analyst);
     } catch (error) {
       res.status(400).json({ error: "Invalid analyst data", details: error });
@@ -1703,7 +1724,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       const updateData = insertAnalystSchema.partial().parse(req.body);
-      const analyst = await storage.updateAnalyst(id, updateData);
+      const organizationId = 1; // TODO: Extract from auth context
+      const analyst = await storage.updateAnalyst(id, updateData, organizationId);
       if (!analyst) {
         return res.status(404).json({ error: "Analyst not found" });
       }
@@ -1715,7 +1737,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/analysts/:id", async (req, res) => {
     const id = parseInt(req.params.id);
-    const success = await storage.deleteAnalyst(id);
+    const organizationId = 1; // TODO: Extract from auth context
+    const success = await storage.deleteAnalyst(id, organizationId);
     if (!success) {
       return res.status(404).json({ error: "Analyst not found" });
     }
