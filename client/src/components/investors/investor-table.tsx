@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Eye, Edit, Trash2, Calendar, Users, Mail, Phone, Building, Briefcase } from "lucide-react";
+import { Eye, Edit, Trash2, Calendar, Users, Mail, Phone, Building, Briefcase, ChevronUp, ChevronDown } from "lucide-react";
 import InvestorFormSimplified from "@/components/investors/investor-form-simplified";
 import type { Investor, Meeting } from "@shared/schema";
 
@@ -209,11 +209,12 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
   const [editingInvestor, setEditingInvestor] = useState<Investor | null>(null);
   const [viewingInvestor, setViewingInvestor] = useState<Investor | null>(null);
   const [deletingInvestor, setDeletingInvestor] = useState<Investor | null>(null);
+  const [sortBy, setSortBy] = useState<string | null>(null);
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
   const deleteInvestorMutation = useMutation({
     mutationFn: async (id: number) => {
-      const response = await apiRequest("DELETE", `/api/investors/${id}`);
-      return response;
+      await apiRequest(`/api/investors/${id}`, { method: "DELETE" });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/investors"] });
@@ -272,6 +273,73 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
     );
   }
 
+  // 정렬 함수
+  const handleSort = (column: string) => {
+    if (sortBy === column) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(column);
+      setSortOrder('asc');
+    }
+  };
+
+  // 정렬된 투자자 목록
+  const sortedInvestors = [...investors].sort((a, b) => {
+    if (!sortBy) return 0;
+
+    let aValue: any;
+    let bValue: any;
+
+    switch (sortBy) {
+      case 'name':
+        aValue = a.name;
+        bValue = b.name;
+        break;
+      case 'company':
+        aValue = a.company;
+        bValue = b.company;
+        break;
+      case 'totalAssets':
+        aValue = a.totalAssets || 0;
+        bValue = b.totalAssets || 0;
+        break;
+      case 'ownsOurShare':
+        aValue = a.ownsOurShare === 'Yes' ? 1 : a.ownsOurShare === 'No' ? 0 : -1;
+        bValue = b.ownsOurShare === 'Yes' ? 1 : b.ownsOurShare === 'No' ? 0 : -1;
+        break;
+      default:
+        return 0;
+    }
+
+    if (sortBy === 'totalAssets') {
+      // 숫자 정렬
+      return sortOrder === 'asc' ? aValue - bValue : bValue - aValue;
+    } else {
+      // 문자열 정렬 (한글 지원)
+      const result = aValue.localeCompare(bValue, 'ko');
+      return sortOrder === 'asc' ? result : -result;
+    }
+  });
+
+  const renderSortButton = (column: string, label: string) => {
+    const isActive = sortBy === column;
+    const isAsc = sortOrder === 'asc';
+    
+    return (
+      <button
+        onClick={() => handleSort(column)}
+        className="flex items-center space-x-1 hover:text-gray-700 transition-colors"
+      >
+        <span>{label}</span>
+        {isActive ? (
+          isAsc ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />
+        ) : (
+          <div className="h-3 w-3" />
+        )}
+      </button>
+    );
+  };
+
   if (investors.length === 0) {
     return (
       <div className="p-6">
@@ -286,16 +354,16 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
         <thead className="bg-gray-50">
           <tr>
             <th className="pl-1 pr-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[16%]">
-              PM
+              {renderSortButton('name', 'PM')}
             </th>
             <th className="px-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[18%]">
-              투신사
+              {renderSortButton('company', '투신사')}
             </th>
             <th className="px-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[14%]">
-              설정원본(백만원)
+              {renderSortButton('totalAssets', '설정원본(백만원)')}
             </th>
             <th className="px-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[12%]">
-              당사지분보유
+              {renderSortButton('ownsOurShare', '당사지분보유')}
             </th>
             <th className="px-1 pr-4 py-3 text-right text-sm font-medium text-gray-500 uppercase tracking-wider w-[40%]">
               Actions
@@ -303,7 +371,7 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
-          {investors.map((investor) => (
+          {sortedInvestors.map((investor) => (
             <tr key={investor.id} className="hover:bg-gray-50">
               <td className="pl-1 pr-1 py-4 whitespace-nowrap">
                 <div className="text-sm font-medium text-gray-900">{investor.name}</div>
