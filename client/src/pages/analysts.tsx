@@ -284,16 +284,34 @@ export default function Analysts() {
     return translations[spec] || spec;
   };
 
-  // 담당분야 배열을 한국어로 변환
+  // 담당분야 배열을 한국어로 변환 (중복 제거)
   const translateSpecializationArray = (specializations: string[]): string => {
     if (!Array.isArray(specializations) || specializations.length === 0) {
       return "N/A";
     }
     
-    return specializations
+    // 각 항목을 번역하고 중복 제거
+    const translatedSpecs = specializations
       .map(spec => translateSpecialization(spec.trim()))
-      .filter(spec => spec !== "")
-      .join(", ");
+      .filter(spec => spec !== "" && spec !== "N/A");
+    
+    // 중복 제거 (Set 사용)
+    const uniqueSpecs = Array.from(new Set(translatedSpecs));
+    
+    // 한국어가 먼저 오도록 정렬
+    const sortedSpecs = uniqueSpecs.sort((a, b) => {
+      const aIsKorean = /^[가-힣]/.test(a);
+      const bIsKorean = /^[가-힣]/.test(b);
+      
+      // 한국어가 영어보다 먼저
+      if (aIsKorean && !bIsKorean) return -1;
+      if (!aIsKorean && bIsKorean) return 1;
+      
+      // 같은 언어끼리는 가나다/알파벳순
+      return a.localeCompare(b, 'ko-KR');
+    });
+    
+    return sortedSpecs.length > 0 ? sortedSpecs.join(", ") : "N/A";
   };
 
   const getCoverageBadge = (status: string) => {
