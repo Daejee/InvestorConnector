@@ -436,7 +436,7 @@ export default function Analysts() {
                     <TableCell className="font-medium w-[120px]">{analyst.name}</TableCell>
                     <TableCell className="w-[180px]">{analyst.company}</TableCell>
                     <TableCell>
-                      {translateSpecializationArray(analyst.specialization)}
+                      {translateSpecializationArray(analyst.specialization || [])}
                     </TableCell>
                     <TableCell className="w-[140px]">{analyst.phone || "N/A"}</TableCell>
                     <TableCell>{analyst.email || "N/A"}</TableCell>

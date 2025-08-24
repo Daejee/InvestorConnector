@@ -277,7 +277,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
                   }
                   
                   const validatedData = insertInvestorSchema.parse(inv);
-                  const createdInvestor = await storage.createInvestor(validatedData);
+                  const organizationId = 1; // TODO: Extract from auth context
+                  const createdInvestor = await storage.createInvestor(validatedData, organizationId);
                   created.push(createdInvestor);
                   console.log(`Successfully created investor: ${inv.name}`);
                 } catch (validationError) {
@@ -880,7 +881,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Meetings routes
   app.get("/api/meetings", async (req, res) => {
-    const meetings = await storage.getMeetings();
+    const organizationId = 1; // TODO: Extract from auth context
+    const meetings = await storage.getMeetings(organizationId);
     res.json(meetings);
   });
 
@@ -948,7 +950,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/meetings/:meetingId/minutes", async (req, res) => {
     try {
       const meetingId = parseInt(req.params.meetingId);
-      const meeting = await storage.getMeeting(meetingId);
+      const organizationId = 1; // TODO: Extract from auth context
+      const meeting = await storage.getMeeting(meetingId, organizationId);
       
       if (!meeting || !meeting.minutesFilePath) {
         return res.status(404).json({ error: "Meeting minutes not found" });
@@ -1090,7 +1093,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const finalShareAmount = (data.shareAmount || data['Share Amount'] || data['share amount'] || "").toString().trim();
 
           // Find company by name
-          const companies = await storage.getCompanies();
+          const organizationId = 1; // TODO: Extract from auth context
+          const companies = await storage.getCompanies(organizationId);
           const company = companies.find(c => c.name.toLowerCase() === finalCompanyName.toLowerCase());
           if (!company) {
             errors.push(`Line ${lineNumber}: Company "${finalCompanyName}" not found`);
@@ -1240,13 +1244,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Meetings routes (for scheduling)
   app.get("/api/meetings", async (req, res) => {
-    const meetings = await storage.getMeetings();
+    const organizationId = 1; // TODO: Extract from auth context
+    const meetings = await storage.getMeetings(organizationId);
     res.json(meetings);
   });
 
   app.get("/api/meetings/:id", async (req, res) => {
     const id = parseInt(req.params.id);
-    const meeting = await storage.getMeeting(id);
+    const organizationId = 1; // TODO: Extract from auth context
+    const meeting = await storage.getMeeting(id, organizationId);
     if (meeting) {
       res.json(meeting);
     } else {
@@ -1256,7 +1262,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/meetings/investor/:investorId", async (req, res) => {
     const investorId = parseInt(req.params.investorId);
-    const meetings = await storage.getMeetingsByInvestor(investorId);
+    const organizationId = 1; // TODO: Extract from auth context
+    const meetings = await storage.getMeetingsByInvestor(investorId, organizationId);
     res.json(meetings);
   });
 
@@ -1265,7 +1272,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('Raw request body:', req.body);
       const data = insertMeetingSchema.parse(req.body);
       console.log('Validated data:', data);
-      const meeting = await storage.createMeeting(data);
+      const organizationId = 1; // TODO: Extract from auth context
+      const meeting = await storage.createMeeting(data, organizationId);
       res.status(201).json(meeting);
     } catch (error) {
       console.error('Meeting creation error:', error);
@@ -1282,7 +1290,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         scheduledDate: req.body.scheduledDate ? new Date(req.body.scheduledDate) : undefined
       };
       const data = insertMeetingSchema.partial().parse(requestData);
-      const meeting = await storage.updateMeeting(id, data);
+      const organizationId = 1; // TODO: Extract from auth context
+      const meeting = await storage.updateMeeting(id, data, organizationId);
       if (meeting) {
         res.json(meeting);
       } else {
