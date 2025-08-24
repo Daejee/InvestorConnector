@@ -65,14 +65,14 @@ function InvestorDetailView({ investor }: { investor: Investor }) {
         <div className="space-y-4">
           {investor.positionType && (
             <div>
-              <h4 className="text-sm font-medium text-gray-500 mb-1">Position Type / R&R</h4>
+              <h4 className="text-sm font-medium text-gray-500 mb-1">포지션</h4>
               <p className="text-sm">{investor.positionType}</p>
             </div>
           )}
           
           {investor.specialty && investor.specialty.length > 0 && (
             <div>
-              <h4 className="text-sm font-medium text-gray-500 mb-1">Specialty / 담당분야</h4>
+              <h4 className="text-sm font-medium text-gray-500 mb-1">담당분야</h4>
               <div className="flex flex-wrap gap-1">
                 {investor.specialty.map((spec, index) => (
                   <Badge key={index} variant="secondary" className="text-xs">
@@ -88,29 +88,29 @@ function InvestorDetailView({ investor }: { investor: Investor }) {
             investor.totalExperience || investor.currentCompanyExperience || investor.managedFundAum || investor.numberOfManagedFunds
           ) && (
             <div>
-              <h4 className="text-sm font-medium text-gray-500 mb-2">Portfolio Management Experience / 포트폴리오 운용 경력</h4>
+              <h4 className="text-sm font-medium text-gray-500 mb-2">포트폴리오 운용 경력</h4>
               <div className="space-y-2 bg-gray-50 p-3 rounded-lg">
                 {investor.totalExperience && (
                   <div className="flex justify-between">
-                    <span className="text-xs text-gray-600">Total Experience / 총운용경력:</span>
+                    <span className="text-xs text-gray-600">총운용경력:</span>
                     <span className="text-xs font-medium">{investor.totalExperience} years</span>
                   </div>
                 )}
                 {investor.currentCompanyExperience && (
                   <div className="flex justify-between">
-                    <span className="text-xs text-gray-600">Current Company / 현회사운용경력:</span>
+                    <span className="text-xs text-gray-600">현회사운용경력:</span>
                     <span className="text-xs font-medium">{investor.currentCompanyExperience} years</span>
                   </div>
                 )}
                 {investor.managedFundAum && (
                   <div className="flex justify-between">
-                    <span className="text-xs text-gray-600">Managed Fund AUM / 운용펀드AUM:</span>
+                    <span className="text-xs text-gray-600">운용펀드AUM:</span>
                     <span className="text-xs font-medium">${investor.managedFundAum}M</span>
                   </div>
                 )}
                 {investor.numberOfManagedFunds && (
                   <div className="flex justify-between">
-                    <span className="text-xs text-gray-600">Number of Funds / 운용펀드수:</span>
+                    <span className="text-xs text-gray-600">운용펀드수:</span>
                     <span className="text-xs font-medium">{investor.numberOfManagedFunds}</span>
                   </div>
                 )}
@@ -119,7 +119,7 @@ function InvestorDetailView({ investor }: { investor: Investor }) {
           )}
 
           <div>
-            <h4 className="text-sm font-medium text-gray-500 mb-1">Share Ownership / 지분 보유</h4>
+            <h4 className="text-sm font-medium text-gray-500 mb-1">지분 보유</h4>
             <div className="flex items-center space-x-2">
               {investor.ownsOurShare === "Yes" ? (
                 <div>
@@ -133,14 +133,14 @@ function InvestorDetailView({ investor }: { investor: Investor }) {
               ) : investor.ownsOurShare === "N/A" ? (
                 <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">N/A</span>
               ) : (
-                <span className="text-gray-400 italic text-xs">Not specified</span>
+                <span className="text-gray-400 italic text-xs">미지정</span>
               )}
             </div>
           </div>
 
           {investor.note && (
             <div>
-              <h4 className="text-sm font-medium text-gray-500 mb-1">Notes / 메모</h4>
+              <h4 className="text-sm font-medium text-gray-500 mb-1">메모</h4>
               <p className="text-sm bg-gray-50 p-3 rounded-lg">{investor.note}</p>
             </div>
           )}
@@ -151,14 +151,14 @@ function InvestorDetailView({ investor }: { investor: Investor }) {
       <div className="border-t pt-6">
         <div className="flex items-center space-x-2 mb-4">
           <Calendar className="h-5 w-5 text-gray-600" />
-          <h3 className="text-lg font-semibold">Meeting History / 미팅 기록</h3>
+          <h3 className="text-lg font-semibold">미팅 기록</h3>
           <Badge variant="outline">{investorMeetings.length}</Badge>
         </div>
 
         {investorMeetings.length === 0 ? (
           <div className="text-center py-8">
             <Calendar className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-500">No meetings recorded / 기록된 미팅이 없습니다</p>
+            <p className="text-gray-500">기록된 미팅이 없습니다</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -442,17 +442,15 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
-                        <AlertDialogTitle>Delete Investor / 투자자 삭제</AlertDialogTitle>
+                        <AlertDialogTitle>투자자 삭제</AlertDialogTitle>
                         <AlertDialogDescription>
-                          Are you sure you want to delete <strong>{investor.name}</strong>? This action cannot be undone.
-                          <br /><br />
-                          <strong>Note:</strong> If this investor has meeting records, you must delete those meetings first before deleting the investor.
+                          <strong>{investor.name}</strong> 투자자를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.
                           <br /><br />
                           <strong>참고:</strong> 이 투자자에게 미팅 기록이 있다면, 투자자를 삭제하기 전에 먼저 미팅을 삭제해야 합니다.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel / 취소</AlertDialogCancel>
+                        <AlertDialogCancel>취소</AlertDialogCancel>
                         <AlertDialogAction
                           onClick={() => {
                             setDeletingInvestor(investor);
@@ -461,7 +459,7 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
                           disabled={deleteInvestorMutation.isPending}
                           className="bg-red-600 hover:bg-red-700"
                         >
-                          {deleteInvestorMutation.isPending ? "Deleting..." : "Delete / 삭제"}
+                          {deleteInvestorMutation.isPending ? "삭제 중..." : "삭제"}
                         </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
@@ -477,9 +475,9 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
       <Dialog open={!!viewingInvestor} onOpenChange={() => setViewingInvestor(null)}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Investor Details / 투자자 상세정보</DialogTitle>
+            <DialogTitle>투자자 상세정보</DialogTitle>
             <DialogDescription>
-              Complete investor information and meeting history / 투자자 상세 정보 및 미팅 기록
+              투자자 상세 정보 및 미팅 기록
             </DialogDescription>
           </DialogHeader>
           {viewingInvestor && <InvestorDetailView investor={viewingInvestor} />}
@@ -490,7 +488,7 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
       <Dialog open={!!editingInvestor} onOpenChange={() => setEditingInvestor(null)}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Edit Investor</DialogTitle>
+            <DialogTitle>투자자 수정</DialogTitle>
           </DialogHeader>
           {editingInvestor && (
             <InvestorFormSimplified 
