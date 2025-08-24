@@ -307,6 +307,10 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
         aValue = a.ownsOurShare === 'Yes' ? 1 : a.ownsOurShare === 'No' ? 0 : -1;
         bValue = b.ownsOurShare === 'Yes' ? 1 : b.ownsOurShare === 'No' ? 0 : -1;
         break;
+      case 'currentCompanyExperience':
+        aValue = a.currentCompanyExperience || '';
+        bValue = b.currentCompanyExperience || '';
+        break;
       default:
         return 0;
     }
@@ -350,22 +354,25 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full min-w-[800px]">
+      <table className="w-full min-w-[1000px]">
         <thead className="bg-gray-50">
           <tr>
-            <th className="pl-1 pr-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[16%]">
+            <th className="pl-1 pr-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[14%]">
               {renderSortButton('name', 'PM')}
             </th>
-            <th className="px-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[18%]">
+            <th className="px-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[16%]">
               {renderSortButton('company', '투신사')}
             </th>
-            <th className="px-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[14%]">
+            <th className="px-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[12%]">
               {renderSortButton('totalAssets', '설정원본(백만원)')}
             </th>
             <th className="px-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[12%]">
+              {renderSortButton('currentCompanyExperience', '현회사운용경력')}
+            </th>
+            <th className="px-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[10%]">
               {renderSortButton('ownsOurShare', '당사지분보유')}
             </th>
-            <th className="px-1 pr-4 py-3 text-right text-sm font-medium text-gray-500 uppercase tracking-wider w-[40%]">
+            <th className="px-1 pr-4 py-3 text-right text-sm font-medium text-gray-500 uppercase tracking-wider w-[36%]">
               Actions
             </th>
           </tr>
@@ -382,6 +389,11 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
               <td className="px-1 py-4 whitespace-nowrap">
                 <div className="text-sm text-gray-900">
                   {investor.totalAssets ? `${Number(investor.totalAssets).toLocaleString()}` : '-'}
+                </div>
+              </td>
+              <td className="px-1 py-4 whitespace-nowrap">
+                <div className="text-sm text-gray-900">
+                  {investor.currentCompanyExperience || '-'}
                 </div>
               </td>
               <td className="px-1 py-4 whitespace-nowrap">
