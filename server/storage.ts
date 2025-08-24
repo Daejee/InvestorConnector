@@ -1,5 +1,5 @@
 import { 
-  investors, overseasInvestors, companies, overseasCompanies, investments, communications, meetings, funds, meetingLogs, ndrConferences, otherEvents, emailTemplates, emailCampaigns, analysts, documents, securitiesFirms, emailLogs, users,
+  investors, overseasInvestors, companies, overseasCompanies, investments, communications, meetings, funds, meetingLogs, ndrConferences, otherEvents, emailTemplates, emailCampaigns, analysts, documents, securitiesFirms, emailLogs, users, organizations,
   type Investor, type InsertInvestor, type OverseasInvestor, type InsertOverseasInvestor,
   type Company, type InsertCompany, type OverseasCompany, type InsertOverseasCompany,
   type Investment, type InsertInvestment,
@@ -15,7 +15,8 @@ import {
   type Document, type InsertDocument,
   type SecuritiesFirm, type InsertSecuritiesFirm,
   type EmailLog, type InsertEmailLog,
-  type User, type InsertUser
+  type User, type InsertUser,
+  type Organization, type InsertOrganization
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, sql } from "drizzle-orm";

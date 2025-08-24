@@ -1,9 +1,28 @@
-import { pgTable, text, serial, integer, boolean, decimal, timestamp, date } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, decimal, timestamp, date, varchar } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+import { sql } from "drizzle-orm";
+
+// Organizations table - each IR department is an organization
+export const organizations = pgTable("organizations", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(), // 회사명 (e.g., "삼성전자", "LG전자")
+  domain: text("domain").unique(), // 도메인 (e.g., "samsung.com", "lg.com")
+  plan: text("plan").notNull().default("basic"), // basic, pro, enterprise
+  status: text("status").notNull().default("active"), // active, suspended, cancelled
+  maxUsers: integer("max_users").default(5), // 플랜별 사용자 수 제한
+  maxInvestors: integer("max_investors").default(500), // 플랜별 투자자 수 제한
+  billingEmail: text("billing_email"),
+  phone: text("phone"),
+  address: text("address"),
+  contactPerson: text("contact_person"), // 담당자 이름
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
 
 export const investors = pgTable("investors", {
   id: serial("id").primaryKey(),
+  organizationId: integer("organization_id").references(() => organizations.id), // 기업별 격리
   name: text("name").notNull(),
   email: text("email"),
   phone: text("phone"),
@@ -29,6 +48,7 @@ export const investors = pgTable("investors", {
 
 export const overseasInvestors = pgTable("overseas_investors", {
   id: serial("id").primaryKey(),
+  organizationId: integer("organization_id").references(() => organizations.id), // 기업별 격리
   name: text("name").notNull(),
   email: text("email"),
   phone: text("phone"),
@@ -53,6 +73,7 @@ export const overseasInvestors = pgTable("overseas_investors", {
 
 export const analysts = pgTable("analysts", {
   id: serial("id").primaryKey(),
+  organizationId: integer("organization_id").references(() => organizations.id), // 기업별 격리
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
   phone: text("phone").default(""),
@@ -68,6 +89,7 @@ export const analysts = pgTable("analysts", {
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
+  organizationId: integer("organization_id").references(() => organizations.id), // 기업별 격리
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
   role: text("role").notNull(),
@@ -79,6 +101,7 @@ export const users = pgTable("users", {
 
 export const documents = pgTable("documents", {
   id: serial("id").primaryKey(),
+  organizationId: integer("organization_id").references(() => organizations.id), // 기업별 격리
   name: text("name").notNull(),
   originalName: text("original_name").notNull(),
   filePath: text("file_path").notNull(),
@@ -93,6 +116,7 @@ export const documents = pgTable("documents", {
 
 export const companies = pgTable("companies", {
   id: serial("id").primaryKey(),
+  organizationId: integer("organization_id").references(() => organizations.id), // 기업별 격리
   name: text("name").notNull(),
   hqLocation: text("hq_location").notNull(),
   aum: decimal("aum", { precision: 20, scale: 2 }).notNull(),
@@ -112,6 +136,7 @@ export const companies = pgTable("companies", {
 
 export const overseasCompanies = pgTable("overseas_companies", {
   id: serial("id").primaryKey(),
+  organizationId: integer("organization_id").references(() => organizations.id), // 기업별 격리
   name: text("name").notNull(),
   hqLocation: text("hq_location").notNull(),
   aum: decimal("aum", { precision: 20, scale: 2 }).notNull(),
@@ -125,6 +150,7 @@ export const overseasCompanies = pgTable("overseas_companies", {
 
 export const investments = pgTable("investments", {
   id: serial("id").primaryKey(),
+  organizationId: integer("organization_id").references(() => organizations.id), // 기업별 격리
   investorId: integer("investor_id").notNull(),
   companyId: integer("company_id"),
   amount: decimal("amount", { precision: 15, scale: 2 }).notNull(),
@@ -135,6 +161,7 @@ export const investments = pgTable("investments", {
 
 export const communications = pgTable("communications", {
   id: serial("id").primaryKey(),
+  organizationId: integer("organization_id").references(() => organizations.id), // 기업별 격리
   investorId: integer("investor_id").notNull(),
   type: text("type").notNull(), // email, call, meeting
   subject: text("subject").notNull(),
@@ -145,6 +172,7 @@ export const communications = pgTable("communications", {
 
 export const meetings = pgTable("meetings", {
   id: serial("id").primaryKey(),
+  organizationId: integer("organization_id").references(() => organizations.id), // 기업별 격리
   attendeeType: text("attendee_type").notNull(), // investor, analyst, other
   investorIds: text("investor_ids").array(), // Array of investor IDs for multiple investor meetings
   analystId: integer("analyst_id"), // Backward compatibility - will be deprecated
@@ -166,6 +194,7 @@ export const meetings = pgTable("meetings", {
 
 export const funds = pgTable("funds", {
   id: serial("id").primaryKey(),
+  organizationId: integer("organization_id").references(() => organizations.id), // 기업별 격리
   name: text("name").notNull(),
   companyId: integer("company_id").references(() => companies.id).notNull(),
   aum: text("aum").notNull(), // Store as string to handle large numbers
@@ -177,6 +206,7 @@ export const funds = pgTable("funds", {
 
 export const meetingLogs = pgTable("meeting_logs", {
   id: serial("id").primaryKey(),
+  organizationId: integer("organization_id").references(() => organizations.id), // 기업별 격리
   date: timestamp("date").notNull(),
   investorId: integer("investor_id").references(() => investors.id).notNull(),
   place: text("place").notNull(), // NDR/Conference, InOffice, Other
@@ -185,6 +215,7 @@ export const meetingLogs = pgTable("meeting_logs", {
 
 export const ndrConferences = pgTable("ndr_conferences", {
   id: serial("id").primaryKey(),
+  organizationId: integer("organization_id").references(() => organizations.id), // 기업별 격리
   name: text("name").notNull(),
   conferenceType: text("conference_type").notNull().default("국내NDR"), // 국내NDR, 국내CorpDay, 해외NDR, 해외CorpDay
   startDate: timestamp("start_date").notNull(),
@@ -198,6 +229,7 @@ export const ndrConferences = pgTable("ndr_conferences", {
 
 export const otherEvents = pgTable("other_events", {
   id: serial("id").primaryKey(),
+  organizationId: integer("organization_id").references(() => organizations.id), // 기업별 격리
   name: text("name").notNull(),
   eventType: text("event_type").notNull(), // Roadshow, Workshop, Conference, Meeting, Other
   startDate: timestamp("start_date").notNull(),
@@ -213,6 +245,7 @@ export const otherEvents = pgTable("other_events", {
 
 export const emailTemplates = pgTable("email_templates", {
   id: serial("id").primaryKey(),
+  organizationId: integer("organization_id").references(() => organizations.id), // 기업별 격리
   name: text("name").notNull(),
   language: text("language").notNull(), // Korean, English, Japanese
   subject: text("subject").notNull(),
@@ -225,6 +258,7 @@ export const emailTemplates = pgTable("email_templates", {
 
 export const emailCampaigns = pgTable("email_campaigns", {
   id: serial("id").primaryKey(),
+  organizationId: integer("organization_id").references(() => organizations.id), // 기업별 격리
   name: text("name").notNull(),
   templateId: integer("template_id").notNull(),
   targetType: text("target_type").default("region"), // region, specific
@@ -242,6 +276,7 @@ export const emailCampaigns = pgTable("email_campaigns", {
 
 export const securitiesFirms = pgTable("securities_firms", {
   id: serial("id").primaryKey(),
+  organizationId: integer("organization_id").references(() => organizations.id), // 기업별 격리
   name: text("name").notNull(),
   address: text("address").notNull(),
   phone: text("phone").notNull(),
@@ -251,6 +286,7 @@ export const securitiesFirms = pgTable("securities_firms", {
 
 export const emailLogs = pgTable("email_logs", {
   id: serial("id").primaryKey(),
+  organizationId: integer("organization_id").references(() => organizations.id), // 기업별 격리
   recipientEmail: text("recipient_email").notNull(),
   recipientName: text("recipient_name").notNull(),
   recipientType: text("recipient_type").notNull(), // investor, analyst
@@ -412,3 +448,13 @@ export type SecuritiesFirm = typeof securitiesFirms.$inferSelect;
 
 export type InsertEmailLog = z.infer<typeof insertEmailLogSchema>;
 export type EmailLog = typeof emailLogs.$inferSelect;
+
+// Organizations schema
+export const insertOrganizationSchema = createInsertSchema(organizations).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertOrganization = z.infer<typeof insertOrganizationSchema>;
+export type Organization = typeof organizations.$inferSelect;
