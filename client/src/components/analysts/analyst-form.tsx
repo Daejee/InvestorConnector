@@ -15,9 +15,9 @@ import { insertAnalystSchema, type Analyst, type SecuritiesFirm } from "@shared/
 import { z } from "zod";
 
 const formSchema = insertAnalystSchema.extend({
-  name: z.string().min(1, "Name is required / 이름은 필수입니다"),
-  email: z.string().email("Invalid email / 올바른 이메일을 입력하세요"),
-  company: z.string().min(1, "Company is required / 회사명은 필수입니다"),
+  name: z.string().min(1, "이름은 필수입니다"),
+  email: z.string().email("올바른 이메일을 입력하세요"),
+  company: z.string().min(1, "회사명은 필수입니다"),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -74,15 +74,15 @@ export function AnalystForm({ analyst, onClose }: AnalystFormProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/analysts"] });
       toast({
-        title: "Success / 성공",
-        description: "Analyst created successfully / 애널리스트가 성공적으로 생성되었습니다",
+        title: "성공",
+        description: "애널리스트가 성공적으로 생성되었습니다",
       });
       onClose();
     },
     onError: () => {
       toast({
-        title: "Error / 오류",
-        description: "Failed to create analyst / 애널리스트 생성에 실패했습니다",
+        title: "오류",
+        description: "애널리스트 생성에 실패했습니다",
         variant: "destructive",
       });
     },
@@ -101,15 +101,15 @@ export function AnalystForm({ analyst, onClose }: AnalystFormProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/analysts"] });
       toast({
-        title: "Success / 성공",
-        description: "Analyst updated successfully / 애널리스트가 성공적으로 업데이트되었습니다",
+        title: "성공",
+        description: "애널리스트가 성공적으로 업데이트되었습니다",
       });
       onClose();
     },
     onError: () => {
       toast({
-        title: "Error / 오류",
-        description: "Failed to update analyst / 애널리스트 업데이트에 실패했습니다",
+        title: "오류",
+        description: "애널리스트 업데이트에 실패했습니다",
         variant: "destructive",
       });
     },
@@ -134,9 +134,9 @@ export function AnalystForm({ analyst, onClose }: AnalystFormProps) {
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Name / 이름 *</FormLabel>
+                <FormLabel>이름 *</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter analyst name / 애널리스트 이름 입력" {...field} />
+                  <Input placeholder="애널리스트 이름 입력" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -148,9 +148,9 @@ export function AnalystForm({ analyst, onClose }: AnalystFormProps) {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email / 이메일 *</FormLabel>
+                <FormLabel>이메일 *</FormLabel>
                 <FormControl>
-                  <Input type="email" placeholder="analyst@company.com" {...field} />
+                  <Input type="email" placeholder="analyst@company.co.kr" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -162,9 +162,9 @@ export function AnalystForm({ analyst, onClose }: AnalystFormProps) {
             name="phone"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Phone / 전화번호</FormLabel>
+                <FormLabel>전화번호</FormLabel>
                 <FormControl>
-                  <Input placeholder="+82-10-1234-5678" {...field} />
+                  <Input placeholder="010-1234-5678" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -176,7 +176,7 @@ export function AnalystForm({ analyst, onClose }: AnalystFormProps) {
             name="company"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Company / 회사 *</FormLabel>
+                <FormLabel>회사 *</FormLabel>
                 <FormControl>
                   {!isCustomCompany ? (
                     <Select 
@@ -191,7 +191,7 @@ export function AnalystForm({ analyst, onClose }: AnalystFormProps) {
                       value={field.value || ""}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select securities firm / 증권사 선택" />
+                        <SelectValue placeholder="증권사 선택" />
                       </SelectTrigger>
                       <SelectContent>
                         {securitiesFirms
@@ -210,13 +210,13 @@ export function AnalystForm({ analyst, onClose }: AnalystFormProps) {
                               {firm.name}
                             </SelectItem>
                           ))}
-                        <SelectItem value="custom">기타 / Other (직접 입력)</SelectItem>
+                        <SelectItem value="custom">기타 (직접 입력)</SelectItem>
                       </SelectContent>
                     </Select>
                   ) : (
                     <div className="flex gap-2">
                       <Input 
-                        placeholder="Enter company name / 회사명 입력" 
+                        placeholder="회사명 입력" 
                         {...field}
                       />
                       <Button
@@ -227,7 +227,7 @@ export function AnalystForm({ analyst, onClose }: AnalystFormProps) {
                           field.onChange("");
                         }}
                       >
-                        Cancel / 취소
+                        취소
                       </Button>
                     </div>
                   )}
@@ -242,19 +242,19 @@ export function AnalystForm({ analyst, onClose }: AnalystFormProps) {
             name="position"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Position / 직책</FormLabel>
+                <FormLabel>직책</FormLabel>
                 <FormControl>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select position / 직책 선택" />
+                      <SelectValue placeholder="직책 선택" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="애널리스트">애널리스트 / Analyst</SelectItem>
+                      <SelectItem value="애널리스트">애널리스트</SelectItem>
                       <SelectItem value="RA">RA</SelectItem>
-                      <SelectItem value="리서치해드">리서치해드 / Research Head</SelectItem>
-                      <SelectItem value="브로커">브로커 / Broker</SelectItem>
-                      <SelectItem value="세일즈">세일즈 / Sales</SelectItem>
-                      <SelectItem value="기타">기타 / Other</SelectItem>
+                      <SelectItem value="리서치해드">리서치해드</SelectItem>
+                      <SelectItem value="브로커">브로커</SelectItem>
+                      <SelectItem value="세일즈">세일즈</SelectItem>
+                      <SelectItem value="기타">기타</SelectItem>
                     </SelectContent>
                   </Select>
                 </FormControl>
@@ -268,25 +268,25 @@ export function AnalystForm({ analyst, onClose }: AnalystFormProps) {
             name="specialization"
             render={({ field }) => (
               <FormItem className="col-span-2">
-                <FormLabel>Specialization / 전문분야 (다중 선택 가능)</FormLabel>
+                <FormLabel>전문분야 (다중 선택 가능)</FormLabel>
                 <FormControl>
                   <div className="grid grid-cols-3 gap-3 p-4 border rounded-md">
                     {[
-                      { value: "Semiconductor", label: "Semiconductor / 반도체" },
-                      { value: "Technology", label: "Technology / 기술" },
-                      { value: "Healthcare", label: "Healthcare / 헬스케어" },
-                      { value: "Finance", label: "Finance / 금융" },
-                      { value: "Consumer", label: "Consumer / 소비재" },
-                      { value: "Energy", label: "Energy / 에너지" },
-                      { value: "Industrial", label: "Industrial / 산업재" },
-                      { value: "Real Estate", label: "Real Estate / 부동산" },
-                      { value: "Materials", label: "Materials / 소재" },
-                      { value: "Telecommunications", label: "Telecommunications / 통신" },
-                      { value: "Utilities", label: "Utilities / 유틸리티" },
-                      { value: "Defense", label: "Defense / 방산" },
-                      { value: "Machinery", label: "Machinery / 기계" },
-                      { value: "Shipbuilding", label: "Shipbuilding / 조선" },
-                      { value: "Other", label: "Other / 기타" }
+                      { value: "Semiconductor", label: "반도체" },
+                      { value: "Technology", label: "기술" },
+                      { value: "Healthcare", label: "헬스케어" },
+                      { value: "Finance", label: "금융" },
+                      { value: "Consumer", label: "소비재" },
+                      { value: "Energy", label: "에너지" },
+                      { value: "Industrial", label: "산업재" },
+                      { value: "Real Estate", label: "부동산" },
+                      { value: "Materials", label: "소재" },
+                      { value: "Telecommunications", label: "통신" },
+                      { value: "Utilities", label: "유틸리티" },
+                      { value: "Defense", label: "방산" },
+                      { value: "Machinery", label: "기계" },
+                      { value: "Shipbuilding", label: "조선" },
+                      { value: "Other", label: "기타" }
                     ].map((item) => (
                       <div key={item.value} className="flex items-center space-x-2">
                         <Checkbox
@@ -320,9 +320,9 @@ export function AnalystForm({ analyst, onClose }: AnalystFormProps) {
             name="coverage"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Coverage / 담당 영역</FormLabel>
+                <FormLabel>담당 영역</FormLabel>
                 <FormControl>
-                  <Input placeholder="Companies or sectors covered / 담당 회사나 섹터" {...field} />
+                  <Input placeholder="담당 회사나 섹터" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -334,18 +334,18 @@ export function AnalystForm({ analyst, onClose }: AnalystFormProps) {
             name="language"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Language / 언어</FormLabel>
+                <FormLabel>언어</FormLabel>
                 <FormControl>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select language / 언어 선택" />
+                      <SelectValue placeholder="언어 선택" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Korean">Korean / 한국어</SelectItem>
-                      <SelectItem value="English">English / 영어</SelectItem>
-                      <SelectItem value="Japanese">Japanese / 일본어</SelectItem>
-                      <SelectItem value="Chinese">Chinese / 중국어</SelectItem>
-                      <SelectItem value="Other">Other / 기타</SelectItem>
+                      <SelectItem value="Korean">한국어</SelectItem>
+                      <SelectItem value="English">영어</SelectItem>
+                      <SelectItem value="Japanese">일본어</SelectItem>
+                      <SelectItem value="Chinese">중국어</SelectItem>
+                      <SelectItem value="Other">기타</SelectItem>
                     </SelectContent>
                   </Select>
                 </FormControl>
@@ -359,11 +359,11 @@ export function AnalystForm({ analyst, onClose }: AnalystFormProps) {
             name="status"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Coverage / 커버리지여부</FormLabel>
+                <FormLabel>커버리지여부</FormLabel>
                 <FormControl>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select coverage / 커버리지 선택" />
+                      <SelectValue placeholder="커버리지 선택" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Yes">Yes</SelectItem>
@@ -382,10 +382,10 @@ export function AnalystForm({ analyst, onClose }: AnalystFormProps) {
           name="notes"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Notes / 메모</FormLabel>
+              <FormLabel>메모</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="Additional notes about the analyst / 애널리스트에 대한 추가 메모"
+                  placeholder="애널리스트에 대한 추가 메모"
                   className="resize-none"
                   rows={3}
                   {...field}
@@ -398,10 +398,10 @@ export function AnalystForm({ analyst, onClose }: AnalystFormProps) {
 
         <div className="flex justify-end space-x-2">
           <Button type="button" variant="outline" onClick={onClose} disabled={isPending}>
-            Cancel / 취소
+            취소
           </Button>
           <Button type="submit" disabled={isPending}>
-            {isPending ? "Saving... / 저장 중..." : analyst ? "Update / 업데이트" : "Create / 생성"}
+            {isPending ? "저장 중..." : analyst ? "업데이트" : "생성"}
           </Button>
         </div>
       </form>
