@@ -5,7 +5,7 @@ import { z } from "zod";
 export const investors = pgTable("investors", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
-  email: text("email").unique(),
+  email: text("email"),
   phone: text("phone"),
   company: text("company").notNull(),
   fund: text("fund"), // Fund name from funds table
@@ -30,7 +30,7 @@ export const investors = pgTable("investors", {
 export const overseasInvestors = pgTable("overseas_investors", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
-  email: text("email").unique(),
+  email: text("email"),
   phone: text("phone"),
   company: text("company").notNull(),
   fund: text("fund"), // Fund name from funds table
