@@ -130,21 +130,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const readable = Readable.from(req.file.buffer);
       
       readable
-        .pipe(csvParser())
-        .on('data', (data) => results.push(data))
+        .pipe(csvParser({
+          skipEmptyLines: true, // Skip empty lines
+          stripBOM: true        // Remove BOM
+        }))
+        .on('data', (data) => {
+          // Skip rows where all main fields are empty
+          const hasData = data['운용사'] || data['성명'] || data['company'] || data['name'];
+          if (hasData) {
+            results.push(data);
+          }
+        })
         .on('end', async () => {
           try {
-            console.log('CSV parsing results:', results.slice(0, 3)); // Debug first 3 rows
+            console.log('CSV parsing results:', results.slice(0, 5)); // Debug first 5 rows
+            console.log('Total rows:', results.length);
             
             const investors = results.map((row, index) => {
-              // Clean up keys by removing BOM and trimming
+              // Clean up keys by removing BOM, newlines, and trimming
               const cleanRow: any = {};
               Object.keys(row).forEach(key => {
-                const cleanKey = key.replace(/\uFEFF/g, '').trim(); // Remove BOM
-                cleanRow[cleanKey] = row[key];
+                const cleanKey = key
+                  .replace(/\uFEFF/g, '')      // Remove BOM
+                  .replace(/\r?\n/g, ' ')      // Replace newlines with space
+                  .replace(/\s+/g, ' ')        // Normalize spaces
+                  .trim();                     // Trim
+                  
+                const value = row[key] ? row[key].toString().trim() : '';
+                cleanRow[cleanKey] = value;
+                
                 // Also keep original key for fallback
                 if (cleanKey !== key) {
-                  cleanRow[key] = row[key];
+                  cleanRow[key] = value;
                 }
               });
               
@@ -157,9 +174,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
               // Parse amount strings like "1,624,589" (백만원) - keep as string for decimal type
               const parseAmount = (amount: string) => {
                 if (!amount || amount === '' || amount.trim() === '') return null;
-                const cleanAmount = amount.replace(/[,\s"]/g, '');
+                const cleanAmount = amount.replace(/[,\s"]/g, '').trim();
                 const parsed = parseFloat(cleanAmount);
-                return isNaN(parsed) ? null : cleanAmount; // Return string, not number
+                if (isNaN(parsed)) return null;
+                return cleanAmount; // Always return string for decimal type
               };
               
               // Try to find the assets field with different possible column names
@@ -218,9 +236,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 avatarInitials: name.length >= 2 ? name.substring(0, 2).toUpperCase() : 'FM'
               };
               
-              if (index < 3) {
-                console.log(`Row ${index}:`, row);
-                console.log(`Parsed ${index}:`, result);
+              if (index < 5) {
+                console.log(`\n=== Row ${index} ===`);
+                console.log('Raw row:', row);
+                console.log('Clean row keys:', Object.keys(cleanRow));
+                console.log('Result:', result);
+                console.log('=================\n');
               }
               
               return result;
@@ -233,6 +254,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
               console.log(`Checking investor: company='${inv.company}', name='${inv.name}', email='${inv.email}'`);
               if (inv.company && inv.name && inv.email) {
                 try {
+                  // Convert totalAssets to string if it's a number
+                  if (typeof inv.totalAssets === 'number') {
+                    inv.totalAssets = inv.totalAssets.toString();
+                  }
+                  
                   const validatedData = insertInvestorSchema.parse(inv);
                   const createdInvestor = await storage.createInvestor(validatedData);
                   created.push(createdInvestor);
