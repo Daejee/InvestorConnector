@@ -342,7 +342,7 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
                   ) : investor.ownsOurShare === "N/A" ? (
                     <span className="text-xs bg-yellow-100 text-yellow-800 px-1 py-0 rounded">N/A</span>
                   ) : (
-                    <span className="text-gray-400 italic text-xs">Not specified</span>
+                    <span className="text-gray-400 italic text-xs">N/A</span>
                   )}
                 </div>
               </td>
