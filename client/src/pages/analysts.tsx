@@ -227,8 +227,8 @@ export default function Analysts() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[150px]">이름</TableHead>
-                <TableHead>회사</TableHead>
+                <TableHead className="w-[120px]">이름</TableHead>
+                <TableHead className="w-[180px]">회사</TableHead>
                 <TableHead>직책</TableHead>
                 <TableHead>담당분야</TableHead>
                 <TableHead>전화번호</TableHead>
@@ -247,8 +247,8 @@ export default function Analysts() {
               ) : (
                 filteredAnalysts.map((analyst: Analyst) => (
                   <TableRow key={analyst.id}>
-                    <TableCell className="font-medium w-[150px]">{analyst.name}</TableCell>
-                    <TableCell>{analyst.company}</TableCell>
+                    <TableCell className="font-medium w-[120px]">{analyst.name}</TableCell>
+                    <TableCell className="w-[180px]">{analyst.company}</TableCell>
                     <TableCell>{analyst.position || "N/A"}</TableCell>
                     <TableCell>
                       {Array.isArray(analyst.specialization) && analyst.specialization.length > 0 
