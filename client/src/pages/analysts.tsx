@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Search, Eye, Edit, Trash2, Upload } from "lucide-react";
+import { Plus, Search, Eye, Edit, Trash2, Upload, ChevronUp, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,11 +12,16 @@ import { useToast } from "@/hooks/use-toast";
 import { AnalystForm } from "@/components/analysts/analyst-form";
 import type { Analyst } from "@shared/schema";
 
+type SortField = 'name' | 'company' | 'specialization' | null;
+type SortDirection = 'asc' | 'desc';
+
 export default function Analysts() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedAnalyst, setSelectedAnalyst] = useState<Analyst | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isViewOpen, setIsViewOpen] = useState(false);
+  const [sortField, setSortField] = useState<SortField>('name');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -84,6 +89,22 @@ export default function Analysts() {
     },
   });
 
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
+  const getSortIcon = (field: SortField) => {
+    if (sortField !== field) return null;
+    return sortDirection === 'asc' ? 
+      <ChevronUp className="h-4 w-4 inline ml-1" /> : 
+      <ChevronDown className="h-4 w-4 inline ml-1" />;
+  };
+
   const filteredAnalysts = analysts
     .filter((analyst: Analyst) =>
       analyst.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -97,15 +118,38 @@ export default function Analysts() {
       // Helper function to check if a string starts with Korean characters
       const isKorean = (str: string) => /^[가-힣]/.test(str);
       
-      const aIsKorean = isKorean(a.name);
-      const bIsKorean = isKorean(b.name);
+      let aValue = '';
+      let bValue = '';
       
-      // Korean names first, then English names
-      if (aIsKorean && !bIsKorean) return -1;
-      if (!aIsKorean && bIsKorean) return 1;
+      // Get values based on sort field
+      switch (sortField) {
+        case 'name':
+          aValue = a.name;
+          bValue = b.name;
+          break;
+        case 'company':
+          aValue = a.company;
+          bValue = b.company;
+          break;
+        case 'specialization':
+          aValue = Array.isArray(a.specialization) ? a.specialization.join(', ') : '';
+          bValue = Array.isArray(b.specialization) ? b.specialization.join(', ') : '';
+          break;
+        default:
+          aValue = a.name;
+          bValue = b.name;
+      }
+      
+      const aIsKorean = isKorean(aValue);
+      const bIsKorean = isKorean(bValue);
+      
+      // Korean text first, then English text
+      if (aIsKorean && !bIsKorean) return sortDirection === 'asc' ? -1 : 1;
+      if (!aIsKorean && bIsKorean) return sortDirection === 'asc' ? 1 : -1;
       
       // Both Korean or both English - sort alphabetically
-      return a.name.localeCompare(b.name, 'ko-KR');
+      const comparison = aValue.localeCompare(bValue, 'ko-KR');
+      return sortDirection === 'asc' ? comparison : -comparison;
     });
 
   const handleEdit = (analyst: Analyst) => {
@@ -227,9 +271,24 @@ export default function Analysts() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[120px]">이름</TableHead>
-                <TableHead className="w-[180px]">회사</TableHead>
-                <TableHead>담당분야</TableHead>
+                <TableHead 
+                  className="w-[120px] cursor-pointer hover:bg-muted/50 select-none"
+                  onClick={() => handleSort('name')}
+                >
+                  이름{getSortIcon('name')}
+                </TableHead>
+                <TableHead 
+                  className="w-[180px] cursor-pointer hover:bg-muted/50 select-none"
+                  onClick={() => handleSort('company')}
+                >
+                  회사{getSortIcon('company')}
+                </TableHead>
+                <TableHead 
+                  className="cursor-pointer hover:bg-muted/50 select-none"
+                  onClick={() => handleSort('specialization')}
+                >
+                  담당분야{getSortIcon('specialization')}
+                </TableHead>
                 <TableHead className="w-[140px]">전화번호</TableHead>
                 <TableHead>이메일</TableHead>
                 <TableHead>커버리지여부</TableHead>
