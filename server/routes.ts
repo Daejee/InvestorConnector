@@ -277,7 +277,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                   console.error('Validation error for investor:', inv, validationError);
                 }
               } else {
-                console.log(`Skipping investor due to missing required fields: company='${inv.company}', name='${inv.name}', email='${inv.email}'`);
+                console.log(`Skipping investor due to missing required fields: company='${inv.company}', name='${inv.name}'`);
               }
             }
 
