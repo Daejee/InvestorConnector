@@ -288,19 +288,16 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
             <th className="pl-1 pr-1 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[16%]">
               PM
             </th>
-            <th className="px-1 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[16%]">
+            <th className="px-1 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[18%]">
               투신사
             </th>
-            <th className="px-1 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[12%]">
+            <th className="px-1 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[14%]">
               설정원본(백만원)
             </th>
-            <th className="px-1 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[10%]">
+            <th className="px-1 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[12%]">
               당사지분보유
             </th>
-            <th className="px-1 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[18%]">
-              Note
-            </th>
-            <th className="px-1 pr-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-[28%]">
+            <th className="px-1 pr-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-[40%]">
               Actions
             </th>
           </tr>
@@ -344,11 +341,6 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
                   ) : (
                     <span className="text-gray-400 italic text-xs">N/A</span>
                   )}
-                </div>
-              </td>
-              <td className="px-1 py-4 whitespace-nowrap">
-                <div className="text-xs text-gray-900 max-w-xs truncate">
-                  {investor.note || <span className="text-gray-400 italic">No notes</span>}
                 </div>
               </td>
               <td className="px-1 pr-4 py-4 whitespace-nowrap text-sm font-medium">
