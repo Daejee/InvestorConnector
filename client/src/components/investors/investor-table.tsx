@@ -322,22 +322,6 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
               </td>
               <td className="px-1 py-4 whitespace-nowrap">
                 <div className="text-xs text-gray-900">{investor.company}</div>
-                {investor.fund && (
-                  <div className="text-xs text-purple-600 font-medium">{investor.fund}</div>
-                )}
-                <div className="text-xs text-gray-500">
-                  {investor.position}
-                  {investor.positionType && (
-                    <span className="ml-1 text-xs bg-blue-100 text-blue-800 px-1 py-0 rounded">
-                      {investor.positionType}
-                    </span>
-                  )}
-                </div>
-                {investor.positionType === "Buyside Analyst" && Array.isArray(investor.specialty) && investor.specialty.length > 0 && (
-                  <div className="text-xs text-gray-400 mt-1">
-                    <span>Specialty: {investor.specialty.join(", ")}</span>
-                  </div>
-                )}
               </td>
               <td className="px-1 py-4 whitespace-nowrap">
                 <div className="text-xs text-gray-900">
