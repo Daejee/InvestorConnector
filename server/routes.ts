@@ -154,12 +154,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 return exp.trim();
               };
 
-              // Parse amount strings like "1,624,589" (백만원)
+              // Parse amount strings like "1,624,589" (백만원) - keep as string for decimal type
               const parseAmount = (amount: string) => {
                 if (!amount || amount === '' || amount.trim() === '') return null;
                 const cleanAmount = amount.replace(/[,\s"]/g, '');
                 const parsed = parseFloat(cleanAmount);
-                return isNaN(parsed) ? null : parsed;
+                return isNaN(parsed) ? null : cleanAmount; // Return string, not number
               };
               
               // Try to find the assets field with different possible column names
@@ -173,8 +173,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
               
               let totalAssets = null;
               for (const field of assetFields) {
-                if (cleanRow[field]) {
-                  totalAssets = parseAmount(cleanRow[field]);
+                if (cleanRow[field] || row[field]) {
+                  totalAssets = parseAmount(cleanRow[field] || row[field]);
                   if (totalAssets !== null) {
                     console.log(`Found assets in field '${field}': ${totalAssets}`);
                     break;
@@ -205,14 +205,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 name,
                 email,
                 company,
-                phone: (cleanRow['phone'] || cleanRow['연락처'] || '').trim(),
-                position: (cleanRow['position'] || cleanRow['직책'] || 'Fund Manager').trim(),
+                phone: (cleanRow['phone'] || row['phone'] || cleanRow['연락처'] || row['연락처'] || '').trim(),
+                position: (cleanRow['position'] || row['position'] || cleanRow['직책'] || row['직책'] || 'Fund Manager').trim(),
                 positionType: 'PM', // Default to Portfolio Manager
-                totalExperience: parseExperience(cleanRow['총 운용경력'] || cleanRow['총운용경력']),
-                currentCompanyExperience: parseExperience(cleanRow['현회사 운용경력'] || cleanRow['현회사운용경력']),
-                numberOfManagedFunds: parseInt(cleanRow['펀드수'] || cleanRow['운용펀드수']) || 0,
+                totalExperience: parseExperience(cleanRow['총 운용경력'] || row['총 운용경력'] || cleanRow['총운용경력']),
+                currentCompanyExperience: parseExperience(cleanRow['현회사 운용경력'] || row['현회사 운용경력'] || cleanRow['현회사운용경력']),
+                numberOfManagedFunds: parseInt(cleanRow['펀드수'] || row['펀드수'] || cleanRow['운용펀드수'] || row['운용펀드수']) || 0,
                 totalAssets,
-                specialty: [cleanRow['전문분야'] || cleanRow['specialty'] || ''].filter(s => s),
+                specialty: [cleanRow['전문분야'] || row['전문분야'] || cleanRow['specialty'] || row['specialty'] || ''].filter(s => s),
                 country: 'Korea',
                 language: 'Korean',
                 avatarInitials: name.length >= 2 ? name.substring(0, 2).toUpperCase() : 'FM'
