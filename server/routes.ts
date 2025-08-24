@@ -262,7 +262,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             console.log(`Total investors to process: ${investors.length}`);
             for (const inv of investors) {
               console.log(`Checking investor: company='${inv.company}', name='${inv.name}', email='${inv.email}'`);
-              if (inv.company && inv.name && inv.email) {
+              if (inv.company && inv.name) {
                 try {
                   // FORCE convert totalAssets to string if it exists
                   if (inv.totalAssets !== null && inv.totalAssets !== undefined) {
