@@ -267,7 +267,7 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
   if (isLoading) {
     return (
       <div className="p-6">
-        <p className="text-gray-500">Loading buyside...</p>
+        <p className="text-gray-500">Loading PM...</p>
       </div>
     );
   }
@@ -275,7 +275,7 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
   if (investors.length === 0) {
     return (
       <div className="p-6">
-        <p className="text-gray-500">No buyside found</p>
+        <p className="text-gray-500">No PM found</p>
       </div>
     );
   }
@@ -285,19 +285,22 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
       <table className="w-full min-w-[800px]">
         <thead className="bg-gray-50">
           <tr>
-            <th className="pl-1 pr-1 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[18%]">
-              Buyside
+            <th className="pl-1 pr-1 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[16%]">
+              PM
             </th>
-            <th className="px-1 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[20%]">
-              Company & Fund
+            <th className="px-1 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[16%]">
+              투신사
             </th>
             <th className="px-1 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[12%]">
-              Ownership
+              설정원본(백만원)
+            </th>
+            <th className="px-1 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[10%]">
+              당사지분보유
             </th>
             <th className="px-1 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[18%]">
               Note
             </th>
-            <th className="px-1 pr-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-[32%]">
+            <th className="px-1 pr-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-[28%]">
               Actions
             </th>
           </tr>
@@ -314,7 +317,6 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
                   </div>
                   <div className="ml-1">
                     <div className="text-xs font-medium text-gray-900">{investor.name}</div>
-                    <div className="text-xs text-gray-500">{investor.email}</div>
                   </div>
                 </div>
               </td>
@@ -336,6 +338,11 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
                     <span>Specialty: {investor.specialty.join(", ")}</span>
                   </div>
                 )}
+              </td>
+              <td className="px-1 py-4 whitespace-nowrap">
+                <div className="text-xs text-gray-900">
+                  {investor.totalAssets ? `${Number(investor.totalAssets).toLocaleString()}` : '-'}
+                </div>
               </td>
               <td className="px-1 py-4 whitespace-nowrap">
                 <div className="text-xs text-gray-900">

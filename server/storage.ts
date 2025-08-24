@@ -28,6 +28,7 @@ export interface IStorage {
   createInvestor(investor: InsertInvestor): Promise<Investor>;
   updateInvestor(id: number, investor: Partial<InsertInvestor>): Promise<Investor | undefined>;
   deleteInvestor(id: number): Promise<boolean>;
+  clearAllEmails(): Promise<void>;
 
   // Overseas Investors
   getOverseasInvestors(): Promise<OverseasInvestor[]>;
@@ -201,6 +202,13 @@ export class DatabaseStorage implements IStorage {
   async deleteInvestor(id: number): Promise<boolean> {
     const result = await db.delete(investors).where(eq(investors.id, id));
     return result.rowCount! > 0;
+  }
+
+  async clearAllEmails(): Promise<void> {
+    await db
+      .update(investors)
+      .set({ email: '' })
+      .execute();
   }
 
   // Overseas Investors

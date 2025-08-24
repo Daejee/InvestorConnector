@@ -119,6 +119,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Clear all investor emails
+  app.patch('/api/investors/clear-emails', async (req, res) => {
+    try {
+      await storage.clearAllEmails();
+      res.json({ message: 'All emails cleared successfully' });
+    } catch (error) {
+      console.error('Error clearing emails:', error);
+      res.status(500).json({ message: 'Failed to clear emails' });
+    }
+  });
+
   // Investor CSV upload
   app.post("/api/investors/upload-csv", upload.single('file'), async (req, res) => {
     if (!req.file) {
@@ -200,21 +211,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 }
               }
 
-              // Generate unique email
+              // Email generation disabled - keeping empty as requested
               const generateEmail = (name: string, company: string) => {
-                if (!name || !company) return `unknown${Date.now()}@example.com`;
-                const nameSlug = name.toLowerCase().replace(/[^a-z]/g, '').slice(0, 5);
-                let companySlug = company.toLowerCase()
-                  .replace(/자산운용/g, 'asset')  
-                  .replace(/[^a-z0-9]/g, '')
-                  .slice(0, 8);
-                  
-                if (!companySlug) companySlug = 'company';
-                
-                // Add timestamp and random number to ensure uniqueness
-                const timestamp = Date.now().toString().slice(-4);
-                const random = Math.floor(Math.random() * 99);
-                return `${nameSlug}${timestamp}${random}@${companySlug}.com`;
+                return ''; // Always return empty email
               };
 
               // Try multiple ways to get the company and name
@@ -226,9 +225,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
               console.log(`Raw row keys:`, Object.keys(row));
               console.log(`CleanRow content:`, cleanRow);
               
-              // Always generate email since CSV doesn't contain email field
-              const email = generateEmail(name, company);
-              console.log(`Generated email for ${name}: ${email}`);
+              // Leave email empty as requested by user
+              const email = '';
+              console.log(`Empty email for ${name}`);
 
               const result = {
                 name,
