@@ -44,7 +44,7 @@ const navigation = [
       { name: "이메일 로그", href: "/email-logs", icon: FileEdit }
     ]
   },
-  { name: "Reports / 보고서", href: "/reports", icon: BarChart },
+  { name: "보고서작성", href: "/reports", icon: BarChart },
   { name: "투자자(국내)", href: "/investors", icon: Users },
   { 
     name: "자산운용사(국내)", 
