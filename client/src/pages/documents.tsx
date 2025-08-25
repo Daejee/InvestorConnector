@@ -223,7 +223,7 @@ export default function Documents() {
     } catch (error) {
       console.error('Download error:', error);
       toast({
-        title: "Download failed / 다운로드 실패",
+        title: "다운로드 실패",
         description: `Failed to download document: ${error instanceof Error ? error.message : 'Unknown error'}`,
         variant: "destructive",
       });
@@ -266,7 +266,7 @@ export default function Documents() {
       <div className="mb-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Documents / 문서</h2>
+            <h2 className="text-2xl font-bold text-gray-900">문서</h2>
             <p className="text-gray-600 mt-1">IR Presentation 및 기타 문서관리(이메일 첨부용)</p>
           </div>
           <div className="mt-4 sm:mt-0">
@@ -274,19 +274,19 @@ export default function Documents() {
               <DialogTrigger asChild>
                 <Button>
                   <Upload className="mr-2 h-4 w-4" />
-                  Upload Document / 문서 업로드
+                  문서 업로드
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-md">
                 <DialogHeader>
-                  <DialogTitle>Upload Document / 문서 업로드</DialogTitle>
+                  <DialogTitle>문서 업로드</DialogTitle>
                   <DialogDescription>
-                    Upload a new document to the system / 시스템에 새 문서를 업로드합니다
+                    시스템에 새 문서를 업로드합니다
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4">
                   <div>
-                    <Label>File Upload / 파일 업로드</Label>
+                    <Label>파일 업로드</Label>
                     <div className="mt-1">
                       <input
                         type="file"
@@ -306,7 +306,7 @@ export default function Documents() {
                         <div className="flex items-center gap-2">
                           <Upload className="h-4 w-4" />
                           <span>
-                            {isUploading ? 'Uploading... / 업로드 중...' : 'Choose and Upload Document / 문서 선택 및 업로드'}
+                            {isUploading ? '업로드 중...' : '문서 선택 및 업로드'}
                           </span>
                         </div>
                       </Button>
@@ -314,7 +314,7 @@ export default function Documents() {
                   </div>
 
                   <div>
-                    <Label>Category / 카테고리</Label>
+                    <Label>카테고리</Label>
                     <Select value={uploadForm.category} onValueChange={(value) => setUploadForm(prev => ({ ...prev, category: value }))}>
                       <SelectTrigger>
                         <SelectValue />
@@ -330,11 +330,11 @@ export default function Documents() {
                   </div>
 
                   <div>
-                    <Label>Description / 설명</Label>
+                    <Label>설명</Label>
                     <Textarea
                       value={uploadForm.description}
                       onChange={(e) => setUploadForm(prev => ({ ...prev, description: e.target.value }))}
-                      placeholder="Document description / 문서 설명"
+                      placeholder="문서 설명"
                       rows={3}
                     />
                   </div>
@@ -343,14 +343,11 @@ export default function Documents() {
 
                   <div className="text-center pt-4">
                     <p className="text-sm text-gray-500">
-                      Fill in the metadata above, then use the upload button to select and upload your file
-                    </p>
-                    <p className="text-sm text-gray-500 mt-1">
                       메타데이터를 입력한 후 업로드 버튼을 클릭해 파일을 선택하고 업로드하세요
                     </p>
                     {isUploading && (
                       <p className="text-sm text-blue-600 mt-2">
-                        Uploading file... / 파일 업로드 중...
+                        파일 업로드 중...
                       </p>
                     )}
                   </div>
@@ -364,14 +361,14 @@ export default function Documents() {
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>Document Library / 문서 라이브러리</CardTitle>
+            <CardTitle>문서 라이브러리</CardTitle>
             <div className="flex items-center gap-4">
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                 <SelectTrigger className="w-48">
-                  <SelectValue placeholder="Filter by category / 카테고리 필터" />
+                  <SelectValue placeholder="카테고리 필터" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="All">All Categories / 전체 카테고리</SelectItem>
+                  <SelectItem value="All">전체 카테고리</SelectItem>
                   <SelectItem value="IR Presentations">IR Presentations</SelectItem>
                   <SelectItem value="Meeting Notes">회의록</SelectItem>
                   <SelectItem value="Financial Reports">재무자료</SelectItem>
@@ -407,11 +404,11 @@ export default function Documents() {
               <TableHeader>
                 <TableRow>
                   <TableHead>이름</TableHead>
-                  <TableHead>Type / 유형</TableHead>
-                  <TableHead>Category / 카테고리</TableHead>
-                  <TableHead>Size / 크기</TableHead>
-                  <TableHead>Uploaded / 업로드일</TableHead>
-                  <TableHead className="w-[100px]">Actions / 작업</TableHead>
+                  <TableHead>유형</TableHead>
+                  <TableHead>카테고리</TableHead>
+                  <TableHead>크기</TableHead>
+                  <TableHead>업로드일</TableHead>
+                  <TableHead className="w-[100px]">작업</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -591,7 +588,7 @@ function EditDocumentForm({ document, onClose, onSuccess }: EditDocumentFormProp
           name="category"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Category / 카테고리</FormLabel>
+              <FormLabel>카테고리</FormLabel>
               <Select value={field.value} onValueChange={field.onChange}>
                 <FormControl>
                   <SelectTrigger>
@@ -615,9 +612,9 @@ function EditDocumentForm({ document, onClose, onSuccess }: EditDocumentFormProp
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Description / 설명</FormLabel>
+              <FormLabel>설명</FormLabel>
               <FormControl>
-                <Textarea {...field} placeholder="Document description" rows={3} />
+                <Textarea {...field} placeholder="문서 설명" rows={3} />
               </FormControl>
             </FormItem>
           )}
