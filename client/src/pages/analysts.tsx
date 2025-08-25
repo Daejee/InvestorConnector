@@ -412,7 +412,7 @@ export default function Analysts() {
                   회사{getSortIcon('company')}
                 </TableHead>
                 <TableHead 
-                  className="cursor-pointer hover:bg-muted/50 select-none"
+                  className="w-[160px] cursor-pointer hover:bg-muted/50 select-none whitespace-nowrap"
                   onClick={() => handleSort('specialization')}
                 >
                   담당분야{getSortIcon('specialization')}
