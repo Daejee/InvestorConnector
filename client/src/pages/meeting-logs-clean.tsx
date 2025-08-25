@@ -177,14 +177,14 @@ export default function Meetings() {
       setEditingMeeting(null);
       editForm.reset();
       toast({
-        title: "Success / 성공",
-        description: "Meeting updated successfully / 미팅이 성공적으로 업데이트되었습니다"
+        title: "성공",
+        description: "미팅이 성공적으로 업데이트되었습니다"
       });
     },
     onError: (error) => {
       toast({
-        title: "Error / 오류", 
-        description: `Failed to update meeting: ${error.message} / 미팅 업데이트에 실패했습니다`,
+        title: "오류", 
+        description: `미팅 업데이트에 실패했습니다: ${error.message}`,
         variant: "destructive"
       });
     }
@@ -499,7 +499,7 @@ export default function Meetings() {
       const analyst = analysts.find(ana => ana.id === meeting.analystId);
       return analyst ? analyst.name : "Unknown Analyst";
     }
-    return "Other / 기타";
+    return "기타";
   };
 
   const getAttendeeCompany = (meeting: Meeting) => {
@@ -526,9 +526,9 @@ export default function Meetings() {
   };
 
   const getAttendeeType = (meeting: Meeting) => {
-    if (meeting.attendeeType === "investor") return "Investor / 투자자";
-    if (meeting.attendeeType === "analyst") return "Analyst / 애널리스트";
-    return "Other / 기타";
+    if (meeting.attendeeType === "investor") return "투자자";
+    if (meeting.attendeeType === "analyst") return "애널리스트";
+    return "기타";
   };
 
   const getStatusBadgeColor = (status: string) => {
@@ -542,9 +542,9 @@ export default function Meetings() {
 
   const getStatusDisplayText = (status: string) => {
     switch (status) {
-      case "completed": return "completed / 완료";
-      case "cancelled": return "cancelled / 취소";
-      case "scheduled": return "scheduled / 예정";
+      case "completed": return "완료";
+      case "cancelled": return "취소";
+      case "scheduled": return "예정";
       default: return status;
     }
   };
@@ -811,7 +811,7 @@ export default function Meetings() {
         <div className="relative">
           <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
           <Input
-            placeholder="Search meetings by title, attendee, or company / 제목, 참석자, 회사로 검색"
+            placeholder="제목, 참석자, 회사로 검색"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"
@@ -826,7 +826,7 @@ export default function Meetings() {
               <SelectValue placeholder="카테고리 선택" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">전체 (All)</SelectItem>
+              <SelectItem value="all">전체</SelectItem>
               <SelectItem value="내방">내방</SelectItem>
               <SelectItem value="Conference Call">Conference Call</SelectItem>
               <SelectItem value="국내CorpDay">국내CorpDay</SelectItem>
@@ -865,7 +865,7 @@ export default function Meetings() {
           {renderMeetingList(
             upcomingMeetings,
             upcomingLoading,
-            "No upcoming meetings found. Schedule your first meeting to get started. / 예정된 미팅이 없습니다. 첫 미팅을 예약해보세요."
+            "예정된 미팅이 없습니다. 첫 미팅을 예약해보세요."
           )}
         </TabsContent>
         
@@ -873,7 +873,7 @@ export default function Meetings() {
           {renderMeetingList(
             completedMeetings,
             isLoading,
-            "No completed meetings found. / 완료된 미팅이 없습니다."
+            "완료된 미팅이 없습니다."
           )}
         </TabsContent>
       </Tabs>
@@ -881,9 +881,9 @@ export default function Meetings() {
       <Dialog open={!!viewingMeeting} onOpenChange={() => setViewingMeeting(null)}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Meeting Details / 미팅 상세정보</DialogTitle>
+            <DialogTitle>미팅 상세정보</DialogTitle>
             <DialogDescription>
-              View meeting details and download minutes / 미팅 상세정보 보기 및 회의록 다운로드
+              미팅 상세정보 보기 및 회의록 다운로드
             </DialogDescription>
           </DialogHeader>
           {viewingMeeting && (
@@ -892,24 +892,24 @@ export default function Meetings() {
                 <h3 className="text-lg font-semibold mb-2">{viewingMeeting.title}</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Date & Time / 날짜 및 시간</p>
+                    <p className="text-sm font-medium text-gray-600">날짜 및 시간</p>
                     <p className="text-sm">{format(new Date(viewingMeeting.scheduledDate), "yyyy-MM-dd HH:mm")}</p>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Attendee / 참석자</p>
+                    <p className="text-sm font-medium text-gray-600">참석자</p>
                     <p className="text-sm">{getAttendeeName(viewingMeeting)}</p>
                     <p className="text-xs text-gray-500">{getAttendeeCompany(viewingMeeting)}</p>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Type / 유형</p>
+                    <p className="text-sm font-medium text-gray-600">유형</p>
                     <p className="text-sm">{getAttendeeType(viewingMeeting)}</p>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Duration / 길이</p>
+                    <p className="text-sm font-medium text-gray-600">길이</p>
                     <p className="text-sm">{viewingMeeting.duration || 60}분</p>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Status / 상태</p>
+                    <p className="text-sm font-medium text-gray-600">상태</p>
                     <Badge className={getStatusBadgeColor(viewingMeeting.status)}>
                       {getStatusDisplayText(viewingMeeting.status)}
                     </Badge>
@@ -917,7 +917,7 @@ export default function Meetings() {
                 </div>
                 {viewingMeeting.description && (
                   <div className="mt-4">
-                    <p className="text-sm font-medium text-gray-600 mb-2">Description / 설명</p>
+                    <p className="text-sm font-medium text-gray-600 mb-2">설명</p>
                     <p className="text-sm bg-gray-50 p-3 rounded-lg whitespace-pre-wrap">
                       {viewingMeeting.description}
                     </p>
@@ -930,7 +930,7 @@ export default function Meetings() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
                         <FileText className="h-5 w-5 text-gray-600" />
-                        <h4 className="text-sm font-medium text-gray-600">Meeting Minutes / 회의록</h4>
+                        <h4 className="text-sm font-medium text-gray-600">회의록</h4>
                       </div>
                     </div>
                     <div className="mt-2 bg-gray-50 p-3 rounded-lg">
@@ -951,7 +951,7 @@ export default function Meetings() {
                             onClick={() => handleDownloadMinutes(viewingMeeting.id)}
                           >
                             <Download className="h-4 w-4 mr-1" />
-                            Download / 다운로드
+                            다운로드
                           </Button>
                         </div>
                       </div>
@@ -961,10 +961,10 @@ export default function Meetings() {
                   <div className="mt-4 border-t pt-4">
                     <div className="flex items-center space-x-2">
                       <FileText className="h-5 w-5 text-gray-400" />
-                      <h4 className="text-sm font-medium text-gray-600">Meeting Minutes / 회의록</h4>
+                      <h4 className="text-sm font-medium text-gray-600">회의록</h4>
                     </div>
                     <div className="mt-2 bg-gray-50 p-3 rounded-lg">
-                      <p className="text-sm text-gray-500">No meeting minutes uploaded yet / 회의록이 아직 업로드되지 않았습니다</p>
+                      <p className="text-sm text-gray-500">회의록이 아직 업로드되지 않았습니다</p>
                     </div>
                   </div>
                 )}
@@ -1000,9 +1000,9 @@ export default function Meetings() {
       }}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Edit Meeting / 미팅 편집</DialogTitle>
+            <DialogTitle>미팅 편집</DialogTitle>
             <DialogDescription>
-              Edit meeting details and upload meeting minutes / 미팅 상세정보 편집 및 회의록 업로드
+              미팅 상세정보 편집 및 회의록 업로드
             </DialogDescription>
           </DialogHeader>
           {editingMeeting && (
@@ -1018,7 +1018,7 @@ export default function Meetings() {
                     name="scheduledDate"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Date / 날짜</FormLabel>
+                        <FormLabel>날짜</FormLabel>
                         <FormControl>
                           <Input type="date" {...field} />
                         </FormControl>
@@ -1031,7 +1031,7 @@ export default function Meetings() {
                     name="scheduledTime"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Time / 시간</FormLabel>
+                        <FormLabel>시간</FormLabel>
                         <FormControl>
                           <Input type="time" {...field} />
                         </FormControl>
@@ -1044,7 +1044,7 @@ export default function Meetings() {
                     name="duration"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Duration / 길이</FormLabel>
+                        <FormLabel>길이</FormLabel>
                         <Select 
                           onValueChange={(value) => {
                             const numValue = parseInt(value);
@@ -1075,7 +1075,7 @@ export default function Meetings() {
                   name="attendeeType"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Meeting Type / 미팅 유형</FormLabel>
+                      <FormLabel>미팅 유형</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger>
@@ -1083,9 +1083,9 @@ export default function Meetings() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="investor">Investor / 투자자</SelectItem>
-                          <SelectItem value="analyst">Analyst / 애널리스트</SelectItem>
-                          <SelectItem value="other">Other / 기타</SelectItem>
+                          <SelectItem value="investor">투자자</SelectItem>
+                          <SelectItem value="analyst">애널리스트</SelectItem>
+                          <SelectItem value="other">기타</SelectItem>
                         </SelectContent>
                       </Select>
                     </FormItem>
@@ -1098,12 +1098,12 @@ export default function Meetings() {
                     name="investorIds"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Select Investors / 투자자 선택</FormLabel>
+                        <FormLabel>투자자 선택</FormLabel>
                         <div className="space-y-2">
                           <div className="text-sm text-gray-600">
                             {field.value && field.value.length > 0 
-                              ? `${field.value.length} investors selected / ${field.value.length}명의 투자자가 선택됨`
-                              : "No investors selected / 선택된 투자자 없음"
+                              ? `${field.value.length}명의 투자자가 선택됨`
+                              : "선택된 투자자 없음"
                             }
                           </div>
                           <div className="border rounded-lg max-h-40 overflow-y-auto p-2">
@@ -1151,11 +1151,11 @@ export default function Meetings() {
                     name="analystId"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Select Analyst / 애널리스트 선택</FormLabel>
+                        <FormLabel>애널리스트 선택</FormLabel>
                         <Select onValueChange={(value) => field.onChange(value ? parseInt(value) : null)} value={field.value?.toString() || ""}>
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Choose analyst" />
+                              <SelectValue placeholder="애널리스트를 선택하세요" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
@@ -1177,11 +1177,11 @@ export default function Meetings() {
                     name="meetingCategory"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Meeting Category / 미팅 종류</FormLabel>
+                        <FormLabel>미팅 종류</FormLabel>
                         <Select onValueChange={field.onChange} value={field.value || ""}>
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Select meeting category / 미팅 종류 선택" />
+                              <SelectValue placeholder="미팅 종류 선택" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
@@ -1203,11 +1203,11 @@ export default function Meetings() {
                     name="location"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Location / 장소</FormLabel>
+                        <FormLabel>장소</FormLabel>
                         <FormControl>
                           <Input 
                             {...field} 
-                            placeholder="Enter meeting location / 미팅 장소 입력"
+                            placeholder="미팅 장소 입력"
                           />
                         </FormControl>
                       </FormItem>
@@ -1223,14 +1223,14 @@ export default function Meetings() {
                     name="ndrConferenceId"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Select NDR/Conference / NDR/컨퍼런스 선택</FormLabel>
+                        <FormLabel>NDR/컨퍼런스 선택</FormLabel>
                         <Select 
                           onValueChange={(value) => field.onChange(value ? parseInt(value) : null)}
                           value={field.value?.toString() || ""}
                         >
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Choose NDR/Conference / NDR/컨퍼런스를 선택하세요" />
+                              <SelectValue placeholder="NDR/컨퍼런스를 선택하세요" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
@@ -1251,7 +1251,7 @@ export default function Meetings() {
                   name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Description / 설명</FormLabel>
+                      <FormLabel>설명</FormLabel>
                       <FormControl>
                         <Textarea {...field} placeholder="Meeting description" rows={3} />
                       </FormControl>
@@ -1263,7 +1263,7 @@ export default function Meetings() {
                 <div className="space-y-2 border-t pt-4">
                   <div className="flex items-center space-x-2 mb-2">
                     <FileText className="h-5 w-5 text-gray-600" />
-                    <h3 className="text-sm font-medium">Meeting Minutes / 회의록</h3>
+                    <h3 className="text-sm font-medium">회의록</h3>
                   </div>
                   
                   {editingMeeting.minutesFilePath ? (
@@ -1305,7 +1305,7 @@ export default function Meetings() {
                   ) : (
                     <div className="bg-gray-50 p-3 rounded-lg">
                       <div className="text-center">
-                        <p className="text-sm text-gray-500 mb-3">No meeting minutes uploaded yet / 회의록이 아직 업로드되지 않았습니다</p>
+                        <p className="text-sm text-gray-500 mb-3">회의록이 아직 업로드되지 않았습니다</p>
                         <input
                           type="file"
                           accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.hwp,.xls,.xlsx,.csv"
@@ -1323,7 +1323,7 @@ export default function Meetings() {
                         >
                           <div className="flex items-center space-x-2">
                             <Upload className="h-4 w-4" />
-                            <span>{uploadingMinutes ? "Uploading... / 업로드 중..." : "Upload Minutes / 회의록 업로드"}</span>
+                            <span>{uploadingMinutes ? "업로드 중..." : "회의록 업로드"}</span>
                           </div>
                         </Button>
                       </div>
@@ -1342,7 +1342,7 @@ export default function Meetings() {
                     }}
                     disabled={editMeetingMutation.isPending || uploadingMinutes}
                   >
-                    No change / 변경 없음
+                    변경 없음
                   </Button>
                   <Button
                     type="submit"
@@ -1356,7 +1356,7 @@ export default function Meetings() {
                       });
                     }}
                   >
-                    {editMeetingMutation.isPending ? "Updating... / 업데이트 중..." : "Update Meeting / 미팅 업데이트"}
+                    {editMeetingMutation.isPending ? "업데이트 중..." : "미팅 업데이트"}
                   </Button>
                 </div>
               </form>
