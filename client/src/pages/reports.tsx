@@ -134,19 +134,19 @@ export default function Reports() {
     if (activeTab === "investor-reports" && investorReport) {
       // Export investor report as CSV
       const csvData = [
-        ["Field", "Value"],
+        ["필드", "값"],
         ["이름", investorReport.investor.name],
-        ["Email / 이메일", investorReport.investor.email],
-        ["Phone / 전화", investorReport.investor.phone || "N/A"],
-        ["Company / 소속기관", investorReport.investor.company],
-        ["Position / 직책", investorReport.investor.position || "N/A"],
-        ["Position Type / 직급", investorReport.investor.positionType || "N/A"],
-        ["Country / 국가", investorReport.investor.country || "Korea"],
-        ["Language / 언어", investorReport.investor.language || "Korean"],
-        ["Specialties / 전문분야", investorReport.investor.specialty.join(", ")],
-        ["Owns Our Shares / 당사 지분 보유", investorReport.investor.ownsOurShare || "No"],
-        ["Share Amount / 보유량", investorReport.investor.shareAmount || "N/A"],
-        ["Notes / 메모", investorReport.investor.note || "N/A"]
+        ["이메일", investorReport.investor.email],
+        ["전화", investorReport.investor.phone || "N/A"],
+        ["소속기관", investorReport.investor.company],
+        ["직책", investorReport.investor.position || "N/A"],
+        ["직급", investorReport.investor.positionType || "N/A"],
+        ["국가", investorReport.investor.country || "Korea"],
+        ["언어", investorReport.investor.language || "Korean"],
+        ["전문분야", investorReport.investor.specialty.join(", ")],
+        ["당사 지분 보유", investorReport.investor.ownsOurShare || "No"],
+        ["보유량", investorReport.investor.shareAmount || "N/A"],
+        ["메모", investorReport.investor.note || "N/A"]
       ];
       
       const csvContent = csvData.map(row => row.join(",")).join("\n");
@@ -162,7 +162,7 @@ export default function Reports() {
     } else if (activeTab === "meeting-reports") {
       // Export meeting reports as CSV
       const csvData = [
-        ["Title", "Date", "Status", "Category", "Location", "Duration", "Attendees", "Description"]
+        ["제목", "일시", "상태", "카테고리", "장소", "기간", "참석자", "설명"]
       ];
       
       filteredMeetings.forEach((meeting) => {
@@ -210,13 +210,13 @@ export default function Reports() {
       <div className="mb-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Reports / 보고서</h2>
-            <p className="text-gray-600 mt-1">Generate comprehensive investor and meeting reports / 투자자 및 미팅 종합 보고서 생성</p>
+            <h2 className="text-2xl font-bold text-gray-900">보고서</h2>
+            <p className="text-gray-600 mt-1">투자자 및 미팅 종합 보고서 생성</p>
           </div>
           <div className="mt-4 sm:mt-0">
             <Button onClick={exportReport} disabled={activeTab === "investor-reports" && !investorReport}>
               <Download className="mr-2 h-4 w-4" />
-              Export Report / 보고서 내보내기
+              보고서 내보내기
             </Button>
           </div>
         </div>
@@ -224,8 +224,8 @@ export default function Reports() {
 
       <Tabs defaultValue="investor-reports" className="space-y-6" onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="investor-reports">Investor Reports / 투자자 보고서</TabsTrigger>
-          <TabsTrigger value="meeting-reports">Meeting Reports / 미팅 보고서</TabsTrigger>
+          <TabsTrigger value="investor-reports">투자자 보고서</TabsTrigger>
+          <TabsTrigger value="meeting-reports">미팅 보고서</TabsTrigger>
         </TabsList>
 
         {/* Investor Reports Tab */}
@@ -234,18 +234,18 @@ export default function Reports() {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Users className="mr-2 h-5 w-5" />
-                Investor Profile Reports / 투자자 인적사항 보고서
+                투자자 인적사항 보고서
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Select Investor / 투자자 선택
+                    투자자 선택
                   </label>
                   <Select value={selectedInvestor} onValueChange={setSelectedInvestor}>
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Choose an investor / 투자자를 선택하세요" />
+                      <SelectValue placeholder="투자자를 선택하세요" />
                     </SelectTrigger>
                     <SelectContent>
                       {investors.map((investor) => (
@@ -262,7 +262,7 @@ export default function Reports() {
                     {/* Personal Information */}
                     <div className="bg-gray-50 p-6 rounded-lg">
                       <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                        Personal Information / 인적사항
+                        인적사항
                       </h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
@@ -270,23 +270,23 @@ export default function Reports() {
                           <p className="text-sm text-gray-900">{investorReport.investor.name}</p>
                         </div>
                         <div>
-                          <span className="text-sm font-medium text-gray-500">Email / 이메일:</span>
+                          <span className="text-sm font-medium text-gray-500">이메일:</span>
                           <p className="text-sm text-gray-900">{investorReport.investor.email}</p>
                         </div>
                         <div>
-                          <span className="text-sm font-medium text-gray-500">Phone / 전화:</span>
+                          <span className="text-sm font-medium text-gray-500">전화:</span>
                           <p className="text-sm text-gray-900">{investorReport.investor.phone || "N/A"}</p>
                         </div>
                         <div>
-                          <span className="text-sm font-medium text-gray-500">Company / 소속기관:</span>
+                          <span className="text-sm font-medium text-gray-500">소속기관:</span>
                           <p className="text-sm text-gray-900">{investorReport.investor.company}</p>
                         </div>
                         <div>
-                          <span className="text-sm font-medium text-gray-500">Position / 직책:</span>
+                          <span className="text-sm font-medium text-gray-500">직책:</span>
                           <p className="text-sm text-gray-900">{investorReport.investor.position || "N/A"}</p>
                         </div>
                         <div>
-                          <span className="text-sm font-medium text-gray-500">Position Type / 직급:</span>
+                          <span className="text-sm font-medium text-gray-500">직급:</span>
                           <div className="text-sm text-gray-900">
                             {investorReport.investor.positionType || "N/A"}
                             {investorReport.investor.positionType === "Buyside Analyst" && investorReport.investor.specialty.length > 0 && (
@@ -300,18 +300,18 @@ export default function Reports() {
                           </div>
                         </div>
                         <div>
-                          <span className="text-sm font-medium text-gray-500">Country / 국가:</span>
+                          <span className="text-sm font-medium text-gray-500">국가:</span>
                           <p className="text-sm text-gray-900">{investorReport.investor.country || "Korea"}</p>
                         </div>
                         <div>
-                          <span className="text-sm font-medium text-gray-500">Language / 언어:</span>
+                          <span className="text-sm font-medium text-gray-500">언어:</span>
                           <p className="text-sm text-gray-900">{investorReport.investor.language || "Korean"}</p>
                         </div>
                       </div>
 
                       {investorReport.investor.specialty.length > 0 && (
                         <div className="mt-4">
-                          <span className="text-sm font-medium text-gray-500">Specialties / 전문분야:</span>
+                          <span className="text-sm font-medium text-gray-500">전문분야:</span>
                           <div className="flex flex-wrap gap-2 mt-1">
                             {investorReport.investor.specialty.map((spec, index) => (
                               <Badge key={index} variant="outline">{spec}</Badge>
@@ -322,7 +322,7 @@ export default function Reports() {
 
                       {investorReport.investor.note && (
                         <div className="mt-4">
-                          <span className="text-sm font-medium text-gray-500">Notes / 메모:</span>
+                          <span className="text-sm font-medium text-gray-500">메모:</span>
                           <p className="text-sm text-gray-900">{investorReport.investor.note}</p>
                         </div>
                       )}
@@ -333,11 +333,11 @@ export default function Reports() {
                       <div className="bg-blue-50 p-6 rounded-lg">
                         <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                           <Wallet className="mr-2 h-5 w-5" />
-                          Fund Information / 운용펀드
+                          운용펀드
                         </h3>
                         <div className="space-y-2">
                           <div>
-                            <span className="text-sm font-medium text-gray-500">Fund Name / 펀드명:</span>
+                            <span className="text-sm font-medium text-gray-500">펀드명:</span>
                             <p className="text-sm text-gray-900">{investorReport.investor.fund}</p>
                           </div>
                           {investorReport.funds.map((fund) => (
@@ -348,11 +348,11 @@ export default function Reports() {
                                   <p className="text-sm text-gray-900">{fund.aum}</p>
                                 </div>
                                 <div>
-                                  <span className="text-xs font-medium text-gray-500">Type / 유형:</span>
+                                  <span className="text-xs font-medium text-gray-500">유형:</span>
                                   <p className="text-sm text-gray-900">{fund.type}</p>
                                 </div>
                                 <div>
-                                  <span className="text-xs font-medium text-gray-500">Owns Our Shares / 당사 보유:</span>
+                                  <span className="text-xs font-medium text-gray-500">당사 보유:</span>
                                   <Badge variant={fund.ownOurShares ? "default" : "outline"}>
                                     {fund.ownOurShares ? "Yes" : "No"}
                                   </Badge>
@@ -368,18 +368,18 @@ export default function Reports() {
                     {investorReport.investor.ownsOurShare && (
                       <div className="bg-green-50 p-6 rounded-lg">
                         <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                          Share Ownership / 지분 보유 현황
+                          지분 보유 현황
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
-                            <span className="text-sm font-medium text-gray-500">Owns Our Shares / 당사 지분 보유:</span>
+                            <span className="text-sm font-medium text-gray-500">당사 지분 보유:</span>
                             <Badge variant={investorReport.investor.ownsOurShare === "Yes" ? "default" : "outline"}>
                               {investorReport.investor.ownsOurShare}
                             </Badge>
                           </div>
                           {investorReport.investor.shareAmount && (
                             <div>
-                              <span className="text-sm font-medium text-gray-500">Share Amount / 보유량:</span>
+                              <span className="text-sm font-medium text-gray-500">보유량:</span>
                               <p className="text-sm text-gray-900">{investorReport.investor.shareAmount}</p>
                             </div>
                           )}
@@ -391,7 +391,7 @@ export default function Reports() {
                     <div className="bg-purple-50 p-6 rounded-lg">
                       <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                         <Calendar className="mr-2 h-5 w-5" />
-                        Meeting History / 미팅 이력 ({investorReport.meetings.length}건)
+                        미팅 이력 ({investorReport.meetings.length}건)
                       </h3>
                       {investorReport.meetings.length > 0 ? (
                         <div className="space-y-3">
@@ -405,29 +405,29 @@ export default function Reports() {
                               </div>
                               <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm">
                                 <div>
-                                  <span className="text-gray-500">Date / 일시:</span>
+                                  <span className="text-gray-500">일시:</span>
                                   <p className="text-gray-900">
                                     {format(new Date(meeting.scheduledDate), "yyyy-MM-dd HH:mm")}
                                   </p>
                                 </div>
                                 <div>
-                                  <span className="text-gray-500">Location / 장소:</span>
+                                  <span className="text-gray-500">장소:</span>
                                   <p className="text-gray-900">{meeting.location || "N/A"}</p>
                                 </div>
                                 <div>
-                                  <span className="text-gray-500">Category / 카테고리:</span>
+                                  <span className="text-gray-500">카테고리:</span>
                                   <p className="text-gray-900">{meeting.meetingCategory || "N/A"}</p>
                                 </div>
                               </div>
                               {meeting.description && (
                                 <div className="mt-2">
-                                  <span className="text-sm text-gray-500">Description / 설명:</span>
+                                  <span className="text-sm text-gray-500">설명:</span>
                                   <p className="text-sm text-gray-700">{meeting.description}</p>
                                 </div>
                               )}
                               {meeting.minutesFileName && (
                                 <div className="mt-2">
-                                  <span className="text-sm text-gray-500">Minutes / 회의록:</span>
+                                  <span className="text-sm text-gray-500">회의록:</span>
                                   <p className="text-sm text-blue-600">{meeting.minutesFileName}</p>
                                 </div>
                               )}
@@ -435,7 +435,7 @@ export default function Reports() {
                           ))}
                         </div>
                       ) : (
-                        <p className="text-gray-500 text-center py-4">No meetings recorded / 기록된 미팅이 없습니다</p>
+                        <p className="text-gray-500 text-center py-4">기록된 미팅이 없습니다</p>
                       )}
                     </div>
                   </div>
@@ -451,24 +451,24 @@ export default function Reports() {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Calendar className="mr-2 h-5 w-5" />
-                Meeting Reports / 미팅 보고서
+                미팅 보고서
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Date Range / 기간 선택
+                    기간 선택
                   </label>
                   <Select value={selectedDateRange} onValueChange={setSelectedDateRange}>
                     <SelectTrigger className="w-full max-w-xs">
                       <SelectValue placeholder="Select date range" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All Time / 전체</SelectItem>
-                      <SelectItem value="30days">Last 30 Days / 최근 30일</SelectItem>
-                      <SelectItem value="90days">Last 90 Days / 최근 90일</SelectItem>
-                      <SelectItem value="year">Last Year / 최근 1년</SelectItem>
+                      <SelectItem value="all">전체</SelectItem>
+                      <SelectItem value="30days">최근 30일</SelectItem>
+                      <SelectItem value="90days">최근 90일</SelectItem>
+                      <SelectItem value="year">최근 1년</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -478,7 +478,7 @@ export default function Reports() {
                   <CardHeader>
                     <CardTitle className="flex items-center">
                       <FileText className="mr-2 h-5 w-5" />
-                      Detailed Meeting Reports / 상세 미팅 보고서
+                      상세 미팅 보고서
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
