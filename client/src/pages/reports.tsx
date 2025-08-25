@@ -462,7 +462,7 @@ export default function Reports() {
                   </label>
                   <Select value={selectedDateRange} onValueChange={setSelectedDateRange}>
                     <SelectTrigger className="w-full max-w-xs">
-                      <SelectValue placeholder="Select date range" />
+                      <SelectValue placeholder="기간을 선택하세요" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">전체</SelectItem>
@@ -521,7 +521,7 @@ export default function Reports() {
                             
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
                               <div>
-                                <span className="text-sm font-medium text-gray-500">Attendees / 참석자:</span>
+                                <span className="text-sm font-medium text-gray-500">참석자:</span>
                                 <div className="text-sm text-gray-900">
                                   {attendeeNames.length > 0 ? (
                                     <ul className="list-disc list-inside">
@@ -530,22 +530,22 @@ export default function Reports() {
                                       ))}
                                     </ul>
                                   ) : (
-                                    <p>No attendee information available</p>
+                                    <p>참석자 정보가 없습니다</p>
                                   )}
                                 </div>
                               </div>
                               
                               <div>
-                                <span className="text-sm font-medium text-gray-500">Location / 장소:</span>
+                                <span className="text-sm font-medium text-gray-500">장소:</span>
                                 <p className="text-sm text-gray-900">{meeting.location || "N/A"}</p>
-                                <span className="text-sm font-medium text-gray-500">Duration / 시간:</span>
+                                <span className="text-sm font-medium text-gray-500">시간:</span>
                                 <p className="text-sm text-gray-900">{meeting.duration || 60} minutes</p>
                               </div>
                             </div>
                             
                             {meeting.description && (
                               <div className="mb-3">
-                                <span className="text-sm font-medium text-gray-500">Description / 설명:</span>
+                                <span className="text-sm font-medium text-gray-500">설명:</span>
                                 <p className="text-sm text-gray-700">{meeting.description}</p>
                               </div>
                             )}
@@ -553,7 +553,7 @@ export default function Reports() {
                             {meeting.minutesFileName && (
                               <div className="flex items-center gap-2">
                                 <FileText className="h-4 w-4 text-blue-500" />
-                                <span className="text-sm text-blue-600">Meeting Minutes: {meeting.minutesFileName}</span>
+                                <span className="text-sm text-blue-600">회의록: {meeting.minutesFileName}</span>
                               </div>
                             )}
                           </div>
@@ -563,9 +563,9 @@ export default function Reports() {
                       {filteredMeetings.length === 0 && (
                         <div className="text-center py-8">
                           <Calendar className="mx-auto h-12 w-12 text-gray-400" />
-                          <h3 className="mt-2 text-sm font-medium text-gray-900">No meetings found</h3>
+                          <h3 className="mt-2 text-sm font-medium text-gray-900">미팅이 없습니다</h3>
                           <p className="mt-1 text-sm text-gray-500">
-                            No meetings found for the selected date range / 선택한 기간에 미팅이 없습니다
+                            선택한 기간에 미팅이 없습니다
                           </p>
                         </div>
                       )}
