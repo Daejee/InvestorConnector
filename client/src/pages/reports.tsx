@@ -135,7 +135,7 @@ export default function Reports() {
       // Export investor report as CSV
       const csvData = [
         ["Field", "Value"],
-        ["Name / 이름", investorReport.investor.name],
+        ["이름", investorReport.investor.name],
         ["Email / 이메일", investorReport.investor.email],
         ["Phone / 전화", investorReport.investor.phone || "N/A"],
         ["Company / 소속기관", investorReport.investor.company],
@@ -266,7 +266,7 @@ export default function Reports() {
                       </h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                          <span className="text-sm font-medium text-gray-500">Name / 이름:</span>
+                          <span className="text-sm font-medium text-gray-500">이름:</span>
                           <p className="text-sm text-gray-900">{investorReport.investor.name}</p>
                         </div>
                         <div>

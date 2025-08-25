@@ -218,10 +218,10 @@ export default function SecuritiesFirms() {
                 <div className="text-sm text-gray-600">
                   <p className="font-medium mb-2">Required columns / 필수 컬럼:</p>
                   <ul className="list-disc list-inside space-y-1">
-                    <li>Name / 이름 or 증권사 (required / 필수)</li>
-                    <li>Address / 주소 (required / 필수)</li>
-                    <li>Phone / 대표번호 or 대표전화 (required / 필수)</li>
-                    <li>Website / 웹사이트 (optional / 선택사항)</li>
+                    <li>이름 or 증권사 (필수)</li>
+                    <li>주소 (필수)</li>
+                    <li>대표번호 or 대표전화 (필수)</li>
+                    <li>웹사이트 (선택사항)</li>
                   </ul>
                   <p className="mt-3 text-xs text-gray-500">
                     Supported formats / 지원 형식: 이름,주소,대표번호,웹사이트 OR 증권사,주소,대표전화,웹사이트
@@ -296,10 +296,10 @@ export default function SecuritiesFirms() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Name / 이름</TableHead>
-                  <TableHead>Address / 주소</TableHead>
-                  <TableHead>Phone / 전화번호</TableHead>
-                  <TableHead>Website / 웹사이트</TableHead>
+                  <TableHead>이름</TableHead>
+                  <TableHead>주소</TableHead>
+                  <TableHead>전화번호</TableHead>
+                  <TableHead>웹사이트</TableHead>
 
                   <TableHead className="w-32">Actions / 작업</TableHead>
                 </TableRow>
@@ -387,7 +387,7 @@ export default function SecuritiesFirms() {
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-sm font-medium text-gray-500">Name / 이름</Label>
+                  <Label className="text-sm font-medium text-gray-500">이름</Label>
                   <p className="text-lg font-semibold">{selectedFirm.name}</p>
                 </div>
                 <div>
@@ -398,16 +398,16 @@ export default function SecuritiesFirms() {
                 </div>
               </div>
               <div>
-                <Label className="text-sm font-medium text-gray-500">Address / 주소</Label>
+                <Label className="text-sm font-medium text-gray-500">주소</Label>
                 <p className="text-sm">{selectedFirm.address}</p>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-sm font-medium text-gray-500">Phone / 전화번호</Label>
+                  <Label className="text-sm font-medium text-gray-500">전화번호</Label>
                   <p className="text-sm">{selectedFirm.phone}</p>
                 </div>
                 <div>
-                  <Label className="text-sm font-medium text-gray-500">Website / 웹사이트</Label>
+                  <Label className="text-sm font-medium text-gray-500">웹사이트</Label>
                   {selectedFirm.website ? (
                     <a 
                       href={selectedFirm.website.startsWith('http') ? selectedFirm.website : `https://${selectedFirm.website}`}
@@ -471,7 +471,7 @@ function SecuritiesFirmForm({ firm, onSubmit, onCancel, isSubmitting }: Securiti
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <Label htmlFor="name">Name / 이름 *</Label>
+        <Label htmlFor="name">이름 *</Label>
         <Input
           id="name"
           value={formData.name}
@@ -482,7 +482,7 @@ function SecuritiesFirmForm({ firm, onSubmit, onCancel, isSubmitting }: Securiti
       </div>
       
       <div>
-        <Label htmlFor="address">Address / 주소 *</Label>
+        <Label htmlFor="address">주소 *</Label>
         <Input
           id="address"
           value={formData.address}
@@ -493,7 +493,7 @@ function SecuritiesFirmForm({ firm, onSubmit, onCancel, isSubmitting }: Securiti
       </div>
       
       <div>
-        <Label htmlFor="phone">Phone / 전화번호 *</Label>
+        <Label htmlFor="phone">전화번호 *</Label>
         <Input
           id="phone"
           value={formData.phone}
@@ -504,7 +504,7 @@ function SecuritiesFirmForm({ firm, onSubmit, onCancel, isSubmitting }: Securiti
       </div>
       
       <div>
-        <Label htmlFor="website">Website / 웹사이트</Label>
+        <Label htmlFor="website">웹사이트</Label>
         <Input
           id="website"
           value={formData.website || ""}

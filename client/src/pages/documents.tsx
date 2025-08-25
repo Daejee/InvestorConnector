@@ -406,7 +406,7 @@ export default function Documents() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Name / 이름</TableHead>
+                  <TableHead>이름</TableHead>
                   <TableHead>Type / 유형</TableHead>
                   <TableHead>Category / 카테고리</TableHead>
                   <TableHead>Size / 크기</TableHead>
