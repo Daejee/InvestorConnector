@@ -228,7 +228,7 @@ export default function Email() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">이메일 보내기</h1>
-          <p className="text-muted-foreground">Send emails to investors and analysts with document attachments / 문서 첨부와 함께 투자자 및 애널리스트에게 이메일 발송</p>
+          <p className="text-muted-foreground">문서 첨부와 함께 투자자 및 애널리스트에게 이메일 발송</p>
         </div>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -238,25 +238,25 @@ export default function Email() {
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <Mail className="h-5 w-5" />
-                <span>Compose Email / 이메일 작성</span>
+                <span>이메일 작성</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label>Subject / 제목</Label>
+                <Label>제목</Label>
                 <Input
                   value={emailData.subject}
                   onChange={(e) => setEmailData(prev => ({ ...prev, subject: e.target.value }))}
-                  placeholder="Enter email subject / 이메일 제목을 입력하세요"
+                  placeholder="이메일 제목을 입력하세요"
                 />
               </div>
 
               <div>
-                <Label>Content / 내용</Label>
+                <Label>내용</Label>
                 <Textarea
                   value={emailData.content}
                   onChange={(e) => setEmailData(prev => ({ ...prev, content: e.target.value }))}
-                  placeholder="Enter email content / 이메일 내용을 입력하세요"
+                  placeholder="이메일 내용을 입력하세요"
                   rows={8}
                 />
               </div>
@@ -266,7 +266,7 @@ export default function Email() {
                 <div>
                   <Label className="flex items-center space-x-2">
                     <Paperclip className="h-4 w-4" />
-                    <span>Attachments / 첨부파일 ({totalAttachments})</span>
+                    <span>첨부파일 ({totalAttachments})</span>
                   </Label>
                   <div className="mt-2 space-y-2">
                     {/* Existing Documents */}
@@ -320,7 +320,7 @@ export default function Email() {
               {/* Send Button */}
               <div className="flex items-center justify-between pt-4 border-t">
                 <div className="text-sm text-gray-600">
-                  Recipients / 수신자: <Badge variant="outline">{totalRecipients}</Badge>
+                  수신자: <Badge variant="outline">{totalRecipients}</Badge>
                 </div>
                 <Button 
                   onClick={handleSendEmail}
@@ -328,7 +328,7 @@ export default function Email() {
                   className="flex items-center space-x-2"
                 >
                   <Send className="h-4 w-4" />
-                  <span>{sendEmailMutation.isPending ? "Sending..." : "Send Email / 이메일 발송"}</span>
+                  <span>{sendEmailMutation.isPending ? "발송 중..." : "이메일 발송"}</span>
                 </Button>
               </div>
             </CardContent>
@@ -340,7 +340,7 @@ export default function Email() {
               <CardTitle className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <Paperclip className="h-5 w-5" />
-                  <span>Attachments / 첨부파일</span>
+                  <span>첨부파일</span>
                 </div>
                 <SimpleFileUploader onUploadComplete={handleFileUpload}>
                   <div className="flex items-center space-x-2 px-3 py-2 bg-blue-500 text-white border border-blue-500 rounded-md text-sm hover:bg-blue-600 cursor-pointer font-medium">
@@ -352,19 +352,19 @@ export default function Email() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="text-sm text-gray-600">
-                <p>• Database documents / DB 문서: 아래 목록에서 선택</p>
-                <p>• PC files / PC 파일: 우상단 "PC 파일 첨부" 버튼 사용</p>
+                <p>• DB 문서: 아래 목록에서 선택</p>
+                <p>• PC 파일: 우상단 "PC 파일 첨부" 버튼 사용</p>
               </div>
               
               <Separator />
               
               <div>
-                <Label className="text-sm font-medium">Select from Database / DB에서 선택</Label>
+                <Label className="text-sm font-medium">DB에서 선택</Label>
                 <ScrollArea className="h-48 mt-2">
                   <div className="space-y-2">
                     {documents.length === 0 ? (
                       <p className="text-sm text-gray-500 text-center py-4">
-                        No documents available / 사용 가능한 문서가 없습니다
+                        사용 가능한 문서가 없습니다
                       </p>
                     ) : (
                       documents.map((document) => (
@@ -402,19 +402,19 @@ export default function Email() {
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <Users className="h-5 w-5" />
-                <span>Recipients / 수신자</span>
+                <span>수신자</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Quick Selection */}
               <div className="space-y-2">
-                <Label>Quick Select / 빠른 선택</Label>
+                <Label>빠른 선택</Label>
                 <div className="grid grid-cols-2 gap-2">
                   <Button variant="outline" size="sm" onClick={selectKoreanGroup}>
-                    Korean / 한국
+                    한국
                   </Button>
                   <Button variant="outline" size="sm" onClick={selectOverseasGroup}>
-                    Overseas / 해외
+                    해외
                   </Button>
                 </div>
               </div>
@@ -424,9 +424,9 @@ export default function Email() {
               {/* Investors */}
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <Label>Buyside / 투자자</Label>
+                  <Label>투자자</Label>
                   <Button variant="ghost" size="sm" onClick={selectAllInvestors}>
-                    {recipients.investors.length === investors.length ? "Clear All" : "Select All"}
+                    {recipients.investors.length === investors.length ? "전체 해제" : "전체 선택"}
                   </Button>
                 </div>
                 
@@ -466,9 +466,9 @@ export default function Email() {
               {/* Sellside */}
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <Label>Sellside / 애널리스트</Label>
+                  <Label>애널리스트</Label>
                   <Button variant="ghost" size="sm" onClick={selectAllAnalysts}>
-                    {recipients.analysts.length === analysts.length ? "Clear All" : "Select All"}
+                    {recipients.analysts.length === analysts.length ? "전체 해제" : "전체 선택"}
                   </Button>
                 </div>
                 
