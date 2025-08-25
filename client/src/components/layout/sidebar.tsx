@@ -37,7 +37,7 @@ const navigation = [
     ]
   },
   { 
-    name: "Email / 이메일", 
+    name: "이메일보내기", 
     href: "/email", 
     icon: Mail,
     submenu: [
