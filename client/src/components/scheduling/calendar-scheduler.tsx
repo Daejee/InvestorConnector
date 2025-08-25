@@ -46,9 +46,9 @@ const timeSlots = [
 ];
 
 const meetingTypes = [
-  { value: "NDR/Conference", label: "NDR/Conference / NDR/컨퍼런스", duration: 60 },
-  { value: "InOffice", label: "In Office / 사무실 미팅", duration: 30 },
-  { value: "Other", label: "Other / 기타", duration: 45 }
+  { value: "NDR/Conference", label: "NDR/컨퍼런스", duration: 60 },
+  { value: "InOffice", label: "사무실 미팅", duration: 30 },
+  { value: "Other", label: "기타", duration: 45 }
 ];
 
 export default function CalendarScheduler({ selectedInvestor }: CalendarSchedulerProps) {
@@ -126,8 +126,8 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
       queryClient.invalidateQueries({ queryKey: ["/api/meetings/upcoming"] });
       refetchMeetings(); // Force immediate refresh
       toast({
-        title: "Success / 성공",
-        description: "Meeting booked successfully / 미팅이 성공적으로 예약되었습니다",
+        title: "성공",
+        description: "미팅이 성공적으로 예약되었습니다",
       });
       setIsBookingOpen(false);
       form.reset({
@@ -148,8 +148,8 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
     },
     onError: (error: any) => {
       toast({
-        title: "Error / 오류",
-        description: error.message || "Failed to book meeting / 미팅 예약에 실패했습니다",
+        title: "오류",
+        description: error.message || "미팅 예약에 실패했습니다",
         variant: "destructive",
       });
     },
@@ -325,13 +325,13 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
             </div>
           </CardTitle>
           <CardDescription>
-            Click on available time slots to schedule a meeting / 사용 가능한 시간대를 클릭하여 미팅을 예약하세요
+            사용 가능한 시간대를 클릭하여 미팅을 예약하세요
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-8 gap-2">
             {/* Header row */}
-            <div className="p-2 text-sm font-medium text-center">Time / 시간</div>
+            <div className="p-2 text-sm font-medium text-center">시간</div>
             {weekDays.map((day, index) => (
               <div key={index} className="p-2 text-sm font-medium text-center">
                 <div>{format(day, 'EEE')}</div>
@@ -424,14 +424,14 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
           <DialogHeader>
             <DialogTitle>
               {selectedDate && isBefore(selectedDate, startOfDay(new Date())) ? 
-                "Record Meeting" : 
-                "Book Meeting"
+                "미팅 기록" : 
+                "미팅 예약"
               }
             </DialogTitle>
             <DialogDescription>
               {selectedDate && isBefore(selectedDate, startOfDay(new Date())) ? 
-                "Add a record of a meeting that already took place / 이미 진행된 미팅 기록 추가" :
-                "Schedule a new meeting with flexible duration options / 유연한 시간 옵션으로 새 미팅 예약"
+                "이미 진행된 미팅 기록 추가" :
+                "유연한 시간 옵션으로 새 미팅 예약"
               }
             </DialogDescription>
           </DialogHeader>
@@ -455,7 +455,7 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select meeting type / 미팅 유형 선택" />
+                            <SelectValue placeholder="미팅 유형 선택" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -483,7 +483,7 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select duration / 길이 선택" />
+                            <SelectValue placeholder="길이 선택" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -513,7 +513,7 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select meeting category / 미팅 종류 선택" />
+                            <SelectValue placeholder="미팅 종류 선택" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -540,7 +540,7 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
                       <FormControl>
                         <Input 
                           {...field}
-                          placeholder="Enter meeting location / 미팅 장소 입력"
+                          placeholder="미팅 장소 입력"
                           className="w-full"
                         />
                       </FormControl>
@@ -564,7 +564,7 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Choose NDR/Conference / NDR/컨퍼런스를 선택하세요" />
+                            <SelectValue placeholder="NDR/컨퍼런스를 선택하세요" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -591,7 +591,7 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
                         <div className="text-sm text-gray-600">
                           {field.value && field.value.length > 0 
                             ? `${field.value.length} investors selected / ${field.value.length}명의 투자자가 선택됨`
-                            : "No investors selected / 선택된 투자자 없음"
+                            : "선택된 투자자 없음"
                           }
                         </div>
                         <div className="border rounded-lg max-h-32 overflow-y-auto p-2">
@@ -644,7 +644,7 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
                         <div className="text-sm text-gray-600">
                           {field.value && field.value.length > 0 
                             ? `${field.value.length} analysts selected / ${field.value.length}명의 애널리스트가 선택됨`
-                            : "No analysts selected / 선택된 애널리스트 없음"
+                            : "선택된 애널리스트 없음"
                           }
                         </div>
                         <div className="border rounded-lg max-h-32 overflow-y-auto p-2">
@@ -697,7 +697,7 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
                     <FormControl>
                       <Textarea 
                         {...field} 
-                        placeholder="Meeting agenda or notes / 미팅 안건 또는 메모"
+                        placeholder="미팅 안건 또는 메모"
                         rows={3}
                       />
                     </FormControl>
@@ -727,10 +727,10 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
 
               <div className="flex justify-end space-x-2">
                 <Button type="button" variant="outline" onClick={() => setIsBookingOpen(false)}>
-                  Cancel / 취소
+                  취소
                 </Button>
                 <Button type="submit" disabled={createMeetingMutation.isPending}>
-                  {createMeetingMutation.isPending ? "Booking..." : "Book Meeting"}
+                  {createMeetingMutation.isPending ? "예약 중..." : "미팅 예약"}
                 </Button>
               </div>
             </form>

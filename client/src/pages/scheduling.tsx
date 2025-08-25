@@ -69,8 +69,8 @@ export default function Scheduling() {
       setIsEditDialogOpen(false);
       setEditingMeeting(null);
       toast({
-        title: "Meeting updated / 미팅 업데이트됨",
-        description: "The meeting has been successfully updated / 미팅이 성공적으로 업데이트되었습니다",
+        title: "미팅 업데이트됨",
+        description: "미팅이 성공적으로 업데이트되었습니다",
       });
     },
   });
@@ -83,8 +83,8 @@ export default function Scheduling() {
       queryClient.invalidateQueries({ queryKey: ["/api/meetings"] });
       queryClient.invalidateQueries({ queryKey: ["/api/meetings/upcoming"] });
       toast({
-        title: "Meeting deleted / 미팅 삭제됨",
-        description: "The meeting has been successfully deleted / 미팅이 성공적으로 삭제되었습니다",
+        title: "미팅 삭제됨",
+        description: "미팅이 성공적으로 삭제되었습니다",
       });
     },
   });
@@ -112,7 +112,7 @@ export default function Scheduling() {
   };
 
   const handleDeleteMeeting = (id: number) => {
-    if (confirm("Are you sure you want to delete this meeting? / 이 미팅을 삭제하시겠습니까?")) {
+    if (confirm("이 미팅을 삭제하시겠습니까?")) {
       deleteMeetingMutation.mutate(id);
     }
   };
@@ -144,13 +144,13 @@ export default function Scheduling() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">미팅 스케줄러</h1>
           <p className="text-muted-foreground">
-            Schedule meetings with investors using our interactive calendar / 대화형 캘린더로 투자자와 미팅을 예약하세요
+            대화형 캘린더로 투자자와 미팅을 예약하세요
           </p>
         </div>
       </div>
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         <TabsList>
-          <TabsTrigger value="calendar">Calendar Scheduler</TabsTrigger>
+          <TabsTrigger value="calendar">미팅 예약</TabsTrigger>
           <TabsTrigger value="upcoming">예정된 미팅</TabsTrigger>
         </TabsList>
 
@@ -163,23 +163,23 @@ export default function Scheduling() {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Calendar className="mr-2 h-5 w-5" />
-                Upcoming Meetings / 예정된 미팅
+                예정된 미팅
               </CardTitle>
               <CardDescription>
-                Your scheduled meetings for the coming weeks / 앞으로 몇 주간 예정된 미팅
+                앞으로 몇 주간 예정된 미팅
               </CardDescription>
             </CardHeader>
             <CardContent>
               {upcomingMeetings.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12">
                   <Clock className="h-12 w-12 text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">No upcoming meetings / 예정된 미팅 없음</h3>
+                  <h3 className="text-lg font-semibold mb-2">예정된 미팅 없음</h3>
                   <p className="text-muted-foreground text-center mb-4">
-                    Schedule your first meeting using the calendar scheduler / 캘린더 스케줄러를 사용하여 첫 미팅을 예약하세요
+                    캘린더 스케줄러를 사용하여 첫 미팅을 예약하세요
                   </p>
                   <Button onClick={() => setActiveTab("scheduler")}>
                     <Plus className="mr-2 h-4 w-4" />
-                    Schedule Meeting / 미팅 예약
+                    미팅 예약
                   </Button>
                 </div>
               ) : (
@@ -194,18 +194,18 @@ export default function Scheduling() {
                       } else if (meeting.attendeeType === 'analyst' && analyst) {
                         return analyst.name;
                       } else if (meeting.attendeeType === 'other') {
-                        return 'Other / 기타';
+                        return '기타';
                       } else {
-                        return 'Other / 기타'; // fallback
+                        return '기타'; // fallback
                       }
                     };
 
                     const getAttendeeTypeLabel = () => {
                       switch (meeting.attendeeType) {
-                        case 'investor': return 'Investor / 투자자';
-                        case 'analyst': return 'Analyst / 애널리스트';
-                        case 'other': return 'Other / 기타';
-                        default: return 'Other / 기타';
+                        case 'investor': return '투자자';
+                        case 'analyst': return '애널리스트';
+                        case 'other': return '기타';
+                        default: return '기타';
                       }
                     };
 
@@ -247,7 +247,7 @@ export default function Scheduling() {
                             className="text-xs px-3 py-1"
                           >
                             <Eye className="mr-1 h-3 w-3" />
-                            View
+                            보기
                           </Button>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -258,14 +258,14 @@ export default function Scheduling() {
                             <DropdownMenuContent align="end">
                               <DropdownMenuItem onClick={() => handleEditMeeting(meeting)}>
                                 <Edit className="mr-2 h-4 w-4" />
-                                Edit / 편집
+                                편집
                               </DropdownMenuItem>
                               <DropdownMenuItem 
                                 onClick={() => handleDeleteMeeting(meeting.id)}
                                 className="text-red-600"
                               >
                                 <Trash2 className="mr-2 h-4 w-4" />
-                                Delete / 삭제
+                                삭제
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -283,7 +283,7 @@ export default function Scheduling() {
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Edit Meeting / 미팅 편집</DialogTitle>
+            <DialogTitle>미팅 편집</DialogTitle>
           </DialogHeader>
           <Form {...editForm}>
             <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-4">
@@ -293,7 +293,7 @@ export default function Scheduling() {
                   name="attendeeType"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Meeting Type / 미팅 유형</FormLabel>
+                      <FormLabel>미팅 유형</FormLabel>
                       <Select 
                         onValueChange={(value) => {
                           field.onChange(value);
@@ -304,13 +304,13 @@ export default function Scheduling() {
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select meeting type / 미팅 유형 선택" />
+                            <SelectValue placeholder="미팅 유형 선택" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="investor">Investor / 투자자</SelectItem>
-                          <SelectItem value="analyst">Analyst / 애널리스트</SelectItem>
-                          <SelectItem value="other">Other / 기타</SelectItem>
+                          <SelectItem value="investor">투자자</SelectItem>
+                          <SelectItem value="analyst">애널리스트</SelectItem>
+                          <SelectItem value="other">기타</SelectItem>
                         </SelectContent>
                       </Select>
                     </FormItem>
@@ -323,14 +323,14 @@ export default function Scheduling() {
                     name="investorId"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Select Investor / 투자자 선택</FormLabel>
+                        <FormLabel>투자자 선택</FormLabel>
                         <Select 
                           onValueChange={(value) => field.onChange(parseInt(value))}
                           value={field.value?.toString() || ""}
                         >
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Choose investor / 투자자를 선택하세요" />
+                              <SelectValue placeholder="투자자를 선택하세요" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
@@ -352,14 +352,14 @@ export default function Scheduling() {
                     name="analystId"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Select Analyst / 애널리스트 선택</FormLabel>
+                        <FormLabel>애널리스트 선택</FormLabel>
                         <Select 
                           onValueChange={(value) => field.onChange(parseInt(value))}
                           value={field.value?.toString() || ""}
                         >
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Choose analyst / 애널리스트를 선택하세요" />
+                              <SelectValue placeholder="애널리스트를 선택하세요" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
@@ -381,9 +381,9 @@ export default function Scheduling() {
                 name="title"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Meeting Title / 미팅 제목</FormLabel>
+                    <FormLabel>미팅 제목</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="Enter meeting title / 미팅 제목 입력" />
+                      <Input {...field} placeholder="미팅 제목 입력" />
                     </FormControl>
                   </FormItem>
                 )}
@@ -394,11 +394,11 @@ export default function Scheduling() {
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Description / 설명</FormLabel>
+                    <FormLabel>설명</FormLabel>
                     <FormControl>
                       <Textarea 
                         {...field} 
-                        placeholder="Meeting agenda or notes / 미팅 안건 또는 메모"
+                        placeholder="미팅 안건 또는 메모"
                         rows={3}
                       />
                     </FormControl>
@@ -408,10 +408,10 @@ export default function Scheduling() {
 
               <div className="flex justify-end space-x-2">
                 <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-                  Cancel / 취소
+                  취소
                 </Button>
                 <Button type="submit" disabled={updateMeetingMutation.isPending}>
-                  {updateMeetingMutation.isPending ? "Updating..." : "Update Meeting / 미팅 업데이트"}
+                  {updateMeetingMutation.isPending ? "업데이트 중..." : "미팅 업데이트"}
                 </Button>
               </div>
             </form>
@@ -422,16 +422,16 @@ export default function Scheduling() {
       <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
         <DialogContent className="sm:max-w-[750px]">
           <DialogHeader>
-            <DialogTitle>Meeting Details / 미팅 상세정보</DialogTitle>
+            <DialogTitle>미팅 상세정보</DialogTitle>
             <DialogDescription>
-              View meeting information / 미팅 정보 보기
+              미팅 정보 보기
             </DialogDescription>
           </DialogHeader>
           {viewingMeeting && (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <h4 className="text-sm font-medium text-gray-500 mb-1">Date / 날짜</h4>
+                  <h4 className="text-sm font-medium text-gray-500 mb-1">날짜</h4>
                   <p className="text-sm">
                     {new Date(viewingMeeting.scheduledDate).toLocaleDateString('ko-KR', {
                       year: 'numeric',
@@ -441,7 +441,7 @@ export default function Scheduling() {
                   </p>
                 </div>
                 <div>
-                  <h4 className="text-sm font-medium text-gray-500 mb-1">Time / 시간</h4>
+                  <h4 className="text-sm font-medium text-gray-500 mb-1">시간</h4>
                   <p className="text-sm">
                     {new Date(viewingMeeting.scheduledDate).toLocaleTimeString('en-US', {
                       hour: '2-digit',
@@ -452,7 +452,7 @@ export default function Scheduling() {
               </div>
 
               <div>
-                <h4 className="text-sm font-medium text-gray-500 mb-1">Attendee / 참석자</h4>
+                <h4 className="text-sm font-medium text-gray-500 mb-1">참석자</h4>
                 <div className="flex items-center space-x-2">
                   <p className="text-sm">
                     {(() => {
@@ -464,7 +464,7 @@ export default function Scheduling() {
                       } else if (viewingMeeting.attendeeType === 'analyst' && analyst) {
                         return analyst.name;
                       } else {
-                        return 'Other / 기타';
+                        return '기타';
                       }
                     })()}
                   </p>
@@ -483,14 +483,14 @@ export default function Scheduling() {
 
               {viewingMeeting.title && (
                 <div>
-                  <h4 className="text-sm font-medium text-gray-500 mb-1">Title / 제목</h4>
+                  <h4 className="text-sm font-medium text-gray-500 mb-1">제목</h4>
                   <p className="text-sm">{viewingMeeting.title}</p>
                 </div>
               )}
 
               {viewingMeeting.description && (
                 <div>
-                  <h4 className="text-sm font-medium text-gray-500 mb-1">Description / 설명</h4>
+                  <h4 className="text-sm font-medium text-gray-500 mb-1">설명</h4>
                   <div className="text-sm bg-gray-50 p-3 rounded-lg whitespace-pre-wrap">
                     {viewingMeeting.description}
                   </div>
@@ -498,7 +498,7 @@ export default function Scheduling() {
               )}
 
               <div>
-                <h4 className="text-sm font-medium text-gray-500 mb-1">Status / 상태</h4>
+                <h4 className="text-sm font-medium text-gray-500 mb-1">상태</h4>
                 <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(viewingMeeting.status)}`}>
                   {viewingMeeting.status}
                 </span>
@@ -506,13 +506,13 @@ export default function Scheduling() {
 
               <div className="flex justify-end space-x-2 pt-4">
                 <Button variant="outline" onClick={() => setIsViewDialogOpen(false)}>
-                  Close / 닫기
+                  닫기
                 </Button>
                 <Button onClick={() => {
                   setIsViewDialogOpen(false);
                   handleEditMeeting(viewingMeeting);
                 }}>
-                  Edit / 편집
+                  편집
                 </Button>
               </div>
             </div>
