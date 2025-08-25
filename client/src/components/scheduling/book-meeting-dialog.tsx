@@ -31,9 +31,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Clock, MapPin, Calendar as CalendarIcon } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Clock, MapPin, Calendar as CalendarIcon, Users } from "lucide-react";
 import { format } from "date-fns";
-import type { Investor, Analyst } from "@shared/schema";
+import type { Investor, Analyst, User } from "@shared/schema";
 
 interface BookMeetingDialogProps {
   open: boolean;
@@ -59,11 +60,16 @@ export function BookMeetingDialog({
     queryKey: ["/api/analysts"],
   });
 
+  const { data: users = [] } = useQuery<User[]>({
+    queryKey: ["/api/users"],
+  });
+
   const form = useForm<any>({
     defaultValues: {
       attendeeType: "investor",
       investorId: null,
       analystId: null,
+      assignedUserIds: [],
       title: "",
       description: "",
       scheduledDate: selectedDate || new Date(),
@@ -75,6 +81,7 @@ export function BookMeetingDialog({
   const watchedAttendeeType = form.watch("attendeeType");
   const watchedDate = form.watch("scheduledDate");
   const watchedTime = form.watch("scheduledTime");
+  const watchedAssignedUserIds = form.watch("assignedUserIds");
 
   // Reset form to correct defaults when dialog opens
   useEffect(() => {
@@ -83,6 +90,7 @@ export function BookMeetingDialog({
         attendeeType: "investor",
         investorId: null,
         analystId: null,
+        assignedUserIds: [],
         title: "",
         description: "",
         scheduledDate: selectedDate || new Date(),
@@ -107,6 +115,7 @@ export function BookMeetingDialog({
         attendeeType: "investor",
         investorId: null,
         analystId: null,
+        assignedUserIds: [],
         title: "",
         description: "",
         scheduledDate: selectedDate || new Date(),
@@ -246,6 +255,53 @@ export function BookMeetingDialog({
                 />
               )}
             </div>
+
+            {/* 미팅담당자 선택 섹션 */}
+            <FormField
+              control={form.control}
+              name="assignedUserIds"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="flex items-center gap-2">
+                    <Users className="h-4 w-4" />
+                    미팅담당자
+                  </FormLabel>
+                  <div className="grid grid-cols-2 gap-3 max-h-32 overflow-y-auto border rounded-md p-3">
+                    {users.map((user) => {
+                      const isSelected = field.value?.includes(user.id.toString()) || false;
+                      return (
+                        <div key={user.id} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`user-${user.id}`}
+                            checked={isSelected}
+                            onCheckedChange={(checked) => {
+                              const currentIds = field.value || [];
+                              if (checked) {
+                                field.onChange([...currentIds, user.id.toString()]);
+                              } else {
+                                field.onChange(currentIds.filter((id: string) => id !== user.id.toString()));
+                              }
+                            }}
+                          />
+                          <label
+                            htmlFor={`user-${user.id}`}
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                          >
+                            {user.name}
+                            {user.role && <span className="text-xs text-gray-500 ml-1">({user.role})</span>}
+                          </label>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {watchedAssignedUserIds?.length > 0 && (
+                    <p className="text-sm text-gray-600">
+                      선택된 담당자: {watchedAssignedUserIds.length}명
+                    </p>
+                  )}
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}
