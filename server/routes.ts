@@ -770,12 +770,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const data = insertOverseasCompanySchema.parse(req.body);
       const organizationId = 1; // TODO: Extract from auth context
-      console.log('Creating overseas company with organizationId:', organizationId);
-      console.log('Data:', { ...data, organizationId });
       const company = await storage.createOverseasCompany({ ...data, organizationId });
       res.status(201).json(company);
     } catch (error) {
-      console.error('Error creating overseas company:', error);
       res.status(400).json({ message: "Invalid overseas company data", error });
     }
   });
@@ -1300,29 +1297,73 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const finalOwnShares = ownSharesValue ? (ownSharesValue.toString().toLowerCase() === 'yes' || ownSharesValue.toString().toLowerCase() === 'true') : false;
           const finalShareAmount = (data.shareAmount || data['Share Amount'] || data['share amount'] || "").toString().trim();
 
-          // Find overseas company by name
+          // Find overseas company by name (with flexible matching)
           const organizationId = 1; // TODO: Extract from auth context
           const companies = await storage.getOverseasCompanies(organizationId);
           console.log(`Looking for company: "${finalCompanyName}" in:`, companies.map(c => c.name));
-          const company = companies.find(c => c.name.toLowerCase() === finalCompanyName.toLowerCase());
+          
+          // Try exact match first
+          let company = companies.find(c => c.name.toLowerCase() === finalCompanyName.toLowerCase());
+          
+          // If no exact match, try partial matching
+          if (!company) {
+            // Check if the CSV company name is contained in any registered company name
+            company = companies.find(c => 
+              c.name.toLowerCase().includes(finalCompanyName.toLowerCase()) ||
+              finalCompanyName.toLowerCase().includes(c.name.toLowerCase())
+            );
+          }
+          
+          // Special mappings for common abbreviations
+          if (!company) {
+            const companyMappings: Record<string, string> = {
+              'j.p. morgan am': 'J.P. Morgan Asset Management',
+              'jp morgan am': 'J.P. Morgan Asset Management',
+              'jpmorgan am': 'J.P. Morgan Asset Management',
+              'blackrock': 'BlackRock',
+              'fidelity': 'Fidelity International',
+              'abrdn': 'Abrdn'
+            };
+            
+            const mappedName = companyMappings[finalCompanyName.toLowerCase()];
+            if (mappedName) {
+              company = companies.find(c => c.name === mappedName);
+            }
+          }
+          
           if (!company) {
             errors.push(`줄 ${lineNumber}: 해외 운용사 "${finalCompanyName}"를 찾을 수 없습니다. 등록된 운용사: ${companies.map(c => c.name).join(', ')}`);
             continue;
           }
 
-          // Validate fund type
+          // Validate and normalize fund type
           const validTypes = ['Value', 'Growth', 'GARP', 'Index', 'Other'];
+          let normalizedType = finalType;
+          
+          // Try to map common type variations to our standard types
           if (!validTypes.includes(finalType)) {
-            errors.push(`Line ${lineNumber}: Invalid fund type "${finalType}". Must be one of: ${validTypes.join(', ')}`);
-            continue;
+            const typeLower = finalType.toLowerCase();
+            if (typeLower.includes('value')) {
+              normalizedType = 'Value';
+            } else if (typeLower.includes('growth')) {
+              normalizedType = 'Growth';
+            } else if (typeLower.includes('garp')) {
+              normalizedType = 'GARP';
+            } else if (typeLower.includes('index') || typeLower.includes('passive')) {
+              normalizedType = 'Index';
+            } else {
+              normalizedType = 'Other';
+            }
           }
+          
+          console.log(`Type mapping: "${finalType}" -> "${normalizedType}"`);
 
           const fundData = {
             organizationId,
             name: finalName,
             companyId: company.id,
             aum: finalAum,
-            type: finalType,
+            type: normalizedType,
             ownOurShares: finalOwnShares,
             shareAmount: finalOwnShares ? finalShareAmount : null
           };
