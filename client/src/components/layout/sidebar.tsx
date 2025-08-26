@@ -51,7 +51,7 @@ const navigation = [
     href: "/companies", 
     icon: Building,
     submenu: [
-      { name: "Funds / 펀드", href: "/funds", icon: Wallet }
+      { name: "펀드", href: "/funds", icon: Wallet }
     ]
   },
   { name: "투자자(해외)", href: "/overseas-investors", icon: Users },
