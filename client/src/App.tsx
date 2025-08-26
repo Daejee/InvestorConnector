@@ -14,6 +14,7 @@ import Email from "@/pages/email";
 import Documents from "@/pages/documents";
 import Reports from "@/pages/reports";
 import Funds from "@/pages/funds";
+import OverseasFunds from "@/pages/overseas-funds";
 import MeetingLogs from "@/pages/meeting-logs-clean";
 
 import NdrConferences from "@/pages/ndr-conferences";
@@ -39,6 +40,7 @@ function Router() {
         <Route path="/email" component={Email} />
         <Route path="/email-logs" component={EmailLogs} />
         <Route path="/funds" component={Funds} />
+        <Route path="/overseas-funds" component={OverseasFunds} />
         <Route path="/meeting-logs" component={MeetingLogs} />
         <Route path="/meetings" component={MeetingLogs} />
 

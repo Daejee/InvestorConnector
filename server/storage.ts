@@ -1,11 +1,11 @@
 import { 
-  investors, overseasInvestors, companies, overseasCompanies, investments, communications, meetings, funds, meetingLogs, ndrConferences, otherEvents, emailTemplates, emailCampaigns, analysts, documents, securitiesFirms, emailLogs, users, organizations,
+  investors, overseasInvestors, companies, overseasCompanies, investments, communications, meetings, funds, overseasFunds, meetingLogs, ndrConferences, otherEvents, emailTemplates, emailCampaigns, analysts, documents, securitiesFirms, emailLogs, users, organizations,
   type Investor, type InsertInvestor, type OverseasInvestor, type InsertOverseasInvestor,
   type Company, type InsertCompany, type OverseasCompany, type InsertOverseasCompany,
   type Investment, type InsertInvestment,
   type Communication, type InsertCommunication,
   type Meeting, type InsertMeeting,
-  type Fund, type InsertFund,
+  type Fund, type InsertFund, type OverseasFund, type InsertOverseasFund,
   type MeetingLog, type InsertMeetingLog,
   type NdrConference, type InsertNdrConference,
   type OtherEvent, type InsertOtherEvent,
@@ -91,6 +91,13 @@ export interface IStorage {
   createFund(fund: InsertFund): Promise<Fund>;
   updateFund(id: number, fund: Partial<InsertFund>): Promise<Fund | undefined>;
   deleteFund(id: number): Promise<boolean>;
+
+  // Overseas Funds
+  getOverseasFunds(organizationId: number): Promise<OverseasFund[]>;
+  getOverseasFund(id: number, organizationId: number): Promise<OverseasFund | undefined>;
+  createOverseasFund(fund: InsertOverseasFund, organizationId: number): Promise<OverseasFund>;
+  updateOverseasFund(id: number, fund: Partial<InsertOverseasFund>, organizationId: number): Promise<OverseasFund | undefined>;
+  deleteOverseasFund(id: number, organizationId: number): Promise<boolean>;
 
   // Meeting Logs
   getMeetingLogs(): Promise<MeetingLog[]>;
@@ -508,6 +515,39 @@ export class DatabaseStorage implements IStorage {
 
   async deleteFund(id: number): Promise<boolean> {
     const result = await db.delete(funds).where(eq(funds.id, id));
+    return result.rowCount! > 0;
+  }
+
+  // Overseas Funds
+  async getOverseasFunds(organizationId: number): Promise<OverseasFund[]> {
+    return await db.select().from(overseasFunds).where(eq(overseasFunds.organizationId, organizationId));
+  }
+
+  async getOverseasFund(id: number, organizationId: number): Promise<OverseasFund | undefined> {
+    const [fund] = await db.select().from(overseasFunds).where(eq(overseasFunds.id, id)).where(eq(overseasFunds.organizationId, organizationId));
+    return fund || undefined;
+  }
+
+  async createOverseasFund(insertFund: InsertOverseasFund, organizationId: number): Promise<OverseasFund> {
+    const [fund] = await db
+      .insert(overseasFunds)
+      .values({ ...insertFund, organizationId })
+      .returning();
+    return fund;
+  }
+
+  async updateOverseasFund(id: number, updateData: Partial<InsertOverseasFund>, organizationId: number): Promise<OverseasFund | undefined> {
+    const [fund] = await db
+      .update(overseasFunds)
+      .set(updateData)
+      .where(eq(overseasFunds.id, id))
+      .where(eq(overseasFunds.organizationId, organizationId))
+      .returning();
+    return fund || undefined;
+  }
+
+  async deleteOverseasFund(id: number, organizationId: number): Promise<boolean> {
+    const result = await db.delete(overseasFunds).where(eq(overseasFunds.id, id)).where(eq(overseasFunds.organizationId, organizationId));
     return result.rowCount! > 0;
   }
 

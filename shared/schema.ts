@@ -205,6 +205,18 @@ export const funds = pgTable("funds", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const overseasFunds = pgTable("overseas_funds", {
+  id: serial("id").primaryKey(),
+  organizationId: integer("organization_id").references(() => organizations.id), // 기업별 격리
+  name: text("name").notNull(),
+  companyId: integer("company_id").references(() => overseasCompanies.id).notNull(),
+  aum: text("aum").notNull(), // Store as string to handle large numbers
+  type: text("type").notNull(), // Value, Growth, GARP, Other
+  ownOurShares: boolean("own_our_shares").notNull().default(false),
+  shareAmount: text("share_amount"), // Optional, only when ownOurShares is true
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const meetingLogs = pgTable("meeting_logs", {
   id: serial("id").primaryKey(),
   organizationId: integer("organization_id").references(() => organizations.id), // 기업별 격리
@@ -344,6 +356,11 @@ export const insertFundSchema = createInsertSchema(funds).omit({
   createdAt: true,
 });
 
+export const insertOverseasFundSchema = createInsertSchema(overseasFunds).omit({
+  id: true,
+  createdAt: true,
+});
+
 export const insertMeetingLogSchema = createInsertSchema(meetingLogs).omit({
   id: true,
   createdAt: true,
@@ -422,6 +439,9 @@ export type Meeting = typeof meetings.$inferSelect;
 
 export type InsertFund = z.infer<typeof insertFundSchema>;
 export type Fund = typeof funds.$inferSelect;
+
+export type InsertOverseasFund = z.infer<typeof insertOverseasFundSchema>;
+export type OverseasFund = typeof overseasFunds.$inferSelect;
 
 export type InsertMeetingLog = z.infer<typeof insertMeetingLogSchema>;
 export type MeetingLog = typeof meetingLogs.$inferSelect;

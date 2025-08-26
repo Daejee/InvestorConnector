@@ -55,7 +55,14 @@ const navigation = [
     ]
   },
   { name: "투자자(해외)", href: "/overseas-investors", icon: Users },
-  { name: "자산운용사(해외)", href: "/overseas-companies", icon: Building },
+  { 
+    name: "자산운용사(해외)", 
+    href: "/overseas-companies", 
+    icon: Building,
+    submenu: [
+      { name: "해외펀드", href: "/overseas-funds", icon: Wallet }
+    ]
+  },
   { name: "애널리스트/브로커", href: "/analysts", icon: Users },
   { name: "증권사", href: "/securities-firms", icon: Building },
 ];

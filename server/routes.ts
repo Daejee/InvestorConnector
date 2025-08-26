@@ -13,6 +13,7 @@ import {
   insertCommunicationSchema,
   insertMeetingSchema,
   insertFundSchema,
+  insertOverseasFundSchema,
   insertMeetingLogSchema,
   insertNdrConferenceSchema,
   insertOtherEventSchema,
@@ -1163,6 +1164,183 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.status(201).json({ 
         message: `Successfully imported ${createdFunds.length} funds`,
+        funds: createdFunds 
+      });
+
+    } catch (error) {
+      console.error('CSV upload error:', error);
+      res.status(500).json({ 
+        message: "Failed to process CSV file", 
+        error: error instanceof Error ? error.message : 'Unknown error' 
+      });
+    }
+  });
+
+  // Overseas Funds routes
+  app.get("/api/overseas-funds", async (req, res) => {
+    const organizationId = 1; // TODO: Extract from auth context
+    const funds = await storage.getOverseasFunds(organizationId);
+    res.json(funds);
+  });
+
+  app.get("/api/overseas-funds/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    const organizationId = 1; // TODO: Extract from auth context
+    const fund = await storage.getOverseasFund(id, organizationId);
+    if (!fund) {
+      return res.status(404).json({ message: "Overseas fund not found" });
+    }
+    res.json(fund);
+  });
+
+  app.post("/api/overseas-funds", async (req, res) => {
+    try {
+      const data = insertOverseasFundSchema.parse(req.body);
+      const organizationId = 1; // TODO: Extract from auth context
+      const fund = await storage.createOverseasFund(data, organizationId);
+      res.status(201).json(fund);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid overseas fund data", error });
+    }
+  });
+
+  app.put("/api/overseas-funds/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const data = insertOverseasFundSchema.parse(req.body);
+      const organizationId = 1; // TODO: Extract from auth context
+      const fund = await storage.updateOverseasFund(id, data, organizationId);
+      if (!fund) {
+        return res.status(404).json({ message: "Overseas fund not found" });
+      }
+      res.json(fund);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid overseas fund data", error });
+    }
+  });
+
+  app.delete("/api/overseas-funds/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    const organizationId = 1; // TODO: Extract from auth context
+    const success = await storage.deleteOverseasFund(id, organizationId);
+    if (!success) {
+      return res.status(404).json({ message: "Overseas fund not found" });
+    }
+    res.status(204).send();
+  });
+
+  app.post("/api/overseas-funds/upload-csv", upload.single('file'), async (req, res) => {
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
+
+    try {
+      const csvData: any[] = [];
+      const errors: string[] = [];
+      const results: any[] = [];
+      let lineNumber = 1;
+
+      // Parse CSV from buffer
+      const stream = Readable.from(req.file.buffer.toString());
+      
+      await new Promise((resolve, reject) => {
+        stream
+          .pipe(csvParser())
+          .on('data', (data) => {
+            csvData.push(data);
+          })
+          .on('end', () => {
+            resolve(csvData);
+          })
+          .on('error', reject);
+      });
+
+      // Process each row
+      for (const data of csvData) {
+        lineNumber++;
+        
+        try {
+          // Check which required fields are missing
+          const missingFields = [];
+          
+          const nameValue = data.name || data.Name || data['Fund Name'] || data['fund name'];
+          if (!nameValue || nameValue.toString().trim() === '') missingFields.push('name');
+          
+          const companyValue = data.company || data.Company || data['Company Name'] || data['company name'];
+          if (!companyValue || companyValue.toString().trim() === '') missingFields.push('company');
+          
+          const aumFieldValue = data.aum || data.AUM || data['AUM (Billion USD)'] || data['aum (billion usd)'];
+          if (!aumFieldValue || aumFieldValue.toString().trim() === '') missingFields.push('aum');
+          
+          const typeValue = data.type || data.Type || data['Fund Type'] || data['fund type'];
+          if (!typeValue || typeValue.toString().trim() === '') missingFields.push('type');
+          
+          const ownSharesValue = data.ownOurShares || data['Own Our Shares'] || data['own our shares'] || data.ownShares;
+
+          if (missingFields.length > 0) {
+            errors.push(`Line ${lineNumber}: Missing required fields: ${missingFields.join(', ')}`);
+            continue;
+          }
+
+          const finalName = nameValue.toString().trim();
+          const finalCompanyName = companyValue.toString().trim();
+          const finalType = typeValue.toString().trim();
+          const finalAum = aumFieldValue.toString().trim();
+          const finalOwnShares = ownSharesValue ? (ownSharesValue.toString().toLowerCase() === 'yes' || ownSharesValue.toString().toLowerCase() === 'true') : false;
+          const finalShareAmount = (data.shareAmount || data['Share Amount'] || data['share amount'] || "").toString().trim();
+
+          // Find overseas company by name
+          const organizationId = 1; // TODO: Extract from auth context
+          const companies = await storage.getOverseasCompanies(organizationId);
+          const company = companies.find(c => c.name.toLowerCase() === finalCompanyName.toLowerCase());
+          if (!company) {
+            errors.push(`Line ${lineNumber}: Overseas company "${finalCompanyName}" not found`);
+            continue;
+          }
+
+          // Validate fund type
+          const validTypes = ['Value', 'Growth', 'GARP', 'Index', 'Other'];
+          if (!validTypes.includes(finalType)) {
+            errors.push(`Line ${lineNumber}: Invalid fund type "${finalType}". Must be one of: ${validTypes.join(', ')}`);
+            continue;
+          }
+
+          const fundData = {
+            organizationId,
+            name: finalName,
+            companyId: company.id,
+            aum: finalAum,
+            type: finalType,
+            ownOurShares: finalOwnShares,
+            shareAmount: finalOwnShares ? finalShareAmount : null
+          };
+
+          results.push(fundData);
+
+        } catch (err) {
+          console.error('Error processing row:', err);
+          errors.push(`Line ${lineNumber}: Failed to process row - ${err instanceof Error ? err.message : 'Unknown error'}`);
+        }
+      }
+
+      // Return errors if any
+      if (errors.length > 0) {
+        return res.status(400).json({ 
+          message: "CSV validation failed", 
+          errors: errors.slice(0, 10), // Limit to first 10 errors
+          totalErrors: errors.length
+        });
+      }
+
+      // Create all funds
+      const createdFunds = [];
+      for (const fundData of results) {
+        const fund = await storage.createOverseasFund(fundData, fundData.organizationId);
+        createdFunds.push(fund);
+      }
+
+      res.status(201).json({ 
+        message: `Successfully imported ${createdFunds.length} overseas funds`,
         funds: createdFunds 
       });
 
