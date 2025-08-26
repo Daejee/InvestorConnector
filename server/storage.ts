@@ -47,7 +47,7 @@ export interface IStorage {
   deleteCompany(id: number, organizationId: number): Promise<boolean>;
 
   // Overseas Companies
-  getOverseasCompanies(): Promise<OverseasCompany[]>;
+  getOverseasCompanies(organizationId: number): Promise<OverseasCompany[]>;
   getOverseasCompany(id: number): Promise<OverseasCompany | undefined>;
   createOverseasCompany(company: InsertOverseasCompany): Promise<OverseasCompany>;
   updateOverseasCompany(id: number, company: Partial<InsertOverseasCompany>): Promise<OverseasCompany | undefined>;
@@ -301,8 +301,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Overseas Companies
-  async getOverseasCompanies(): Promise<OverseasCompany[]> {
-    return await db.select().from(overseasCompanies).where(eq(overseasCompanies.status, 'active'));
+  async getOverseasCompanies(organizationId: number): Promise<OverseasCompany[]> {
+    return await db.select().from(overseasCompanies).where(eq(overseasCompanies.organizationId, organizationId));
   }
 
   async getOverseasCompany(id: number): Promise<OverseasCompany | undefined> {

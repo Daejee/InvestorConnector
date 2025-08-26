@@ -752,7 +752,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Overseas Companies routes
   app.get("/api/overseas-companies", async (req, res) => {
-    const companies = await storage.getOverseasCompanies();
+    const organizationId = 1; // TODO: Extract from auth context
+    const companies = await storage.getOverseasCompanies(organizationId);
     res.json(companies);
   });
 
@@ -768,9 +769,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/overseas-companies", async (req, res) => {
     try {
       const data = insertOverseasCompanySchema.parse(req.body);
-      const company = await storage.createOverseasCompany(data);
+      const organizationId = 1; // TODO: Extract from auth context
+      console.log('Creating overseas company with organizationId:', organizationId);
+      console.log('Data:', { ...data, organizationId });
+      const company = await storage.createOverseasCompany({ ...data, organizationId });
       res.status(201).json(company);
     } catch (error) {
+      console.error('Error creating overseas company:', error);
       res.status(400).json({ message: "Invalid overseas company data", error });
     }
   });
@@ -1255,30 +1260,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
           .on('error', reject);
       });
 
+      console.log('CSV Data Preview:', csvData.slice(0, 2));
+      console.log('Available companies:', (await storage.getOverseasCompanies(1)).map(c => c.name));
+
       // Process each row
       for (const data of csvData) {
         lineNumber++;
         
         try {
+          console.log(`Processing line ${lineNumber}:`, data);
+          
           // Check which required fields are missing
           const missingFields = [];
           
           const nameValue = data.name || data.Name || data['Fund Name'] || data['fund name'];
-          if (!nameValue || nameValue.toString().trim() === '') missingFields.push('name');
+          if (!nameValue || nameValue.toString().trim() === '') missingFields.push('name (Fund Name)');
           
           const companyValue = data.company || data.Company || data['Company Name'] || data['company name'];
-          if (!companyValue || companyValue.toString().trim() === '') missingFields.push('company');
+          if (!companyValue || companyValue.toString().trim() === '') missingFields.push('company (Company)');
           
           const aumFieldValue = data.aum || data.AUM || data['AUM (Billion USD)'] || data['aum (billion usd)'];
-          if (!aumFieldValue || aumFieldValue.toString().trim() === '') missingFields.push('aum');
+          if (!aumFieldValue || aumFieldValue.toString().trim() === '') missingFields.push('aum (AUM)');
           
           const typeValue = data.type || data.Type || data['Fund Type'] || data['fund type'];
-          if (!typeValue || typeValue.toString().trim() === '') missingFields.push('type');
+          if (!typeValue || typeValue.toString().trim() === '') missingFields.push('type (Type)');
           
           const ownSharesValue = data.ownOurShares || data['Own Our Shares'] || data['own our shares'] || data.ownShares;
 
           if (missingFields.length > 0) {
-            errors.push(`Line ${lineNumber}: Missing required fields: ${missingFields.join(', ')}`);
+            console.log(`Line ${lineNumber} missing fields:`, missingFields);
+            errors.push(`줄 ${lineNumber}: 필수 필드 누락: ${missingFields.join(', ')}`);
             continue;
           }
 
@@ -1292,9 +1303,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Find overseas company by name
           const organizationId = 1; // TODO: Extract from auth context
           const companies = await storage.getOverseasCompanies(organizationId);
+          console.log(`Looking for company: "${finalCompanyName}" in:`, companies.map(c => c.name));
           const company = companies.find(c => c.name.toLowerCase() === finalCompanyName.toLowerCase());
           if (!company) {
-            errors.push(`Line ${lineNumber}: Overseas company "${finalCompanyName}" not found`);
+            errors.push(`줄 ${lineNumber}: 해외 운용사 "${finalCompanyName}"를 찾을 수 없습니다. 등록된 운용사: ${companies.map(c => c.name).join(', ')}`);
             continue;
           }
 
