@@ -162,15 +162,6 @@ export default function InvestorInsights() {
         <div className="flex flex-col gap-4">
           <div className="flex gap-2">
             <Button 
-              onClick={() => generateWeeklyInsight(1)}
-              disabled={isGenerating}
-              variant="outline"
-              size="sm"
-            >
-              {isGenerating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Brain className="h-4 w-4 mr-2" />}
-              지난주 분석
-            </Button>
-            <Button 
               onClick={() => generateWeeklyInsight(0)}
               disabled={isGenerating}
               size="sm"
