@@ -347,7 +347,7 @@ export const insertMeetingSchema = createInsertSchema(meetings).omit({
   analystId: z.number().optional().nullable(),
   ndrConferenceId: z.number().optional().nullable(),
   assignedUserIds: z.array(z.string()).optional().nullable(),
-  meetingCategory: z.enum(["내방", "Conference Call", "국내CorpDay", "국내NDR", "해외CorpDay", "해외NDR", "기타"]).optional(),
+  meetingCategory: z.enum(["내방", "Conference Call", "실적발표회 Earnings Call", "국내CorpDay", "국내NDR", "해외CorpDay", "해외NDR", "기타"]).optional(),
   location: z.string().optional(),
 });
 

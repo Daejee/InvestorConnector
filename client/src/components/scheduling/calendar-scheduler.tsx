@@ -109,6 +109,7 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
         investorIds: data.attendeeType === "investor" ? data.investorIds : null,
         analystIds: data.attendeeType === "analyst" ? data.analystIds : null,
         status: isPastMeeting ? "completed" : "scheduled",
+        title: data.title || data.meetingCategory || "미팅", // Use category as title if title is empty
       };
       
       console.log("Form data being submitted:", formattedData);
