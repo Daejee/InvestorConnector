@@ -139,77 +139,77 @@ export default function InvestorInsights() {
     tempDiv.style.fontFamily = 'Malgun Gothic, 맑은 고딕, sans-serif';
     
     tempDiv.innerHTML = `
-      <div style="padding: 40px; line-height: 1.6; color: #333;">
-        <div style="text-align: center; border-bottom: 3px solid #2563eb; padding-bottom: 20px; margin-bottom: 30px;">
-          <h1 style="color: #1e40af; font-size: 28px; margin: 0; font-weight: bold;">📊 투자자 인사이트 보고서</h1>
-          <div style="color: #64748b; font-size: 16px; margin-top: 8px;">Investor Relations Intelligence Report</div>
+      <div style="padding: 40px; line-height: 1.8; color: #333; font-size: 14px;">
+        <div style="text-align: center; border-bottom: 3px solid #2563eb; padding-bottom: 25px; margin-bottom: 40px;">
+          <h1 style="color: #1e40af; font-size: 32px; margin: 0; font-weight: bold; letter-spacing: -0.5px;">📊 투자자 인사이트 보고서</h1>
+          <div style="color: #64748b; font-size: 18px; margin-top: 12px; font-weight: 500;">Investor Relations Intelligence Report</div>
         </div>
         
-        <div style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); padding: 20px; border-radius: 12px; margin-bottom: 30px; border-left: 5px solid #2563eb;">
-          <table style="width: 100%; border-collapse: collapse;">
+        <div style="background: #f8fafc; padding: 25px; border-radius: 8px; margin-bottom: 40px; border: 1px solid #e2e8f0;">
+          <table style="width: 100%; border-collapse: collapse; font-size: 15px;">
             <tr>
-              <td style="padding: 8px 12px; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #475569; width: 120px;">📅 분석 기간</td>
-              <td style="padding: 8px 12px; border-bottom: 1px solid #e2e8f0; color: #1e293b;">${formatDate(insight.weekStartDate)} ~ ${formatDate(insight.weekEndDate)}</td>
+              <td style="padding: 12px 0; font-weight: 600; color: #374151; width: 140px; vertical-align: top;">📅 분석 기간</td>
+              <td style="padding: 12px 0; color: #1f2937; font-weight: 500;">${formatDate(insight.weekStartDate)} ~ ${formatDate(insight.weekEndDate)}</td>
             </tr>
             <tr>
-              <td style="padding: 8px 12px; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #475569;">📈 분석 미팅 수</td>
-              <td style="padding: 8px 12px; border-bottom: 1px solid #e2e8f0; color: #1e293b;">${insight.meetingCount}개</td>
+              <td style="padding: 12px 0; font-weight: 600; color: #374151; vertical-align: top;">📈 분석 미팅 수</td>
+              <td style="padding: 12px 0; color: #1f2937; font-weight: 500;">${insight.meetingCount}개</td>
             </tr>
             <tr>
-              <td style="padding: 8px 12px; font-weight: bold; color: #475569;">🕒 생성 일시</td>
-              <td style="padding: 8px 12px; color: #1e293b;">${format(new Date(insight.generatedAt), 'yyyy년 MM월 dd일 HH:mm', { locale: ko })}</td>
+              <td style="padding: 12px 0; font-weight: 600; color: #374151; vertical-align: top;">🕒 생성 일시</td>
+              <td style="padding: 12px 0; color: #1f2937; font-weight: 500;">${format(new Date(insight.generatedAt), 'yyyy년 MM월 dd일 HH:mm', { locale: ko })}</td>
             </tr>
           </table>
         </div>
         
-        <div style="margin-bottom: 30px; background-color: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
-          <div style="padding: 16px 24px; font-weight: bold; font-size: 18px; color: white; background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);">
+        <div style="margin-bottom: 35px; border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb;">
+          <div style="padding: 18px 24px; font-weight: 700; font-size: 16px; color: white; background: #1e40af; letter-spacing: -0.3px;">
             👥 미팅 요약
           </div>
-          <div style="padding: 24px; font-size: 14px; line-height: 1.7; white-space: pre-wrap;">
-${insight.meetingSummary || '미팅 요약 정보가 없습니다.'}
+          <div style="padding: 24px; font-size: 14px; line-height: 1.7; background: #fff; text-align: justify; word-break: keep-all;">
+${insight.meetingSummary ? insight.meetingSummary.split('.').map(sentence => sentence.trim()).filter(s => s).map(s => `• ${s}.`).join('\n') : '• 미팅 요약 정보가 없습니다.'}
           </div>
         </div>
         
-        <div style="margin-bottom: 30px; background-color: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
-          <div style="padding: 16px 24px; font-weight: bold; font-size: 18px; color: white; background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);">
+        <div style="margin-bottom: 35px; border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb;">
+          <div style="padding: 18px 24px; font-weight: 700; font-size: 16px; color: white; background: #2563eb; letter-spacing: -0.3px;">
             🎯 투자가 공통관심사
           </div>
-          <div style="padding: 24px; font-size: 14px; line-height: 1.7; white-space: pre-wrap;">
-${insight.commonInterests}
+          <div style="padding: 24px; font-size: 14px; line-height: 1.7; background: #fff; text-align: justify; word-break: keep-all;">
+${insight.commonInterests ? insight.commonInterests.split('.').map(sentence => sentence.trim()).filter(s => s).map(s => `• ${s}.`).join('\n') : '• 공통관심사 정보가 없습니다.'}
           </div>
         </div>
         
-        <div style="margin-bottom: 30px; background-color: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
-          <div style="padding: 16px 24px; font-weight: bold; font-size: 18px; color: white; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">
+        <div style="margin-bottom: 35px; border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb;">
+          <div style="padding: 18px 24px; font-weight: 700; font-size: 16px; color: white; background: #3b82f6; letter-spacing: -0.3px;">
             👍 긍정피드백 요약
           </div>
-          <div style="padding: 24px; font-size: 14px; line-height: 1.7; white-space: pre-wrap;">
-${insight.positiveFeedback}
+          <div style="padding: 24px; font-size: 14px; line-height: 1.7; background: #fff; text-align: justify; word-break: keep-all;">
+${insight.positiveFeedback ? insight.positiveFeedback.split('.').map(sentence => sentence.trim()).filter(s => s).map(s => `• ${s}.`).join('\n') : '• 긍정피드백 정보가 없습니다.'}
           </div>
         </div>
         
-        <div style="margin-bottom: 30px; background-color: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
-          <div style="padding: 16px 24px; font-weight: bold; font-size: 18px; color: white; background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);">
+        <div style="margin-bottom: 35px; border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb;">
+          <div style="padding: 18px 24px; font-weight: 700; font-size: 16px; color: white; background: #60a5fa; letter-spacing: -0.3px;">
             ⚠️ 우려사항/리스크
           </div>
-          <div style="padding: 24px; font-size: 14px; line-height: 1.7; white-space: pre-wrap;">
-${insight.concerns}
+          <div style="padding: 24px; font-size: 14px; line-height: 1.7; background: #fff; text-align: justify; word-break: keep-all;">
+${insight.concerns ? insight.concerns.split('.').map(sentence => sentence.trim()).filter(s => s).map(s => `• ${s}.`).join('\n') : '• 우려사항 정보가 없습니다.'}
           </div>
         </div>
         
-        <div style="margin-bottom: 30px; background-color: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
-          <div style="padding: 16px 24px; font-weight: bold; font-size: 18px; color: white; background: linear-gradient(135deg, #93c5fd 0%, #60a5fa 100%);">
+        <div style="margin-bottom: 35px; border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb;">
+          <div style="padding: 18px 24px; font-weight: 700; font-size: 16px; color: white; background: #93c5fd; letter-spacing: -0.3px;">
             📋 향후 Follow-up 권고
           </div>
-          <div style="padding: 24px; font-size: 14px; line-height: 1.7; white-space: pre-wrap;">
-${insight.followUpRecommendations}
+          <div style="padding: 24px; font-size: 14px; line-height: 1.7; background: #fff; text-align: justify; word-break: keep-all;">
+${insight.followUpRecommendations ? insight.followUpRecommendations.split('.').map(sentence => sentence.trim()).filter(s => s).map(s => `• ${s}.`).join('\n') : '• Follow-up 권고사항이 없습니다.'}
           </div>
         </div>
         
-        <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 2px solid #e2e8f0; color: #64748b; font-size: 12px;">
-          <div>🚀 IR CRM 시스템에서 생성됨</div>
-          <div style="margin-top: 5px;">Powered by AI Intelligence & Data Analytics</div>
+        <div style="text-align: center; margin-top: 50px; padding-top: 25px; border-top: 2px solid #e2e8f0; color: #6b7280; font-size: 12px;">
+          <div style="font-weight: 500;">🚀 IR CRM 시스템에서 생성됨</div>
+          <div style="margin-top: 8px; font-weight: 400;">Powered by AI Intelligence & Data Analytics</div>
         </div>
       </div>
     `;
