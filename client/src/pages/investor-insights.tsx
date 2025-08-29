@@ -180,8 +180,8 @@ export default function InvestorInsights() {
             </Button>
           </div>
           
-          <div className="flex items-end gap-2">
-            <div className="grid grid-cols-2 gap-2">
+          <div className="flex items-end gap-3">
+            <div className="flex gap-3">
               <div>
                 <Label htmlFor="start-date" className="text-sm text-muted-foreground">시작일</Label>
                 <Input
@@ -189,7 +189,7 @@ export default function InvestorInsights() {
                   type="date"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
-                  className="w-36"
+                  className="w-40"
                 />
               </div>
               <div>
@@ -199,7 +199,7 @@ export default function InvestorInsights() {
                   type="date"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
-                  className="w-36"
+                  className="w-40"
                 />
               </div>
             </div>
@@ -207,6 +207,7 @@ export default function InvestorInsights() {
               onClick={generateCustomPeriodInsight}
               disabled={isGenerating}
               variant="default"
+              className="whitespace-nowrap"
             >
               {isGenerating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <CalendarDays className="h-4 w-4 mr-2" />}
               기간 분석
