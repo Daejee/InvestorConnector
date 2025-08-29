@@ -943,6 +943,14 @@ export class DatabaseStorage implements IStorage {
     );
   }
 
+  async getMeetingsForPeriod(startDate: string, endDate: string, organizationId: number): Promise<Meeting[]> {
+    return await db.select().from(meetings).where(
+      sql`${meetings.organizationId} = ${organizationId} 
+          AND ${meetings.scheduledDate} >= ${startDate} 
+          AND ${meetings.scheduledDate} <= ${endDate}`
+    );
+  }
+
 }
 
 export const storage = new DatabaseStorage();

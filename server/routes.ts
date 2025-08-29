@@ -2941,7 +2941,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const endDate = today.toISOString().split('T')[0];
 
       // Get meetings for the last 30 days
-      const meetings = await storage.getMeetingsForWeek(startDate, endDate, organizationId);
+      const meetings = await storage.getMeetingsForPeriod(startDate, endDate, organizationId);
       const documents = await storage.getDocuments(); // TODO: Filter by date range if needed
       const investors = await storage.getInvestors(organizationId);
       
