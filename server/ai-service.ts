@@ -1,7 +1,7 @@
 import OpenAI from "openai";
 import type { Meeting, Document } from "@shared/schema";
 
-// the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
+// Using GPT-4o which is the current latest stable model from OpenAI
 const openai = new OpenAI({ 
   apiKey: process.env.OPENAI_API_KEY 
 });
@@ -33,7 +33,7 @@ export class AIService {
     
     try {
       const response = await openai.chat.completions.create({
-        model: "gpt-5",
+        model: "gpt-4o",
         messages: [
           {
             role: "system",
@@ -65,9 +65,28 @@ JSON 형식으로 응답하세요: {"commonInterests": "내용", "positiveFeedba
         followUpRecommendations: result.followUpRecommendations || "분석 결과를 가져올 수 없습니다."
       };
       
-    } catch (error) {
-      console.error('AI 분석 오류:', error);
-      throw new Error('AI 분석 중 오류가 발생했습니다.');
+    } catch (error: any) {
+      console.error('AI 분석 오류:', {
+        message: error.message,
+        stack: error.stack,
+        status: error.status,
+        response: error.response?.data,
+        type: error.type,
+        code: error.code
+      });
+      
+      // More specific error messages based on error type
+      if (error.code === 'invalid_api_key') {
+        throw new Error('OpenAI API 키가 유효하지 않습니다.');
+      } else if (error.code === 'model_not_found') {
+        throw new Error('요청한 AI 모델을 찾을 수 없습니다.');
+      } else if (error.code === 'insufficient_quota') {
+        throw new Error('OpenAI API 사용 할당량을 초과했습니다.');
+      } else if (error.message?.includes('network') || error.code === 'ENOTFOUND') {
+        throw new Error('네트워크 연결 오류가 발생했습니다.');
+      } else {
+        throw new Error(`AI 분석 중 오류가 발생했습니다: ${error.message || '알 수 없는 오류'}`);
+      }
     }
   }
 
