@@ -223,11 +223,11 @@ export default function InvestorInsights() {
             white-space: pre-wrap;
         }
         
-        .meeting-summary { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); }
-        .common-interests { background: linear-gradient(135deg, #10b981 0%, #047857 100%); }
-        .positive-feedback { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
-        .concerns { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
-        .follow-up { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); }
+        .meeting-summary { background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%); }
+        .common-interests { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); }
+        .positive-feedback { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
+        .concerns { background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%); }
+        .follow-up { background: linear-gradient(135deg, #93c5fd 0%, #60a5fa 100%); }
         
         .footer {
             text-align: center;
@@ -492,7 +492,7 @@ ${insight.followUpRecommendations}
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => downloadAsDoc(insight)}
+                              onClick={() => downloadAsPDF(insight)}
                               className="flex items-center gap-2"
                             >
                               <FileText className="h-4 w-4" />
