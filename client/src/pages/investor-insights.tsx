@@ -129,22 +129,30 @@ export default function InvestorInsights() {
   const generateExpectedQuestions = async () => {
     setIsGeneratingQuestions(true);
     try {
-      const response = await apiRequest('/api/investor-insights/expected-questions', { 
-        method: 'POST' 
-      }) as { expectedQuestions: string[] };
+      const response = await fetch('/api/investor-insights/expected-questions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
       
-      console.log('Full API Response:', response);
-      console.log('Expected Questions Array:', response.expectedQuestions);
-      console.log('Is Array?', Array.isArray(response.expectedQuestions));
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       
-      if (response && response.expectedQuestions && Array.isArray(response.expectedQuestions)) {
-        setExpectedQuestions(response.expectedQuestions);
+      const data = await response.json();
+      console.log('Full API Response:', data);
+      console.log('Expected Questions Array:', data.expectedQuestions);
+      console.log('Is Array?', Array.isArray(data.expectedQuestions));
+      
+      if (data && data.expectedQuestions && Array.isArray(data.expectedQuestions)) {
+        setExpectedQuestions(data.expectedQuestions);
         toast({
           title: "예상질문 생성 완료",
-          description: `${response.expectedQuestions.length}개의 예상 질문이 생성되었습니다.`,
+          description: `${data.expectedQuestions.length}개의 예상 질문이 생성되었습니다.`,
         });
       } else {
-        console.error('Invalid response structure:', response);
+        console.error('Invalid response structure:', data);
         toast({
           title: "예상질문 생성 실패",
           description: "올바른 형식의 예상질문을 받지 못했습니다.",
