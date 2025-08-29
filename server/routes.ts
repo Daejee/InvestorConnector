@@ -2927,6 +2927,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Expected Questions API endpoint
+  app.post("/api/investor-insights/expected-questions", async (req, res) => {
+    try {
+      const organizationId = 1; // TODO: Extract from auth context
+      
+      // Get meetings from the last 30 days
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      const today = new Date();
+      
+      const startDate = thirtyDaysAgo.toISOString().split('T')[0];
+      const endDate = today.toISOString().split('T')[0];
+
+      // Get meetings for the last 30 days
+      const meetings = await storage.getMeetingsForWeek(startDate, endDate, organizationId);
+      const documents = await storage.getDocuments(); // TODO: Filter by date range if needed
+      const investors = await storage.getInvestors(organizationId);
+      
+      // Generate expected questions with AI
+      const analysis = await aiService.generateExpectedQuestions({
+        meetings,
+        documents: documents.filter(doc => 
+          doc.createdAt && doc.createdAt >= thirtyDaysAgo && doc.createdAt <= today
+        ),
+        investors
+      });
+
+      res.json(analysis);
+    } catch (error: any) {
+      console.error('예상질문 생성 오류:', error);
+      res.status(500).json({ 
+        message: "예상질문 생성 중 오류가 발생했습니다.", 
+        error: error.message 
+      });
+    }
+  });
+
 
   const httpServer = createServer(app);
   return httpServer;

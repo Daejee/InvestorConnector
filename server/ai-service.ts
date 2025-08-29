@@ -20,6 +20,10 @@ interface InvestorInsightAnalysis {
   meetingSummary: string;
 }
 
+interface ExpectedQuestionsAnalysis {
+  expectedQuestions: string[];
+}
+
 export class AIService {
   async analyzeWeeklyMeetings(data: WeeklyMeetingData): Promise<InvestorInsightAnalysis> {
     if (data.meetings.length === 0) {
@@ -190,6 +194,137 @@ JSON 형식으로 응답하세요: {"meetingSummary": "내용", "commonInterests
     }
 
     context += `\n미팅 요약 생성 시 실제 투자자 이름과 소속 기관을 정확히 포함해주세요.`;
+
+    return context;
+  }
+
+  async generateExpectedQuestions(pastMeetingsData: WeeklyMeetingData): Promise<ExpectedQuestionsAnalysis> {
+    // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
+    if (pastMeetingsData.meetings.length === 0) {
+      return {
+        expectedQuestions: [
+          "Q. 회사의 전반적인 사업 현황은 어떠한가요?",
+          "Q. 올해 실적 전망과 목표는 무엇인가요?",
+          "Q. 주요 경쟁사 대비 경쟁력은 어떠한가요?",
+          "Q. 신규 사업 계획이나 투자 계획은 있나요?",
+          "Q. ESG 경영 방침과 지속가능성 전략은 무엇인가요?"
+        ]
+      };
+    }
+
+    const meetingContext = this.prepareMeetingContextForQuestions(pastMeetingsData);
+    
+    try {
+      const response = await openai.chat.completions.create({
+        model: "gpt-5",
+        messages: [
+          {
+            role: "system",
+            content: `당신은 투자자 관계(IR) 전문가입니다. 지난 30일간의 미팅 질문과 우려사항을 분석하여, 향후 투자자 미팅에서 예상되는 공통 질문 15개를 생성해주세요.
+
+**분석 기준:**
+1. 지난 30일간 투자자들이 실제로 제기한 질문들과 우려사항들
+2. 반복적으로 나온 주제나 관심사들
+3. 업계 트렌드와 시장 상황을 반영한 질문들
+4. 재무, 사업 전략, 리스크, ESG 등 다양한 카테고리 포함
+
+**질문 생성 가이드라인:**
+- 각 질문은 "Q. "로 시작
+- 구체적이고 실무적인 질문 생성
+- 투자자 관점에서 중요한 정보를 요구하는 질문
+- 과거 미팅에서 나온 패턴을 기반으로 한 질문
+- 한국 기업 IR 미팅에 적합한 톤과 내용
+
+**출력 형식:**
+JSON 형식으로 15개의 예상 질문을 배열로 반환
+{"expectedQuestions": ["Q. 질문1", "Q. 질문2", ...]}`
+          },
+          {
+            role: "user",
+            content: meetingContext
+          }
+        ],
+        response_format: { type: "json_object" },
+        max_completion_tokens: 1500
+      });
+
+      const result = JSON.parse(response.choices[0].message.content || '{}');
+      
+      return {
+        expectedQuestions: result.expectedQuestions || [
+          "Q. 분석할 미팅 데이터가 충분하지 않습니다.",
+          "Q. 추가 미팅 데이터가 확보되면 더 정확한 예상 질문을 생성할 수 있습니다."
+        ]
+      };
+      
+    } catch (error: any) {
+      console.error('예상질문 생성 오류:', error);
+      
+      // Error handling similar to analyzeWeeklyMeetings
+      if (error.code === 'invalid_api_key') {
+        throw new Error('OpenAI API 키가 유효하지 않습니다.');
+      } else if (error.code === 'model_not_found') {
+        throw new Error('요청한 AI 모델을 찾을 수 없습니다.');
+      } else if (error.code === 'insufficient_quota') {
+        throw new Error('OpenAI API 사용 할당량을 초과했습니다.');
+      } else if (error.message?.includes('network') || error.code === 'ENOTFOUND') {
+        throw new Error('네트워크 연결 오류가 발생했습니다.');
+      } else {
+        throw new Error(`예상질문 생성 중 오류가 발생했습니다: ${error.message || '알 수 없는 오류'}`);
+      }
+    }
+  }
+
+  private prepareMeetingContextForQuestions(data: WeeklyMeetingData): string {
+    let context = `지난 30일간 투자자 미팅 데이터 분석 (예상질문 생성용):\n\n`;
+    context += `총 미팅 수: ${data.meetings.length}개\n\n`;
+
+    // 투자자 정보를 ID로 매핑
+    const investorMap = new Map();
+    if (data.investors) {
+      data.investors.forEach(investor => {
+        investorMap.set(investor.id.toString(), investor);
+      });
+    }
+
+    // 질문 패턴 분석을 위한 미팅별 상세 정보
+    data.meetings.forEach((meeting, index) => {
+      context += `미팅 ${index + 1}:\n`;
+      context += `- 미팅 카테고리: ${meeting.meetingCategory || '미기재'}\n`;
+      context += `- 참석 유형: ${meeting.attendeeType === 'investor' ? '투자자' : meeting.attendeeType === 'analyst' ? '애널리스트' : '기타'}\n`;
+      
+      // 참석자 정보
+      if (meeting.investorIds && Array.isArray(meeting.investorIds) && meeting.investorIds.length > 0) {
+        const attendeeDetails = meeting.investorIds.map(investorId => {
+          const investor = investorMap.get(investorId.toString());
+          if (investor) {
+            return `${investor.name} (${investor.company || '소속 미기재'})`;
+          }
+          return `투자자 ID: ${investorId}`;
+        }).join(', ');
+        context += `- 참석자: ${attendeeDetails}\n`;
+      }
+      
+      // 핵심: 미팅에서 제기된 질문과 우려사항
+      if (meeting.description) {
+        context += `- 주요 질문/우려사항: ${meeting.description}\n`;
+      }
+      
+      if (meeting.title) {
+        context += `- 미팅 주제: ${meeting.title}\n`;
+      }
+      
+      context += '\n';
+    });
+
+    // 질문 패턴 분석을 위한 추가 컨텍스트
+    context += `\n질문 패턴 분석 요청:\n`;
+    context += `- 위 미팅들에서 반복적으로 나온 주제들을 식별\n`;
+    context += `- 투자자들이 공통적으로 관심을 보인 분야들 파악\n`;
+    context += `- 우려사항이나 리스크 관련 질문들의 패턴 분석\n`;
+    context += `- 향후 유사한 질문들이 나올 가능성이 높은 영역들 예측\n\n`;
+    
+    context += `이 데이터를 바탕으로 향후 투자자 미팅에서 나올 가능성이 높은 15개의 예상 질문을 생성해주세요.`;
 
     return context;
   }

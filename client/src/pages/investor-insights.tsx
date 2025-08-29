@@ -6,7 +6,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Calendar, TrendingUp, AlertCircle, Users, Loader2, Trash2, Brain, CalendarDays, Download, FileText } from "lucide-react";
+import { Calendar, TrendingUp, AlertCircle, Users, Loader2, Trash2, Brain, CalendarDays, Download, FileText, HelpCircle } from "lucide-react";
 import { format, startOfWeek, endOfWeek, subWeeks } from "date-fns";
 import { ko } from "date-fns/locale";
 import { toast } from "@/hooks/use-toast";
@@ -36,6 +36,8 @@ export default function InvestorInsights() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [startDate, setStartDate] = useState(format(startOfWeek(new Date(), { weekStartsOn: 1 }), 'yyyy-MM-dd'));
   const [endDate, setEndDate] = useState(format(endOfWeek(new Date(), { weekStartsOn: 1 }), 'yyyy-MM-dd'));
+  const [isGeneratingQuestions, setIsGeneratingQuestions] = useState(false);
+  const [expectedQuestions, setExpectedQuestions] = useState<string[]>([]);
 
   const { data: insights = [], isLoading } = useQuery<InvestorInsight[]>({
     queryKey: ['/api/investor-insights'],
@@ -122,6 +124,29 @@ export default function InvestorInsights() {
     
     setIsGenerating(true);
     generateInsightMutation.mutate({ startDate, endDate });
+  };
+
+  const generateExpectedQuestions = async () => {
+    setIsGeneratingQuestions(true);
+    try {
+      const response = await apiRequest('/api/investor-insights/expected-questions', { 
+        method: 'POST' 
+      });
+      setExpectedQuestions(response.expectedQuestions || []);
+      toast({
+        title: "예상질문 생성 완료",
+        description: "지난 30일간의 미팅 데이터를 기반으로 예상 질문이 생성되었습니다.",
+      });
+    } catch (error: any) {
+      console.error('예상질문 생성 오류:', error);
+      toast({
+        title: "예상질문 생성 실패",
+        description: error.message || "예상질문 생성 중 오류가 발생했습니다.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingQuestions(false);
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -529,6 +554,52 @@ ${insight.followUpRecommendations ? insight.followUpRecommendations.replace(/\. 
           </div>
         </div>
       </div>
+
+      {/* Expected Questions Section */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <HelpCircle className="h-5 w-5" />
+            예상질문 (Expected Questions)
+          </CardTitle>
+          <CardDescription>
+            지난 30일간의 미팅 질문과 우려사항을 AI가 분석하여 향후 예상되는 질문 15개를 생성합니다
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Button 
+            onClick={generateExpectedQuestions}
+            disabled={isGeneratingQuestions}
+            variant="outline"
+            className="w-full sm:w-auto"
+          >
+            {isGeneratingQuestions ? (
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+            ) : (
+              <HelpCircle className="h-4 w-4 mr-2" />
+            )}
+            {isGeneratingQuestions ? '예상질문 생성 중...' : '예상질문 생성'}
+          </Button>
+          
+          {expectedQuestions.length > 0 && (
+            <div className="mt-4">
+              <h4 className="font-semibold mb-3 text-sm text-muted-foreground">
+                AI 생성 예상질문 ({expectedQuestions.length}개)
+              </h4>
+              <div className="grid gap-2">
+                {expectedQuestions.map((question, index) => (
+                  <div 
+                    key={index}
+                    className="p-3 bg-muted/50 rounded-lg border-l-4 border-blue-500"
+                  >
+                    <p className="text-sm">{question}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {insights.length === 0 ? (
         <Card className="text-center p-12">
