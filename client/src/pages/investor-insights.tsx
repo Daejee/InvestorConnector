@@ -128,6 +128,185 @@ export default function InvestorInsights() {
     return format(new Date(dateString), 'M월 d일', { locale: ko });
   };
 
+  const downloadAsDOC = (insight: InvestorInsight) => {
+    const htmlContent = `
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>투자자 인사이트 보고서</title>
+    <style>
+        body {
+            padding: 30px;
+            font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;
+            color: #1a1a1a;
+            background: #ffffff;
+            line-height: 1.6;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #2563eb;
+        }
+        .header h1 {
+            color: #1e40af;
+            font-size: 26px;
+            margin: 0 0 8px 0;
+            font-weight: 700;
+        }
+        .header p {
+            color: #64748b;
+            font-size: 14px;
+            margin: 0;
+            font-weight: 500;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid #d1d5db;
+            margin-bottom: 35px;
+        }
+        .info-table {
+            margin-bottom: 35px;
+        }
+        .content-table {
+            margin-bottom: 0;
+        }
+        td {
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+        }
+        .info-row {
+            background: #f8fafc;
+        }
+        .info-label {
+            font-weight: 600;
+            color: #374151;
+            width: 25%;
+        }
+        .info-value {
+            color: #1f2937;
+        }
+        .section-header {
+            padding: 14px 16px;
+            background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
+            color: white;
+            font-weight: 700;
+            font-size: 15px;
+        }
+        .section-content {
+            padding: 18px 16px;
+            line-height: 1.6;
+            font-size: 13px;
+            white-space: pre-line;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 1px solid #e5e7eb;
+            color: #6b7280;
+            font-size: 11px;
+        }
+        .footer p {
+            margin: 0;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>투자자 인사이트 보고서</h1>
+        <p>Investor Relations Intelligence Report</p>
+    </div>
+    
+    <table class="info-table">
+        <tr class="info-row">
+            <td class="info-label">분석 기간</td>
+            <td class="info-value">${formatDate(insight.weekStartDate)} ~ ${formatDate(insight.weekEndDate)}</td>
+        </tr>
+        <tr>
+            <td class="info-label" style="background: #f8fafc;">분석 미팅 수</td>
+            <td class="info-value">${insight.meetingCount}개</td>
+        </tr>
+        <tr class="info-row">
+            <td class="info-label">생성 일시</td>
+            <td class="info-value">${format(new Date(insight.generatedAt), 'yyyy년 MM월 dd일 HH:mm', { locale: ko })}</td>
+        </tr>
+    </table>
+    
+    <table class="content-table">
+        <tr>
+            <td class="section-header" style="background: #1e40af;">1. 미팅 요약</td>
+        </tr>
+        <tr>
+            <td class="section-content">
+${insight.meetingSummary ? insight.meetingSummary.replace(/\. /g, '.\n• ').replace(/^/, '• ') : '미팅 요약 정보가 없습니다.'}
+            </td>
+        </tr>
+        
+        <tr>
+            <td class="section-header" style="background: #2563eb;">2. 투자가 공통관심사</td>
+        </tr>
+        <tr>
+            <td class="section-content">
+${insight.commonInterests ? insight.commonInterests.replace(/\. /g, '.\n• ').replace(/^/, '• ') : '공통관심사 정보가 없습니다.'}
+            </td>
+        </tr>
+        
+        <tr>
+            <td class="section-header" style="background: #3b82f6;">3. 긍정피드백 요약</td>
+        </tr>
+        <tr>
+            <td class="section-content">
+${insight.positiveFeedback ? insight.positiveFeedback.replace(/\. /g, '.\n• ').replace(/^/, '• ') : '긍정피드백 정보가 없습니다.'}
+            </td>
+        </tr>
+        
+        <tr>
+            <td class="section-header" style="background: #60a5fa;">4. 우려사항/리스크</td>
+        </tr>
+        <tr>
+            <td class="section-content">
+${insight.concerns ? insight.concerns.replace(/\. /g, '.\n• ').replace(/^/, '• ') : '우려사항 정보가 없습니다.'}
+            </td>
+        </tr>
+        
+        <tr>
+            <td class="section-header" style="background: #93c5fd;">5. 향후 Follow-up 권고</td>
+        </tr>
+        <tr>
+            <td class="section-content">
+${insight.followUpRecommendations ? insight.followUpRecommendations.replace(/\. /g, '.\n• ').replace(/^/, '• ') : 'Follow-up 권고사항이 없습니다.'}
+            </td>
+        </tr>
+    </table>
+    
+    <div class="footer">
+        <p>IR CRM 시스템에서 생성됨 | Powered by AI Intelligence & Data Analytics</p>
+    </div>
+</body>
+</html>
+    `;
+
+    const blob = new Blob([htmlContent], { type: 'application/msword;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `투자자인사이트보고서_${formatDate(insight.weekStartDate)}_${formatDate(insight.weekEndDate)}.doc`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    
+    toast({
+      title: "DOC 다운로드 완료",
+      description: "투자자 인사이트 보고서 DOC 파일이 다운로드되었습니다.",
+    });
+  };
+
   const downloadAsPDF = async (insight: InvestorInsight) => {
     // 임시 DOM 요소 생성
     const tempDiv = document.createElement('div');
@@ -402,15 +581,26 @@ export default function InvestorInsights() {
                                 미팅 {insight.meetingCount}개 분석 결과
                               </DialogDescription>
                             </div>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => downloadAsPDF(insight)}
-                              className="flex items-center gap-2"
-                            >
-                              <FileText className="h-4 w-4" />
-                              보고서 다운로드
-                            </Button>
+                            <div className="flex gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => downloadAsPDF(insight)}
+                                className="flex items-center gap-2"
+                              >
+                                <FileText className="h-4 w-4" />
+                                PDF 다운로드
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => downloadAsDOC(insight)}
+                                className="flex items-center gap-2"
+                              >
+                                <Download className="h-4 w-4" />
+                                DOC 다운로드
+                              </Button>
+                            </div>
                           </div>
                         </DialogHeader>
                         <div className="space-y-6">
