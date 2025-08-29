@@ -131,12 +131,21 @@ export default function InvestorInsights() {
     try {
       const response = await apiRequest('/api/investor-insights/expected-questions', { 
         method: 'POST' 
-      });
-      setExpectedQuestions(response.expectedQuestions || []);
-      toast({
-        title: "예상질문 생성 완료",
-        description: "지난 30일간의 미팅 데이터를 기반으로 예상 질문이 생성되었습니다.",
-      });
+      }) as { expectedQuestions: string[] };
+      
+      if (response.expectedQuestions && Array.isArray(response.expectedQuestions)) {
+        setExpectedQuestions(response.expectedQuestions);
+        toast({
+          title: "예상질문 생성 완료",
+          description: `${response.expectedQuestions.length}개의 예상 질문이 생성되었습니다.`,
+        });
+      } else {
+        toast({
+          title: "예상질문 생성 실패",
+          description: "올바른 형식의 예상질문을 받지 못했습니다.",
+          variant: "destructive",
+        });
+      }
     } catch (error: any) {
       console.error('예상질문 생성 오류:', error);
       toast({
