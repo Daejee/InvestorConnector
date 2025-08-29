@@ -12,6 +12,8 @@ import { ko } from "date-fns/locale";
 import { toast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { apiRequest } from "@/lib/queryClient";
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 interface InvestorInsight {
   id: number;
@@ -126,235 +128,143 @@ export default function InvestorInsights() {
     return format(new Date(dateString), 'M월 d일', { locale: ko });
   };
 
-  const downloadAsPDF = (insight: InvestorInsight) => {
-    const htmlContent = `
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>투자자 인사이트 보고서</title>
-    <style>
-        @page {
-            margin: 2cm;
-            size: A4;
-        }
-        
-        body {
-            font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 800px;
-            margin: 0 auto;
-            background-color: #fff;
-        }
-        
-        .header {
-            text-align: center;
-            border-bottom: 3px solid #2563eb;
-            padding-bottom: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .header h1 {
-            color: #1e40af;
-            font-size: 28px;
-            margin: 0;
-            font-weight: bold;
-        }
-        
-        .header .subtitle {
-            color: #64748b;
-            font-size: 16px;
-            margin-top: 8px;
-        }
-        
-        .meta-info {
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 30px;
-            border-left: 5px solid #2563eb;
-        }
-        
-        .meta-info table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        .meta-info td {
-            padding: 8px 12px;
-            border-bottom: 1px solid #e2e8f0;
-        }
-        
-        .meta-info .label {
-            font-weight: bold;
-            color: #475569;
-            width: 120px;
-        }
-        
-        .meta-info .value {
-            color: #1e293b;
-        }
-        
-        .section {
-            margin-bottom: 30px;
-            background-color: #fff;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            page-break-inside: avoid;
-        }
-        
-        .section-header {
-            padding: 16px 24px;
-            font-weight: bold;
-            font-size: 18px;
-            color: white;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .section-content {
-            padding: 24px;
-            font-size: 14px;
-            line-height: 1.7;
-            white-space: pre-wrap;
-        }
-        
-        .meeting-summary { background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%); }
-        .common-interests { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); }
-        .positive-feedback { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
-        .concerns { background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%); }
-        .follow-up { background: linear-gradient(135deg, #93c5fd 0%, #60a5fa 100%); }
-        
-        .footer {
-            text-align: center;
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 2px solid #e2e8f0;
-            color: #64748b;
-            font-size: 12px;
-        }
-        
-        .icon {
-            width: 20px;
-            height: 20px;
-            display: inline-block;
-        }
-        
-        @media print {
-            body { font-size: 12px; }
-            .section { break-inside: avoid; }
-            @page { margin: 1.5cm; }
-        }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1>📊 투자자 인사이트 보고서</h1>
-        <div class="subtitle">Investor Relations Intelligence Report</div>
-    </div>
+  const downloadAsPDF = async (insight: InvestorInsight) => {
+    // 임시 DOM 요소 생성
+    const tempDiv = document.createElement('div');
+    tempDiv.style.position = 'absolute';
+    tempDiv.style.left = '-10000px';
+    tempDiv.style.top = '-10000px';
+    tempDiv.style.width = '800px';
+    tempDiv.style.background = 'white';
+    tempDiv.style.fontFamily = 'Malgun Gothic, 맑은 고딕, sans-serif';
     
-    <div class="meta-info">
-        <table>
-            <tr>
-                <td class="label">📅 분석 기간</td>
-                <td class="value">${formatDate(insight.weekStartDate)} ~ ${formatDate(insight.weekEndDate)}</td>
-            </tr>
-            <tr>
-                <td class="label">📈 분석 미팅 수</td>
-                <td class="value">${insight.meetingCount}개</td>
-            </tr>
-            <tr>
-                <td class="label">🕒 생성 일시</td>
-                <td class="value">${format(new Date(insight.generatedAt), 'yyyy년 MM월 dd일 HH:mm', { locale: ko })}</td>
-            </tr>
-        </table>
-    </div>
-    
-    <div class="section">
-        <div class="section-header meeting-summary">
-            <span class="icon">👥</span>
-            미팅 요약
+    tempDiv.innerHTML = `
+      <div style="padding: 40px; line-height: 1.6; color: #333;">
+        <div style="text-align: center; border-bottom: 3px solid #2563eb; padding-bottom: 20px; margin-bottom: 30px;">
+          <h1 style="color: #1e40af; font-size: 28px; margin: 0; font-weight: bold;">📊 투자자 인사이트 보고서</h1>
+          <div style="color: #64748b; font-size: 16px; margin-top: 8px;">Investor Relations Intelligence Report</div>
         </div>
-        <div class="section-content">
+        
+        <div style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); padding: 20px; border-radius: 12px; margin-bottom: 30px; border-left: 5px solid #2563eb;">
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+              <td style="padding: 8px 12px; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #475569; width: 120px;">📅 분석 기간</td>
+              <td style="padding: 8px 12px; border-bottom: 1px solid #e2e8f0; color: #1e293b;">${formatDate(insight.weekStartDate)} ~ ${formatDate(insight.weekEndDate)}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 12px; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #475569;">📈 분석 미팅 수</td>
+              <td style="padding: 8px 12px; border-bottom: 1px solid #e2e8f0; color: #1e293b;">${insight.meetingCount}개</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 12px; font-weight: bold; color: #475569;">🕒 생성 일시</td>
+              <td style="padding: 8px 12px; color: #1e293b;">${format(new Date(insight.generatedAt), 'yyyy년 MM월 dd일 HH:mm', { locale: ko })}</td>
+            </tr>
+          </table>
+        </div>
+        
+        <div style="margin-bottom: 30px; background-color: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
+          <div style="padding: 16px 24px; font-weight: bold; font-size: 18px; color: white; background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);">
+            👥 미팅 요약
+          </div>
+          <div style="padding: 24px; font-size: 14px; line-height: 1.7; white-space: pre-wrap;">
 ${insight.meetingSummary || '미팅 요약 정보가 없습니다.'}
+          </div>
         </div>
-    </div>
-    
-    <div class="section">
-        <div class="section-header common-interests">
-            <span class="icon">🎯</span>
-            투자가 공통관심사
-        </div>
-        <div class="section-content">
+        
+        <div style="margin-bottom: 30px; background-color: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
+          <div style="padding: 16px 24px; font-weight: bold; font-size: 18px; color: white; background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);">
+            🎯 투자가 공통관심사
+          </div>
+          <div style="padding: 24px; font-size: 14px; line-height: 1.7; white-space: pre-wrap;">
 ${insight.commonInterests}
+          </div>
         </div>
-    </div>
-    
-    <div class="section">
-        <div class="section-header positive-feedback">
-            <span class="icon">👍</span>
-            긍정피드백 요약
-        </div>
-        <div class="section-content">
+        
+        <div style="margin-bottom: 30px; background-color: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
+          <div style="padding: 16px 24px; font-weight: bold; font-size: 18px; color: white; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">
+            👍 긍정피드백 요약
+          </div>
+          <div style="padding: 24px; font-size: 14px; line-height: 1.7; white-space: pre-wrap;">
 ${insight.positiveFeedback}
+          </div>
         </div>
-    </div>
-    
-    <div class="section">
-        <div class="section-header concerns">
-            <span class="icon">⚠️</span>
-            우려사항/리스크
-        </div>
-        <div class="section-content">
+        
+        <div style="margin-bottom: 30px; background-color: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
+          <div style="padding: 16px 24px; font-weight: bold; font-size: 18px; color: white; background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);">
+            ⚠️ 우려사항/리스크
+          </div>
+          <div style="padding: 24px; font-size: 14px; line-height: 1.7; white-space: pre-wrap;">
 ${insight.concerns}
+          </div>
         </div>
-    </div>
-    
-    <div class="section">
-        <div class="section-header follow-up">
-            <span class="icon">📋</span>
-            향후 Follow-up 권고
-        </div>
-        <div class="section-content">
+        
+        <div style="margin-bottom: 30px; background-color: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
+          <div style="padding: 16px 24px; font-weight: bold; font-size: 18px; color: white; background: linear-gradient(135deg, #93c5fd 0%, #60a5fa 100%);">
+            📋 향후 Follow-up 권고
+          </div>
+          <div style="padding: 24px; font-size: 14px; line-height: 1.7; white-space: pre-wrap;">
 ${insight.followUpRecommendations}
+          </div>
         </div>
-    </div>
-    
-    <div class="footer">
-        <div>🚀 IR CRM 시스템에서 생성됨</div>
-        <div style="margin-top: 5px;">Powered by AI Intelligence & Data Analytics</div>
-    </div>
-</body>
-</html>
+        
+        <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 2px solid #e2e8f0; color: #64748b; font-size: 12px;">
+          <div>🚀 IR CRM 시스템에서 생성됨</div>
+          <div style="margin-top: 5px;">Powered by AI Intelligence & Data Analytics</div>
+        </div>
+      </div>
     `;
+    
+    document.body.appendChild(tempDiv);
 
-    // 새 창에서 열어서 PDF로 인쇄하도록 함
-    const printWindow = window.open('', '_blank');
-    if (printWindow) {
-      printWindow.document.write(htmlContent);
-      printWindow.document.close();
-      
-      // 페이지가 로드된 후 인쇄 대화상자 자동 실행
-      printWindow.onload = () => {
-        setTimeout(() => {
-          printWindow.print();
-        }, 500);
-      };
-      
-      toast({
-        title: "PDF 인쇄 창 열림",
-        description: "인쇄 대화상자에서 'PDF로 저장'을 선택하세요.",
+    try {
+      // Canvas로 변환
+      const canvas = await html2canvas(tempDiv, {
+        width: 800,
+        height: tempDiv.scrollHeight,
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff'
       });
-    } else {
+
+      // PDF 생성
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgData = canvas.toDataURL('image/png');
+      const imgWidth = 210; // A4 width in mm
+      const pageHeight = 295; // A4 height in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+
+      let position = 0;
+
+      // 첫 페이지 추가
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      // 여러 페이지가 필요한 경우 페이지 추가
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+
+      // PDF 다운로드
+      pdf.save(`투자자인사이트보고서_${formatDate(insight.weekStartDate)}_${formatDate(insight.weekEndDate)}.pdf`);
+      
       toast({
-        title: "팝업 차단됨",
-        description: "브라우저 팝업을 허용하고 다시 시도해주세요.",
+        title: "PDF 다운로드 완료",
+        description: "투자자 인사이트 보고서 PDF가 다운로드되었습니다.",
+      });
+    } catch (error) {
+      console.error('PDF 생성 오류:', error);
+      toast({
+        title: "PDF 생성 실패",
+        description: "PDF 생성 중 오류가 발생했습니다. 다시 시도해주세요.",
         variant: "destructive"
       });
+    } finally {
+      // 임시 요소 제거
+      document.body.removeChild(tempDiv);
     }
   };
 
