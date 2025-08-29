@@ -6,7 +6,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Calendar, TrendingUp, AlertCircle, Users, Loader2, Trash2, Brain, CalendarDays } from "lucide-react";
+import { Calendar, TrendingUp, AlertCircle, Users, Loader2, Trash2, Brain, CalendarDays, Download, FileText } from "lucide-react";
 import { format, startOfWeek, endOfWeek, subWeeks } from "date-fns";
 import { ko } from "date-fns/locale";
 import { toast } from "@/hooks/use-toast";
@@ -124,6 +124,48 @@ export default function InvestorInsights() {
 
   const formatDate = (dateString: string) => {
     return format(new Date(dateString), 'M월 d일', { locale: ko });
+  };
+
+  const downloadAsDoc = (insight: InvestorInsight) => {
+    const content = `
+투자자 인사이트 보고서
+기간: ${formatDate(insight.weekStartDate)} - ${formatDate(insight.weekEndDate)}
+분석 미팅 수: ${insight.meetingCount}개
+생성일: ${format(new Date(insight.generatedAt), 'yyyy-MM-dd HH:mm', { locale: ko })}
+
+=== 미팅 요약 ===
+${insight.meetingSummary || '미팅 요약 정보가 없습니다.'}
+
+=== 투자가 공통관심사 ===
+${insight.commonInterests}
+
+=== 긍정피드백 요약 ===
+${insight.positiveFeedback}
+
+=== 우려사항/리스크 ===
+${insight.concerns}
+
+=== 향후 Follow-up 권고 ===
+${insight.followUpRecommendations}
+
+---
+IR CRM 시스템에서 생성됨
+    `;
+
+    const blob = new Blob([content], { type: 'application/msword;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `투자자인사이트_${formatDate(insight.weekStartDate)}_${formatDate(insight.weekEndDate)}.doc`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    
+    toast({
+      title: "다운로드 완료",
+      description: "투자자 인사이트 보고서가 다운로드되었습니다.",
+    });
   };
 
   const getStatusBadge = (status: string) => {
@@ -248,12 +290,25 @@ export default function InvestorInsights() {
                       </DialogTrigger>
                       <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
                         <DialogHeader>
-                          <DialogTitle>
-                            주간 투자자 인사이트 - {formatDate(insight.weekStartDate)} ~ {formatDate(insight.weekEndDate)}
-                          </DialogTitle>
-                          <DialogDescription>
-                            미팅 {insight.meetingCount}개 분석 결과
-                          </DialogDescription>
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <DialogTitle>
+                                주간 투자자 인사이트 - {formatDate(insight.weekStartDate)} ~ {formatDate(insight.weekEndDate)}
+                              </DialogTitle>
+                              <DialogDescription>
+                                미팅 {insight.meetingCount}개 분석 결과
+                              </DialogDescription>
+                            </div>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => downloadAsDoc(insight)}
+                              className="flex items-center gap-2"
+                            >
+                              <Download className="h-4 w-4" />
+                              DOC 다운로드
+                            </Button>
+                          </div>
                         </DialogHeader>
                         <div className="space-y-6">
                           {insight.meetingSummary && (
