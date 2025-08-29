@@ -2827,27 +2827,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(insights);
   });
 
-  app.get("/api/investor-insights/:id", async (req, res) => {
-    try {
-      const id = parseInt(req.params.id);
-      if (isNaN(id)) {
-        return res.status(400).json({ message: "Invalid ID parameter" });
-      }
-      const organizationId = 1; // TODO: Extract from auth context
-      const insight = await storage.getInvestorInsight(id, organizationId);
-      if (!insight) {
-        return res.status(404).json({ message: "Investor insight not found" });
-      }
-      res.json(insight);
-    } catch (error: any) {
-      console.error('Error fetching investor insight:', error);
-      res.status(500).json({ 
-        message: "Failed to fetch investor insight", 
-        error: error.message 
-      });
-    }
-  });
-
   app.post("/api/investor-insights/generate", async (req, res) => {
     try {
       const { startDate, endDate } = req.body;
@@ -2888,6 +2867,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error('AI 분석 오류:', error);
       res.status(500).json({ 
         message: "AI 분석 중 오류가 발생했습니다.", 
+        error: error.message 
+      });
+    }
+  });
+
+  app.get("/api/investor-insights/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID parameter" });
+      }
+      const organizationId = 1; // TODO: Extract from auth context
+      const insight = await storage.getInvestorInsight(id, organizationId);
+      if (!insight) {
+        return res.status(404).json({ message: "Investor insight not found" });
+      }
+      res.json(insight);
+    } catch (error: any) {
+      console.error('Error fetching investor insight:', error);
+      res.status(500).json({ 
+        message: "Failed to fetch investor insight", 
         error: error.message 
       });
     }

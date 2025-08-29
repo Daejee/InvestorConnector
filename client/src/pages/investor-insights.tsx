@@ -43,7 +43,7 @@ export default function InvestorInsights() {
 
   const generateInsightMutation = useMutation({
     mutationFn: async ({ startDate, endDate }: { startDate: string; endDate: string }) => {
-      return apiRequest('/api/investor-insights/generate', 'POST', { startDate, endDate });
+      return apiRequest('/api/investor-insights/generate', { method: 'POST', body: { startDate, endDate } });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/investor-insights'] });
@@ -66,7 +66,7 @@ export default function InvestorInsights() {
 
   const deleteInsightMutation = useMutation({
     mutationFn: async (id: number) => {
-      return apiRequest(`/api/investor-insights/${id}`, 'DELETE');
+      return apiRequest(`/api/investor-insights/${id}`, { method: 'DELETE' });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/investor-insights'] });
