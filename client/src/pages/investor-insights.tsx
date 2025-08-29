@@ -141,9 +141,6 @@ export default function InvestorInsights() {
       }
       
       const data = await response.json();
-      console.log('Full API Response:', data);
-      console.log('Expected Questions Array:', data.expectedQuestions);
-      console.log('Is Array?', Array.isArray(data.expectedQuestions));
       
       if (data && data.expectedQuestions && Array.isArray(data.expectedQuestions)) {
         setExpectedQuestions(data.expectedQuestions);
