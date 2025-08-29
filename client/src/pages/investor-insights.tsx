@@ -127,36 +127,214 @@ export default function InvestorInsights() {
   };
 
   const downloadAsDoc = (insight: InvestorInsight) => {
-    const content = `
-투자자 인사이트 보고서
-기간: ${formatDate(insight.weekStartDate)} - ${formatDate(insight.weekEndDate)}
-분석 미팅 수: ${insight.meetingCount}개
-생성일: ${format(new Date(insight.generatedAt), 'yyyy-MM-dd HH:mm', { locale: ko })}
-
-=== 미팅 요약 ===
+    const htmlContent = `
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>투자자 인사이트 보고서</title>
+    <style>
+        @page {
+            margin: 2cm;
+            size: A4;
+        }
+        
+        body {
+            font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+        }
+        
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #2563eb;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: #1e40af;
+            font-size: 28px;
+            margin: 0;
+            font-weight: bold;
+        }
+        
+        .header .subtitle {
+            color: #64748b;
+            font-size: 16px;
+            margin-top: 8px;
+        }
+        
+        .meta-info {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border-left: 5px solid #2563eb;
+        }
+        
+        .meta-info table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .meta-info td {
+            padding: 8px 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .meta-info .label {
+            font-weight: bold;
+            color: #475569;
+            width: 120px;
+        }
+        
+        .meta-info .value {
+            color: #1e293b;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+            background-color: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .section-header {
+            padding: 16px 24px;
+            font-weight: bold;
+            font-size: 18px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-content {
+            padding: 24px;
+            font-size: 14px;
+            line-height: 1.7;
+            white-space: pre-wrap;
+        }
+        
+        .meeting-summary { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); }
+        .common-interests { background: linear-gradient(135deg, #10b981 0%, #047857 100%); }
+        .positive-feedback { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+        .concerns { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+        .follow-up { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); }
+        
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #e2e8f0;
+            color: #64748b;
+            font-size: 12px;
+        }
+        
+        .icon {
+            width: 20px;
+            height: 20px;
+            display: inline-block;
+        }
+        
+        @media print {
+            body { font-size: 12px; }
+            .section { break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📊 투자자 인사이트 보고서</h1>
+        <div class="subtitle">Investor Relations Intelligence Report</div>
+    </div>
+    
+    <div class="meta-info">
+        <table>
+            <tr>
+                <td class="label">📅 분석 기간</td>
+                <td class="value">${formatDate(insight.weekStartDate)} ~ ${formatDate(insight.weekEndDate)}</td>
+            </tr>
+            <tr>
+                <td class="label">📈 분석 미팅 수</td>
+                <td class="value">${insight.meetingCount}개</td>
+            </tr>
+            <tr>
+                <td class="label">🕒 생성 일시</td>
+                <td class="value">${format(new Date(insight.generatedAt), 'yyyy년 MM월 dd일 HH:mm', { locale: ko })}</td>
+            </tr>
+        </table>
+    </div>
+    
+    <div class="section">
+        <div class="section-header meeting-summary">
+            <span class="icon">👥</span>
+            미팅 요약
+        </div>
+        <div class="section-content">
 ${insight.meetingSummary || '미팅 요약 정보가 없습니다.'}
-
-=== 투자가 공통관심사 ===
+        </div>
+    </div>
+    
+    <div class="section">
+        <div class="section-header common-interests">
+            <span class="icon">🎯</span>
+            투자가 공통관심사
+        </div>
+        <div class="section-content">
 ${insight.commonInterests}
-
-=== 긍정피드백 요약 ===
+        </div>
+    </div>
+    
+    <div class="section">
+        <div class="section-header positive-feedback">
+            <span class="icon">👍</span>
+            긍정피드백 요약
+        </div>
+        <div class="section-content">
 ${insight.positiveFeedback}
-
-=== 우려사항/리스크 ===
+        </div>
+    </div>
+    
+    <div class="section">
+        <div class="section-header concerns">
+            <span class="icon">⚠️</span>
+            우려사항/리스크
+        </div>
+        <div class="section-content">
 ${insight.concerns}
-
-=== 향후 Follow-up 권고 ===
+        </div>
+    </div>
+    
+    <div class="section">
+        <div class="section-header follow-up">
+            <span class="icon">📋</span>
+            향후 Follow-up 권고
+        </div>
+        <div class="section-content">
 ${insight.followUpRecommendations}
-
----
-IR CRM 시스템에서 생성됨
+        </div>
+    </div>
+    
+    <div class="footer">
+        <div>🚀 IR CRM 시스템에서 생성됨</div>
+        <div style="margin-top: 5px;">Powered by AI Intelligence & Data Analytics</div>
+    </div>
+</body>
+</html>
     `;
 
-    const blob = new Blob([content], { type: 'application/msword;charset=utf-8' });
+    const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `투자자인사이트_${formatDate(insight.weekStartDate)}_${formatDate(insight.weekEndDate)}.doc`;
+    link.download = `투자자인사이트보고서_${formatDate(insight.weekStartDate)}_${formatDate(insight.weekEndDate)}.html`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -164,7 +342,7 @@ IR CRM 시스템에서 생성됨
     
     toast({
       title: "다운로드 완료",
-      description: "투자자 인사이트 보고서가 다운로드되었습니다.",
+      description: "디자인된 투자자 인사이트 보고서가 다운로드되었습니다.",
     });
   };
 
@@ -305,8 +483,8 @@ IR CRM 시스템에서 생성됨
                               onClick={() => downloadAsDoc(insight)}
                               className="flex items-center gap-2"
                             >
-                              <Download className="h-4 w-4" />
-                              DOC 다운로드
+                              <FileText className="h-4 w-4" />
+                              보고서 다운로드
                             </Button>
                           </div>
                         </DialogHeader>
