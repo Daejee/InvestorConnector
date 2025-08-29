@@ -2828,13 +2828,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.get("/api/investor-insights/:id", async (req, res) => {
-    const id = parseInt(req.params.id);
-    const organizationId = 1; // TODO: Extract from auth context
-    const insight = await storage.getInvestorInsight(id, organizationId);
-    if (!insight) {
-      return res.status(404).json({ message: "Investor insight not found" });
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID parameter" });
+      }
+      const organizationId = 1; // TODO: Extract from auth context
+      const insight = await storage.getInvestorInsight(id, organizationId);
+      if (!insight) {
+        return res.status(404).json({ message: "Investor insight not found" });
+      }
+      res.json(insight);
+    } catch (error: any) {
+      console.error('Error fetching investor insight:', error);
+      res.status(500).json({ 
+        message: "Failed to fetch investor insight", 
+        error: error.message 
+      });
     }
-    res.json(insight);
   });
 
   app.post("/api/investor-insights/generate", async (req, res) => {
@@ -2860,6 +2871,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Create insight record
       const insightData = {
+        organizationId,
         weekStartDate: startDate,
         weekEndDate: endDate,
         commonInterests: analysis.commonInterests,
@@ -2884,6 +2896,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/investor-insights/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID parameter" });
+      }
       const organizationId = 1; // TODO: Extract from auth context
       const deleted = await storage.deleteInvestorInsight(id, organizationId);
       if (!deleted) {
