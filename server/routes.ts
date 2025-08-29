@@ -1537,7 +1537,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/meetings/:id", async (req, res) => {
     const id = parseInt(req.params.id);
-    const success = await storage.deleteMeeting(id);
+    const organizationId = 1; // TODO: Extract from auth context
+    const success = await storage.deleteMeeting(id, organizationId);
     if (success) {
       res.status(204).send();
     } else {
@@ -1582,7 +1583,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
 
       console.log("Updating meeting with data:", minutesData);
-      const updatedMeeting = await storage.updateMeeting(meetingId, minutesData);
+      const organizationId = 1; // TODO: Extract from auth context
+      const updatedMeeting = await storage.updateMeeting(meetingId, minutesData, organizationId);
       console.log("Update result:", updatedMeeting);
       
       if (!updatedMeeting) {
@@ -1592,7 +1594,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Also add to Documents table with "Meeting Notes" category
       try {
-        const meeting = await storage.getMeeting(meetingId);
+        const organizationId = 1; // TODO: Extract from auth context
+        const meeting = await storage.getMeeting(meetingId, organizationId);
         const documentName = fileName.replace(/\.[^/.]+$/, ""); // Remove file extension
         const fileType = fileName.split('.').pop() || 'unknown';
         
@@ -1644,7 +1647,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         minutesUploadedAt: null
       };
 
-      const meeting = await storage.updateMeeting(meetingId, updateData);
+      const organizationId = 1; // TODO: Extract from auth context
+      const meeting = await storage.updateMeeting(meetingId, updateData, organizationId);
       if (!meeting) {
         return res.status(404).json({ error: "Meeting not found" });
       }
@@ -1898,7 +1902,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Get investors based on targeting criteria
-      const allInvestors = await storage.getInvestors();
+      const organizationId = 1; // TODO: Extract from auth context
+      const allInvestors = await storage.getInvestors(organizationId);
       const targetInvestors = allInvestors.filter(investor => {
         if (targetLanguage && investor.language !== targetLanguage) return false;
         if (targetRegion && investor.country !== targetRegion) return false;
@@ -2057,7 +2062,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             notes: ''
           };
 
-          const createdAnalyst = await storage.createAnalyst(analystData);
+          const organizationId = 1; // TODO: Extract from auth context
+          const createdAnalyst = await storage.createAnalyst(analystData, organizationId);
           createdAnalysts.push(createdAnalyst);
         } catch (error) {
           errors.push(`Row ${index + 2}: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -2435,7 +2441,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (recipients.investors && recipients.investors.length > 0) {
         for (const investorId of recipients.investors) {
-          const investor = await storage.getInvestor(investorId);
+          const organizationId = 1; // TODO: Extract from auth context
+          const investor = await storage.getInvestor(investorId, organizationId);
           if (investor && investor.email) {
             investorEmails.push(investor.email);
           }
@@ -2444,7 +2451,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (recipients.analysts && recipients.analysts.length > 0) {
         for (const analystId of recipients.analysts) {
-          const analyst = await storage.getAnalyst(analystId);
+          const organizationId = 1; // TODO: Extract from auth context
+          const analyst = await storage.getAnalyst(analystId, organizationId);
           if (analyst && analyst.email) {
             analystEmails.push(analyst.email);
           }
@@ -2675,7 +2683,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         minutesUploadedAt: new Date()
       };
 
-      const meeting = await storage.updateMeeting(id, updateData);
+      const organizationId = 1; // TODO: Extract from auth context
+      const meeting = await storage.updateMeeting(id, updateData, organizationId);
       if (!meeting) {
         return res.status(404).json({ error: "Meeting not found" });
       }
@@ -2694,7 +2703,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/meetings/:id/minutes", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const meeting = await storage.getMeeting(id);
+      const organizationId = 1; // TODO: Extract from auth context
+      const meeting = await storage.getMeeting(id, organizationId);
       
       if (!meeting) {
         return res.status(404).json({ error: "Meeting not found" });

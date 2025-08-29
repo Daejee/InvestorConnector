@@ -533,7 +533,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getOverseasFund(id: number, organizationId: number): Promise<OverseasFund | undefined> {
-    const [fund] = await db.select().from(overseasFunds).where(eq(overseasFunds.id, id)).where(eq(overseasFunds.organizationId, organizationId));
+    const [fund] = await db.select().from(overseasFunds).where(eq(overseasFunds.id, id) && eq(overseasFunds.organizationId, organizationId));
     return fund || undefined;
   }
 
@@ -549,14 +549,13 @@ export class DatabaseStorage implements IStorage {
     const [fund] = await db
       .update(overseasFunds)
       .set(updateData)
-      .where(eq(overseasFunds.id, id))
-      .where(eq(overseasFunds.organizationId, organizationId))
+      .where(eq(overseasFunds.id, id) && eq(overseasFunds.organizationId, organizationId))
       .returning();
     return fund || undefined;
   }
 
   async deleteOverseasFund(id: number, organizationId: number): Promise<boolean> {
-    const result = await db.delete(overseasFunds).where(eq(overseasFunds.id, id)).where(eq(overseasFunds.organizationId, organizationId));
+    const result = await db.delete(overseasFunds).where(eq(overseasFunds.id, id) && eq(overseasFunds.organizationId, organizationId));
     return result.rowCount! > 0;
   }
 
