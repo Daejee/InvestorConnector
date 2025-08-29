@@ -4,7 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, TrendingUp, AlertCircle, Users, Loader2, Trash2, Brain } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Calendar, TrendingUp, AlertCircle, Users, Loader2, Trash2, Brain, CalendarDays } from "lucide-react";
 import { format, startOfWeek, endOfWeek, subWeeks } from "date-fns";
 import { ko } from "date-fns/locale";
 import { toast } from "@/hooks/use-toast";
@@ -30,6 +32,8 @@ export default function InvestorInsights() {
   const queryClient = useQueryClient();
   const [selectedInsight, setSelectedInsight] = useState<InvestorInsight | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [startDate, setStartDate] = useState(format(startOfWeek(new Date(), { weekStartsOn: 1 }), 'yyyy-MM-dd'));
+  const [endDate, setEndDate] = useState(format(endOfWeek(new Date(), { weekStartsOn: 1 }), 'yyyy-MM-dd'));
 
   const { data: insights = [], isLoading } = useQuery<InvestorInsight[]>({
     queryKey: ['/api/investor-insights'],
@@ -89,9 +93,32 @@ export default function InvestorInsights() {
     setIsGenerating(true);
     const today = new Date();
     const targetWeek = subWeeks(today, weeksAgo);
-    const startDate = format(startOfWeek(targetWeek, { weekStartsOn: 1 }), 'yyyy-MM-dd');
-    const endDate = format(endOfWeek(targetWeek, { weekStartsOn: 1 }), 'yyyy-MM-dd');
+    const weekStartDate = format(startOfWeek(targetWeek, { weekStartsOn: 1 }), 'yyyy-MM-dd');
+    const weekEndDate = format(endOfWeek(targetWeek, { weekStartsOn: 1 }), 'yyyy-MM-dd');
     
+    generateInsightMutation.mutate({ startDate: weekStartDate, endDate: weekEndDate });
+  };
+
+  const generateCustomPeriodInsight = () => {
+    if (!startDate || !endDate) {
+      toast({
+        title: "기간 선택 오류",
+        description: "시작일과 종료일을 모두 선택해주세요.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (new Date(startDate) > new Date(endDate)) {
+      toast({
+        title: "기간 선택 오류", 
+        description: "시작일이 종료일보다 늦을 수 없습니다.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setIsGenerating(true);
     generateInsightMutation.mutate({ startDate, endDate });
   };
 
@@ -132,22 +159,59 @@ export default function InvestorInsights() {
             AI가 분석한 주간 미팅 보고서로 투자자 인사이트를 확인하세요
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button 
-            onClick={() => generateWeeklyInsight(1)}
-            disabled={isGenerating}
-            variant="outline"
-          >
-            {isGenerating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Brain className="h-4 w-4 mr-2" />}
-            지난주 분석
-          </Button>
-          <Button 
-            onClick={() => generateWeeklyInsight(0)}
-            disabled={isGenerating}
-          >
-            {isGenerating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Brain className="h-4 w-4 mr-2" />}
-            이번주 분석
-          </Button>
+        <div className="flex flex-col gap-4">
+          <div className="flex gap-2">
+            <Button 
+              onClick={() => generateWeeklyInsight(1)}
+              disabled={isGenerating}
+              variant="outline"
+              size="sm"
+            >
+              {isGenerating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Brain className="h-4 w-4 mr-2" />}
+              지난주 분석
+            </Button>
+            <Button 
+              onClick={() => generateWeeklyInsight(0)}
+              disabled={isGenerating}
+              size="sm"
+            >
+              {isGenerating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Brain className="h-4 w-4 mr-2" />}
+              이번주 분석
+            </Button>
+          </div>
+          
+          <div className="flex items-end gap-2">
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <Label htmlFor="start-date" className="text-sm text-muted-foreground">시작일</Label>
+                <Input
+                  id="start-date"
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="w-36"
+                />
+              </div>
+              <div>
+                <Label htmlFor="end-date" className="text-sm text-muted-foreground">종료일</Label>
+                <Input
+                  id="end-date"
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="w-36"
+                />
+              </div>
+            </div>
+            <Button 
+              onClick={generateCustomPeriodInsight}
+              disabled={isGenerating}
+              variant="default"
+            >
+              {isGenerating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <CalendarDays className="h-4 w-4 mr-2" />}
+              기간 분석
+            </Button>
+          </div>
         </div>
       </div>
 
