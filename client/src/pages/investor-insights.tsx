@@ -133,13 +133,18 @@ export default function InvestorInsights() {
         method: 'POST' 
       }) as { expectedQuestions: string[] };
       
-      if (response.expectedQuestions && Array.isArray(response.expectedQuestions)) {
+      console.log('Full API Response:', response);
+      console.log('Expected Questions Array:', response.expectedQuestions);
+      console.log('Is Array?', Array.isArray(response.expectedQuestions));
+      
+      if (response && response.expectedQuestions && Array.isArray(response.expectedQuestions)) {
         setExpectedQuestions(response.expectedQuestions);
         toast({
           title: "예상질문 생성 완료",
           description: `${response.expectedQuestions.length}개의 예상 질문이 생성되었습니다.`,
         });
       } else {
+        console.error('Invalid response structure:', response);
         toast({
           title: "예상질문 생성 실패",
           description: "올바른 형식의 예상질문을 받지 못했습니다.",

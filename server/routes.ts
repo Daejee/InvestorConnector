@@ -2954,6 +2954,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         investors
       });
 
+      console.log('Generated analysis:', analysis);
+      console.log('Expected questions count:', analysis.expectedQuestions?.length);
+
       res.json(analysis);
     } catch (error: any) {
       console.error('예상질문 생성 오류:', error);
