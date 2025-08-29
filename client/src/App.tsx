@@ -24,6 +24,7 @@ import Analysts from "@/pages/analysts";
 import SecuritiesFirms from "@/pages/securities-firms";
 import EmailLogs from "@/pages/email-logs";
 import Users from "@/pages/users";
+import InvestorInsights from "@/pages/investor-insights";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -51,6 +52,7 @@ function Router() {
         <Route path="/documents" component={Documents} />
         <Route path="/users" component={Users} />
         <Route path="/reports" component={Reports} />
+        <Route path="/investor-insights" component={InvestorInsights} />
         <Route component={NotFound} />
       </Switch>
     </Layout>

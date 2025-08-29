@@ -23,8 +23,10 @@ import {
   insertDocumentSchema,
   insertSecuritiesFirmSchema,
   insertEmailLogSchema,
-  insertUserSchema
+  insertUserSchema,
+  insertInvestorInsightSchema
 } from "@shared/schema";
+import { aiService } from "./ai-service";
 import { EmailService } from "./email-service";
 import {
   ObjectStorageService,
@@ -2813,6 +2815,85 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error('Error deleting user:', error);
       res.status(500).json({ 
         message: "Failed to delete user", 
+        error: error.message 
+      });
+    }
+  });
+
+  // Investor Insights routes
+  app.get("/api/investor-insights", async (req, res) => {
+    const organizationId = 1; // TODO: Extract from auth context
+    const insights = await storage.getInvestorInsights(organizationId);
+    res.json(insights);
+  });
+
+  app.get("/api/investor-insights/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    const organizationId = 1; // TODO: Extract from auth context
+    const insight = await storage.getInvestorInsight(id, organizationId);
+    if (!insight) {
+      return res.status(404).json({ message: "Investor insight not found" });
+    }
+    res.json(insight);
+  });
+
+  app.post("/api/investor-insights/generate", async (req, res) => {
+    try {
+      const { startDate, endDate } = req.body;
+      const organizationId = 1; // TODO: Extract from auth context
+      
+      if (!startDate || !endDate) {
+        return res.status(400).json({ message: "주간 시작일과 종료일이 필요합니다." });
+      }
+
+      // Get meetings for the week
+      const meetings = await storage.getMeetingsForWeek(startDate, endDate, organizationId);
+      const documents = await storage.getDocuments(); // TODO: Filter by date range if needed
+      
+      // Analyze with AI
+      const analysis = await aiService.analyzeWeeklyMeetings({
+        meetings,
+        documents: documents.filter(doc => 
+          doc.createdAt && doc.createdAt >= new Date(startDate) && doc.createdAt <= new Date(endDate)
+        )
+      });
+
+      // Create insight record
+      const insightData = {
+        weekStartDate: startDate,
+        weekEndDate: endDate,
+        commonInterests: analysis.commonInterests,
+        positiveFeedback: analysis.positiveFeedback,
+        concerns: analysis.concerns,
+        followUpRecommendations: analysis.followUpRecommendations,
+        meetingCount: meetings.length,
+        status: 'completed' as const
+      };
+
+      const insight = await storage.createInvestorInsight(insightData, organizationId);
+      res.status(201).json(insight);
+    } catch (error: any) {
+      console.error('AI 분석 오류:', error);
+      res.status(500).json({ 
+        message: "AI 분석 중 오류가 발생했습니다.", 
+        error: error.message 
+      });
+    }
+  });
+
+  app.delete("/api/investor-insights/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const organizationId = 1; // TODO: Extract from auth context
+      const deleted = await storage.deleteInvestorInsight(id, organizationId);
+      if (!deleted) {
+        return res.status(404).json({ message: "Investor insight not found" });
+      }
+      res.status(204).send();
+    } catch (error: any) {
+      console.error('Error deleting investor insight:', error);
+      res.status(500).json({ 
+        message: "Failed to delete investor insight", 
         error: error.message 
       });
     }

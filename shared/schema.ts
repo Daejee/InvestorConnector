@@ -479,3 +479,26 @@ export const insertOrganizationSchema = createInsertSchema(organizations).omit({
 
 export type InsertOrganization = z.infer<typeof insertOrganizationSchema>;
 export type Organization = typeof organizations.$inferSelect;
+
+// Investor Insights table
+export const investorInsights = pgTable('investor_insights', {
+  id: serial('id').primaryKey(),
+  organizationId: integer('organization_id').notNull().references(() => organizations.id),
+  weekStartDate: date('week_start_date').notNull(),
+  weekEndDate: date('week_end_date').notNull(),
+  commonInterests: text('common_interests').notNull(),
+  positiveFeedback: text('positive_feedback').notNull(),
+  concerns: text('concerns').notNull(),
+  followUpRecommendations: text('follow_up_recommendations').notNull(),
+  meetingCount: integer('meeting_count').notNull().default(0),
+  generatedAt: timestamp('generated_at').defaultNow(),
+  status: text('status', { enum: ['generating', 'completed', 'failed'] }).notNull().default('generating'),
+});
+
+export const insertInvestorInsightSchema = createInsertSchema(investorInsights).omit({
+  id: true,
+  generatedAt: true,
+});
+
+export type InsertInvestorInsight = z.infer<typeof insertInvestorInsightSchema>;
+export type InvestorInsight = typeof investorInsights.$inferSelect;

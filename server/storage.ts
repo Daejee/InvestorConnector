@@ -1,5 +1,5 @@
 import { 
-  investors, overseasInvestors, companies, overseasCompanies, investments, communications, meetings, funds, overseasFunds, meetingLogs, ndrConferences, otherEvents, emailTemplates, emailCampaigns, analysts, documents, securitiesFirms, emailLogs, users, organizations,
+  investors, overseasInvestors, companies, overseasCompanies, investments, communications, meetings, funds, overseasFunds, meetingLogs, ndrConferences, otherEvents, emailTemplates, emailCampaigns, analysts, documents, securitiesFirms, emailLogs, users, organizations, investorInsights,
   type Investor, type InsertInvestor, type OverseasInvestor, type InsertOverseasInvestor,
   type Company, type InsertCompany, type OverseasCompany, type InsertOverseasCompany,
   type Investment, type InsertInvestment,
@@ -16,7 +16,8 @@ import {
   type SecuritiesFirm, type InsertSecuritiesFirm,
   type EmailLog, type InsertEmailLog,
   type User, type InsertUser,
-  type Organization, type InsertOrganization
+  type Organization, type InsertOrganization,
+  type InvestorInsight, type InsertInvestorInsight
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, sql } from "drizzle-orm";
@@ -171,6 +172,14 @@ export interface IStorage {
   createUser(user: InsertUser): Promise<User>;
   updateUser(id: number, user: Partial<InsertUser>): Promise<User | undefined>;
   deleteUser(id: number): Promise<boolean>;
+
+  // Investor Insights
+  getInvestorInsights(organizationId: number): Promise<InvestorInsight[]>;
+  getInvestorInsight(id: number, organizationId: number): Promise<InvestorInsight | undefined>;
+  createInvestorInsight(insight: InsertInvestorInsight, organizationId: number): Promise<InvestorInsight>;
+  updateInvestorInsight(id: number, insight: Partial<InsertInvestorInsight>, organizationId: number): Promise<InvestorInsight | undefined>;
+  deleteInvestorInsight(id: number, organizationId: number): Promise<boolean>;
+  getMeetingsForWeek(startDate: string, endDate: string, organizationId: number): Promise<Meeting[]>;
 
 }
 
@@ -886,6 +895,53 @@ export class DatabaseStorage implements IStorage {
   async deleteUser(id: number): Promise<boolean> {
     const result = await db.delete(users).where(eq(users.id, id));
     return result.rowCount! > 0;
+  }
+
+  // Investor Insights
+  async getInvestorInsights(organizationId: number): Promise<InvestorInsight[]> {
+    return await db.select().from(investorInsights)
+      .where(eq(investorInsights.organizationId, organizationId))
+      .orderBy(desc(investorInsights.weekStartDate));
+  }
+
+  async getInvestorInsight(id: number, organizationId: number): Promise<InvestorInsight | undefined> {
+    const [insight] = await db.select().from(investorInsights).where(
+      sql`${investorInsights.id} = ${id} AND ${investorInsights.organizationId} = ${organizationId}`
+    );
+    return insight || undefined;
+  }
+
+  async createInvestorInsight(insertInsight: InsertInvestorInsight, organizationId: number): Promise<InvestorInsight> {
+    const [insight] = await db
+      .insert(investorInsights)
+      .values({ ...insertInsight, organizationId })
+      .returning();
+    return insight;
+  }
+
+  async updateInvestorInsight(id: number, updateData: Partial<InsertInvestorInsight>, organizationId: number): Promise<InvestorInsight | undefined> {
+    const [insight] = await db
+      .update(investorInsights)
+      .set(updateData)
+      .where(sql`${investorInsights.id} = ${id} AND ${investorInsights.organizationId} = ${organizationId}`)
+      .returning();
+    return insight || undefined;
+  }
+
+  async deleteInvestorInsight(id: number, organizationId: number): Promise<boolean> {
+    const result = await db.delete(investorInsights).where(
+      sql`${investorInsights.id} = ${id} AND ${investorInsights.organizationId} = ${organizationId}`
+    );
+    return result.rowCount! > 0;
+  }
+
+  async getMeetingsForWeek(startDate: string, endDate: string, organizationId: number): Promise<Meeting[]> {
+    return await db.select().from(meetings).where(
+      sql`${meetings.organizationId} = ${organizationId} 
+          AND ${meetings.scheduledDate} >= ${startDate} 
+          AND ${meetings.scheduledDate} <= ${endDate}
+          AND ${meetings.status} = 'completed'`
+    );
   }
 
 }
