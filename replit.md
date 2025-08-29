@@ -179,3 +179,23 @@ UI Language: Korean only display - use only Korean text for all new features and
   - Updated email placeholder to Korean domain (.co.kr)
   - Eliminated English text from dropdown options, buttons, and toast messages
   - Maintained consistency with user preference for Korean-only UI
+
+### AI-Powered Investor Insights System (August 29, 2025)
+- **AI Analysis Integration**: Implemented comprehensive AI-powered weekly meeting analysis using OpenAI GPT-4o
+  - Automatic analysis of investor meetings with 5-category insights: 미팅 요약, 투자가 공통관심사, 긍정피드백 요약, 우려사항/리스크, 향후 Follow-up 권고
+  - Concise business report style with abbreviated Korean endings ("~됨", "~였음" instead of "~되었습니다")
+  - Custom date range selection for flexible period analysis beyond fixed weekly periods
+- **Professional Report Generation**: Complete PDF and DOC export functionality with standardized design format
+  - **STANDARD REPORT DESIGN FORMAT** (to be used for all future reports):
+    - **Color Scheme**: Blue gradient theme with 5 levels (#1e40af, #2563eb, #3b82f6, #60a5fa, #93c5fd)
+    - **Layout Structure**: Clean table-based layout with proper borders and alignment
+    - **Header**: Centered title with blue underline border, Korean title + English subtitle
+    - **Meta Information**: Structured table with alternating row backgrounds (#f8fafc)
+    - **Content Sections**: Numbered sections (1-5) with blue gradient headers and white content areas
+    - **Typography**: Malgun Gothic font family, 13-15px content size, proper line-height (1.6)
+    - **Spacing**: 30px padding, 35px margins between sections, consistent 12-16px cell padding
+    - **Footer**: Simple centered footer with system attribution
+  - Dual export options: High-quality PDF (jsPDF + html2canvas) and editable DOC format
+  - Professional business document styling with perfect alignment and consistent formatting
+- **Meeting Data Integration**: Seamless integration with existing meeting database for comprehensive analysis
+- **Real-time Generation**: On-demand analysis with loading states and error handling
