@@ -2945,6 +2945,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const documents = await storage.getDocuments(); // TODO: Filter by date range if needed
       const investors = await storage.getInvestors(organizationId);
       
+      console.log(`Found ${meetings.length} meetings in the last 30 days (${startDate} to ${endDate})`);
+      console.log('Meeting dates:', meetings.map(m => m.scheduledDate).slice(0, 5));
+      
       // Generate expected questions with AI
       const analysis = await aiService.generateExpectedQuestions({
         meetings,
