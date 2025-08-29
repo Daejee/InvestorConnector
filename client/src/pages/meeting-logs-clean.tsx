@@ -829,6 +829,7 @@ export default function Meetings() {
               <SelectItem value="all">전체</SelectItem>
               <SelectItem value="내방">내방</SelectItem>
               <SelectItem value="Conference Call">Conference Call</SelectItem>
+              <SelectItem value="실적발표회 Earnings Call">실적발표회 Earnings Call</SelectItem>
               <SelectItem value="국내CorpDay">국내CorpDay</SelectItem>
               <SelectItem value="국내NDR">국내NDR</SelectItem>
               <SelectItem value="해외CorpDay">해외CorpDay</SelectItem>
