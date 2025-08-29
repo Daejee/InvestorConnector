@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { BookMeetingDialog } from "@/components/scheduling/book-meeting-dialog";
 import { 
   BarChart3, 
   Users, 
@@ -29,14 +28,7 @@ interface SidebarProps {
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: BarChart3 },
-  { 
-    name: "Meeting 관리", 
-    href: "/meeting-logs", 
-    icon: Calendar,
-    submenu: [
-      { name: "미팅예약", href: "/scheduling", icon: Plus }
-    ]
-  },
+  { name: "Meeting 관리", href: "/meeting-logs", icon: Calendar },
   { 
     name: "이메일보내기", 
     href: "/email", 
@@ -78,7 +70,6 @@ const navigation = [
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const [location] = useLocation();
   const [expandedItems, setExpandedItems] = useState<string[]>(["Meeting 관리", "Companies / 회사", "Meetings / 회의"]);
-  const [isBookMeetingOpen, setIsBookMeetingOpen] = useState(false);
 
   const toggleExpanded = (itemName: string) => {
     setExpandedItems(prev => 
@@ -352,11 +343,6 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         </nav>
       </aside>
 
-      {/* Book Meeting Dialog */}
-      <BookMeetingDialog 
-        open={isBookMeetingOpen} 
-        onOpenChange={setIsBookMeetingOpen}
-      />
     </>
   );
 }
