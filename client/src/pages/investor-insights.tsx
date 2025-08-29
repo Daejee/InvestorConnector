@@ -126,7 +126,7 @@ export default function InvestorInsights() {
     return format(new Date(dateString), 'M월 d일', { locale: ko });
   };
 
-  const downloadAsDoc = (insight: InvestorInsight) => {
+  const downloadAsPDF = (insight: InvestorInsight) => {
     const htmlContent = `
 <!DOCTYPE html>
 <html lang="ko">
@@ -203,6 +203,7 @@ export default function InvestorInsights() {
             border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            page-break-inside: avoid;
         }
         
         .section-header {
@@ -246,6 +247,7 @@ export default function InvestorInsights() {
         @media print {
             body { font-size: 12px; }
             .section { break-inside: avoid; }
+            @page { margin: 1.5cm; }
         }
     </style>
 </head>
@@ -330,20 +332,30 @@ ${insight.followUpRecommendations}
 </html>
     `;
 
-    const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `투자자인사이트보고서_${formatDate(insight.weekStartDate)}_${formatDate(insight.weekEndDate)}.html`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    
-    toast({
-      title: "다운로드 완료",
-      description: "디자인된 투자자 인사이트 보고서가 다운로드되었습니다.",
-    });
+    // 새 창에서 열어서 PDF로 인쇄하도록 함
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(htmlContent);
+      printWindow.document.close();
+      
+      // 페이지가 로드된 후 인쇄 대화상자 자동 실행
+      printWindow.onload = () => {
+        setTimeout(() => {
+          printWindow.print();
+        }, 500);
+      };
+      
+      toast({
+        title: "PDF 인쇄 창 열림",
+        description: "인쇄 대화상자에서 'PDF로 저장'을 선택하세요.",
+      });
+    } else {
+      toast({
+        title: "팝업 차단됨",
+        description: "브라우저 팝업을 허용하고 다시 시도해주세요.",
+        variant: "destructive"
+      });
+    }
   };
 
   const getStatusBadge = (status: string) => {
