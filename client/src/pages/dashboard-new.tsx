@@ -217,7 +217,7 @@ export default function Dashboard() {
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center space-x-2">
                 <Clock className="h-5 w-5" />
-                <span>금일 미팅</span>
+                <span>금일미팅일정</span>
               </CardTitle>
               <Link href="/meeting-logs">
                 <Button variant="ghost" size="sm">전체보기</Button>
