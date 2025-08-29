@@ -152,24 +152,23 @@ export default function InvestorInsights() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold mb-2">Investor Insight</h1>
           <p className="text-muted-foreground">
             AI가 분석한 주간 미팅 보고서로 투자자 인사이트를 확인하세요
           </p>
         </div>
-        <div className="flex flex-col gap-4">
-          <div className="flex gap-2">
-            <Button 
-              onClick={() => generateWeeklyInsight(0)}
-              disabled={isGenerating}
-              size="sm"
-            >
-              {isGenerating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Brain className="h-4 w-4 mr-2" />}
-              이번주 분석
-            </Button>
-          </div>
+        
+        <div className="flex items-end gap-6">
+          <Button 
+            onClick={() => generateWeeklyInsight(0)}
+            disabled={isGenerating}
+            variant="outline"
+          >
+            {isGenerating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Brain className="h-4 w-4 mr-2" />}
+            이번주 분석
+          </Button>
           
           <div className="flex items-end gap-3">
             <div className="flex gap-3">
