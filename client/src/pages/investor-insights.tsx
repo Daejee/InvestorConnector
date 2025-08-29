@@ -21,6 +21,7 @@ interface InvestorInsight {
   concerns: string;
   followUpRecommendations: string;
   meetingCount: number;
+  meetingSummary?: string;
   generatedAt: string;
   status: 'generating' | 'completed' | 'failed';
 }
@@ -200,6 +201,18 @@ export default function InvestorInsights() {
                           </DialogDescription>
                         </DialogHeader>
                         <div className="space-y-6">
+                          {insight.meetingSummary && (
+                            <div>
+                              <h3 className="font-semibold text-lg mb-2 flex items-center gap-2">
+                                <Users className="h-5 w-5 text-gray-600" />
+                                미팅 요약
+                              </h3>
+                              <div className="bg-gray-50 p-4 rounded-lg">
+                                <p className="whitespace-pre-wrap">{insight.meetingSummary}</p>
+                              </div>
+                            </div>
+                          )}
+                          
                           <div>
                             <h3 className="font-semibold text-lg mb-2 flex items-center gap-2">
                               <Users className="h-5 w-5 text-blue-600" />

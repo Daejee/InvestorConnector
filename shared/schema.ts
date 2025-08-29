@@ -491,6 +491,7 @@ export const investorInsights = pgTable('investor_insights', {
   concerns: text('concerns').notNull(),
   followUpRecommendations: text('follow_up_recommendations').notNull(),
   meetingCount: integer('meeting_count').notNull().default(0),
+  meetingSummary: text('meeting_summary'), // 미팅 요약 정보 (참석자, 기관 등)
   generatedAt: timestamp('generated_at').defaultNow(),
   status: text('status', { enum: ['generating', 'completed', 'failed'] }).notNull().default('generating'),
 });

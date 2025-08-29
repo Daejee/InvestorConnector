@@ -2849,13 +2849,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get meetings for the week
       const meetings = await storage.getMeetingsForWeek(startDate, endDate, organizationId);
       const documents = await storage.getDocuments(); // TODO: Filter by date range if needed
+      const investors = await storage.getInvestors(organizationId); // 투자자 정보 가져오기
       
       // Analyze with AI
       const analysis = await aiService.analyzeWeeklyMeetings({
         meetings,
         documents: documents.filter(doc => 
           doc.createdAt && doc.createdAt >= new Date(startDate) && doc.createdAt <= new Date(endDate)
-        )
+        ),
+        investors
       });
 
       // Create insight record
@@ -2868,6 +2870,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         concerns: analysis.concerns,
         followUpRecommendations: analysis.followUpRecommendations,
         meetingCount: meetings.length,
+        meetingSummary: analysis.meetingSummary,
         status: 'completed' as const
       };
 
