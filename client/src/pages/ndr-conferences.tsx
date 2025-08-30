@@ -86,7 +86,7 @@ export default function NdrConferences() {
               <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>
-                    {editingConference ? "Edit Conference" : "Add New Conference"}
+                    {editingConference ? "Edit Conference" : "Add Event"}
                   </DialogTitle>
                 </DialogHeader>
                 <NdrConferenceForm 
