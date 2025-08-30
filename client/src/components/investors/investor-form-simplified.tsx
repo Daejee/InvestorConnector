@@ -80,7 +80,11 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel, 
 
   const createInvestorMutation = useMutation({
     mutationFn: async (data: InsertInvestor | InsertOverseasInvestor) => {
-      const response = await apiRequest("POST", apiBasePath, data);
+      const response = await apiRequest(apiBasePath, {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: { "Content-Type": "application/json" }
+      });
       return response.json();
     },
     onSuccess: () => {
@@ -102,7 +106,11 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel, 
 
   const updateInvestorMutation = useMutation({
     mutationFn: async (data: InsertInvestor) => {
-      const response = await apiRequest("PATCH", `${apiBasePath}/${investor!.id}`, data);
+      const response = await apiRequest(`${apiBasePath}/${investor!.id}`, {
+        method: "PATCH",
+        body: JSON.stringify(data),
+        headers: { "Content-Type": "application/json" }
+      });
       return response.json();
     },
     onSuccess: () => {
@@ -169,7 +177,7 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel, 
                 <FormItem>
                   <FormLabel>이메일 *</FormLabel>
                   <FormControl>
-                    <Input type="email" placeholder="이메일 주소를 입력하세요" {...field} />
+                    <Input type="email" placeholder="이메일 주소를 입력하세요" {...field} value={field.value || ""} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
