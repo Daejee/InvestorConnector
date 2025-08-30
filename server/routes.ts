@@ -2967,6 +2967,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post("/api/investor-insights/expected-questions/export", async (req, res) => {
+    try {
+      const { format, startDate, endDate } = req.body;
+      const organizationId = 1; // TODO: Extract from auth context
+      
+      if (!startDate || !endDate) {
+        return res.status(400).json({ message: "시작일과 종료일이 필요합니다." });
+      }
+
+      if (!format || !['pdf', 'doc'].includes(format)) {
+        return res.status(400).json({ message: "유효한 형식을 선택해주세요. (pdf 또는 doc)" });
+      }
+
+      // Get meetings data for the period
+      const today = new Date();
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(today.getDate() - 30);
+      
+      const periodStartDate = thirtyDaysAgo.toISOString().split('T')[0];
+      const periodEndDate = today.toISOString().split('T')[0];
+
+      const meetings = await storage.getMeetingsForPeriod(periodStartDate, periodEndDate, organizationId);
+      const documents = await storage.getDocuments();
+      const investors = await storage.getInvestors(organizationId);
+      
+      // Generate expected questions with AI
+      const analysis = await aiService.generateExpectedQuestions({
+        meetings,
+        documents: documents.filter(doc => 
+          doc.createdAt && doc.createdAt >= thirtyDaysAgo && doc.createdAt <= today
+        ),
+        investors
+      });
+
+      res.json({
+        ...analysis,
+        reportMeta: {
+          period: `${startDate} ~ ${endDate}`,
+          meetingCount: meetings.length,
+          generatedAt: new Date().toISOString()
+        }
+      });
+    } catch (error: any) {
+      console.error('예상질문 보고서 생성 오류:', error);
+      res.status(500).json({ 
+        message: "예상질문 보고서 생성 중 오류가 발생했습니다.", 
+        error: error.message 
+      });
+    }
+  });
+
 
   const httpServer = createServer(app);
   return httpServer;

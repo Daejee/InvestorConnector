@@ -38,6 +38,7 @@ export default function InvestorInsights() {
   const [endDate, setEndDate] = useState(format(endOfWeek(new Date(), { weekStartsOn: 1 }), 'yyyy-MM-dd'));
   const [isGeneratingQuestions, setIsGeneratingQuestions] = useState(false);
   const [expectedQuestions, setExpectedQuestions] = useState<string[]>([]);
+  const [isExportingQuestions, setIsExportingQuestions] = useState(false);
 
   const { data: insights = [], isLoading } = useQuery<InvestorInsight[]>({
     queryKey: ['/api/investor-insights'],
@@ -165,6 +166,289 @@ export default function InvestorInsights() {
       });
     } finally {
       setIsGeneratingQuestions(false);
+    }
+  };
+
+  const exportExpectedQuestionsReport = async (format: 'pdf' | 'doc') => {
+    if (expectedQuestions.length === 0) {
+      toast({
+        title: "내보내기 오류",
+        description: "내보낼 예상질문이 없습니다. 먼저 예상질문을 생성해주세요.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsExportingQuestions(true);
+    try {
+      const today = new Date();
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(today.getDate() - 30);
+      
+      const reportData = {
+        expectedQuestions,
+        reportMeta: {
+          period: `${format(thirtyDaysAgo, 'yyyy-MM-dd', { locale: ko })} ~ ${format(today, 'yyyy-MM-dd', { locale: ko })}`,
+          questionCount: expectedQuestions.length,
+          generatedAt: new Date().toISOString()
+        }
+      };
+
+      if (format === 'doc') {
+        await exportExpectedQuestionsAsDoc(reportData);
+      } else {
+        await exportExpectedQuestionsAsPDF(reportData);
+      }
+    } catch (error: any) {
+      console.error('예상질문 보고서 내보내기 오류:', error);
+      toast({
+        title: "내보내기 실패",
+        description: "보고서 내보내기 중 오류가 발생했습니다.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsExportingQuestions(false);
+    }
+  };
+
+  const exportExpectedQuestionsAsDoc = async (data: any) => {
+    const htmlContent = `
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>예상질문 보고서</title>
+    <style>
+        body {
+            font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;
+            color: #1a1a1a;
+            background: #ffffff;
+            margin: 0;
+            padding: 30px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #2563eb;
+        }
+        .header h1 {
+            color: #1e40af;
+            font-size: 26px;
+            margin: 0 0 8px 0;
+            font-weight: 700;
+        }
+        .header p {
+            color: #64748b;
+            font-size: 14px;
+            margin: 0;
+            font-weight: 500;
+        }
+        .meta-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 35px;
+            border: 1px solid #d1d5db;
+        }
+        .meta-table td {
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+        }
+        .meta-table .label {
+            font-weight: 600;
+            color: #374151;
+            width: 25%;
+            background: #f8fafc;
+        }
+        .meta-table .value {
+            color: #1f2937;
+        }
+        .section-header {
+            padding: 14px 16px;
+            border: 1px solid #d1d5db;
+            background: #1e40af;
+            color: white;
+            font-weight: 700;
+            font-size: 15px;
+            margin: 0;
+        }
+        .questions-list {
+            padding: 18px 16px;
+            border: 1px solid #d1d5db;
+            line-height: 1.6;
+            font-size: 13px;
+        }
+        .question-item {
+            margin-bottom: 12px;
+            padding-left: 20px;
+            position: relative;
+        }
+        .question-item:before {
+            content: "Q.";
+            position: absolute;
+            left: 0;
+            font-weight: 600;
+            color: #2563eb;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 12px;
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>예상질문 보고서</h1>
+        <p>Expected Questions Intelligence Report</p>
+    </div>
+    
+    <table class="meta-table">
+        <tr>
+            <td class="label">분석 기간</td>
+            <td class="value">${data.reportMeta.period}</td>
+        </tr>
+        <tr>
+            <td class="label">예상질문 수</td>
+            <td class="value">${data.reportMeta.questionCount}개</td>
+        </tr>
+        <tr>
+            <td class="label">생성 일시</td>
+            <td class="value">${format(new Date(data.reportMeta.generatedAt), 'yyyy년 MM월 dd일 HH:mm', { locale: ko })}</td>
+        </tr>
+    </table>
+    
+    <table style="width: 100%; border-collapse: collapse; border: 1px solid #d1d5db;">
+        <tr>
+            <td class="section-header">AI 분석 기반 예상질문 목록</td>
+        </tr>
+        <tr>
+            <td class="questions-list">
+                ${data.expectedQuestions.map((question: string, index: number) => 
+                  `<div class="question-item">${question.replace(/^Q\.\s*/, '')}</div>`
+                ).join('')}
+            </td>
+        </tr>
+    </table>
+    
+    <div class="footer">
+        <p>IR CRM 시스템에서 생성됨 | Powered by AI Intelligence & Data Analytics</p>
+    </div>
+</body>
+</html>
+    `;
+
+    const blob = new Blob([htmlContent], { type: 'application/msword;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `예상질문보고서_${format(new Date(), 'yyyyMMdd_HHmm', { locale: ko })}.doc`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    
+    toast({
+      title: "DOC 다운로드 완료",
+      description: "예상질문 보고서 DOC 파일이 다운로드되었습니다.",
+    });
+  };
+
+  const exportExpectedQuestionsAsPDF = async (data: any) => {
+    // 임시 DOM 요소 생성
+    const tempDiv = document.createElement('div');
+    tempDiv.style.position = 'absolute';
+    tempDiv.style.left = '-10000px';
+    tempDiv.style.top = '-10000px';
+    tempDiv.style.width = '800px';
+    tempDiv.style.background = 'white';
+    tempDiv.style.fontFamily = 'Malgun Gothic, 맑은 고딕, sans-serif';
+    
+    tempDiv.innerHTML = `
+      <div style="padding: 30px; font-family: 'Malgun Gothic', '맑은 고딕', sans-serif; color: #1a1a1a; background: #ffffff;">
+        <!-- 헤더 -->
+        <div style="text-align: center; margin-bottom: 35px; padding-bottom: 20px; border-bottom: 2px solid #2563eb;">
+          <h1 style="color: #1e40af; font-size: 26px; margin: 0 0 8px 0; font-weight: 700;">예상질문 보고서</h1>
+          <p style="color: #64748b; font-size: 14px; margin: 0; font-weight: 500;">Expected Questions Intelligence Report</p>
+        </div>
+        
+        <!-- 요약 정보 테이블 -->
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 35px; border: 1px solid #d1d5db;">
+          <tr style="background: #f8fafc;">
+            <td style="padding: 12px 16px; border: 1px solid #d1d5db; font-weight: 600; color: #374151; width: 25%;">분석 기간</td>
+            <td style="padding: 12px 16px; border: 1px solid #d1d5db; color: #1f2937;">${data.reportMeta.period}</td>
+          </tr>
+          <tr>
+            <td style="padding: 12px 16px; border: 1px solid #d1d5db; font-weight: 600; color: #374151; background: #f8fafc;">예상질문 수</td>
+            <td style="padding: 12px 16px; border: 1px solid #d1d5db; color: #1f2937;">${data.reportMeta.questionCount}개</td>
+          </tr>
+          <tr style="background: #f8fafc;">
+            <td style="padding: 12px 16px; border: 1px solid #d1d5db; font-weight: 600; color: #374151;">생성 일시</td>
+            <td style="padding: 12px 16px; border: 1px solid #d1d5db; color: #1f2937;">${format(new Date(data.reportMeta.generatedAt), 'yyyy년 MM월 dd일 HH:mm', { locale: ko })}</td>
+          </tr>
+        </table>
+        
+        <!-- 예상질문 목록 -->
+        <table style="width: 100%; border-collapse: collapse; border: 1px solid #d1d5db;">
+          <tr>
+            <td style="padding: 14px 16px; border: 1px solid #d1d5db; background: #1e40af; color: white; font-weight: 700; font-size: 15px;">AI 분석 기반 예상질문 목록</td>
+          </tr>
+          <tr>
+            <td style="padding: 18px 16px; border: 1px solid #d1d5db; line-height: 1.8; font-size: 13px;">
+              ${data.expectedQuestions.map((question: string, index: number) => 
+                `<div style="margin-bottom: 12px; padding-left: 20px; position: relative;">
+                   <span style="position: absolute; left: 0; font-weight: 600; color: #2563eb;">Q.</span>
+                   ${question.replace(/^Q\.\s*/, '')}
+                 </div>`
+              ).join('')}
+            </td>
+          </tr>
+        </table>
+        
+        <div style="text-align: center; margin-top: 30px; font-size: 12px; color: #6b7280;">
+          <p>IR CRM 시스템에서 생성됨 | Powered by AI Intelligence & Data Analytics</p>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(tempDiv);
+
+    try {
+      const canvas = await html2canvas(tempDiv, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff'
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgWidth = 210;
+      const pageHeight = 295;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+
+      let position = 0;
+
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+
+      pdf.save(`예상질문보고서_${format(new Date(), 'yyyyMMdd_HHmm', { locale: ko })}.pdf`);
+      
+      toast({
+        title: "PDF 다운로드 완료",
+        description: "예상질문 보고서 PDF 파일이 다운로드되었습니다.",
+      });
+    } finally {
+      document.body.removeChild(tempDiv);
     }
   };
 
@@ -574,51 +858,6 @@ ${insight.followUpRecommendations ? insight.followUpRecommendations.replace(/\. 
         </div>
       </div>
 
-      {/* Expected Questions Section */}
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <HelpCircle className="h-5 w-5" />
-            예상질문 (Expected Questions)
-          </CardTitle>
-          <CardDescription>
-            지난 30일간의 미팅 질문과 우려사항을 AI가 분석하여 향후 예상되는 질문 15개를 생성합니다
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <Button 
-            onClick={generateExpectedQuestions}
-            disabled={isGeneratingQuestions}
-            variant="outline"
-            className="w-full sm:w-auto"
-          >
-            {isGeneratingQuestions ? (
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-            ) : (
-              <HelpCircle className="h-4 w-4 mr-2" />
-            )}
-            {isGeneratingQuestions ? '예상질문 생성 중...' : '예상질문 생성'}
-          </Button>
-          
-          {expectedQuestions.length > 0 && (
-            <div className="mt-4">
-              <h4 className="font-semibold mb-3 text-sm text-muted-foreground">
-                AI 생성 예상질문 ({expectedQuestions.length}개)
-              </h4>
-              <div className="grid gap-2">
-                {expectedQuestions.map((question, index) => (
-                  <div 
-                    key={index}
-                    className="p-3 bg-muted/50 rounded-lg border-l-4 border-blue-500"
-                  >
-                    <p className="text-sm">{question}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
 
       {insights.length === 0 ? (
         <Card className="text-center p-12">
@@ -798,6 +1037,78 @@ ${insight.followUpRecommendations ? insight.followUpRecommendations.replace(/\. 
           ))}
         </div>
       )}
+
+      {/* Expected Questions Section - 맨 아래로 이동 */}
+      <Card className="mt-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <HelpCircle className="h-5 w-5" />
+            예상질문 (Expected Questions)
+          </CardTitle>
+          <CardDescription>
+            지난 30일간의 미팅 질문과 우려사항을 AI가 분석하여 향후 예상되는 질문 15개를 생성합니다
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Button 
+            onClick={generateExpectedQuestions}
+            disabled={isGeneratingQuestions}
+            variant="outline"
+            className="w-full sm:w-auto"
+          >
+            {isGeneratingQuestions ? (
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+            ) : (
+              <HelpCircle className="h-4 w-4 mr-2" />
+            )}
+            {isGeneratingQuestions ? '예상질문 생성 중...' : '예상질문 생성'}
+          </Button>
+          
+          {expectedQuestions.length > 0 && (
+            <div className="mt-4">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="font-semibold text-sm text-muted-foreground">
+                  AI 생성 예상질문 ({expectedQuestions.length}개)
+                </h4>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={() => exportExpectedQuestionsReport('pdf')}
+                    disabled={isExportingQuestions}
+                    size="sm"
+                    variant="outline"
+                  >
+                    {isExportingQuestions ? (
+                      <Loader2 className="h-4 w-4 animate-spin mr-1" />
+                    ) : (
+                      <FileText className="h-4 w-4 mr-1" />
+                    )}
+                    PDF
+                  </Button>
+                  <Button
+                    onClick={() => exportExpectedQuestionsReport('doc')}
+                    disabled={isExportingQuestions}
+                    size="sm"
+                    variant="outline"
+                  >
+                    <Download className="h-4 w-4 mr-1" />
+                    DOC
+                  </Button>
+                </div>
+              </div>
+              <div className="grid gap-2">
+                {expectedQuestions.map((question, index) => (
+                  <div 
+                    key={index}
+                    className="p-3 bg-muted/50 rounded-lg border-l-4 border-blue-500"
+                  >
+                    <p className="text-sm">{question}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
