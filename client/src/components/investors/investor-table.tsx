@@ -201,9 +201,11 @@ function InvestorDetailView({ investor }: { investor: Investor }) {
 interface InvestorTableProps {
   investors: Investor[];
   isLoading: boolean;
+  apiBasePath?: string;
+  companiesApiPath?: string;
 }
 
-export default function InvestorTable({ investors, isLoading }: InvestorTableProps) {
+export default function InvestorTable({ investors, isLoading, apiBasePath = "/api/investors", companiesApiPath = "/api/companies" }: InvestorTableProps) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const [editingInvestor, setEditingInvestor] = useState<Investor | null>(null);
@@ -214,10 +216,10 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
 
   const deleteInvestorMutation = useMutation({
     mutationFn: async (id: number) => {
-      await apiRequest(`/api/investors/${id}`, { method: "DELETE" });
+      await apiRequest(`${apiBasePath}/${id}`, { method: "DELETE" });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/investors"] });
+      queryClient.invalidateQueries({ queryKey: [apiBasePath] });
       queryClient.invalidateQueries({ queryKey: ["/api/dashboard/stats"] });
       setDeletingInvestor(null);
       toast({
@@ -507,6 +509,8 @@ export default function InvestorTable({ investors, isLoading }: InvestorTablePro
               investor={editingInvestor}
               onSuccess={() => setEditingInvestor(null)}
               onCancel={() => setEditingInvestor(null)}
+              apiBasePath={apiBasePath}
+              companiesApiPath={companiesApiPath}
             />
           )}
         </DialogContent>

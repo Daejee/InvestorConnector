@@ -73,7 +73,9 @@ export default function OverseasInvestors() {
         <CardContent className="p-0">
           <InvestorTable 
             investors={filteredInvestors} 
-            isLoading={isLoading} 
+            isLoading={isLoading}
+            apiBasePath="/api/overseas-investors"
+            companiesApiPath="/api/overseas-companies"
           />
         </CardContent>
       </Card>
