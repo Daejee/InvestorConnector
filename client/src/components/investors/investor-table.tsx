@@ -360,28 +360,28 @@ export default function InvestorTable({ investors, isLoading, apiBasePath = "/ap
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full min-w-[1100px]">
+      <table className="w-full min-w-[900px]">
         <thead className="bg-gray-50">
           <tr>
-            <th className="pl-1 pr-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[18%]">
+            <th className="pl-1 pr-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[20%]">
               {renderSortButton('name', 'PM')}
             </th>
-            <th className="px-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[12%]">
+            <th className="px-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[18%]">
               {renderSortButton('company', '투신사')}
             </th>
-            <th className="px-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[9%]">
+            <th className="px-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[10%]">
               {renderSortButton('totalAssets', 'AUM')}
             </th>
-            <th className="px-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[7%]">
+            <th className="px-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[8%]">
               {renderSortButton('currentCompanyExperience', '현회사운용경력')}
             </th>
-            <th className="px-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[6%]">
+            <th className="px-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[8%]">
               {renderSortButton('numberOfManagedFunds', '운용펀드수')}
             </th>
-            <th className="px-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[8%]">
+            <th className="px-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[12%]">
               {renderSortButton('ownsOurShare', '당사지분보유')}
             </th>
-            <th className="px-1 pr-4 py-3 text-right text-sm font-medium text-gray-500 uppercase tracking-wider w-[40%]">
+            <th className="px-1 pr-4 py-3 text-right text-sm font-medium text-gray-500 uppercase tracking-wider w-[24%]">
               Actions
             </th>
           </tr>
