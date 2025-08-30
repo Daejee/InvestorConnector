@@ -11,12 +11,12 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { insertInvestorSchema, type InsertInvestor, type Investor, type Company, type Fund } from "@shared/schema";
+import { insertInvestorSchema, insertOverseasInvestorSchema, type InsertInvestor, type InsertOverseasInvestor, type Investor, type OverseasInvestor, type Company, type Fund } from "@shared/schema";
 import { ChevronDown } from "lucide-react";
 import { useState } from "react";
 
 interface InvestorFormProps {
-  investor?: Investor;
+  investor?: Investor | OverseasInvestor;
   onSuccess?: () => void;
   onCancel?: () => void;
   apiBasePath?: string;
@@ -28,6 +28,9 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel, 
   const { toast } = useToast();
   const [showDetails, setShowDetails] = useState(false);
 
+  // Check if this is an overseas investor
+  const isOverseas = apiBasePath === "/api/overseas-investors";
+  
   const { data: companies } = useQuery<Company[]>({
     queryKey: [companiesApiPath],
   });
@@ -39,9 +42,9 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel, 
   const sortedCompanies = companies?.sort((a, b) => a.name.localeCompare(b.name)) || [];
   const sortedFunds = funds?.sort((a, b) => a.name.localeCompare(b.name)) || [];
 
-  const form = useForm<InsertInvestor>({
-    resolver: zodResolver(insertInvestorSchema),
-    defaultValues: {
+  const form = useForm<InsertInvestor | InsertOverseasInvestor>({
+    resolver: zodResolver(isOverseas ? insertOverseasInvestorSchema : insertInvestorSchema),
+    defaultValues: isOverseas ? {
       name: investor?.name ?? "",
       email: investor?.email ?? "",
       phone: investor?.phone ?? "",
@@ -54,15 +57,29 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel, 
       shareAmount: investor?.shareAmount ?? "",
       note: investor?.note ?? "",
       avatarInitials: investor?.avatarInitials ?? "",
-      totalExperience: investor?.totalExperience ?? undefined,
-      currentCompanyExperience: investor?.currentCompanyExperience ?? undefined,
-      managedFundAum: investor?.managedFundAum ?? undefined,
-      numberOfManagedFunds: investor?.numberOfManagedFunds ?? undefined,
+      country: (investor as OverseasInvestor)?.country ?? "Korea",
+    } : {
+      name: investor?.name ?? "",
+      email: investor?.email ?? "",
+      phone: investor?.phone ?? "",
+      company: investor?.company ?? "",
+      fund: investor?.fund ?? "",
+      position: investor?.position ?? "",
+      positionType: investor?.positionType ?? "",
+      specialty: investor?.specialty ?? [],
+      ownsOurShare: investor?.ownsOurShare ?? "",
+      shareAmount: investor?.shareAmount ?? "",
+      note: investor?.note ?? "",
+      avatarInitials: investor?.avatarInitials ?? "",
+      totalExperience: (investor as Investor)?.totalExperience ?? undefined,
+      currentCompanyExperience: (investor as Investor)?.currentCompanyExperience ?? undefined,
+      managedFundAum: (investor as Investor)?.managedFundAum ?? undefined,
+      numberOfManagedFunds: (investor as Investor)?.numberOfManagedFunds ?? undefined,
     },
   });
 
   const createInvestorMutation = useMutation({
-    mutationFn: async (data: InsertInvestor) => {
+    mutationFn: async (data: InsertInvestor | InsertOverseasInvestor) => {
       const response = await apiRequest("POST", apiBasePath, data);
       return response.json();
     },
@@ -341,7 +358,39 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel, 
               />
             )}
 
-            {/* Portfolio Management Experience Fields */}
+            {/* Country field for overseas investors */}
+            {isOverseas && (
+              <FormField
+                control={form.control}
+                name="country"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>국가</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="국가 선택" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Korea">한국</SelectItem>
+                        <SelectItem value="US">미국</SelectItem>
+                        <SelectItem value="UK">영국</SelectItem>
+                        <SelectItem value="Japan">일본</SelectItem>
+                        <SelectItem value="Singapore">싱가포르</SelectItem>
+                        <SelectItem value="China">중국</SelectItem>
+                        <SelectItem value="Hong Kong">홍콩</SelectItem>
+                        <SelectItem value="Other">기타</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+
+            {/* Portfolio Management Experience Fields - Only for domestic investors */}
+            {!isOverseas && (
             <div className="space-y-4 border-t pt-4">
               <div className="flex items-center justify-between">
                 <h4 className="text-base font-semibold text-gray-800">포트폴리오 운용현황(2025년8월기준)</h4>
@@ -431,7 +480,8 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel, 
                     )}
                   />
                 </div>
-              </div>
+            </div>
+            )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
