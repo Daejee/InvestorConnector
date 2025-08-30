@@ -213,6 +213,9 @@ export default function InvestorTable({ investors, isLoading, apiBasePath = "/ap
   const [deletingInvestor, setDeletingInvestor] = useState<Investor | null>(null);
   const [sortBy, setSortBy] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  
+  // Check if this is overseas investors
+  const isOverseas = apiBasePath === "/api/overseas-investors";
 
   const deleteInvestorMutation = useMutation({
     mutationFn: async (id: number) => {
@@ -363,22 +366,31 @@ export default function InvestorTable({ investors, isLoading, apiBasePath = "/ap
       <table className="w-full min-w-[900px]">
         <thead className="bg-gray-50">
           <tr>
-            <th className="pl-1 pr-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[20%]">
+            <th className="pl-1 pr-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[22%]">
               {renderSortButton('name', 'PM')}
             </th>
-            <th className="px-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[18%]">
-              {renderSortButton('company', '투신사')}
+            <th className="px-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[20%]">
+              {renderSortButton('company', isOverseas ? '자산운용사(해외)' : '투신사')}
             </th>
-            <th className="px-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[10%]">
+            {isOverseas && (
+              <th className="px-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[10%]">
+                국가
+              </th>
+            )}
+            <th className="px-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[12%]">
               {renderSortButton('totalAssets', 'AUM')}
             </th>
-            <th className="px-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[8%]">
-              {renderSortButton('currentCompanyExperience', '현회사운용경력')}
-            </th>
-            <th className="px-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[8%]">
-              {renderSortButton('numberOfManagedFunds', '운용펀드수')}
-            </th>
-            <th className="px-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[12%]">
+            {!isOverseas && (
+              <>
+                <th className="px-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[8%]">
+                  {renderSortButton('currentCompanyExperience', '현회사운용경력')}
+                </th>
+                <th className="px-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[8%]">
+                  {renderSortButton('numberOfManagedFunds', '운용펀드수')}
+                </th>
+              </>
+            )}
+            <th className="px-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[14%]">
               {renderSortButton('ownsOurShare', '당사지분보유')}
             </th>
             <th className="px-1 pr-4 py-3 text-right text-sm font-medium text-gray-500 uppercase tracking-wider w-[24%]">
@@ -395,21 +407,32 @@ export default function InvestorTable({ investors, isLoading, apiBasePath = "/ap
               <td className="px-1 py-4 whitespace-nowrap">
                 <div className="text-sm text-gray-900">{investor.company}</div>
               </td>
+              {isOverseas && (
+                <td className="px-1 py-4 whitespace-nowrap">
+                  <div className="text-sm text-gray-900">
+                    {(investor as any).country || '-'}
+                  </div>
+                </td>
+              )}
               <td className="px-1 py-4 whitespace-nowrap">
                 <div className="text-sm text-gray-900">
                   {investor.totalAssets ? `${Number(investor.totalAssets).toLocaleString()}` : '-'}
                 </div>
               </td>
-              <td className="px-1 py-4 whitespace-nowrap">
-                <div className="text-sm text-gray-900">
-                  {investor.currentCompanyExperience || '-'}
-                </div>
-              </td>
-              <td className="px-1 py-4 whitespace-nowrap">
-                <div className="text-sm text-gray-900">
-                  {investor.numberOfManagedFunds || '-'}
-                </div>
-              </td>
+              {!isOverseas && (
+                <>
+                  <td className="px-1 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900">
+                      {investor.currentCompanyExperience || '-'}
+                    </div>
+                  </td>
+                  <td className="px-1 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900">
+                      {investor.numberOfManagedFunds || '-'}
+                    </div>
+                  </td>
+                </>
+              )}
               <td className="px-1 py-4 whitespace-nowrap">
                 <div className="text-sm text-gray-900">
                   {investor.ownsOurShare === "Yes" ? (
