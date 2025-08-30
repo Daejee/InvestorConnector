@@ -106,7 +106,7 @@ export default function OtherEvents() {
               <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>
-                    {editingEvent ? "Edit Event / 이벤트 수정" : "Add New Event / 새 이벤트 추가"}
+                    {editingEvent ? "이벤트 수정" : "새 이벤트 추가"}
                   </DialogTitle>
                 </DialogHeader>
                 <OtherEventForm 

@@ -194,7 +194,7 @@ export default function OtherEventForm({ event, onSuccess, onCancel }: OtherEven
             name="name"
             render={({ field }) => (
               <FormItem className="md:col-span-2">
-                <FormLabel>Event Name / 이벤트명</FormLabel>
+                <FormLabel>이벤트명</FormLabel>
                 <FormControl>
                   <Input
                     placeholder="e.g., Annual Company Workshop 2025"
@@ -211,7 +211,7 @@ export default function OtherEventForm({ event, onSuccess, onCancel }: OtherEven
             name="eventType"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Event Type / 이벤트 유형</FormLabel>
+                <FormLabel>이벤트 유형</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
@@ -236,7 +236,7 @@ export default function OtherEventForm({ event, onSuccess, onCancel }: OtherEven
             name="status"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Status / 상태</FormLabel>
+                <FormLabel>상태</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
@@ -260,7 +260,7 @@ export default function OtherEventForm({ event, onSuccess, onCancel }: OtherEven
             name="startDate"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Start Date / 시작일</FormLabel>
+                <FormLabel>시작일</FormLabel>
                 <FormControl>
                   <Input
                     type="date"
@@ -277,7 +277,7 @@ export default function OtherEventForm({ event, onSuccess, onCancel }: OtherEven
             name="endDate"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>End Date / 종료일 (Optional)</FormLabel>
+                <FormLabel>종료일 (Optional)</FormLabel>
                 <FormControl>
                   <Input
                     type="date"
@@ -294,7 +294,7 @@ export default function OtherEventForm({ event, onSuccess, onCancel }: OtherEven
             name="location"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Location / 장소</FormLabel>
+                <FormLabel>장소</FormLabel>
                 <FormControl>
                   <Input
                     placeholder="e.g., Seoul Conference Center, Online"
@@ -311,7 +311,7 @@ export default function OtherEventForm({ event, onSuccess, onCancel }: OtherEven
             name="organizer"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Organizer / 주최자</FormLabel>
+                <FormLabel>주최자</FormLabel>
                 <FormControl>
                   <Input
                     placeholder="e.g., Company Name, External Partner"
@@ -468,7 +468,7 @@ export default function OtherEventForm({ event, onSuccess, onCancel }: OtherEven
             name="description"
             render={({ field }) => (
               <FormItem className="md:col-span-2">
-                <FormLabel>Description / 설명 (Optional)</FormLabel>
+                <FormLabel>설명 (Optional)</FormLabel>
                 <FormControl>
                   <Textarea
                     placeholder="Describe the event, agenda, or additional notes..."
