@@ -137,7 +137,7 @@ export default function Dashboard() {
             <Link href="/scheduling">
               <Button>
                 <Plus className="mr-2 h-4 w-4" />
-                Schedule Meeting / 미팅 예약
+                미팅예약
               </Button>
             </Link>
           </div>
@@ -233,7 +233,7 @@ export default function Dashboard() {
                 <p className="text-gray-500">No meetings today / 오늘 미팅이 없습니다</p>
                 <Link href="/scheduling">
                   <Button variant="outline" className="mt-3">
-                    Schedule Meeting / 미팅 예약
+                    미팅예약
                   </Button>
                 </Link>
               </div>
