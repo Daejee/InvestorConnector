@@ -1043,7 +1043,7 @@ ${insight.followUpRecommendations ? insight.followUpRecommendations.replace(/\. 
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <HelpCircle className="h-5 w-5" />
-            AI 예상질문
+            AI 예상질문 생성
           </CardTitle>
           <CardDescription>
             지난 30일간의 미팅 질문과 우려사항을 AI가 분석하여 향후 예상되는 질문 15개를 생성합니다
