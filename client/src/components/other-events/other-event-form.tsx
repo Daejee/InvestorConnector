@@ -1,14 +1,15 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { X } from "lucide-react";
-import { insertOtherEventSchema, type InsertOtherEvent, type OtherEvent } from "@shared/schema";
+import { insertOtherEventSchema, type InsertOtherEvent, type OtherEvent, type Investor, type Analyst } from "@shared/schema";
 import { z } from "zod";
 import { useState } from "react";
 
@@ -31,6 +32,18 @@ type FormData = z.infer<typeof formSchema>;
 export default function OtherEventForm({ event, onSuccess, onCancel }: OtherEventFormProps) {
   const queryClient = useQueryClient();
   const [newAttendee, setNewAttendee] = useState("");
+  const [attendeeType, setAttendeeType] = useState<"analyst" | "investor" | "custom">("custom");
+  const [selectedAnalysts, setSelectedAnalysts] = useState<number[]>([]);
+  const [selectedInvestors, setSelectedInvestors] = useState<number[]>([]);
+
+  // Fetch analysts and investors
+  const { data: analysts = [] } = useQuery<Analyst[]>({
+    queryKey: ["/api/analysts"],
+  });
+
+  const { data: investors = [] } = useQuery<Investor[]>({
+    queryKey: ["/api/investors"],
+  });
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -118,6 +131,54 @@ export default function OtherEventForm({ event, onSuccess, onCancel }: OtherEven
   const removeAttendee = (attendeeToRemove: string) => {
     const currentAttendees = form.getValues("attendees");
     form.setValue("attendees", currentAttendees.filter(a => a !== attendeeToRemove));
+  };
+
+  const handleAnalystSelection = (analystId: number, checked: boolean) => {
+    setSelectedAnalysts(prev => {
+      if (checked) {
+        return [...prev, analystId];
+      } else {
+        return prev.filter(id => id !== analystId);
+      }
+    });
+  };
+
+  const handleInvestorSelection = (investorId: number, checked: boolean) => {
+    setSelectedInvestors(prev => {
+      if (checked) {
+        return [...prev, investorId];
+      } else {
+        return prev.filter(id => id !== investorId);
+      }
+    });
+  };
+
+  const addSelectedAttendees = () => {
+    const currentAttendees = form.getValues("attendees");
+    let newAttendees: string[] = [];
+
+    if (attendeeType === "analyst") {
+      newAttendees = selectedAnalysts.map(id => {
+        const analyst = analysts.find(a => a.id === id);
+        return analyst ? `${analyst.name} (${analyst.company})` : "";
+      }).filter(Boolean);
+    } else if (attendeeType === "investor") {
+      newAttendees = selectedInvestors.map(id => {
+        const investor = investors.find(i => i.id === id);
+        return investor ? `${investor.name} (${investor.company})` : "";
+      }).filter(Boolean);
+    }
+
+    const uniqueAttendees = [...currentAttendees];
+    newAttendees.forEach(attendee => {
+      if (!uniqueAttendees.includes(attendee)) {
+        uniqueAttendees.push(attendee);
+      }
+    });
+
+    form.setValue("attendees", uniqueAttendees);
+    setSelectedAnalysts([]);
+    setSelectedInvestors([]);
   };
 
   const attendees = form.watch("attendees");
@@ -280,36 +341,125 @@ export default function OtherEventForm({ event, onSuccess, onCancel }: OtherEven
 
           {/* Attendees Section */}
           <div className="md:col-span-2">
-            <FormLabel>Attendees / 참석자 (Optional)</FormLabel>
-            <div className="mt-2 space-y-3">
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Add attendee name or company..."
-                  value={newAttendee}
-                  onChange={(e) => setNewAttendee(e.target.value)}
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      addAttendee();
-                    }
-                  }}
-                />
-                <Button type="button" onClick={addAttendee}>
-                  Add
-                </Button>
+            <FormLabel>참석자 (Optional)</FormLabel>
+            <div className="mt-2 space-y-4">
+              {/* Attendee Type Selection */}
+              <div className="flex gap-4">
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    name="attendeeType"
+                    value="analyst"
+                    checked={attendeeType === "analyst"}
+                    onChange={(e) => setAttendeeType(e.target.value as "analyst")}
+                  />
+                  <span>애널리스트</span>
+                </label>
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    name="attendeeType"
+                    value="investor"
+                    checked={attendeeType === "investor"}
+                    onChange={(e) => setAttendeeType(e.target.value as "investor")}
+                  />
+                  <span>투자자</span>
+                </label>
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    name="attendeeType"
+                    value="custom"
+                    checked={attendeeType === "custom"}
+                    onChange={(e) => setAttendeeType(e.target.value as "custom")}
+                  />
+                  <span>직접입력</span>
+                </label>
               </div>
+
+              {/* Analyst Selection */}
+              {attendeeType === "analyst" && (
+                <div className="space-y-3">
+                  <div className="max-h-48 overflow-y-auto border rounded-lg p-3">
+                    {analysts.map((analyst) => (
+                      <div key={analyst.id} className="flex items-center space-x-2 mb-2">
+                        <Checkbox
+                          checked={selectedAnalysts.includes(analyst.id)}
+                          onCheckedChange={(checked) => 
+                            handleAnalystSelection(analyst.id, checked as boolean)
+                          }
+                        />
+                        <span className="text-sm">{analyst.name} ({analyst.company})</span>
+                      </div>
+                    ))}
+                  </div>
+                  {selectedAnalysts.length > 0 && (
+                    <Button type="button" onClick={addSelectedAttendees} variant="outline" size="sm">
+                      선택한 애널리스트 추가 ({selectedAnalysts.length}명)
+                    </Button>
+                  )}
+                </div>
+              )}
+
+              {/* Investor Selection */}
+              {attendeeType === "investor" && (
+                <div className="space-y-3">
+                  <div className="max-h-48 overflow-y-auto border rounded-lg p-3">
+                    {investors.map((investor) => (
+                      <div key={investor.id} className="flex items-center space-x-2 mb-2">
+                        <Checkbox
+                          checked={selectedInvestors.includes(investor.id)}
+                          onCheckedChange={(checked) => 
+                            handleInvestorSelection(investor.id, checked as boolean)
+                          }
+                        />
+                        <span className="text-sm">{investor.name} ({investor.company})</span>
+                      </div>
+                    ))}
+                  </div>
+                  {selectedInvestors.length > 0 && (
+                    <Button type="button" onClick={addSelectedAttendees} variant="outline" size="sm">
+                      선택한 투자자 추가 ({selectedInvestors.length}명)
+                    </Button>
+                  )}
+                </div>
+              )}
+
+              {/* Custom Input */}
+              {attendeeType === "custom" && (
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="참석자 이름 또는 회사명 입력..."
+                    value={newAttendee}
+                    onChange={(e) => setNewAttendee(e.target.value)}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        addAttendee();
+                      }
+                    }}
+                  />
+                  <Button type="button" onClick={addAttendee}>
+                    추가
+                  </Button>
+                </div>
+              )}
               
+              {/* Selected Attendees Display */}
               {attendees.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {attendees.map((attendee, index) => (
-                    <Badge key={index} variant="secondary" className="px-3 py-1">
-                      {attendee}
-                      <X
-                        className="ml-2 h-3 w-3 cursor-pointer"
-                        onClick={() => removeAttendee(attendee)}
-                      />
-                    </Badge>
-                  ))}
+                <div className="space-y-2">
+                  <span className="text-sm font-medium">선택된 참석자:</span>
+                  <div className="flex flex-wrap gap-2">
+                    {attendees.map((attendee, index) => (
+                      <Badge key={index} variant="secondary" className="px-3 py-1">
+                        {attendee}
+                        <X
+                          className="ml-2 h-3 w-3 cursor-pointer"
+                          onClick={() => removeAttendee(attendee)}
+                        />
+                      </Badge>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
