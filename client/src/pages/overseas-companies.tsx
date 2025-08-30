@@ -491,7 +491,7 @@ export default function OverseasCompanies() {
                       {getSortIcon('shareholderStatus')}
                     </div>
                   </TableHead>
-                  <TableHead className="w-[100px]">작업</TableHead>
+                  <TableHead className="w-[100px]">ACTIONS</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
