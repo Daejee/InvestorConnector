@@ -169,7 +169,7 @@ export default function InvestorInsights() {
     }
   };
 
-  const exportExpectedQuestionsReport = async (format: 'pdf' | 'doc') => {
+  const exportExpectedQuestionsReport = async (exportFormat: 'pdf' | 'doc') => {
     if (expectedQuestions.length === 0) {
       toast({
         title: "내보내기 오류",
@@ -194,7 +194,7 @@ export default function InvestorInsights() {
         }
       };
 
-      if (format === 'doc') {
+      if (exportFormat === 'doc') {
         await exportExpectedQuestionsAsDoc(reportData);
       } else {
         await exportExpectedQuestionsAsPDF(reportData);
