@@ -82,8 +82,7 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel, 
     mutationFn: async (data: InsertInvestor | InsertOverseasInvestor) => {
       const response = await apiRequest(apiBasePath, {
         method: "POST",
-        body: JSON.stringify(data),
-        headers: { "Content-Type": "application/json" }
+        body: data
       });
       return response.json();
     },
@@ -108,8 +107,7 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel, 
     mutationFn: async (data: InsertInvestor) => {
       const response = await apiRequest(`${apiBasePath}/${investor!.id}`, {
         method: "PATCH",
-        body: JSON.stringify(data),
-        headers: { "Content-Type": "application/json" }
+        body: data
       });
       return response.json();
     },
