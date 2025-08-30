@@ -146,6 +146,7 @@ export default function NdrConferenceForm({ conference, onSuccess, onCancel }: N
                     <SelectItem value="국내CorpDay">국내CorpDay</SelectItem>
                     <SelectItem value="해외NDR">해외NDR</SelectItem>
                     <SelectItem value="해외CorpDay">해외CorpDay</SelectItem>
+                    <SelectItem value="실적발표회/Earning's Call">실적발표회/Earning's Call</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
