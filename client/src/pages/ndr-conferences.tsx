@@ -49,11 +49,11 @@ export default function NdrConferences() {
     const end = new Date(endDate.toString().split('T')[0] + 'T23:59:59');
     
     if (now < start) {
-      return <Badge variant="outline" className="bg-blue-50 text-blue-700">Upcoming</Badge>;
+      return <Badge variant="outline" className="bg-blue-50 text-blue-700">예정</Badge>;
     } else if (now >= start && now <= end) {
-      return <Badge className="bg-green-100 text-green-800">Ongoing</Badge>;
+      return <Badge className="bg-green-100 text-green-800">진행중</Badge>;
     } else {
-      return <Badge variant="secondary">Completed</Badge>;
+      return <Badge variant="secondary">완료</Badge>;
     }
   };
 
@@ -80,13 +80,13 @@ export default function NdrConferences() {
               <DialogTrigger asChild>
                 <Button onClick={() => setEditingConference(null)}>
                   <Plus className="mr-2 h-4 w-4" />
-                  Add Event
+                  이벤트 추가
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>
-                    {editingConference ? "Edit Conference" : "Add Event"}
+                    {editingConference ? "컴퍼런스 수정" : "이벤트 추가"}
                   </DialogTitle>
                 </DialogHeader>
                 <NdrConferenceForm 
@@ -101,7 +101,7 @@ export default function NdrConferences() {
       </div>
       <div className="mb-6">
         <Input
-          placeholder="Search conferences by name, host company, city, or place..."
+          placeholder="이벤트명, 주최회사, 도시, 장소로 검색..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="max-w-md"
@@ -111,25 +111,25 @@ export default function NdrConferences() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Event Name</TableHead>
-              <TableHead>Dates</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Location</TableHead>
-              <TableHead>Host Company</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>이벤트명</TableHead>
+              <TableHead>날짜</TableHead>
+              <TableHead>상태</TableHead>
+              <TableHead>장소</TableHead>
+              <TableHead>주최회사</TableHead>
+              <TableHead className="text-right">작업</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
               <TableRow>
                 <TableCell colSpan={6} className="text-center py-8">
-                  Loading conferences...
+                  컴퍼런스 로딩 중...
                 </TableCell>
               </TableRow>
             ) : filteredConferences.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="text-center py-8">
-                  {searchQuery ? "No conferences match your search." : "No conferences found. Create your first conference to get started."}
+                  {searchQuery ? "검색 결과가 없습니다." : "컴퍼런스가 없습니다. 첫 번째 컴퍼런스를 생성하세요."}
                 </TableCell>
               </TableRow>
             ) : (
