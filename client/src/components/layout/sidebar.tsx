@@ -211,7 +211,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                 onClick={() => onClose()}
                 >
                   <CalendarDays className="mr-3 h-5 w-5" />
-                  NDR/컨퍼런스
+                  실적발표/NDR/CorpDay
                 </div>
               </Link>
               <Link href="/other-events">
