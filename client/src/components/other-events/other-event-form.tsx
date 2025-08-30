@@ -326,6 +326,16 @@ export default function OtherEventForm({ event, onSuccess, onCancel }: OtherEven
           {/* Attendees Section */}
           <div className="md:col-span-2">
             <FormLabel>참석자 (Optional)</FormLabel>
+            <div className="text-sm text-gray-600 mb-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+              <div className="font-medium text-blue-800 mb-1">📝 참석자 추가 방법:</div>
+              <div className="space-y-1 text-blue-700">
+                <div>1. 애널리스트/투자자/직접입력 중 선택</div>
+                <div>2. 원하는 인원을 체크박스로 선택</div>
+                <div>3. <strong>"선택한 XXX 추가" 버튼을 클릭</strong> (중요!)</div>
+                <div>4. 선택된 참석자가 하단에 태그로 표시됨</div>
+                <div>5. 이벤트 저장 시 참석자 정보가 함께 저장됨</div>
+              </div>
+            </div>
             <div className="mt-2 space-y-4">
               {/* Attendee Type Selection */}
               <div className="flex gap-4">
