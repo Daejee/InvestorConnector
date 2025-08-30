@@ -420,7 +420,7 @@ export default function Analysts() {
                 <TableHead className="w-[140px]">전화번호</TableHead>
                 <TableHead>이메일</TableHead>
                 <TableHead>커버리지여부</TableHead>
-                <TableHead className="w-[120px]">작업</TableHead>
+                <TableHead className="w-[120px]">ACTIONS</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
