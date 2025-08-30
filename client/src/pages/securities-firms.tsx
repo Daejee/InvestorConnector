@@ -12,6 +12,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { 
   Table,
   TableBody,
@@ -30,7 +31,8 @@ import {
   Trash2,
   Phone,
   MapPin,
-  Globe
+  Globe,
+  MoreVertical
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { SecuritiesFirm, InsertSecuritiesFirm } from "@shared/schema";
