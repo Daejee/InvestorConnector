@@ -46,8 +46,14 @@ const navigation = [
       { name: "이메일 로그", href: "/email-logs", icon: FileEdit }
     ]
   },
-  { name: "보고서작성", href: "/reports", icon: BarChart },
-  { name: "Investor Insight", href: "/investor-insights", icon: TrendingUp },
+  { 
+    name: "보고서작성", 
+    href: "/reports", 
+    icon: BarChart,
+    submenu: [
+      { name: "Investor Insight", href: "/investor-insights", icon: TrendingUp }
+    ]
+  },
   { name: "투자자(국내)", href: "/investors", icon: Users },
   { 
     name: "자산운용사(국내)", 
@@ -72,7 +78,7 @@ const navigation = [
 
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const [location] = useLocation();
-  const [expandedItems, setExpandedItems] = useState<string[]>(["Meeting 관리", "Companies / 회사", "Meetings / 회의"]);
+  const [expandedItems, setExpandedItems] = useState<string[]>(["Meeting 관리", "보고서작성", "Companies / 회사", "Meetings / 회의"]);
   const [isBookMeetingOpen, setIsBookMeetingOpen] = useState(false);
 
   const toggleExpanded = (itemName: string) => {
