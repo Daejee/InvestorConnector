@@ -116,20 +116,19 @@ export default function NdrConferences() {
               <TableHead>Status</TableHead>
               <TableHead>Location</TableHead>
               <TableHead>Host Company</TableHead>
-              <TableHead>Participants</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8">
+                <TableCell colSpan={6} className="text-center py-8">
                   Loading conferences...
                 </TableCell>
               </TableRow>
             ) : filteredConferences.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8">
+                <TableCell colSpan={6} className="text-center py-8">
                   {searchQuery ? "No conferences match your search." : "No conferences found. Create your first conference to get started."}
                 </TableCell>
               </TableRow>
@@ -169,22 +168,6 @@ export default function NdrConferences() {
                     <div className="flex items-center space-x-2">
                       <Building className="h-4 w-4 text-gray-500" />
                       <span className="text-sm">{conference.hostCompany}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="text-sm">
-                      {conference.participatingCompanies.length > 0 ? (
-                        <div>
-                          <span className="font-medium">{conference.participatingCompanies.length}</span> companies
-                          {conference.participatingCompanies.length <= 3 && (
-                            <div className="text-gray-500 mt-1">
-                              {conference.participatingCompanies.join(", ")}
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        <span className="text-gray-500">No participants</span>
-                      )}
                     </div>
                   </TableCell>
                   <TableCell className="text-right">
