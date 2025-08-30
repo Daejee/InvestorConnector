@@ -49,15 +49,15 @@ export default function OtherEvents() {
     const end = endDate ? new Date(endDate.toString().split('T')[0] + 'T23:59:59') : start;
     
     if (status === "cancelled") {
-      return <Badge variant="destructive">Cancelled</Badge>;
+      return <Badge variant="destructive">취소됨</Badge>;
     }
     
     if (now < start) {
-      return <Badge variant="outline" className="bg-blue-50 text-blue-700">Upcoming</Badge>;
+      return <Badge variant="outline" className="bg-blue-50 text-blue-700">예정</Badge>;
     } else if (now >= start && now <= end) {
-      return <Badge className="bg-green-100 text-green-800">Ongoing</Badge>;
+      return <Badge className="bg-green-100 text-green-800">진행중</Badge>;
     } else {
-      return <Badge variant="secondary">Completed</Badge>;
+      return <Badge variant="secondary">완료</Badge>;
     }
   };
 
@@ -100,7 +100,7 @@ export default function OtherEvents() {
               <DialogTrigger asChild>
                 <Button onClick={() => setEditingEvent(null)}>
                   <Plus className="mr-2 h-4 w-4" />
-                  Add Event
+                  이벤트 추가
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -121,7 +121,7 @@ export default function OtherEvents() {
       </div>
       <div className="mb-6">
         <Input
-          placeholder="Search events by name, type, location, or organizer... / 이름, 유형, 장소, 주최자로 검색..."
+          placeholder="이름, 유형, 장소, 주최자로 검색..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="max-w-md"
@@ -131,27 +131,27 @@ export default function OtherEvents() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Event Name / 이벤트명</TableHead>
-              <TableHead>Type / 유형</TableHead>
-              <TableHead>Date / 날짜</TableHead>
-              <TableHead>Status / 상태</TableHead>
-              <TableHead>Location / 장소</TableHead>
-              <TableHead>Organizer / 주최자</TableHead>
-              <TableHead>Attendees / 참석자</TableHead>
-              <TableHead className="text-right">Actions / 작업</TableHead>
+              <TableHead>이벤트명</TableHead>
+              <TableHead>유형</TableHead>
+              <TableHead>날짜</TableHead>
+              <TableHead>상태</TableHead>
+              <TableHead>장소</TableHead>
+              <TableHead>주최자</TableHead>
+              <TableHead>참석자</TableHead>
+              <TableHead className="text-right">작업</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
               <TableRow>
                 <TableCell colSpan={8} className="text-center py-8">
-                  Loading events... / 이벤트 로딩 중...
+                  이벤트 로딩 중...
                 </TableCell>
               </TableRow>
             ) : filteredEvents.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={8} className="text-center py-8">
-                  {searchQuery ? "No events match your search. / 검색 결과가 없습니다." : "No events found. Create your first event to get started. / 이벤트가 없습니다. 첫 번째 이벤트를 생성하세요."}
+                  {searchQuery ? "검색 결과가 없습니다." : "이벤트가 없습니다. 첫 번째 이벤트를 생성하세요."}
                 </TableCell>
               </TableRow>
             ) : (
@@ -198,7 +198,7 @@ export default function OtherEvents() {
                     <div className="text-sm">
                       {event.attendees && event.attendees.length > 0 ? (
                         <div>
-                          <span className="font-medium">{event.attendees.length}</span> attendees
+                          <span className="font-medium">{event.attendees.length}명</span> 참석자
                           {event.attendees.length <= 3 && (
                             <div className="text-gray-500 mt-1">
                               {event.attendees.join(", ")}
@@ -206,7 +206,7 @@ export default function OtherEvents() {
                           )}
                         </div>
                       ) : (
-                        <span className="text-gray-500">No attendees</span>
+                        <span className="text-gray-500">참석자 없음</span>
                       )}
                     </div>
                   </TableCell>
