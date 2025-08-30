@@ -325,10 +325,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/overseas-investors", async (req, res) => {
     try {
+      console.log("Overseas investor request body:", req.body);
       const data = insertOverseasInvestorSchema.parse(req.body);
-      const investor = await storage.createOverseasInvestor(data);
+      console.log("Parsed data:", data);
+      // Add organizationId like in regular investor creation
+      const dataWithOrgId = { ...data, organizationId: 1 };
+      const investor = await storage.createOverseasInvestor(dataWithOrgId);
       res.status(201).json(investor);
     } catch (error) {
+      console.error("Error creating overseas investor:", error);
       res.status(400).json({ message: "Invalid overseas investor data", error });
     }
   });
