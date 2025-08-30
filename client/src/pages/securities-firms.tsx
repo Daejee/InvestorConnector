@@ -188,14 +188,14 @@ export default function SecuritiesFirms() {
     });
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-start">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">증권사/ Brokerage Firms</h2>
-          <p className="text-gray-600 mt-1">증권사 및 중개업체 관리</p>
-        </div>
-        <div className="flex gap-3">
+    <div>
+      <div className="mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">증권사/ Brokerage Firms</h2>
+            <p className="text-gray-600 mt-1">증권사 및 중개업체 관리</p>
+          </div>
+          <div className="mt-4 sm:mt-0 flex space-x-3">
           <Dialog open={showUploadDialog} onOpenChange={setShowUploadDialog}>
             <DialogTrigger asChild>
               <Button variant="outline">
@@ -262,18 +262,18 @@ export default function SecuritiesFirms() {
               />
             </DialogContent>
           </Dialog>
+          </div>
         </div>
-      </div>
 
-      {/* Search */}
-      <div className="flex items-center space-x-2">
-        <Search className="h-5 w-5 text-gray-400" />
-        <Input
-          placeholder="Search by name, address, or phone / 이름, 주소, 전화번호로 검색"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="max-w-md"
-        />
+        <div className="relative mt-4">
+          <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+          <Input
+            placeholder="이름, 주소 또는 전화번호로 검색..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
       </div>
 
       {/* Securities Firms Table */}
