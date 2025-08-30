@@ -80,7 +80,7 @@ export default function NdrConferences() {
               <DialogTrigger asChild>
                 <Button onClick={() => setEditingConference(null)}>
                   <Plus className="mr-2 h-4 w-4" />
-                  Add Conference / 컨퍼런스 추가
+                  Add Event
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
