@@ -92,7 +92,7 @@ export default function OtherEvents() {
       <div className="mb-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">기타이벤트 / Other Events</h2>
+            <h2 className="text-2xl font-bold text-gray-900">기타이벤트</h2>
             <p className="text-gray-600 mt-1">기타 IR 이벤트 Database</p>
           </div>
           <div className="mt-4 sm:mt-0">
@@ -119,7 +119,6 @@ export default function OtherEvents() {
           </div>
         </div>
       </div>
-      
       <div className="mb-6">
         <Input
           placeholder="Search events by name, type, location, or organizer... / 이름, 유형, 장소, 주최자로 검색..."
@@ -128,7 +127,6 @@ export default function OtherEvents() {
           className="max-w-md"
         />
       </div>
-      
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <Table>
           <TableHeader>
