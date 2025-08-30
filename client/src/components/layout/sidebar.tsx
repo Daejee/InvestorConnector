@@ -19,7 +19,8 @@ import {
   ChevronDown,
   ChevronRight,
   FileEdit,
-  Brain
+  Brain,
+  TrendingUp
 } from "lucide-react";
 
 interface SidebarProps {
@@ -45,14 +46,8 @@ const navigation = [
       { name: "이메일 로그", href: "/email-logs", icon: FileEdit }
     ]
   },
-  { 
-    name: "보고서작성", 
-    href: "/reports", 
-    icon: BarChart,
-    submenu: [
-      { name: "Investor Insight", href: "/investor-insights", icon: Brain }
-    ]
-  },
+  { name: "보고서작성", href: "/reports", icon: BarChart },
+  { name: "Investor Insight", href: "/investor-insights", icon: TrendingUp },
   { name: "투자자(국내)", href: "/investors", icon: Users },
   { 
     name: "자산운용사(국내)", 
