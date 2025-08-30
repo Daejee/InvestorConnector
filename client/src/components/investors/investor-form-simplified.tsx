@@ -122,7 +122,7 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel, 
     },
   });
 
-  const onSubmit = (data: InsertInvestor) => {
+  const onSubmit = (data: InsertInvestor | InsertOverseasInvestor) => {
     // Generate initials if not provided
     if (!data.avatarInitials) {
       data.avatarInitials = data.name
@@ -134,7 +134,7 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel, 
     }
     
     if (investor) {
-      updateInvestorMutation.mutate(data);
+      updateInvestorMutation.mutate(data as InsertInvestor);
     } else {
       createInvestorMutation.mutate(data);
     }
