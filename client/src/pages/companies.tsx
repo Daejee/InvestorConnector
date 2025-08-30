@@ -474,7 +474,7 @@ export default function Companies() {
                   <TableHead className="w-[200px] text-center">주소</TableHead>
                   <TableHead className="text-center">연락처</TableHead>
                   <TableHead className="text-center">웹사이트</TableHead>
-                  <TableHead className="w-[80px] text-center">액션</TableHead>
+                  <TableHead className="w-[80px] text-center">ACTIONS</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
