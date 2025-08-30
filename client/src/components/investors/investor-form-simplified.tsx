@@ -57,7 +57,7 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel, 
       shareAmount: investor?.shareAmount ?? "",
       note: investor?.note ?? "",
       avatarInitials: investor?.avatarInitials ?? "",
-      country: (investor as OverseasInvestor)?.country ?? "Korea",
+      country: (investor as OverseasInvestor)?.country ?? "US",
     } : {
       name: investor?.name ?? "",
       email: investor?.email ?? "",
