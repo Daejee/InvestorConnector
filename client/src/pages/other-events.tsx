@@ -138,7 +138,7 @@ export default function OtherEvents() {
               <TableHead>장소</TableHead>
               <TableHead>주최자</TableHead>
               <TableHead>참석자</TableHead>
-              <TableHead className="text-right">작업</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
