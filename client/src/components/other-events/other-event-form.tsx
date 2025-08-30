@@ -318,7 +318,7 @@ export default function OtherEventForm({ event, onSuccess, onCancel }: OtherEven
 
         <div className="flex justify-end space-x-4 pt-6">
           <Button type="button" variant="outline" onClick={onCancel}>
-            Cancel / 취소
+            Cancel
           </Button>
           <Button 
             type="submit" 
@@ -328,7 +328,7 @@ export default function OtherEventForm({ event, onSuccess, onCancel }: OtherEven
               ? "Saving..." 
               : event 
                 ? "Update Event / 이벤트 수정" 
-                : "Create Event / 이벤트 생성"
+                : "Add Event"
             }
           </Button>
         </div>
