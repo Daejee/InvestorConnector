@@ -320,7 +320,7 @@ export default function NdrConferenceForm({ conference, onSuccess, onCancel }: N
               ? "Saving..."
               : conference
               ? "Update Conference"
-              : "Create Conference"}
+              : "Create Event"}
           </Button>
         </div>
       </form>
