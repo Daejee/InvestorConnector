@@ -115,11 +115,10 @@ export default function Investors() {
           </div>
         </div>
       </div>
-
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>All Buyside / 전체 투자자</CardTitle>
+            <CardTitle>전체 투자자</CardTitle>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
