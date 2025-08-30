@@ -131,7 +131,7 @@ export default function Dashboard() {
             <Link href="/email">
               <Button variant="outline">
                 <Mail className="mr-2 h-4 w-4" />
-                Email / 이메일
+                이메일링
               </Button>
             </Link>
             <Link href="/scheduling">
