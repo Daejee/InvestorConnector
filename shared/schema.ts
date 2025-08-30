@@ -184,7 +184,7 @@ export const meetings = pgTable("meetings", {
   scheduledDate: timestamp("scheduled_date").notNull(),
   duration: integer("duration").default(60), // duration in minutes
   location: text("location"), // meeting location
-  meetingCategory: text("meeting_category"), // 내방, Conference Call, 국내CorpDay, 국내NDR, 해외CorpDay, 해외NDR, 기타
+  meetingCategory: text("meeting_category"), // 탐방, Conference Call, 국내CorpDay, 국내NDR, 해외CorpDay, 해외NDR, 기타
   status: text("status").notNull().default("scheduled"), // scheduled, completed, cancelled
   // Meeting minutes/documents fields
   minutesFilePath: text("minutes_file_path"), // Path to uploaded meeting minutes file
@@ -347,7 +347,7 @@ export const insertMeetingSchema = createInsertSchema(meetings).omit({
   analystId: z.number().optional().nullable(),
   ndrConferenceId: z.number().optional().nullable(),
   assignedUserIds: z.array(z.string()).optional().nullable(),
-  meetingCategory: z.enum(["내방", "Conference Call", "실적발표회 Earnings Call", "국내CorpDay", "국내NDR", "해외CorpDay", "해외NDR", "기타"]).optional(),
+  meetingCategory: z.enum(["탐방", "Conference Call", "실적발표회 Earnings Call", "국내CorpDay", "국내NDR", "해외CorpDay", "해외NDR", "기타"]).optional(),
   location: z.string().optional(),
 });
 

@@ -827,7 +827,7 @@ export default function Meetings() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">전체</SelectItem>
-              <SelectItem value="내방">내방</SelectItem>
+              <SelectItem value="탐방">탐방</SelectItem>
               <SelectItem value="Conference Call">Conference Call</SelectItem>
               <SelectItem value="실적발표회 Earnings Call">실적발표회 Earnings Call</SelectItem>
               <SelectItem value="국내CorpDay">국내CorpDay</SelectItem>
@@ -1186,7 +1186,7 @@ export default function Meetings() {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="내방">내방</SelectItem>
+                            <SelectItem value="탐방">탐방</SelectItem>
                             <SelectItem value="Conference Call">Conference Call</SelectItem>
                             <SelectItem value="국내CorpDay">국내CorpDay</SelectItem>
                             <SelectItem value="국내NDR">국내NDR</SelectItem>

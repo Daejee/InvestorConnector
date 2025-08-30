@@ -100,7 +100,7 @@ UI Language: Korean only display - use only Korean text for all new features and
 
 ### Meeting Category and Location Fields (August 21, 2025)
 - **Meeting Category System**: Added comprehensive 7-type meeting category selection
-  - Categories: 내방, Conference Call, 국내CorpDay, 국내NDR, 해외CorpDay, 해외NDR, 기타
+  - Categories: 탐방, Conference Call, 국내CorpDay, 국내NDR, 해외CorpDay, 해외NDR, 기타
   - Integrated into both booking and editing dialogs
 - **Location Field**: Added location input field alongside meeting category
   - Side-by-side layout for category and location selection
