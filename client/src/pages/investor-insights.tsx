@@ -1095,13 +1095,26 @@ ${insight.followUpRecommendations ? insight.followUpRecommendations.replace(/\. 
                   </Button>
                 </div>
               </div>
-              <div className="grid gap-2">
+              <div className="grid gap-3">
                 {expectedQuestions.map((question, index) => (
                   <div 
                     key={index}
-                    className="p-3 bg-muted/50 rounded-lg border-l-4 border-blue-500"
+                    className="group relative p-4 bg-white rounded-lg border border-slate-200 hover:border-slate-300 hover:shadow-sm transition-all duration-200"
                   >
-                    <p className="text-sm">{question}</p>
+                    <div className="flex items-start gap-3">
+                      <div className="flex-shrink-0 w-6 h-6 bg-gradient-to-r from-blue-600 to-blue-700 rounded-full flex items-center justify-center">
+                        <span className="text-xs font-semibold text-white">Q</span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm leading-relaxed text-slate-700 font-medium">
+                          {question.replace(/^Q\.\s*/, '')}
+                        </p>
+                      </div>
+                      <div className="flex-shrink-0 text-xs text-slate-400 font-mono">
+                        #{String(index + 1).padStart(2, '0')}
+                      </div>
+                    </div>
+                    <div className="absolute left-0 top-0 w-1 h-full bg-gradient-to-b from-blue-500 to-blue-600 rounded-l-lg"></div>
                   </div>
                 ))}
               </div>
