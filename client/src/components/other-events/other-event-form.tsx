@@ -134,22 +134,24 @@ export default function OtherEventForm({ event, onSuccess, onCancel }: OtherEven
   };
 
   const handleAnalystSelection = (analystId: number, checked: boolean) => {
+    console.log("Analyst selection:", analystId, checked);
     setSelectedAnalysts(prev => {
-      if (checked) {
-        return [...prev, analystId];
-      } else {
-        return prev.filter(id => id !== analystId);
-      }
+      const newSelection = checked 
+        ? [...prev, analystId] 
+        : prev.filter(id => id !== analystId);
+      console.log("New selected analysts:", newSelection);
+      return newSelection;
     });
   };
 
   const handleInvestorSelection = (investorId: number, checked: boolean) => {
+    console.log("Investor selection:", investorId, checked);
     setSelectedInvestors(prev => {
-      if (checked) {
-        return [...prev, investorId];
-      } else {
-        return prev.filter(id => id !== investorId);
-      }
+      const newSelection = checked 
+        ? [...prev, investorId] 
+        : prev.filter(id => id !== investorId);
+      console.log("New selected investors:", newSelection);
+      return newSelection;
     });
   };
 
@@ -321,24 +323,6 @@ export default function OtherEventForm({ event, onSuccess, onCancel }: OtherEven
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem className="md:col-span-2">
-                <FormLabel>Description / 설명 (Optional)</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder="Describe the event, agenda, or additional notes..."
-                    className="h-24"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
           {/* Attendees Section */}
           <div className="md:col-span-2">
             <FormLabel>참석자 (Optional)</FormLabel>
@@ -383,11 +367,13 @@ export default function OtherEventForm({ event, onSuccess, onCancel }: OtherEven
                   <div className="max-h-48 overflow-y-auto border rounded-lg p-3">
                     {analysts.map((analyst) => (
                       <div key={analyst.id} className="flex items-center space-x-2 mb-2">
-                        <Checkbox
+                        <input
+                          type="checkbox"
                           checked={selectedAnalysts.includes(analyst.id)}
-                          onCheckedChange={(checked) => 
-                            handleAnalystSelection(analyst.id, checked as boolean)
+                          onChange={(e) => 
+                            handleAnalystSelection(analyst.id, e.target.checked)
                           }
+                          className="h-4 w-4"
                         />
                         <span className="text-sm">{analyst.name} ({analyst.company})</span>
                       </div>
@@ -407,11 +393,13 @@ export default function OtherEventForm({ event, onSuccess, onCancel }: OtherEven
                   <div className="max-h-48 overflow-y-auto border rounded-lg p-3">
                     {investors.map((investor) => (
                       <div key={investor.id} className="flex items-center space-x-2 mb-2">
-                        <Checkbox
+                        <input
+                          type="checkbox"
                           checked={selectedInvestors.includes(investor.id)}
-                          onCheckedChange={(checked) => 
-                            handleInvestorSelection(investor.id, checked as boolean)
+                          onChange={(e) => 
+                            handleInvestorSelection(investor.id, e.target.checked)
                           }
+                          className="h-4 w-4"
                         />
                         <span className="text-sm">{investor.name} ({investor.company})</span>
                       </div>
@@ -464,6 +452,24 @@ export default function OtherEventForm({ event, onSuccess, onCancel }: OtherEven
               )}
             </div>
           </div>
+          
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem className="md:col-span-2">
+                <FormLabel>Description / 설명 (Optional)</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="Describe the event, agenda, or additional notes..."
+                    className="h-24"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
 
         <div className="flex justify-end space-x-4 pt-6">
