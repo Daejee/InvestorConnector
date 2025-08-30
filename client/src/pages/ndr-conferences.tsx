@@ -116,7 +116,7 @@ export default function NdrConferences() {
               <TableHead>상태</TableHead>
               <TableHead>장소</TableHead>
               <TableHead>주최회사</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead className="text-right">ACTIONS</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

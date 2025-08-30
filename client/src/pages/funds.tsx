@@ -350,7 +350,7 @@ export default function Funds() {
                   <TableHead>Type</TableHead>
                   <TableHead>Own Our Shares</TableHead>
                   <TableHead>Share Amount</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead className="text-right">ACTIONS</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

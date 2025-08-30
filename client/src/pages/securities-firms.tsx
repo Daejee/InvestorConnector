@@ -301,7 +301,7 @@ export default function SecuritiesFirms() {
                   <TableHead>전화번호</TableHead>
                   <TableHead>웹사이트</TableHead>
 
-                  <TableHead className="w-32">Actions / 작업</TableHead>
+                  <TableHead className="w-32">ACTIONS</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

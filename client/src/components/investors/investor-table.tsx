@@ -394,7 +394,7 @@ export default function InvestorTable({ investors, isLoading, apiBasePath = "/ap
               {renderSortButton('ownsOurShare', '당사지분보유')}
             </th>
             <th className="px-1 pr-4 py-3 text-right text-sm font-medium text-gray-500 uppercase tracking-wider w-[24%]">
-              Actions
+              ACTIONS
             </th>
           </tr>
         </thead>
