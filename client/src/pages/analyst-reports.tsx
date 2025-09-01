@@ -30,7 +30,6 @@ type UploadReportForm = z.infer<typeof uploadReportSchema>;
 export default function AnalystReports() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isUploadOpen, setIsUploadOpen] = useState(false);
-  const [uploading, setUploading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const queryClient = useQueryClient();
 
@@ -157,9 +156,7 @@ export default function AnalystReports() {
       return;
     }
     
-    setUploading(true);
     uploadMutation.mutate({ ...data, file: selectedFile });
-    setUploading(false);
   };
 
   const handleDownload = (report: AnalystReport) => {
@@ -305,8 +302,8 @@ export default function AnalystReports() {
                       >
                         취소
                       </Button>
-                      <Button type="submit" disabled={uploading}>
-                        {uploading ? "업로드 중..." : "업로드"}
+                      <Button type="submit" disabled={uploadMutation.isPending}>
+                        {uploadMutation.isPending ? "업로드 중..." : "업로드"}
                       </Button>
                     </div>
                   </form>
