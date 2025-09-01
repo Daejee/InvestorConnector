@@ -1,5 +1,5 @@
 import { 
-  investors, overseasInvestors, companies, overseasCompanies, investments, communications, meetings, funds, overseasFunds, meetingLogs, ndrConferences, otherEvents, emailTemplates, emailCampaigns, analysts, documents, securitiesFirms, emailLogs, users, organizations, investorInsights,
+  investors, overseasInvestors, companies, overseasCompanies, investments, communications, meetings, funds, overseasFunds, meetingLogs, ndrConferences, otherEvents, emailTemplates, emailCampaigns, analysts, documents, securitiesFirms, emailLogs, users, organizations, investorInsights, analystReports,
   type Investor, type InsertInvestor, type OverseasInvestor, type InsertOverseasInvestor,
   type Company, type InsertCompany, type OverseasCompany, type InsertOverseasCompany,
   type Investment, type InsertInvestment,
@@ -17,7 +17,8 @@ import {
   type EmailLog, type InsertEmailLog,
   type User, type InsertUser,
   type Organization, type InsertOrganization,
-  type InvestorInsight, type InsertInvestorInsight
+  type InvestorInsight, type InsertInvestorInsight,
+  type AnalystReport, type InsertAnalystReport
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, sql } from "drizzle-orm";
@@ -179,6 +180,13 @@ export interface IStorage {
   createInvestorInsight(insight: InsertInvestorInsight, organizationId: number): Promise<InvestorInsight>;
   updateInvestorInsight(id: number, insight: Partial<InsertInvestorInsight>, organizationId: number): Promise<InvestorInsight | undefined>;
   deleteInvestorInsight(id: number, organizationId: number): Promise<boolean>;
+
+  // Analyst Reports
+  getAnalystReports(organizationId: number): Promise<AnalystReport[]>;
+  getAnalystReport(id: number, organizationId: number): Promise<AnalystReport | undefined>;
+  createAnalystReport(report: InsertAnalystReport, organizationId: number): Promise<AnalystReport>;
+  updateAnalystReport(id: number, report: Partial<InsertAnalystReport>, organizationId: number): Promise<AnalystReport | undefined>;
+  deleteAnalystReport(id: number, organizationId: number): Promise<boolean>;
   getMeetingsForWeek(startDate: string, endDate: string, organizationId: number): Promise<Meeting[]>;
 
 }
@@ -949,6 +957,43 @@ export class DatabaseStorage implements IStorage {
           AND ${meetings.scheduledDate} >= ${startDate} 
           AND ${meetings.scheduledDate} <= ${endDate}`
     );
+  }
+
+  // Analyst Reports
+  async getAnalystReports(organizationId: number): Promise<AnalystReport[]> {
+    return await db.select().from(analystReports).where(eq(analystReports.organizationId, organizationId));
+  }
+
+  async getAnalystReport(id: number, organizationId: number): Promise<AnalystReport | undefined> {
+    const [report] = await db
+      .select()
+      .from(analystReports)
+      .where(sql`${analystReports.id} = ${id} AND ${analystReports.organizationId} = ${organizationId}`);
+    return report || undefined;
+  }
+
+  async createAnalystReport(reportData: InsertAnalystReport, organizationId: number): Promise<AnalystReport> {
+    const [report] = await db
+      .insert(analystReports)
+      .values({ ...reportData, organizationId })
+      .returning();
+    return report;
+  }
+
+  async updateAnalystReport(id: number, updateData: Partial<InsertAnalystReport>, organizationId: number): Promise<AnalystReport | undefined> {
+    const [report] = await db
+      .update(analystReports)
+      .set(updateData)
+      .where(sql`${analystReports.id} = ${id} AND ${analystReports.organizationId} = ${organizationId}`)
+      .returning();
+    return report || undefined;
+  }
+
+  async deleteAnalystReport(id: number, organizationId: number): Promise<boolean> {
+    const result = await db.delete(analystReports).where(
+      sql`${analystReports.id} = ${id} AND ${analystReports.organizationId} = ${organizationId}`
+    );
+    return result.rowCount! > 0;
   }
 
 }

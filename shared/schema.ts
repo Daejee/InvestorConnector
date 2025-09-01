@@ -503,3 +503,29 @@ export const insertInvestorInsightSchema = createInsertSchema(investorInsights).
 
 export type InsertInvestorInsight = z.infer<typeof insertInvestorInsightSchema>;
 export type InvestorInsight = typeof investorInsights.$inferSelect;
+
+// Analyst Reports table
+export const analystReports = pgTable('analyst_reports', {
+  id: serial('id').primaryKey(),
+  organizationId: integer('organization_id').notNull().references(() => organizations.id),
+  analystId: integer('analyst_id').notNull().references(() => analysts.id),
+  title: text('title').notNull(),
+  originalFileName: text('original_file_name').notNull(),
+  filePath: text('file_path').notNull(),
+  fileSize: integer('file_size').notNull(),
+  fileType: text('file_type').notNull(),
+  description: text('description'),
+  publishDate: date('publish_date').notNull(),
+  uploadedBy: text('uploaded_by').default('System'),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+export const insertAnalystReportSchema = createInsertSchema(analystReports).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertAnalystReport = z.infer<typeof insertAnalystReportSchema>;
+export type AnalystReport = typeof analystReports.$inferSelect;

@@ -24,7 +24,8 @@ import {
   insertSecuritiesFirmSchema,
   insertEmailLogSchema,
   insertUserSchema,
-  insertInvestorInsightSchema
+  insertInvestorInsightSchema,
+  insertAnalystReportSchema
 } from "@shared/schema";
 import { aiService } from "./ai-service";
 import { EmailService } from "./email-service";
@@ -3023,6 +3024,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Analyst Reports routes
+  app.get("/api/analyst-reports", async (req, res) => {
+    const organizationId = 1; // TODO: Extract from auth context
+    const reports = await storage.getAnalystReports(organizationId);
+    res.json(reports);
+  });
+
+  app.get("/api/analyst-reports/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    const organizationId = 1; // TODO: Extract from auth context
+    const report = await storage.getAnalystReport(id, organizationId);
+    if (!report) {
+      return res.status(404).json({ message: "Analyst report not found" });
+    }
+    res.json(report);
+  });
+
+  app.post("/api/analyst-reports", async (req, res) => {
+    try {
+      const organizationId = 1; // TODO: Extract from auth context
+      const data = insertAnalystReportSchema.parse(req.body);
+      const report = await storage.createAnalystReport(data, organizationId);
+      res.status(201).json(report);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid analyst report data", error });
+    }
+  });
+
+  app.patch("/api/analyst-reports/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const organizationId = 1; // TODO: Extract from auth context
+      const data = insertAnalystReportSchema.partial().parse(req.body);
+      const report = await storage.updateAnalystReport(id, data, organizationId);
+      if (report) {
+        res.json(report);
+      } else {
+        res.status(404).json({ message: "Analyst report not found" });
+      }
+    } catch (error) {
+      res.status(400).json({ message: "Invalid analyst report data", error });
+    }
+  });
+
+  app.delete("/api/analyst-reports/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    const organizationId = 1; // TODO: Extract from auth context
+    const success = await storage.deleteAnalystReport(id, organizationId);
+    if (success) {
+      res.status(204).send();
+    } else {
+      res.status(404).json({ message: "Analyst report not found" });
+    }
+  });
 
   const httpServer = createServer(app);
   return httpServer;

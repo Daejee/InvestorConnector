@@ -51,7 +51,8 @@ const navigation = [
     href: "/reports", 
     icon: BarChart,
     submenu: [
-      { name: "Investor Insight", href: "/investor-insights", icon: TrendingUp }
+      { name: "Investor Insight", href: "/investor-insights", icon: TrendingUp },
+      { name: "애널리스트 분석요약", href: "/analyst-reports", icon: FileText }
     ]
   },
   { name: "투자자(국내)", href: "/investors", icon: Users },
