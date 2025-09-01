@@ -1009,9 +1009,35 @@ export default function Meetings() {
           {editingMeeting && (
             <Form {...editForm}>
               <form onSubmit={editForm.handleSubmit(handleEditSubmit)} className="space-y-4">
+                <FormField
+                  control={editForm.control}
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>미팅 제목</FormLabel>
+                      <FormControl>
+                        <Input placeholder="미팅 제목을 입력하세요" {...field} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
 
-
-
+                <FormField
+                  control={editForm.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>미팅 설명</FormLabel>
+                      <FormControl>
+                        <textarea
+                          placeholder="미팅 설명을 입력하세요"
+                          className="w-full min-h-[80px] px-3 py-2 border border-input bg-background rounded-md text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                          {...field}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
 
                 <div className="grid grid-cols-3 gap-4">
                   <FormField
