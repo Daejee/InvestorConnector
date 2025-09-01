@@ -195,7 +195,7 @@ export default function AnalystReports() {
                   분석 리포트 업로드
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-[600px]">
+              <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>애널리스트 분석 리포트 업로드</DialogTitle>
                   <DialogDescription>
