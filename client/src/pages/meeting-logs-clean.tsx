@@ -1011,19 +1011,6 @@ export default function Meetings() {
               <form onSubmit={editForm.handleSubmit(handleEditSubmit)} className="space-y-4">
                 <FormField
                   control={editForm.control}
-                  name="title"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>미팅 제목</FormLabel>
-                      <FormControl>
-                        <Input placeholder="미팅 제목을 입력하세요" {...field} />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={editForm.control}
                   name="description"
                   render={({ field }) => (
                     <FormItem>
