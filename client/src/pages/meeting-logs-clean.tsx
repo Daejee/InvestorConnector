@@ -200,7 +200,7 @@ export default function Meetings() {
       const timeStr = scheduledDate.toTimeString().split(' ')[0].substring(0, 5);
       
       const formData = {
-        title: meeting.title,
+        title: "",
         description: meeting.description || "",
         attendeeType: meeting.attendeeType as "investor" | "analyst" | "other",
         investorIds: meeting.investorIds || [],
@@ -743,7 +743,7 @@ export default function Meetings() {
                               
                               editMeetingMutation.mutate({
                                 id: meeting.id,
-                                title: meeting.title || "",
+                                title: "",
                                 description: meeting.description || "",
                                 attendeeType: meeting.attendeeType as "investor" | "analyst" | "other",
                                 investorIds: meeting.investorIds || [],
@@ -985,7 +985,7 @@ export default function Meetings() {
           // Initialize form with meeting data when dialog opens
           const meetingDate = new Date(editingMeeting.scheduledDate);
           editForm.reset({
-            title: editingMeeting.title || "",
+            title: "",
             description: editingMeeting.description || "",
             attendeeType: editingMeeting.attendeeType as "investor" | "analyst" | "other",
             investorIds: editingMeeting.investorIds || [],
