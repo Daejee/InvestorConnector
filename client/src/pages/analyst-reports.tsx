@@ -54,12 +54,15 @@ export default function AnalystReports() {
       if (reports && reports.length > 0) {
         const statusChecks = reports.map(async (report) => {
           try {
-            const analysis = await apiRequest(`/api/analyst-reports/${report.id}/analysis`);
-            if (analysis && analysis.analysisStatus) {
-              setAnalysisStates(prev => ({
-                ...prev,
-                [report.id]: analysis.analysisStatus
-              }));
+            const response = await fetch(`/api/analyst-reports/${report.id}/analysis`);
+            if (response.ok) {
+              const analysis = await response.json();
+              if (analysis && analysis.analysisStatus) {
+                setAnalysisStates(prev => ({
+                  ...prev,
+                  [report.id]: analysis.analysisStatus
+                }));
+              }
             }
           } catch (error) {
             // Analysis doesn't exist yet, keep default state
@@ -341,9 +344,12 @@ export default function AnalystReports() {
 
   const handleViewAnalysis = async (reportId: number) => {
     try {
-      const analysis = await apiRequest(`/api/analyst-reports/${reportId}/analysis`);
-      setSelectedAnalysis(analysis as AnalystReportAnalysis);
-      setIsAnalysisOpen(true);
+      const response = await fetch(`/api/analyst-reports/${reportId}/analysis`);
+      if (response.ok) {
+        const analysis = await response.json();
+        setSelectedAnalysis(analysis as AnalystReportAnalysis);
+        setIsAnalysisOpen(true);
+      }
     } catch (error) {
       toast({
         title: "분석 결과 로드 실패",
