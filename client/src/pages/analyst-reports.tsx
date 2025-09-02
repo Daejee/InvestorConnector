@@ -33,9 +33,9 @@ interface ComprehensiveAnalysisResult {
 const uploadReportSchema = z.object({
   title: z.string().min(1, "제목을 입력해주세요"),
   analystId: z.number().min(1, "애널리스트를 선택해주세요"),
-  description: z.string().optional(),
+  positivePoints: z.string().optional(),
+  concerns: z.string().optional(),
   targetPrice: z.string().optional(),
-  contentText: z.string().optional(),
   publishDate: z.string().min(1, "발행일을 선택해주세요"),
 });
 
@@ -71,9 +71,9 @@ export default function AnalystReports() {
     defaultValues: {
       title: "",
       analystId: 0,
-      description: "",
+      positivePoints: "",
+      concerns: "",
       targetPrice: "",
-      contentText: "",
       publishDate: format(new Date(), "yyyy-MM-dd"),
     },
   });
@@ -83,9 +83,9 @@ export default function AnalystReports() {
     defaultValues: {
       title: "",
       analystId: 0,
-      description: "",
+      positivePoints: "",
+      concerns: "",
       targetPrice: "",
-      contentText: "",
       publishDate: format(new Date(), "yyyy-MM-dd"),
     },
   });
@@ -254,7 +254,18 @@ export default function AnalystReports() {
       return;
     }
     
-    uploadMutation.mutate({ ...data, file: selectedFile });
+    // Map the form fields to the correct database fields
+    const mappedData = {
+      title: data.title,
+      analystId: data.analystId,
+      targetPrice: data.targetPrice,
+      contentText: data.positivePoints,
+      description: data.concerns,
+      publishDate: data.publishDate,
+      file: selectedFile
+    };
+    
+    uploadMutation.mutate(mappedData);
   };
 
   const handleEdit = (report: AnalystReport) => {
@@ -262,9 +273,9 @@ export default function AnalystReports() {
     editForm.reset({
       title: report.title,
       analystId: report.analystId,
-      description: report.description || "",
+      positivePoints: report.contentText || "",
+      concerns: report.description || "",
       targetPrice: report.targetPrice || "",
-      contentText: report.contentText || "",
       publishDate: report.publishDate,
     });
     setIsEditOpen(true);
@@ -272,7 +283,17 @@ export default function AnalystReports() {
 
   const handleEditSubmit = (data: UploadReportForm) => {
     if (!editingReport) return;
-    editMutation.mutate({ ...data, id: editingReport.id });
+    // Map the form fields to the correct database fields
+    const mappedData = {
+      id: editingReport.id,
+      title: data.title,
+      analystId: data.analystId,
+      targetPrice: data.targetPrice,
+      contentText: data.positivePoints,
+      description: data.concerns,
+      publishDate: data.publishDate,
+    };
+    editMutation.mutate(mappedData);
   };
 
   const handleViewDetail = (report: AnalystReport) => {
@@ -550,13 +571,13 @@ export default function AnalystReports() {
 
                         <FormField
                           control={form.control}
-                          name="contentText"
+                          name="positivePoints"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>리포트 주요 내용 (선택사항)</FormLabel>
+                              <FormLabel>긍정적 요인 (선택사항)</FormLabel>
                               <FormControl>
                                 <textarea
-                                  placeholder="리포트의 주요 내용, 투자 포인트, 리스크 요인 등을 입력하세요"
+                                  placeholder="투자 매력도, 성장 가능성, 긍정적 요인 등을 입력하세요"
                                   className="flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                                   {...field}
                                 />
@@ -567,13 +588,13 @@ export default function AnalystReports() {
 
                         <FormField
                           control={form.control}
-                          name="description"
+                          name="concerns"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>설명 (선택사항)</FormLabel>
+                              <FormLabel>우려사항 (선택사항)</FormLabel>
                               <FormControl>
                                 <textarea
-                                  placeholder="리포트에 대한 설명을 입력하세요"
+                                  placeholder="리스크 요인, 우려사항, 주의점 등을 입력하세요"
                                   className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                                   {...field}
                                 />
@@ -834,13 +855,13 @@ export default function AnalystReports() {
 
                 <FormField
                   control={editForm.control}
-                  name="contentText"
+                  name="positivePoints"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>리포트 주요 내용 (선택사항)</FormLabel>
+                      <FormLabel>긍정적 요인 (선택사항)</FormLabel>
                       <FormControl>
                         <textarea
-                          placeholder="리포트의 주요 내용, 투자 포인트, 리스크 요인 등을 입력하세요"
+                          placeholder="투자 매력도, 성장 가능성, 긍정적 요인 등을 입력하세요"
                           className="flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                           {...field}
                         />
@@ -851,13 +872,13 @@ export default function AnalystReports() {
 
                 <FormField
                   control={editForm.control}
-                  name="description"
+                  name="concerns"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>설명 (선택사항)</FormLabel>
+                      <FormLabel>우려사항 (선택사항)</FormLabel>
                       <FormControl>
                         <textarea
-                          placeholder="리포트에 대한 설명을 입력하세요"
+                          placeholder="리스크 요인, 우려사항, 주의점 등을 입력하세요"
                           className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                           {...field}
                         />
@@ -927,8 +948,8 @@ export default function AnalystReports() {
 
                 {viewingReport.contentText && (
                   <div>
-                    <h3 className="font-semibold mb-2">리포트 주요 내용</h3>
-                    <div className="bg-gray-50 p-4 rounded-md">
+                    <h3 className="font-semibold mb-2">긍정적 요인</h3>
+                    <div className="bg-green-50 p-4 rounded-md border border-green-200">
                       <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
                         {viewingReport.contentText}
                       </p>
@@ -938,8 +959,8 @@ export default function AnalystReports() {
 
                 {viewingReport.description && (
                   <div>
-                    <h3 className="font-semibold mb-2">설명</h3>
-                    <div className="bg-gray-50 p-4 rounded-md">
+                    <h3 className="font-semibold mb-2">우려사항</h3>
+                    <div className="bg-red-50 p-4 rounded-md border border-red-200">
                       <p className="text-sm text-gray-700 leading-relaxed">
                         {viewingReport.description}
                       </p>
