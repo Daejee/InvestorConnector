@@ -3124,37 +3124,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Start AI analysis in background (don't await)
-      const aiService = new AIAnalysisService();
-      
-      // Use setTimeout to ensure the analysis runs properly
-      setTimeout(async () => {
+      // Perform AI analysis immediately and synchronously for testing
+      try {
+        console.log("Starting immediate AI analysis for report:", reportId);
+        const aiService = new AIAnalysisService();
+        const result = await aiService.analyzeReport(report.filePath || "", report.title);
+        console.log("AI analysis completed, updating database...");
+        
+        const updatedAnalysis = await storage.updateAnalystReportAnalysis(reportId, {
+          positivePoints: result.positivePoints,
+          concerns: result.concerns,
+          averageTargetPrice: result.averageTargetPrice,
+          analysisStatus: "completed"
+        });
+        
+        console.log("Database updated successfully");
+        res.json(updatedAnalysis);
+      } catch (error) {
+        console.error("AI analysis failed:", error);
         try {
-          console.log("Starting AI analysis for report:", reportId);
-          const result = await aiService.analyzeReport(report.filePath || "", report.title);
-          console.log("AI analysis completed, updating database...");
-          
-          await storage.updateAnalystReportAnalysis(reportId, {
-            positivePoints: result.positivePoints,
-            concerns: result.concerns,
-            averageTargetPrice: result.averageTargetPrice,
-            analysisStatus: "completed"
+          const failedAnalysis = await storage.updateAnalystReportAnalysis(reportId, {
+            analysisStatus: "failed"
           });
-          
-          console.log("Database updated successfully");
-        } catch (error) {
-          console.error("AI analysis failed:", error);
-          try {
-            await storage.updateAnalystReportAnalysis(reportId, {
-              analysisStatus: "failed"
-            });
-          } catch (updateError) {
-            console.error("Failed to update analysis status to failed:", updateError);
-          }
+          res.json(failedAnalysis);
+        } catch (updateError) {
+          console.error("Failed to update analysis status to failed:", updateError);
+          res.json(analysis);
         }
-      }, 100);
-
-      res.json(analysis);
+      }
     } catch (error) {
       res.status(500).json({ message: "Failed to start analysis", error });
     }
