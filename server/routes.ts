@@ -3182,7 +3182,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           analysisResults.push({
             positivePoints: analysisResult.positivePoints,
             concerns: analysisResult.concerns,
-            averageTargetPrice: analysisResult.averageTargetPrice,
+            averageTargetPrice: analysisResult.averageTargetPrice || "",
             reportTitle: report.title
           });
         }
