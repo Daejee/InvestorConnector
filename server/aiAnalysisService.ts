@@ -54,49 +54,56 @@ export class AIAnalysisService {
           const pdfData = await pdfParse(pdfBuffer);
           pdfText = pdfData.text;
           console.log(`PDF 텍스트 추출 완료: ${pdfText.length} 문자`);
+          console.log("PDF 내용 미리보기:", pdfText.substring(0, 500) + "...");
           
-          // For testing purposes, always use the sample text to ensure accurate analysis
-          console.log("테스트용 실제 리포트 내용 사용");
-          pdfText = `확실한 실적 바닥 
-2Q25 Review: 반도체 일회성 비용 반영으로 추정치 하회 
-삼성전자의 25년 2분기 매출액은 74조원(YoY 유사, QoQ -6%), 영업이익은 4.6조원(YoY -56%, QoQ -31%)을 기록했다. 영업이익 4.6조원은 반도체 0.6조원(메모리 2.7조원), 디스플레이 0.5조원, MX/NW 2.8조원, VD/가전 0.3조원, Harman 0.4조원으로 추정한다. 매출액과 영업이익 모두 하나증권의 추정치를 하회했는데, 반도체 부문의 일회성 비용 반영이 주요인이다. 메모리, 시스템 반도체 모두 일회성 비용이 반영되며 반도체 부문의 영업이익은 하나증권의 기존 전망치 2.1조원을 하회하는 0.6조원으로 추정한다. 메모리에서 HBM 관련된 재고 손실이 반영된 것이 실적 하회의 상당 부분을 차지하는 것으로 추산된다. DRAM, NAND의 출하량과 가격은 기존 추정치와 유사한 수준으로 파악된다. 디스플레이 부문의 실적도 북미 고객사 중심으로 당초 예상대비 부진했는데, IT향 및 전장향 매출액은 성장을 시현한 것으로 추정된다. MX/NW 부문의 영업이익은 2.8조원으로 하나증권의 전망치를 상회했는데, 플래그십과 보급형 모두 예상대비 견조한 출하량을 기록했기 때문이다. 중저가 스마트폰에 AI를 탑재하며 경쟁력을 확보한 것이 주효했다. 
-하반기 실적 개선 흐름은 유효 
-25년 2분기 실적 하회가 반도체의 일회성 비용 반영에 의한 것이었기 때문에 하반기 전망에 대한 기존 전망치를 수정하지는 않는다. 세부 실적 발표 이후에 각 사업부별 현황 및 전망을 파악한 이후에 실적을 조정할 예정이다. 현재 시점에서 2분기 실적이 확실하게 저점을 형성했기 때문에 하반기는 개선세를 확인할 것으로 전망한다. DRAM의 가격 상승 전환과 비메모리 부문의 가동률 상승에 따른 고정비 부담 축소, 디스플레이 부문의 북미 고객사향 성수기 진입으로 인해 실적 개선의 가시성은 명확하다. 다만, 전년동기대비 실적은 감소하기 때문에 모멘텀이 강하다고 표현하기는 어렵다. 
-저평가 영역은 맞지만, 제한된 상승 모멘텀 
-삼성전자에 대한 투자의견 'BUY'; 목표주가 80,000원을 유지한다. 2025년 기준 PBR 0.98배로 저평가 영역에 해당하지만, 주가가 상승할 만한 뚜렷한 모멘텀이 부족하다. DRAM 가격이 상승 전환되었지만, HBM 관련된 불확실성이 상존한다. 누차 언급했던 것처럼 주가의 상승 동력은 HBM에 대한 경쟁력 제고라고 판단한다. Nvidia향 공급 여부를 떠나서라도 HBM 매출액 증가를 통해 펀더멘털 변화 확인이 필요하다.`;
+          // Check if PDF content is meaningful
+          if (!pdfText || pdfText.trim().length < 50) {
+            throw new Error("PDF 파일에서 충분한 텍스트 내용을 추출할 수 없습니다.");
+          }
+          
+          // Use actual PDF content for real analysis
+          console.log("실제 PDF 내용 사용");
           
         } catch (error) {
           console.error("PDF 파일 처리 오류:", error);
-          // Fall back to title-based analysis if PDF processing fails
-          pdfText = `리포트 제목: ${reportTitle}`;
+          // Return error instead of making up content
+          throw new Error("PDF 파일을 읽을 수 없어 분석이 불가능합니다. 파일을 다시 업로드해주세요.");
         }
       } else {
-        // If no file path, use title-based analysis
-        pdfText = `리포트 제목: ${reportTitle}`;
+        // If no file path, cannot provide meaningful analysis
+        throw new Error("분석할 PDF 파일이 없습니다. 리포트 파일을 업로드해주세요.");
       }
       
       // Analyze with OpenAI  
       const analysisPrompt = `
-다음은 한국 증권사의 애널리스트 리포트 원문입니다. 이 텍스트에서 정확한 정보를 추출해서 분석해주세요.
+다음은 한국 증권사의 애널리스트 리포트 원문입니다. 이 텍스트에서 **오직 실제로 명시된 내용만** 추출해주세요.
 
-**1단계: 목표주가 찾기**
-다음 키워드들을 찾아서 정확한 목표주가를 추출하세요:
-- "목표주가", "적정주가", "Target Price", "TP"
-- "상향", "하향", "유지" 
-- 원, 천원, 만원 단위의 숫자
-- 예: "목표주가 81,000원", "TP 85,000원(상향)" 등
+**중요한 지침:**
+1. 리포트에 실제로 쓰여있는 내용만 사용하세요
+2. 일반적인 시장 상황이나 가정으로 내용을 만들어내지 마세요
+3. "글로벌 경제 불확실성", "원자재 가격" 같은 일반론적 표현은 리포트에 명시되지 않았다면 사용하지 마세요
 
-**2단계: 분석 내용 정리**
-JSON 형태로 다음 3가지 항목을 정리하세요:
+**목표주가 추출:**
+다음 패턴들을 리포트에서 찾으세요:
+- "목표주가 XX,XXX원"
+- "적정주가 XX,XXX원" 
+- "Target Price XX,XXX원"
+- "TP XX,XXX원"
+리포트에 명시된 정확한 숫자를 그대로 사용하세요.
+
+**긍정적 요소와 우려사항:**
+- 리포트에서 실제로 언급된 구체적인 내용만 추출
+- 회사명, 제품명, 구체적인 수치가 포함된 실제 내용만 사용
+- 일반적인 시장 리스크나 가정은 제외
 
 리포트 원문:
 ${pdfText}
 
-응답 형식 (정확히 이 형태로만):
+응답을 JSON 형식으로 제공하세요:
 {
-  "positivePoints": "리포트에서 언급된 실제 긍정적 내용 (각 줄은 • 로 시작)",
-  "concerns": "리포트에서 언급된 실제 우려사항 (각 줄은 • 로 시작)",  
-  "averageTargetPrice": "리포트에 명시된 정확한 목표주가 (예: 81,000원) 또는 목표주가 정보 없음"
+  "positivePoints": "리포트에서 실제로 언급된 구체적인 긍정적 내용만 (각 줄은 • 로 시작)",
+  "concerns": "리포트에서 실제로 언급된 구체적인 우려사항만 (각 줄은 • 로 시작)",  
+  "averageTargetPrice": "리포트에 명시된 정확한 목표주가 또는 목표주가 정보 없음"
 }
 `;
 
@@ -105,14 +112,13 @@ ${pdfText}
         messages: [
           {
             role: "system",
-            content: "당신은 한국 증권사 애널리스트 리포트를 정확히 분석하는 전문가입니다. 주어진 텍스트에서 목표주가, 긍정적 요소, 우려사항을 정확히 찾아내세요."
+            content: "당신은 한국 증권사 애널리스트 리포트를 정확히 분석하는 전문가입니다. 오직 주어진 리포트 텍스트에 실제로 명시된 내용만 추출하고, 가정이나 일반론을 추가하지 마세요. 응답을 JSON 형식으로 제공하세요."
           },
           {
             role: "user",
             content: analysisPrompt
           }
         ],
-        response_format: { type: "json_object" },
         temperature: 0.1,
         max_tokens: 1000,
       });
@@ -122,7 +128,21 @@ ${pdfText}
         throw new Error("AI 분석 결과를 받지 못했습니다");
       }
 
-      const result = JSON.parse(analysisContent);
+      let result;
+      try {
+        // Try to extract JSON from the response if it's wrapped in text
+        const jsonMatch = analysisContent.match(/\{[\s\S]*\}/);
+        const jsonString = jsonMatch ? jsonMatch[0] : analysisContent;
+        result = JSON.parse(jsonString);
+      } catch (parseError) {
+        console.error("JSON 파싱 실패, 기본 구조로 대체:", parseError);
+        // Fallback to creating a structured response
+        result = {
+          positivePoints: "파싱 오류로 인해 긍정 요인을 추출할 수 없습니다.",
+          concerns: "파싱 오류로 인해 우려사항을 추출할 수 없습니다.",
+          averageTargetPrice: "파싱 오류로 목표주가 추출 실패"
+        };
+      }
       console.log("AI 분석 완료:", result);
       
       return {
