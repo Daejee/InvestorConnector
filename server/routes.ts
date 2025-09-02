@@ -3126,7 +3126,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Perform AI analysis immediately and synchronously for testing
       try {
-        console.log("Starting immediate AI analysis for report:", reportId);
+        console.log("=== 서버 측 분석 시작 ===");
+        console.log("Report ID:", reportId);
+        console.log("Report object:", JSON.stringify(report, null, 2));
+        console.log("File path from report:", report.filePath);
+        console.log("Report title:", report.title);
+        
         const aiService = new AIAnalysisService();
         const result = await aiService.analyzeReport(report.filePath || "", report.title);
         console.log("AI analysis completed, updating database...");

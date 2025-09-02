@@ -28,14 +28,18 @@ export class AIAnalysisService {
 
   async analyzeReport(filePath: string, reportTitle: string): Promise<AnalysisResult> {
     try {
-      console.log(`AI 분석 시작: ${reportTitle} (${filePath})`);
+      console.log(`=== AI 분석 시작 ===`);
+      console.log(`리포트 제목: ${reportTitle}`);
+      console.log(`파일 경로: ${filePath}`);
+      console.log(`파일 경로 타입: ${typeof filePath}`);
+      console.log(`파일 경로 길이: ${filePath?.length}`);
+      console.log(`파일 경로 비어있음: ${!filePath || filePath.trim() === ""}`);
       
       let pdfText = "";
       
       // Extract text from PDF file  
-      console.log("파일 경로 상세 정보:", { filePath, length: filePath?.length, isEmpty: !filePath || filePath.trim() === "" });
-      
       if (filePath && filePath.trim() !== "") {
+        console.log("✅ 파일 경로가 존재함, PDF 처리 시작...");
         try {
           // Convert Google Cloud Storage URL to object path if needed
           let objectPath = filePath;
@@ -93,6 +97,8 @@ export class AIAnalysisService {
         }
       } else {
         // If no file path, cannot provide meaningful analysis
+        console.log("❌ 파일 경로가 없음 또는 비어있음");
+        console.log("파일 경로 값:", JSON.stringify(filePath));
         throw new Error("분석할 PDF 파일이 없습니다. 리포트 파일을 업로드해주세요.");
       }
       
