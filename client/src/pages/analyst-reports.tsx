@@ -33,8 +33,8 @@ interface ComprehensiveAnalysisResult {
 const uploadReportSchema = z.object({
   title: z.string().min(1, "제목을 입력해주세요"),
   analystId: z.number().min(1, "애널리스트를 선택해주세요"),
-  positivePoints: z.string().optional(),
-  concerns: z.string().optional(),
+  contentText: z.string().optional(),
+  description: z.string().optional(),
   targetPrice: z.string().optional(),
   publishDate: z.string().min(1, "발행일을 선택해주세요"),
 });
@@ -571,7 +571,7 @@ export default function AnalystReports() {
 
                         <FormField
                           control={form.control}
-                          name="positivePoints"
+                          name="contentText"
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>긍정적 요인</FormLabel>
@@ -588,7 +588,7 @@ export default function AnalystReports() {
 
                         <FormField
                           control={form.control}
-                          name="concerns"
+                          name="description"
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>우려사항</FormLabel>
@@ -855,7 +855,7 @@ export default function AnalystReports() {
 
                 <FormField
                   control={editForm.control}
-                  name="positivePoints"
+                  name="contentText"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>긍정적 요인</FormLabel>
@@ -872,7 +872,7 @@ export default function AnalystReports() {
 
                 <FormField
                   control={editForm.control}
-                  name="concerns"
+                  name="description"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>우려사항</FormLabel>

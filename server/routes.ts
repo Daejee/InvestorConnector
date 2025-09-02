@@ -3183,10 +3183,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
 
         // Use manual input data instead of AI analysis results
-        if (report.positivePoints || report.concerns || report.targetPrice) {
+        if (report.contentText || report.description || report.targetPrice) {
           analysisResults.push({
-            positivePoints: report.positivePoints || "",
-            concerns: report.concerns || "",
+            positivePoints: report.contentText || "",
+            concerns: report.description || "",
             averageTargetPrice: report.targetPrice || "",
             reportTitle: report.title
           });
