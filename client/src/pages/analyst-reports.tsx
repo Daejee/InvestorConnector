@@ -107,7 +107,7 @@ export default function AnalystReports() {
 
         return await apiRequest("/api/analyst-reports", {
           method: "POST",
-          body: JSON.stringify(reportData),
+          body: reportData,
         });
       } catch (error) {
         console.error("Upload error details:", {
