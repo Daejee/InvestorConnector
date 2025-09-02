@@ -78,11 +78,11 @@ ${pdfText.substring(0, 15000)} // 15000자로 확대해서 더 많은 내용 분
 `;
 
       const response = await openai.chat.completions.create({
-        model: "gpt-4o", // Using gpt-4o as it's more reliable
+        model: "gpt-4o-mini", // Using faster mini model for better performance
         messages: [
           {
             role: "system",
-            content: "당신은 한국 증권사 애널리스트 리포트를 분석하는 전문가입니다. 리포트를 분석하여 긍정적 요소, 우려사항, 목표주가를 정확히 추출해주세요."
+            content: "한국 증권사 애널리스트 리포트 분석 전문가. 빠르고 정확한 분석 제공."
           },
           {
             role: "user",
@@ -90,8 +90,9 @@ ${pdfText.substring(0, 15000)} // 15000자로 확대해서 더 많은 내용 분
           }
         ],
         response_format: { type: "json_object" },
-        temperature: 0.1,
-        max_tokens: 1500,
+        temperature: 0,
+        max_tokens: 800, // Reduced for faster response
+        timeout: 10000, // 10 second timeout
       });
 
       const analysisContent = response.choices[0].message.content;
