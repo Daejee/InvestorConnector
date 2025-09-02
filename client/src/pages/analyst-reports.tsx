@@ -558,7 +558,7 @@ export default function AnalystReports() {
                           name="targetPrice"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>목표주가 (선택사항)</FormLabel>
+                              <FormLabel>목표주가</FormLabel>
                               <FormControl>
                                 <Input
                                   placeholder="예: 85,000원"
@@ -574,7 +574,7 @@ export default function AnalystReports() {
                           name="positivePoints"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>긍정적 요인 (선택사항)</FormLabel>
+                              <FormLabel>긍정적 요인</FormLabel>
                               <FormControl>
                                 <textarea
                                   placeholder="투자 매력도, 성장 가능성, 긍정적 요인 등을 입력하세요"
@@ -842,7 +842,7 @@ export default function AnalystReports() {
                   name="targetPrice"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>목표주가 (선택사항)</FormLabel>
+                      <FormLabel>목표주가</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="예: 85,000원"
@@ -858,7 +858,7 @@ export default function AnalystReports() {
                   name="positivePoints"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>긍정적 요인 (선택사항)</FormLabel>
+                      <FormLabel>긍정적 요인</FormLabel>
                       <FormControl>
                         <textarea
                           placeholder="투자 매력도, 성장 가능성, 긍정적 요인 등을 입력하세요"
