@@ -10,6 +10,15 @@ export interface AnalysisResult {
   averageTargetPrice: string;
 }
 
+export interface ComprehensiveAnalysisResult {
+  summary: string;
+  consolidatedPositivePoints: string;
+  consolidatedConcerns: string;
+  averageTargetPrice: string;
+  reportTitles: string[];
+  analysisDate: string;
+}
+
 export class AIAnalysisService {
   private objectStorageService: ObjectStorageService;
 
@@ -125,6 +134,95 @@ ${pdfText}
     } catch (error) {
       console.error("AI 분석 중 오류 발생:", error);
       throw new Error("AI 분석에 실패했습니다");
+    }
+  }
+
+  async comprehensiveAnalysis(analysisResults: (AnalysisResult & { reportTitle: string })[]): Promise<ComprehensiveAnalysisResult> {
+    try {
+      console.log(`종합 분석 시작: ${analysisResults.length}개 리포트 분석`);
+      
+      // Extract target prices and calculate average
+      const targetPrices: number[] = [];
+      analysisResults.forEach(result => {
+        const priceMatch = result.averageTargetPrice.match(/(\d{1,3}(?:,\d{3})*)/);
+        if (priceMatch) {
+          const price = parseInt(priceMatch[1].replace(/,/g, ''));
+          if (!isNaN(price)) {
+            targetPrices.push(price);
+          }
+        }
+      });
+
+      let averageTargetPrice = "목표주가 정보 없음";
+      if (targetPrices.length > 0) {
+        const average = Math.round(targetPrices.reduce((sum, price) => sum + price, 0) / targetPrices.length);
+        averageTargetPrice = `${average.toLocaleString()}원 (${targetPrices.length}개 리포트 평균)`;
+      }
+
+      // Prepare comprehensive analysis prompt
+      const comprehensivePrompt = `
+다음은 여러 증권사의 애널리스트 리포트 분석 결과들입니다. 이를 종합하여 통합 분석 보고서를 작성해주세요.
+
+## 분석 대상 리포트들:
+${analysisResults.map((result, index) => `
+**리포트 ${index + 1}: ${result.reportTitle}**
+- 긍정적 요소: ${result.positivePoints}
+- 우려사항: ${result.concerns}
+- 목표주가: ${result.averageTargetPrice}
+`).join('\n')}
+
+## 요청사항:
+1. **종합 요약**: 전체 리포트들의 핵심 내용을 2-3문장으로 요약
+2. **통합 긍정요인**: 여러 리포트에서 공통으로 언급된 긍정적 요소들과 각 리포트만의 고유한 강점들을 종합
+3. **통합 우려사항**: 여러 리포트에서 공통으로 지적된 리스크와 각 리포트별 고유 우려사항들을 종합
+4. **목표주가 분석**: 계산된 평균 목표주가 "${averageTargetPrice}"에 대한 해석
+
+응답 형식 (정확히 이 형태로만):
+{
+  "summary": "전체 리포트들의 핵심 요약",
+  "consolidatedPositivePoints": "통합된 긍정적 요소들 (각 줄은 • 로 시작)",
+  "consolidatedConcerns": "통합된 우려사항들 (각 줄은 • 로 시작)",
+  "averageTargetPrice": "${averageTargetPrice}"
+}
+`;
+
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          {
+            role: "system",
+            content: "당신은 증권사 애널리스트 리포트들을 종합 분석하는 전문가입니다. 여러 리포트의 내용을 객관적으로 통합하여 포괄적인 분석을 제공하세요."
+          },
+          {
+            role: "user",
+            content: comprehensivePrompt
+          }
+        ],
+        response_format: { type: "json_object" },
+        temperature: 0.1,
+        max_tokens: 1500,
+      });
+
+      const analysisContent = response.choices[0].message.content;
+      if (!analysisContent) {
+        throw new Error("종합 분석 결과를 받지 못했습니다");
+      }
+
+      const result = JSON.parse(analysisContent);
+      console.log("종합 분석 완료:", result);
+      
+      return {
+        summary: result.summary || "종합 분석 결과 없음",
+        consolidatedPositivePoints: result.consolidatedPositivePoints || "긍정 요인 없음",
+        consolidatedConcerns: result.consolidatedConcerns || "우려사항 없음",
+        averageTargetPrice: averageTargetPrice,
+        reportTitles: analysisResults.map(r => r.reportTitle),
+        analysisDate: new Date().toISOString().split('T')[0]
+      };
+
+    } catch (error) {
+      console.error("종합 분석 중 오류 발생:", error);
+      throw new Error("종합 분석에 실패했습니다");
     }
   }
 }

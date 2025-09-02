@@ -3157,6 +3157,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Comprehensive analysis route
+  app.post("/api/comprehensive-analysis", async (req, res) => {
+    try {
+      const { reportIds } = req.body;
+      if (!reportIds || !Array.isArray(reportIds) || reportIds.length === 0) {
+        return res.status(400).json({ error: "분석할 리포트 ID 목록이 필요합니다" });
+      }
+
+      console.log(`종합 분석 요청: ${reportIds.length}개 리포트`);
+
+      // Get all analysis results for the selected reports
+      const analysisResults = [];
+      const organizationId = 1; // TODO: Extract from auth context
+      
+      for (const reportId of reportIds) {
+        const report = await storage.getAnalystReport(reportId, organizationId);
+        if (!report) {
+          continue;
+        }
+
+        const analysisResult = await storage.getAnalystReportAnalysis(reportId);
+        if (analysisResult && analysisResult.analysisStatus === 'completed') {
+          analysisResults.push({
+            positivePoints: analysisResult.positivePoints,
+            concerns: analysisResult.concerns,
+            averageTargetPrice: analysisResult.averageTargetPrice,
+            reportTitle: report.title
+          });
+        }
+      }
+
+      if (analysisResults.length === 0) {
+        return res.status(400).json({ error: "분석된 리포트가 없습니다. 먼저 개별 리포트 분석을 완료하세요." });
+      }
+
+      // Perform comprehensive analysis
+      const aiService = new AIAnalysisService();
+      const comprehensiveResult = await aiService.comprehensiveAnalysis(analysisResults);
+
+      res.json(comprehensiveResult);
+    } catch (error) {
+      console.error("종합 분석 오류:", error);
+      res.status(500).json({ error: "종합 분석에 실패했습니다" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

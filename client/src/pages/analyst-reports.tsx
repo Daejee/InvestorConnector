@@ -403,15 +403,158 @@ export default function AnalystReports() {
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
             <span>애널리스트 분석요약</span>
-            <Dialog open={isUploadOpen} onOpenChange={setIsUploadOpen}>
-              <DialogTrigger asChild>
-                <Button>
-                  <Plus className="h-4 w-4 mr-2" />
-                  분석 리포트 업로드
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[600px] max-h-[90vh] flex flex-col">
-                <DialogHeader className="flex-shrink-0">
+            <div className="flex space-x-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  // TODO: Open comprehensive analysis dialog
+                  toast({
+                    title: "종합 분석 보고서",
+                    description: "여러 리포트를 선택해서 종합 분석 보고서를 생성할 수 있습니다.",
+                  });
+                }}
+              >
+                <FileText className="h-4 w-4 mr-2" />
+                종합 분석 보고서
+              </Button>
+              <Dialog open={isUploadOpen} onOpenChange={setIsUploadOpen}>
+                <DialogTrigger asChild>
+                  <Button>
+                    <Plus className="h-4 w-4 mr-2" />
+                    분석 리포트 업로드
+                  </Button>
+                </DialogTrigger>
+              </Dialog>
+            </div>
+          </CardTitle>
+          <CardDescription>
+            애널리스트들의 분석 리포트를 업로드하고 관리하세요
+          </CardDescription>
+        </CardHeader>
+
+        <CardContent>
+          {/* Search */}
+          <div className="mb-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="제목, 애널리스트명, 증권사로 검색"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          </div>
+
+          {/* Data Table */}
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>제목</TableHead>
+                  <TableHead>애널리스트</TableHead>
+                  <TableHead>증권사</TableHead>
+                  <TableHead>발행일</TableHead>
+                  <TableHead>AI 분석 상태</TableHead>
+                  <TableHead className="text-center">액션</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {reportsLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center py-10">
+                      로딩 중...
+                    </TableCell>
+                  </TableRow>
+                ) : filteredReports.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center py-10">
+                      리포트가 없습니다.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filteredReports.map((report) => (
+                    <TableRow key={report.id}>
+                      <TableCell className="font-medium">
+                        <div className="max-w-[300px] truncate">
+                          {report.title}
+                        </div>
+                        {report.description && (
+                          <div className="text-sm text-gray-500 max-w-[300px] truncate">
+                            {report.description}
+                          </div>
+                        )}
+                      </TableCell>
+                      <TableCell>{getAnalystName(report.analystId)}</TableCell>
+                      <TableCell>{getAnalystCompany(report.analystId)}</TableCell>
+                      <TableCell>
+                        {format(new Date(report.publishDate), "yyyy-MM-dd")}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center space-x-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleAnalyze(report.id)}
+                            disabled={analysisStates[report.id] === 'analyzing'}
+                            className="text-xs"
+                          >
+                            {getAnalysisButtonText(report.id)}
+                          </Button>
+                          {analysisStates[report.id] === 'completed' && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleViewAnalysis(report.id)}
+                              className="text-xs text-blue-600"
+                            >
+                              결과 보기
+                            </Button>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex justify-center space-x-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDownload(report)}
+                            title="다운로드"
+                          >
+                            <Download className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleEdit(report)}
+                            title="편집"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => deleteMutation.mutate(report.id)}
+                            title="삭제"
+                            disabled={deleteMutation.isPending}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Upload Dialog */}
+      <Dialog open={isUploadOpen} onOpenChange={setIsUploadOpen}>
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] flex flex-col">
+          <DialogHeader className="flex-shrink-0">
                   <DialogTitle>애널리스트 분석 리포트 업로드</DialogTitle>
                   <DialogDescription>
                     애널리스트의 분석 리포트를 업로드하고 정보를 입력하세요
