@@ -71,31 +71,15 @@ export class AIAnalysisService {
           const pdfBuffer = Buffer.concat(chunks);
           console.log(`PDF 파일 다운로드 완료: ${pdfBuffer.length} bytes`);
           
-          // Parse actual PDF content using pdfjs-dist
+          // Parse actual PDF content using pdf-parse
           console.log("실제 PDF 텍스트 추출 시작...");
           try {
-            const pdfjsLib = await import('pdfjs-dist/es5/build/pdf.js');
+            const pdfParse = await import('pdf-parse');
             
-            // Load PDF from buffer
-            const pdfDoc = await pdfjsLib.getDocument({ data: pdfBuffer }).promise;
-            console.log(`PDF 문서 로드 완료: ${pdfDoc.numPages} 페이지`);
+            const parsedPdf = await pdfParse.default(pdfBuffer);
+            pdfText = parsedPdf.text;
             
-            let fullText = '';
-            
-            // Extract text from each page
-            for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum++) {
-              const page = await pdfDoc.getPage(pageNum);
-              const textContent = await page.getTextContent();
-              
-              const pageText = textContent.items
-                .map((item: any) => item.str || '')
-                .join(' ');
-              
-              fullText += pageText + '\n';
-            }
-            
-            pdfText = fullText.trim();
-            console.log(`PDFJS로 텍스트 추출 완료: ${pdfText.length} 문자`);
+            console.log(`PDF 텍스트 추출 완료: ${pdfText.length} 문자`);
             
             // Log first part of extracted text for debugging
             if (pdfText.length > 0) {
@@ -106,52 +90,9 @@ export class AIAnalysisService {
             }
             
           } catch (pdfError) {
-            console.error("PDFJS 파싱 오류:", pdfError);
-            console.log("PDFJS 파싱 실패, fallback 콘텐츠 사용");
-            
-            // Fallback content with realistic target prices based on title analysis
-            const generateTargetPrice = (title: string): string => {
-              // Generate realistic target prices based on title sentiment
-              if (title.includes('상승') || title.includes('회복') || title.includes('개선') || title.includes('성장')) {
-                const prices = ['85,000원', '90,000원', '78,000원', '95,000원'];
-                return prices[Math.floor(Math.random() * prices.length)];
-              } else if (title.includes('하락') || title.includes('바닥') || title.includes('조정')) {
-                const prices = ['65,000원', '70,000원', '72,000원', '68,000원'];
-                return prices[Math.floor(Math.random() * prices.length)];
-              } else {
-                const prices = ['75,000원', '80,000원', '82,000원', '77,000원'];
-                return prices[Math.floor(Math.random() * prices.length)];
-              }
-            };
-            
-            const targetPrice = generateTargetPrice(reportTitle);
-            
-            pdfText = `${reportTitle} - 애널리스트 리포트 분석
-본 리포트는 ${reportTitle}에 대한 상세 분석을 제공합니다.
-
-주요 투자 포인트:
-- 기업의 핵심 경쟁력과 시장 지위 분석
-- 업종 전망 및 성장 동력 평가  
-- 재무 성과 개선과 수익성 분석
-- 밸류에이션 및 투자 매력도 검토
-
-투자 의견:
-종합적인 분석 결과를 바탕으로 투자 의견을 제시합니다.
-현재 주가 수준 대비 기업의 펀더멘털을 고려할 때 적정한 투자 기회로 판단됩니다.
-
-목표주가 ${targetPrice}
-다양한 밸류에이션 방법론(PER, PBR, EV/EBITDA 등)을 통해 산정된 목표주가입니다.
-현재 주가 대비 상승 여력이 있어 매수 의견을 제시합니다.
-
-주요 리스크:
-- 거시경제 환경 변화에 따른 영향
-- 업종 내 경쟁 심화로 인한 수익성 압박  
-- 원자재 가격 변동성 및 환율 리스크
-
-결론:
-펀더멘털 개선과 밸류에이션 매력을 고려하여 긍정적인 투자 의견을 유지합니다.`;
-            
-            console.log(`Fallback 콘텐츠 사용: ${pdfText.length} 문자`);
+            console.error("PDF 파싱 오류:", pdfError);
+            console.log("PDF 파싱 실패 - 분석을 중단합니다");
+            throw new Error("PDF 파일에서 텍스트를 추출할 수 없어 분석이 불가능합니다. 파일이 손상되었거나 텍스트가 포함되지 않은 이미지 기반 PDF일 수 있습니다.");
           }
           
           // Check if PDF content is meaningful
