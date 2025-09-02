@@ -242,29 +242,36 @@ export default function Dashboard() {
                 {todayMeetings.slice(0, 5).map((meeting) => {
                   const attendeeInfo = getAttendeeInfo(meeting);
                   const dateTime = formatDateTime(meeting.scheduledDate);
+                  const date = new Date(meeting.scheduledDate);
+                  const dayOfMonth = date.getDate();
+                  const monthShort = (date.getMonth() + 1).toString().padStart(2, '0') + '월';
                   
                   return (
-                    <div key={meeting.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                          <User className="h-5 w-5 text-blue-600" />
-                        </div>
-                        <div>
-                          <p className="font-medium text-sm">{meeting.title || 'Meeting'}</p>
-                          <p className="text-xs text-gray-500">
-                            {attendeeInfo?.name} - {attendeeInfo?.company}
-                          </p>
-                          <div className="flex items-center space-x-2 mt-1">
-                            <span className="text-xs text-gray-500">{dateTime.date}</span>
-                            <span className="text-xs text-gray-500">{dateTime.time}</span>
-                            <div className="flex items-center space-x-1">
-                              <MapPin className="h-3 w-3 text-gray-400" />
-                              <span className="text-xs text-gray-500">{meeting.attendeeType}</span>
-                            </div>
-                          </div>
+                    <div key={meeting.id} className="flex items-start space-x-4 p-4 border rounded-lg bg-blue-50 hover:bg-blue-100">
+                      <div className="flex flex-col items-center">
+                        <div className="text-2xl font-bold text-blue-600">
+                          {monthShort}{dayOfMonth.toString().padStart(2, '0')}
                         </div>
                       </div>
-                      {getStatusBadge(meeting)}
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-3 mb-2">
+                          <div className="flex items-center space-x-1">
+                            <User className="h-4 w-4 text-gray-600" />
+                            <span className="font-medium text-gray-900">{attendeeInfo?.name}</span>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <Clock className="h-4 w-4 text-gray-600" />
+                            <span className="text-gray-700">{dateTime.time}</span>
+                          </div>
+                          <span className="px-2 py-1 text-xs bg-purple-100 text-purple-700 rounded">
+                            {meeting.category || '탐방'}
+                          </span>
+                          {getStatusBadge(meeting)}
+                        </div>
+                        <div className="text-sm text-gray-600">
+                          {attendeeInfo?.company} • 애널리스트
+                        </div>
+                      </div>
                     </div>
                   );
                 })}
@@ -299,29 +306,36 @@ export default function Dashboard() {
                 {futureMeetings.slice(0, 5).map((meeting) => {
                   const attendeeInfo = getAttendeeInfo(meeting);
                   const dateTime = formatDateTime(meeting.scheduledDate);
+                  const date = new Date(meeting.scheduledDate);
+                  const dayOfMonth = date.getDate();
+                  const monthShort = (date.getMonth() + 1).toString().padStart(2, '0') + '월';
                   
                   return (
-                    <div key={meeting.id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                          <Clock className="h-5 w-5 text-blue-600" />
-                        </div>
-                        <div>
-                          <p className="font-medium text-sm">{meeting.title || 'Meeting'}</p>
-                          <p className="text-xs text-gray-500">
-                            {attendeeInfo?.name} - {attendeeInfo?.company}
-                          </p>
-                          <div className="flex items-center space-x-2 mt-1">
-                            <span className="text-xs text-gray-500">{dateTime.date}</span>
-                            <span className="text-xs text-gray-500">{dateTime.time}</span>
-                            <div className="flex items-center space-x-1">
-                              <MapPin className="h-3 w-3 text-gray-400" />
-                              <span className="text-xs text-gray-500">{meeting.attendeeType}</span>
-                            </div>
-                          </div>
+                    <div key={meeting.id} className="flex items-start space-x-4 p-4 border rounded-lg bg-blue-50 hover:bg-blue-100">
+                      <div className="flex flex-col items-center">
+                        <div className="text-2xl font-bold text-blue-600">
+                          {monthShort}{dayOfMonth.toString().padStart(2, '0')}
                         </div>
                       </div>
-                      {getStatusBadge(meeting)}
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-3 mb-2">
+                          <div className="flex items-center space-x-1">
+                            <User className="h-4 w-4 text-gray-600" />
+                            <span className="font-medium text-gray-900">{attendeeInfo?.name}</span>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <Clock className="h-4 w-4 text-gray-600" />
+                            <span className="text-gray-700">{dateTime.time}</span>
+                          </div>
+                          <span className="px-2 py-1 text-xs bg-purple-100 text-purple-700 rounded">
+                            {meeting.category || '탐방'}
+                          </span>
+                          {getStatusBadge(meeting)}
+                        </div>
+                        <div className="text-sm text-gray-600">
+                          {attendeeInfo?.company} • 애널리스트
+                        </div>
+                      </div>
                     </div>
                   );
                 })}
