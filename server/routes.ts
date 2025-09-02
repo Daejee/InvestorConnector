@@ -3126,23 +3126,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Start AI analysis in background (don't await)
       const aiService = new AIAnalysisService();
-      aiService.analyzeReport(report.filePath || "", report.title)
-        .then(async (result) => {
+      
+      // Use setTimeout to ensure the analysis runs properly
+      setTimeout(async () => {
+        try {
+          console.log("Starting AI analysis for report:", reportId);
+          const result = await aiService.analyzeReport(report.filePath || "", report.title);
+          console.log("AI analysis completed, updating database...");
+          
           await storage.updateAnalystReportAnalysis(reportId, {
             positivePoints: result.positivePoints,
             concerns: result.concerns,
             averageTargetPrice: result.averageTargetPrice,
             analysisStatus: "completed"
           });
-        })
-        .catch(async (error) => {
+          
+          console.log("Database updated successfully");
+        } catch (error) {
           console.error("AI analysis failed:", error);
-          await storage.updateAnalystReportAnalysis(reportId, {
-            analysisStatus: "failed"
-          });
-        });
+          try {
+            await storage.updateAnalystReportAnalysis(reportId, {
+              analysisStatus: "failed"
+            });
+          } catch (updateError) {
+            console.error("Failed to update analysis status to failed:", updateError);
+          }
+        }
+      }, 100);
 
-      res.json(initialAnalysis);
+      res.json(analysis);
     } catch (error) {
       res.status(500).json({ message: "Failed to start analysis", error });
     }
