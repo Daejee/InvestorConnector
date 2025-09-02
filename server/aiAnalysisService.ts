@@ -1,6 +1,5 @@
 import OpenAI from "openai";
 import { ObjectStorageService } from "./objectStorage";
-import pdf2pic from "pdf2pic";
 
 // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -72,64 +71,16 @@ export class AIAnalysisService {
           const pdfBuffer = Buffer.concat(chunks);
           console.log(`PDF 파일 다운로드 완료: ${pdfBuffer.length} bytes`);
           
-          // Convert PDF to images using pdf2pic
-          console.log("PDF를 이미지로 변환 중...");
-          const convert = pdf2pic.fromBuffer(pdfBuffer, {
-            density: 200,           // DPI - higher = better quality
-            saveFilename: "untitled",
-            savePath: "/tmp",
-            format: "png",
-            width: 2000,           // pixel width
-            height: 2000           // pixel height
-          });
+          // Parse PDF text using dynamic import (more reliable)
+          console.log("PDF 텍스트 직접 추출 중...");
+          const pdfParse = (await import("pdf-parse")).default;
+          const pdfData = await pdfParse(pdfBuffer);
+          pdfText = pdfData.text;
           
-          // Convert first few pages to images
-          const result = await convert(1, 3); // Convert first 3 pages
-          console.log(`PDF 변환 완료: ${result.length}개 페이지`);
-          
-          // Process each page with OpenAI Vision
-          let allExtractedText = "";
-          
-          for (let i = 0; i < Math.min(result.length, 2); i++) { // Process max 2 pages
-            const page = result[i];
-            console.log(`페이지 ${i + 1} 처리 중...`);
-            
-            // Convert image buffer to base64
-            const base64Image = page.buffer.toString('base64');
-            
-            // Use OpenAI Vision to extract text from image
-            const visionResponse = await openai.chat.completions.create({
-              model: "gpt-4o",
-              messages: [
-                {
-                  role: "user",
-                  content: [
-                    {
-                      type: "text",
-                      text: "이 한국 증권사 애널리스트 리포트 이미지에서 텍스트를 정확히 추출해주세요. 특히 목표주가, 투자의견, 긍정적 요소, 우려사항을 중심으로 추출해주세요."
-                    },
-                    {
-                      type: "image_url",
-                      image_url: {
-                        url: `data:image/png;base64,${base64Image}`
-                      }
-                    }
-                  ]
-                }
-              ],
-              max_tokens: 1000
-            });
-            
-            const extractedText = visionResponse.choices[0].message.content || "";
-            allExtractedText += `\n페이지 ${i + 1}:\n${extractedText}\n`;
-            console.log(`페이지 ${i + 1} 텍스트 추출 완료: ${extractedText.length} 문자`);
-          }
-          
-          pdfText = allExtractedText;
-          console.log(`전체 PDF 텍스트 추출 완료: ${pdfText.length} 문자`);
+          console.log(`PDF 텍스트 추출 완료: ${pdfText.length} 문자`);
           console.log("추출된 실제 PDF 내용:");
           console.log("=".repeat(50));
-          console.log(pdfText);
+          console.log(pdfText.substring(0, 1000)); // Show first 1000 chars
           console.log("=".repeat(50));
           
           // Check if PDF content is meaningful
