@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 import { ObjectStorageService } from "./objectStorage";
+import pdf2pic from "pdf2pic";
 
 // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -37,9 +38,9 @@ export class AIAnalysisService {
       
       let pdfText = "";
       
-      // Extract text from PDF file  
+      // Extract text from PDF file using actual PDF parsing  
       if (filePath && filePath.trim() !== "") {
-        console.log("✅ 파일 경로가 존재함, PDF 처리 시작...");
+        console.log("✅ 파일 경로가 존재함, 실제 PDF 분석 시작...");
         try {
           // Convert Google Cloud Storage URL to object path if needed
           let objectPath = filePath;
@@ -55,140 +56,78 @@ export class AIAnalysisService {
             }
           }
           
-          // Extract file ID from path for content mapping
-          const fileName = objectPath.split('/').pop() || filePath.split('/').pop() || '';
-          console.log("추출된 파일 ID:", fileName);
+          console.log("변환된 객체 경로:", objectPath);
           
-          // Map file IDs to realistic report content based on actual report titles
-          const reportContent: Record<string, { title: string; content: string; targetPrice: string }> = {
-            'a452db1e-e21c-441c-99e2-83e2fb309dfd': {
-              title: '삼성전자의 메시지',
-              content: `삼성전자 3분기 실적 분석
-
-실적 요약:
-삼성전자는 3분기 실적에서 예상치를 상회하는 매출을 기록했습니다. 반도체 부문에서의 수익성이 개선되고 있습니다. 스마트폰 신제품 출시로 인한 매출 증가가 기대됩니다.
-
-긍정적 요소:
-- 3분기 실적이 예상치를 상회하는 성과
-- 반도체 부문 수익성 개선 지속
-- 스마트폰 신제품 라인업 강화로 매출 증가 기대
-
-우려사항:
-- 글로벌 경제 불확실성이 지속되고 있음
-- 원자재 가격 상승으로 인한 비용 증가 압박
-
-투자의견: BUY
-목표주가: 88,000원(상향)`,
-              targetPrice: '88,000원'
-            },
-            'd2134f94-e70a-4de6-9388-94d1a38c0fc9': {
-              title: '확실한 실적 바닥',
-              content: `삼성전자 실적 바닥 확인 및 전망
-
-분석 요약:
-2분기 실적이 확실한 바닥을 형성한 것으로 판단됩니다. 하반기부터 점진적인 실적 개선이 예상됩니다.
-
-긍정적 요소:
-- 2분기 실적이 확실한 바닥 형성
-- 하반기 실적 개선 가시성 확보
-- 메모리 시장 회복 조짐
-
-우려사항:
-- 단기적 실적 개선 속도 제한적
-- 경쟁사 대비 상대적 부진
-
-투자의견: BUY  
-목표주가: 80,000원(유지)`,
-              targetPrice: '80,000원'
-            },
-            '1396a7a5-b093-47da-b65c-fd96b970e0b2': {
-              title: '훈풍이 분다',
-              content: `삼성전자 하반기 전망 - 훈풍이 분다
-
-분석 요약:
-하반기 실적 전망이 긍정적으로 변화하고 있습니다. 메모리 시장 회복과 스마트폰 수요 증가가 예상됩니다.
-
-긍정적 요소:
-- 메모리 시장 회복 신호 감지
-- 하반기 스마트폰 수요 증가 전망
-- AI 관련 반도체 수요 증가
-
-우려사항:
-- 중국 시장 불확실성 지속
-- 환율 변동 리스크
-
-투자의견: BUY
-목표주가: 82,000원(상향)`,
-              targetPrice: '82,000원'
-            },
-            '7d5db62a-6464-4911-88af-a835c78ebd32': {
-              title: '삼성 피벗(?), 시작이 반이다',
-              content: `삼성전자 사업 전환 분석
-
-분석 요약:
-삼성전자의 사업 구조 개편이 본격화되고 있습니다. 신사업 영역 확대와 기존 사업 효율화가 동시에 진행됩니다.
-
-긍정적 요소:
-- 차세대 반도체 기술 개발 가속화
-- 신사업 영역 투자 확대
-- 사업 구조 효율화 진행
-
-우려사항:
-- 신사업 수익화까지 시간 소요
-- 단기 투자 비용 증가
-
-투자의견: BUY
-목표주가: 84,000원(유지)`,
-              targetPrice: '84,000원'
-            },
-            '76e33cf2-9026-4459-990b-448aa006d0e5': {
-              title: 'HBM4, 파운드리 경쟁력 회복 예상',
-              content: `삼성전자 HBM4 및 파운드리 사업 전망
-
-분석 요약:
-HBM4 양산 준비가 본격화되고 있으며, 파운드리 사업의 경쟁력 회복이 가시화되고 있습니다. AI 반도체 수요 증가로 수혜가 예상됩니다.
-
-긍정적 요소:
-- HBM4 기술력 업계 최고 수준 확보
-- 파운드리 고객사 다변화 성공
-- AI 반도체 수요 급증으로 수혜
-- 3나노 공정 기술 경쟁우위 확보
-
-우려사항:
-- 파운드리 수율 개선 시간 소요
-- 글로벌 반도체 시장 경쟁 심화
-
-투자의견: BUY
-목표주가: 89,000원(상향)`,
-              targetPrice: '89,000원'
-            }
-          };
+          // Get the PDF file from object storage
+          const objectFile = await this.objectStorageService.getObjectEntityFile(objectPath);
           
-          console.log("파일 ID가 매핑에 있는지 확인:", fileName in reportContent);
-          console.log("사용 가능한 모든 파일 ID:", Object.keys(reportContent));
+          // Download the file content
+          const stream = objectFile.createReadStream();
+          const chunks: Buffer[] = [];
           
-          const currentReport = reportContent[fileName] || {
-            title: reportTitle,
-            content: `${reportTitle} 분석
-
-본 리포트는 ${reportTitle}에 대한 분석을 제공합니다.
-
-긍정적 요소:
-- 기업 펀더멘털 견고
-- 신사업 성장 가능성
-
-우려사항:
-- 시장 경쟁 심화
-- 비용 증가 우려
-
-목표주가: 85,000원`,
-            targetPrice: '85,000원'
-          };
+          for await (const chunk of stream) {
+            chunks.push(chunk);
+          }
           
-          console.log("선택된 리포트:", fileName in reportContent ? "매핑된 실제 내용" : "기본 템플릿");
-          pdfText = currentReport.content;
-          console.log(`PDF 텍스트 추출 완료: ${pdfText.length} 문자`);
-          console.log("PDF 내용 전체 출력:");
+          const pdfBuffer = Buffer.concat(chunks);
+          console.log(`PDF 파일 다운로드 완료: ${pdfBuffer.length} bytes`);
+          
+          // Convert PDF to images using pdf2pic
+          console.log("PDF를 이미지로 변환 중...");
+          const convert = pdf2pic.fromBuffer(pdfBuffer, {
+            density: 200,           // DPI - higher = better quality
+            saveFilename: "untitled",
+            savePath: "/tmp",
+            format: "png",
+            width: 2000,           // pixel width
+            height: 2000           // pixel height
+          });
+          
+          // Convert first few pages to images
+          const result = await convert(1, 3); // Convert first 3 pages
+          console.log(`PDF 변환 완료: ${result.length}개 페이지`);
+          
+          // Process each page with OpenAI Vision
+          let allExtractedText = "";
+          
+          for (let i = 0; i < Math.min(result.length, 2); i++) { // Process max 2 pages
+            const page = result[i];
+            console.log(`페이지 ${i + 1} 처리 중...`);
+            
+            // Convert image buffer to base64
+            const base64Image = page.buffer.toString('base64');
+            
+            // Use OpenAI Vision to extract text from image
+            const visionResponse = await openai.chat.completions.create({
+              model: "gpt-4o",
+              messages: [
+                {
+                  role: "user",
+                  content: [
+                    {
+                      type: "text",
+                      text: "이 한국 증권사 애널리스트 리포트 이미지에서 텍스트를 정확히 추출해주세요. 특히 목표주가, 투자의견, 긍정적 요소, 우려사항을 중심으로 추출해주세요."
+                    },
+                    {
+                      type: "image_url",
+                      image_url: {
+                        url: `data:image/png;base64,${base64Image}`
+                      }
+                    }
+                  ]
+                }
+              ],
+              max_tokens: 1000
+            });
+            
+            const extractedText = visionResponse.choices[0].message.content || "";
+            allExtractedText += `\n페이지 ${i + 1}:\n${extractedText}\n`;
+            console.log(`페이지 ${i + 1} 텍스트 추출 완료: ${extractedText.length} 문자`);
+          }
+          
+          pdfText = allExtractedText;
+          console.log(`전체 PDF 텍스트 추출 완료: ${pdfText.length} 문자`);
+          console.log("추출된 실제 PDF 내용:");
           console.log("=".repeat(50));
           console.log(pdfText);
           console.log("=".repeat(50));
@@ -200,7 +139,7 @@ HBM4 양산 준비가 본격화되고 있으며, 파운드리 사업의 경쟁�
           }
           
           // Use actual PDF content for real analysis
-          console.log("실제 PDF 내용 사용");
+          console.log("실제 PDF 내용 사용 - 진짜 데이터!");
           
         } catch (error) {
           console.error("PDF 파일 처리 오류:", error);
