@@ -76,7 +76,8 @@ export const analysts = pgTable("analysts", {
   organizationId: integer("organization_id").references(() => organizations.id), // 기업별 격리
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
-  phone: text("phone").default(""),
+  phone: text("phone").default(""), // 핸드폰
+  officePhone: text("office_phone").default(""), // 사무실 전화번호
   company: text("company").notNull(),
   position: text("position").default(""),
   specialization: text("specialization").array().default([]), // Tech, Healthcare, Finance, etc.

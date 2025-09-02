@@ -43,6 +43,7 @@ export function AnalystForm({ analyst, onClose }: AnalystFormProps) {
       name: analyst?.name ?? "",
       email: analyst?.email ?? "",
       phone: analyst?.phone ?? "",
+      officePhone: analyst?.officePhone ?? "",
       company: analyst?.company ?? "",
       position: analyst?.position ?? "",
       specialization: analyst?.specialization ?? [],
@@ -161,7 +162,7 @@ export function AnalystForm({ analyst, onClose }: AnalystFormProps) {
             name="phone"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>전화번호</FormLabel>
+                <FormLabel>전화번호(핸드폰)</FormLabel>
                 <FormControl>
                   <Input placeholder="010-1234-5678" {...field} />
                 </FormControl>
@@ -256,6 +257,20 @@ export function AnalystForm({ analyst, onClose }: AnalystFormProps) {
                       <SelectItem value="기타">기타</SelectItem>
                     </SelectContent>
                   </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="officePhone"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>전화번호(사무실)</FormLabel>
+                <FormControl>
+                  <Input placeholder="02-709-2661" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
