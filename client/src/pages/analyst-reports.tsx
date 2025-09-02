@@ -591,7 +591,7 @@ export default function AnalystReports() {
                           name="concerns"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>우려사항 (선택사항)</FormLabel>
+                              <FormLabel>우려사항</FormLabel>
                               <FormControl>
                                 <textarea
                                   placeholder="리스크 요인, 우려사항, 주의점 등을 입력하세요"
@@ -875,7 +875,7 @@ export default function AnalystReports() {
                   name="concerns"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>우려사항 (선택사항)</FormLabel>
+                      <FormLabel>우려사항</FormLabel>
                       <FormControl>
                         <textarea
                           placeholder="리스크 요인, 우려사항, 주의점 등을 입력하세요"
