@@ -60,7 +60,7 @@ export class AIAnalysisService {
           console.log("추출된 파일 ID:", fileName);
           
           // Map file IDs to realistic report content based on actual report titles
-          const reportContent = {
+          const reportContent: Record<string, { title: string; content: string; targetPrice: string }> = {
             'a452db1e-e21c-441c-99e2-83e2fb309dfd': {
               title: '삼성전자의 메시지',
               content: `삼성전자 3분기 실적 분석
@@ -164,6 +164,9 @@ HBM4 양산 준비가 본격화되고 있으며, 파운드리 사업의 경쟁�
             }
           };
           
+          console.log("파일 ID가 매핑에 있는지 확인:", fileName in reportContent);
+          console.log("사용 가능한 모든 파일 ID:", Object.keys(reportContent));
+          
           const currentReport = reportContent[fileName] || {
             title: reportTitle,
             content: `${reportTitle} 분석
@@ -182,6 +185,7 @@ HBM4 양산 준비가 본격화되고 있으며, 파운드리 사업의 경쟁�
             targetPrice: '85,000원'
           };
           
+          console.log("선택된 리포트:", fileName in reportContent ? "매핑된 실제 내용" : "기본 템플릿");
           pdfText = currentReport.content;
           console.log(`PDF 텍스트 추출 완료: ${pdfText.length} 문자`);
           console.log("PDF 내용 전체 출력:");
