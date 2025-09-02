@@ -201,10 +201,11 @@ ${pdfText}
       // Extract target prices and calculate average
       const targetPrices: number[] = [];
       analysisResults.forEach(result => {
-        const priceMatch = result.averageTargetPrice.match(/(\d{1,3}(?:,\d{3})*)/);
-        if (priceMatch) {
-          const price = parseInt(priceMatch[1].replace(/,/g, ''));
-          if (!isNaN(price)) {
+        if (result.averageTargetPrice) {
+          // Extract all digits and commas, then convert to number
+          const priceStr = result.averageTargetPrice.replace(/[^\d,]/g, '');
+          const price = parseInt(priceStr.replace(/,/g, ''));
+          if (!isNaN(price) && price > 0) {
             targetPrices.push(price);
           }
         }
