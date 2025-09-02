@@ -133,6 +133,8 @@ export default function AnalystReports() {
           organizationId: 1, // TODO: Get from auth context
           title: data.title,
           analystId: data.analystId,
+          targetPrice: data.targetPrice || null,
+          contentText: data.contentText || null,
           description: data.description || null,
           publishDate: data.publishDate,
           originalFileName: data.file.name,
