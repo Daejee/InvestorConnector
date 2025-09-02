@@ -54,10 +54,14 @@ export class AIAnalysisService {
           const pdfData = await pdfParse(pdfBuffer);
           pdfText = pdfData.text;
           console.log(`PDF 텍스트 추출 완료: ${pdfText.length} 문자`);
-          console.log("PDF 내용 미리보기:", pdfText.substring(0, 500) + "...");
+          console.log("PDF 내용 전체 출력:");
+          console.log("=".repeat(50));
+          console.log(pdfText);
+          console.log("=".repeat(50));
           
           // Check if PDF content is meaningful
           if (!pdfText || pdfText.trim().length < 50) {
+            console.error("PDF 내용이 부족함:", pdfText);
             throw new Error("PDF 파일에서 충분한 텍스트 내용을 추출할 수 없습니다.");
           }
           
@@ -74,81 +78,16 @@ export class AIAnalysisService {
         throw new Error("분석할 PDF 파일이 없습니다. 리포트 파일을 업로드해주세요.");
       }
       
-      // Analyze with OpenAI  
-      const analysisPrompt = `
-다음은 한국 증권사의 애널리스트 리포트 원문입니다. 이 텍스트에서 **오직 실제로 명시된 내용만** 추출해주세요.
-
-**중요한 지침:**
-1. 리포트에 실제로 쓰여있는 내용만 사용하세요
-2. 일반적인 시장 상황이나 가정으로 내용을 만들어내지 마세요
-3. "글로벌 경제 불확실성", "원자재 가격" 같은 일반론적 표현은 리포트에 명시되지 않았다면 사용하지 마세요
-
-**목표주가 추출:**
-다음 패턴들을 리포트에서 찾으세요:
-- "목표주가 XX,XXX원"
-- "적정주가 XX,XXX원" 
-- "Target Price XX,XXX원"
-- "TP XX,XXX원"
-리포트에 명시된 정확한 숫자를 그대로 사용하세요.
-
-**긍정적 요소와 우려사항:**
-- 리포트에서 실제로 언급된 구체적인 내용만 추출
-- 회사명, 제품명, 구체적인 수치가 포함된 실제 내용만 사용
-- 일반적인 시장 리스크나 가정은 제외
-
-리포트 원문:
-${pdfText}
-
-응답을 JSON 형식으로 제공하세요:
-{
-  "positivePoints": "리포트에서 실제로 언급된 구체적인 긍정적 내용만 (각 줄은 • 로 시작)",
-  "concerns": "리포트에서 실제로 언급된 구체적인 우려사항만 (각 줄은 • 로 시작)",  
-  "averageTargetPrice": "리포트에 명시된 정확한 목표주가 또는 목표주가 정보 없음"
-}
-`;
-
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o", // Using standard gpt-4o for better analysis
-        messages: [
-          {
-            role: "system",
-            content: "당신은 한국 증권사 애널리스트 리포트를 정확히 분석하는 전문가입니다. 오직 주어진 리포트 텍스트에 실제로 명시된 내용만 추출하고, 가정이나 일반론을 추가하지 마세요. 응답을 JSON 형식으로 제공하세요."
-          },
-          {
-            role: "user",
-            content: analysisPrompt
-          }
-        ],
-        temperature: 0.1,
-        max_tokens: 1000,
-      });
-
-      const analysisContent = response.choices[0].message.content;
-      if (!analysisContent) {
-        throw new Error("AI 분석 결과를 받지 못했습니다");
-      }
-
-      let result;
-      try {
-        // Try to extract JSON from the response if it's wrapped in text
-        const jsonMatch = analysisContent.match(/\{[\s\S]*\}/);
-        const jsonString = jsonMatch ? jsonMatch[0] : analysisContent;
-        result = JSON.parse(jsonString);
-      } catch (parseError) {
-        console.error("JSON 파싱 실패, 기본 구조로 대체:", parseError);
-        // Fallback to creating a structured response
-        result = {
-          positivePoints: "파싱 오류로 인해 긍정 요인을 추출할 수 없습니다.",
-          concerns: "파싱 오류로 인해 우려사항을 추출할 수 없습니다.",
-          averageTargetPrice: "파싱 오류로 목표주가 추출 실패"
-        };
-      }
-      console.log("AI 분석 완료:", result);
+      // For now, return the actual PDF content to verify it's being extracted correctly
+      console.log("PDF 파싱 테스트 - 실제 내용 확인 중...");
       
+      // Return actual PDF content for debugging
       return {
-        positivePoints: result.positivePoints || "분석 결과 없음",
-        concerns: result.concerns || "분석 결과 없음", 
-        averageTargetPrice: result.averageTargetPrice || "목표주가 정보 없음"
+        positivePoints: `PDF 텍스트 길이: ${pdfText.length}문자\n처음 500자: ${pdfText.substring(0, 500)}`,
+        concerns: `PDF 내용에서 '목표주가' 검색 결과: ${pdfText.includes('목표주가') ? '발견됨' : '없음'}`,
+        averageTargetPrice: pdfText.includes('목표주가') ? 
+          pdfText.match(/목표주가\s*[\d,]+원/)?.[0] || "패턴 매칭 실패" : 
+          "목표주가 키워드 없음"
       };
 
     } catch (error) {
