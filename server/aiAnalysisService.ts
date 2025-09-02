@@ -1,6 +1,5 @@
 import OpenAI from "openai";
 import { ObjectStorageService } from "./objectStorage";
-import pdfParse from "pdf-parse";
 
 // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -41,7 +40,8 @@ export class AIAnalysisService {
           const pdfBuffer = Buffer.concat(chunks);
           console.log(`PDF 파일 다운로드 완료: ${pdfBuffer.length} bytes`);
           
-          // Parse PDF text
+          // Parse PDF text using dynamic import
+          const pdfParse = (await import("pdf-parse")).default;
           const pdfData = await pdfParse(pdfBuffer);
           pdfText = pdfData.text;
           console.log(`PDF 텍스트 추출 완료: ${pdfText.length} 문자`);
