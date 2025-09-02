@@ -274,7 +274,7 @@ export default function Dashboard() {
                           {getStatusBadge(meeting)}
                         </div>
                         <div className="text-sm text-gray-600">
-                          {attendeeInfo?.company} • 애널리스트
+                          {attendeeInfo?.company} • {attendeeInfo?.type === 'Investor' ? '투자자' : attendeeInfo?.type === 'Analyst' ? '애널리스트' : '기타'}
                         </div>
                       </div>
                     </div>
@@ -338,7 +338,7 @@ export default function Dashboard() {
                           {getStatusBadge(meeting)}
                         </div>
                         <div className="text-sm text-gray-600">
-                          {attendeeInfo?.company} • 애널리스트
+                          {attendeeInfo?.company} • {attendeeInfo?.type === 'Investor' ? '투자자' : attendeeInfo?.type === 'Analyst' ? '애널리스트' : '기타'}
                         </div>
                       </div>
                     </div>
