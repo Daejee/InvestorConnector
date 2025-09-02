@@ -32,11 +32,29 @@ export class AIAnalysisService {
       
       let pdfText = "";
       
-      // Extract text from PDF file
-      if (filePath && filePath.startsWith("/objects/")) {
+      // Extract text from PDF file  
+      console.log("파일 경로 상세 정보:", { filePath, length: filePath?.length, isEmpty: !filePath || filePath.trim() === "" });
+      
+      if (filePath && filePath.trim() !== "") {
         try {
+          // Convert Google Cloud Storage URL to object path if needed
+          let objectPath = filePath;
+          if (filePath.startsWith("https://storage.googleapis.com/")) {
+            // Extract the object path from the full URL
+            // Example: https://storage.googleapis.com/replit-objstore-xxx/.private/uploads/file-id
+            // Convert to: /objects/uploads/file-id
+            const urlParts = filePath.split("/");
+            const uploadsIndex = urlParts.findIndex(part => part === "uploads");
+            if (uploadsIndex !== -1 && uploadsIndex < urlParts.length - 1) {
+              const fileId = urlParts[uploadsIndex + 1];
+              objectPath = `/objects/uploads/${fileId}`;
+            }
+          }
+          
+          console.log("변환된 객체 경로:", objectPath);
+          
           // Get the PDF file from object storage
-          const objectFile = await this.objectStorageService.getObjectEntityFile(filePath);
+          const objectFile = await this.objectStorageService.getObjectEntityFile(objectPath);
           
           // Download the file content
           const stream = objectFile.createReadStream();
