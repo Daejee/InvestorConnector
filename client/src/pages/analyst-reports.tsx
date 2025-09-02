@@ -31,7 +31,7 @@ interface ComprehensiveAnalysisResult {
 
 // Form validation schema
 const uploadReportSchema = z.object({
-  title: z.string().min(1, "제목을 입력해주세요"),
+  title: z.string().optional(),
   analystId: z.number().min(1, "애널리스트를 선택해주세요"),
   contentText: z.string().optional(),
   description: z.string().optional(),

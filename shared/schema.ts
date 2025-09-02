@@ -510,7 +510,7 @@ export const analystReports = pgTable('analyst_reports', {
   id: serial('id').primaryKey(),
   organizationId: integer('organization_id').notNull().references(() => organizations.id),
   analystId: integer('analyst_id').notNull().references(() => analysts.id),
-  title: text('title').notNull(),
+  title: text('title'),
   originalFileName: text('original_file_name').notNull(),
   filePath: text('file_path').notNull(),
   fileSize: integer('file_size').notNull(),
