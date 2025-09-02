@@ -563,7 +563,8 @@ export default function AnalystReports() {
                               <FormLabel>목표주가</FormLabel>
                               <FormControl>
                                 <Input
-                                  placeholder="예: 85,000원"
+                                  type="number"
+                                  placeholder="85000"
                                   {...field}
                                 />
                               </FormControl>
@@ -847,7 +848,8 @@ export default function AnalystReports() {
                       <FormLabel>목표주가</FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="예: 85,000원"
+                          type="number"
+                          placeholder="85000"
                           {...field}
                         />
                       </FormControl>
