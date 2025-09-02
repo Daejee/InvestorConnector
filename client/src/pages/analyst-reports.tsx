@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/hooks/use-toast";
-import { Search, Upload, Download, Trash2, FileText, Plus, Edit, Brain, Clock, CheckCircle, XCircle, ChevronDown, ChevronUp } from "lucide-react";
+import { Search, Upload, Download, Trash2, FileText, Plus, Edit, ChevronDown, ChevronUp, Eye } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -34,6 +34,8 @@ const uploadReportSchema = z.object({
   title: z.string().min(1, "제목을 입력해주세요"),
   analystId: z.number().min(1, "애널리스트를 선택해주세요"),
   description: z.string().optional(),
+  targetPrice: z.string().optional(),
+  contentText: z.string().optional(),
   publishDate: z.string().min(1, "발행일을 선택해주세요"),
 });
 
@@ -43,11 +45,10 @@ export default function AnalystReports() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const [isAnalysisOpen, setIsAnalysisOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [editingReport, setEditingReport] = useState<AnalystReport | null>(null);
-  const [selectedAnalysis, setSelectedAnalysis] = useState<AnalystReportAnalysis | null>(null);
-  const [analysisStates, setAnalysisStates] = useState<Record<number, 'analyzing' | 'completed' | 'failed'>>({});
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [viewingReport, setViewingReport] = useState<AnalystReport | null>(null);
   const [isComprehensiveOpen, setIsComprehensiveOpen] = useState(false);
   const [selectedReportIds, setSelectedReportIds] = useState<number[]>([]);
   const [comprehensiveResult, setComprehensiveResult] = useState<ComprehensiveAnalysisResult | null>(null);
@@ -64,32 +65,6 @@ export default function AnalystReports() {
     queryKey: ["/api/analysts"],
   });
 
-  // Check analysis status for each report when reports are loaded
-  useEffect(() => {
-    const checkAnalysisStatus = async () => {
-      if (reports && reports.length > 0) {
-        const statusChecks = reports.map(async (report) => {
-          try {
-            const response = await fetch(`/api/analyst-reports/${report.id}/analysis`);
-            if (response.ok) {
-              const analysis = await response.json();
-              if (analysis && analysis.analysisStatus) {
-                setAnalysisStates(prev => ({
-                  ...prev,
-                  [report.id]: analysis.analysisStatus
-                }));
-              }
-            }
-          } catch (error) {
-            // Analysis doesn't exist yet, keep default state
-          }
-        });
-        await Promise.all(statusChecks);
-      }
-    };
-
-    checkAnalysisStatus();
-  }, [reports]);
 
   const form = useForm<UploadReportForm>({
     resolver: zodResolver(uploadReportSchema),
@@ -97,6 +72,8 @@ export default function AnalystReports() {
       title: "",
       analystId: 0,
       description: "",
+      targetPrice: "",
+      contentText: "",
       publishDate: format(new Date(), "yyyy-MM-dd"),
     },
   });
@@ -107,6 +84,8 @@ export default function AnalystReports() {
       title: "",
       analystId: 0,
       description: "",
+      targetPrice: "",
+      contentText: "",
       publishDate: format(new Date(), "yyyy-MM-dd"),
     },
   });
@@ -248,37 +227,6 @@ export default function AnalystReports() {
     },
   });
 
-  // AI Analysis mutation
-  const analysisMutation = useMutation({
-    mutationFn: async (reportId: number) => {
-      // Set analyzing state immediately
-      setAnalysisStates(prev => ({ ...prev, [reportId]: 'analyzing' }));
-      
-      const result = await apiRequest(`/api/analyst-reports/${reportId}/analyze`, { method: "POST" });
-      return { ...result, reportId };
-    },
-    onSuccess: (result: any) => {
-      const reportId = result.reportId;
-      
-      // Always set to completed after successful API response
-      setAnalysisStates(prev => ({ ...prev, [reportId]: 'completed' }));
-      
-      // Invalidate analysis cache for this specific report
-      queryClient.invalidateQueries({ queryKey: [`/api/analyst-reports/${reportId}/analysis`] });
-      
-      toast({
-        title: "AI 분석 완료",
-        description: "리포트 분석이 완료되었습니다.",
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "분석 실패",
-        description: `AI 분석에 실패했습니다: ${error.message}`,
-        variant: "destructive",
-      });
-    },
-  });
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -315,6 +263,8 @@ export default function AnalystReports() {
       title: report.title,
       analystId: report.analystId,
       description: report.description || "",
+      targetPrice: report.targetPrice || "",
+      contentText: report.contentText || "",
       publishDate: report.publishDate,
     });
     setIsEditOpen(true);
@@ -325,50 +275,12 @@ export default function AnalystReports() {
     editMutation.mutate({ ...data, id: editingReport.id });
   };
 
-  const getAnalysisIcon = (reportId: number) => {
-    const state = analysisStates[reportId];
-    switch (state) {
-      case 'analyzing':
-        return <Clock className="h-4 w-4 text-yellow-500 animate-spin" />;
-      case 'completed':
-        return <CheckCircle className="h-4 w-4 text-green-500" />;
-      case 'failed':
-        return <XCircle className="h-4 w-4 text-red-500" />;
-      default:
-        return <Brain className="h-4 w-4 text-blue-500" />;
-    }
+  const handleViewDetail = (report: AnalystReport) => {
+    setViewingReport(report);
+    setIsDetailOpen(true);
   };
 
-  const getAnalysisButtonText = (reportId: number) => {
-    const state = analysisStates[reportId];
-    switch (state) {
-      case 'analyzing':
-        return "분석 중...";
-      case 'completed':
-        return "분석 완료";
-      case 'failed':
-        return "분석 재시도";
-      default:
-        return "AI 분석";
-    }
-  };
 
-  const handleViewAnalysis = async (reportId: number) => {
-    try {
-      const response = await fetch(`/api/analyst-reports/${reportId}/analysis`);
-      if (response.ok) {
-        const analysis = await response.json();
-        setSelectedAnalysis(analysis as AnalystReportAnalysis);
-        setIsAnalysisOpen(true);
-      }
-    } catch (error) {
-      toast({
-        title: "분석 결과 로드 실패",
-        description: "분석 결과를 불러올 수 없습니다.",
-        variant: "destructive",
-      });
-    }
-  };
 
   const handleDownload = (report: AnalystReport) => {
     // Create download link using the server's objects endpoint
@@ -450,11 +362,10 @@ export default function AnalystReports() {
   };
 
   const handleSelectAllReports = () => {
-    const completedReports = reports.filter(report => analysisStates[report.id] === 'completed');
-    if (selectedReportIds.length === completedReports.length) {
+    if (selectedReportIds.length === reports.length) {
       setSelectedReportIds([]);
     } else {
-      setSelectedReportIds(completedReports.map(r => r.id));
+      setSelectedReportIds(reports.map(r => r.id));
     }
   };
 
@@ -621,6 +532,39 @@ export default function AnalystReports() {
 
                         <FormField
                           control={form.control}
+                          name="targetPrice"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>목표주가 (선택사항)</FormLabel>
+                              <FormControl>
+                                <Input
+                                  placeholder="예: 85,000원"
+                                  {...field}
+                                />
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="contentText"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>리포트 주요 내용 (선택사항)</FormLabel>
+                              <FormControl>
+                                <textarea
+                                  placeholder="리포트의 주요 내용, 투자 포인트, 리스크 요인 등을 입력하세요"
+                                  className="flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                  {...field}
+                                />
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
                           name="description"
                           render={({ field }) => (
                             <FormItem>
@@ -701,7 +645,7 @@ export default function AnalystReports() {
                 <TableRow>
                   <TableHead className="w-[50px]">
                     <Checkbox
-                      checked={selectedReportIds.length > 0 && selectedReportIds.length === reports.filter(report => analysisStates[report.id] === 'completed').length}
+                      checked={selectedReportIds.length > 0 && selectedReportIds.length === reports.length}
                       onCheckedChange={handleSelectAllReports}
                       aria-label="전체 선택"
                     />
@@ -710,7 +654,7 @@ export default function AnalystReports() {
                   <TableHead>애널리스트</TableHead>
                   <TableHead>증권사</TableHead>
                   <TableHead>발행일</TableHead>
-                  <TableHead>AI 분석 상태</TableHead>
+                  <TableHead>목표주가</TableHead>
                   <TableHead className="text-center">액션</TableHead>
                 </TableRow>
               </TableHeader>
@@ -734,7 +678,6 @@ export default function AnalystReports() {
                         <Checkbox
                           checked={selectedReportIds.includes(report.id)}
                           onCheckedChange={() => handleReportSelection(report.id)}
-                          disabled={analysisStates[report.id] !== 'completed'}
                           aria-label={`리포트 선택: ${report.title}`}
                         />
                       </TableCell>
@@ -754,30 +697,20 @@ export default function AnalystReports() {
                         {format(new Date(report.publishDate), "yyyy-MM-dd")}
                       </TableCell>
                       <TableCell>
-                        <div className="flex items-center space-x-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => analysisMutation.mutate(report.id)}
-                            disabled={analysisStates[report.id] === 'analyzing'}
-                            className="text-xs"
-                          >
-                            {getAnalysisButtonText(report.id)}
-                          </Button>
-                          {analysisStates[report.id] === 'completed' && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleViewAnalysis(report.id)}
-                              className="text-xs text-blue-600"
-                            >
-                              결과 보기
-                            </Button>
-                          )}
+                        <div className="text-sm">
+                          {report.targetPrice || "-"}
                         </div>
                       </TableCell>
                       <TableCell>
                         <div className="flex justify-center space-x-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleViewDetail(report)}
+                            title="상세보기"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
                           <Button
                             variant="ghost"
                             size="sm"
@@ -881,6 +814,39 @@ export default function AnalystReports() {
 
                 <FormField
                   control={editForm.control}
+                  name="targetPrice"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>목표주가 (선택사항)</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="예: 85,000원"
+                          {...field}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={editForm.control}
+                  name="contentText"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>리포트 주요 내용 (선택사항)</FormLabel>
+                      <FormControl>
+                        <textarea
+                          placeholder="리포트의 주요 내용, 투자 포인트, 리스크 요인 등을 입력하세요"
+                          className="flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                          {...field}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={editForm.control}
                   name="description"
                   render={({ field }) => (
                     <FormItem>
@@ -918,32 +884,92 @@ export default function AnalystReports() {
         </DialogContent>
       </Dialog>
 
-      {/* Analysis View Dialog */}
-      <Dialog open={isAnalysisOpen} onOpenChange={setIsAnalysisOpen}>
-        <DialogContent className="sm:max-w-[800px] max-h-[90vh] flex flex-col">
+      {/* Detail View Dialog */}
+      <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
+        <DialogContent className="sm:max-w-[700px] max-h-[90vh] flex flex-col">
           <DialogHeader className="flex-shrink-0">
-            <DialogTitle>AI 분석 결과</DialogTitle>
+            <DialogTitle>리포트 상세보기</DialogTitle>
             <DialogDescription>
-              애널리스트 리포트의 AI 분석 결과를 확인하세요
+              애널리스트 리포트의 상세 정보를 확인하세요
             </DialogDescription>
           </DialogHeader>
           <div className="flex-1 overflow-y-auto pr-2">
-            {selectedAnalysis && (
-              <div className="space-y-4">
-                <div>
-                  <h3 className="font-semibold mb-2">긍정적 요소</h3>
-                  <p className="text-sm text-gray-600">{selectedAnalysis.positivePoints}</p>
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-2">우려사항</h3>
-                  <p className="text-sm text-gray-600">{selectedAnalysis.concerns}</p>
-                </div>
-                {selectedAnalysis.averageTargetPrice && (
+            {viewingReport && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <h3 className="font-semibold mb-2">평균 목표가</h3>
-                    <p className="text-sm text-gray-600">{selectedAnalysis.averageTargetPrice}</p>
+                    <h3 className="font-semibold mb-2">리포트 제목</h3>
+                    <p className="text-sm text-gray-700">{viewingReport.title}</p>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-2">애널리스트</h3>
+                    <p className="text-sm text-gray-700">
+                      {getAnalystName(viewingReport.analystId)} - {getAnalystCompany(viewingReport.analystId)}
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-2">발행일</h3>
+                    <p className="text-sm text-gray-700">
+                      {format(new Date(viewingReport.publishDate), "yyyy-MM-dd")}
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-2">목표주가</h3>
+                    <p className="text-sm text-gray-700 font-medium">
+                      {viewingReport.targetPrice || "설정되지 않음"}
+                    </p>
+                  </div>
+                </div>
+
+                {viewingReport.contentText && (
+                  <div>
+                    <h3 className="font-semibold mb-2">리포트 주요 내용</h3>
+                    <div className="bg-gray-50 p-4 rounded-md">
+                      <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
+                        {viewingReport.contentText}
+                      </p>
+                    </div>
                   </div>
                 )}
+
+                {viewingReport.description && (
+                  <div>
+                    <h3 className="font-semibold mb-2">설명</h3>
+                    <div className="bg-gray-50 p-4 rounded-md">
+                      <p className="text-sm text-gray-700 leading-relaxed">
+                        {viewingReport.description}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex justify-end space-x-2 pt-4 border-t">
+                  <Button
+                    variant="outline"
+                    onClick={() => handleDownload(viewingReport)}
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    파일 다운로드
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setIsDetailOpen(false);
+                      handleEdit(viewingReport);
+                    }}
+                  >
+                    <Edit className="h-4 w-4 mr-2" />
+                    편집
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setIsDetailOpen(false);
+                      setViewingReport(null);
+                    }}
+                  >
+                    닫기
+                  </Button>
+                </div>
               </div>
             )}
           </div>

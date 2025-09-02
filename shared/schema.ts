@@ -516,6 +516,8 @@ export const analystReports = pgTable('analyst_reports', {
   fileSize: integer('file_size').notNull(),
   fileType: text('file_type').notNull(),
   description: text('description'),
+  targetPrice: text('target_price'), // 목표주가 입력 필드
+  contentText: text('content_text'), // 리포트 주요 내용 텍스트
   publishDate: date('publish_date').notNull(),
   uploadedBy: text('uploaded_by').default('System'),
   createdAt: timestamp('created_at').defaultNow(),
