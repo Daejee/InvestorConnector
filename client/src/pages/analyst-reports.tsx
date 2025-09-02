@@ -10,7 +10,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
-import { Search, Upload, Download, Trash2, FileText, Plus } from "lucide-react";
+import { Search, Upload, Download, Trash2, FileText, Plus, Edit } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -30,7 +30,9 @@ type UploadReportForm = z.infer<typeof uploadReportSchema>;
 export default function AnalystReports() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [editingReport, setEditingReport] = useState<AnalystReport | null>(null);
   const queryClient = useQueryClient();
 
   // Fetch analyst reports
@@ -44,6 +46,16 @@ export default function AnalystReports() {
   });
 
   const form = useForm<UploadReportForm>({
+    resolver: zodResolver(uploadReportSchema),
+    defaultValues: {
+      title: "",
+      analystId: 0,
+      description: "",
+      publishDate: format(new Date(), "yyyy-MM-dd"),
+    },
+  });
+
+  const editForm = useForm<UploadReportForm>({
     resolver: zodResolver(uploadReportSchema),
     defaultValues: {
       title: "",
@@ -142,6 +154,34 @@ export default function AnalystReports() {
     },
   });
 
+  // Edit report mutation
+  const editMutation = useMutation({
+    mutationFn: async (data: UploadReportForm & { id: number }) => {
+      const { id, ...updateData } = data;
+      return await apiRequest(`/api/analyst-reports/${id}`, {
+        method: "PATCH",
+        body: updateData,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/analyst-reports"] });
+      setIsEditOpen(false);
+      setEditingReport(null);
+      editForm.reset();
+      toast({
+        title: "성공",
+        description: "리포트가 수정되었습니다",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "오류",
+        description: `수정에 실패했습니다: ${error.message}`,
+        variant: "destructive",
+      });
+    },
+  });
+
   // Delete report mutation
   const deleteMutation = useMutation({
     mutationFn: (reportId: number) => 
@@ -189,6 +229,22 @@ export default function AnalystReports() {
     }
     
     uploadMutation.mutate({ ...data, file: selectedFile });
+  };
+
+  const handleEdit = (report: AnalystReport) => {
+    setEditingReport(report);
+    editForm.reset({
+      title: report.title,
+      analystId: report.analystId,
+      description: report.description || "",
+      publishDate: report.publishDate,
+    });
+    setIsEditOpen(true);
+  };
+
+  const handleEditSubmit = (data: UploadReportForm) => {
+    if (!editingReport) return;
+    editMutation.mutate({ ...data, id: editingReport.id });
   };
 
   const handleDownload = (report: AnalystReport) => {
@@ -432,6 +488,14 @@ export default function AnalystReports() {
                           <Button
                             variant="ghost"
                             size="sm"
+                            onClick={() => handleEdit(report)}
+                            title="편집"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
                             onClick={() => deleteMutation.mutate(report.id)}
                             title="삭제"
                             disabled={deleteMutation.isPending}
@@ -448,6 +512,110 @@ export default function AnalystReports() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Edit Dialog */}
+      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] flex flex-col">
+          <DialogHeader className="flex-shrink-0">
+            <DialogTitle>애널리스트 분석 리포트 편집</DialogTitle>
+            <DialogDescription>
+              리포트 정보를 수정하세요 (파일은 변경할 수 없습니다)
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex-1 overflow-y-auto pr-2">
+            <Form {...editForm}>
+              <form onSubmit={editForm.handleSubmit(handleEditSubmit)} className="space-y-4">
+                <FormField
+                  control={editForm.control}
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>리포트 제목</FormLabel>
+                      <FormControl>
+                        <Input placeholder="리포트 제목을 입력하세요" {...field} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={editForm.control}
+                  name="analystId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>애널리스트 선택</FormLabel>
+                      <Select 
+                        onValueChange={(value) => field.onChange(parseInt(value))}
+                        value={field.value?.toString() || ""}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="애널리스트를 선택하세요" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {analysts.map((analyst) => (
+                            <SelectItem key={analyst.id} value={analyst.id.toString()}>
+                              {analyst.name} - {analyst.company}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={editForm.control}
+                  name="publishDate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>발행일</FormLabel>
+                      <FormControl>
+                        <Input type="date" {...field} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={editForm.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>설명</FormLabel>
+                      <FormControl>
+                        <textarea
+                          placeholder="리포트에 대한 설명을 입력하세요"
+                          className="w-full min-h-[80px] px-3 py-2 border border-input bg-background rounded-md text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                          {...field}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <div className="flex justify-end space-x-2 pt-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setIsEditOpen(false);
+                      setEditingReport(null);
+                      editForm.reset();
+                    }}
+                  >
+                    취소
+                  </Button>
+                  <Button type="submit" disabled={editMutation.isPending}>
+                    {editMutation.isPending ? "수정 중..." : "수정"}
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
