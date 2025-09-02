@@ -198,7 +198,6 @@ ${analysisResults.map((result, index) => `
             content: comprehensivePrompt
           }
         ],
-        response_format: { type: "json_object" },
         temperature: 0.1,
         max_tokens: 1500,
       });
@@ -208,7 +207,22 @@ ${analysisResults.map((result, index) => `
         throw new Error("종합 분석 결과를 받지 못했습니다");
       }
 
-      const result = JSON.parse(analysisContent);
+      let result;
+      try {
+        // Try to extract JSON from the response if it's wrapped in text
+        const jsonMatch = analysisContent.match(/\{[\s\S]*\}/);
+        const jsonString = jsonMatch ? jsonMatch[0] : analysisContent;
+        result = JSON.parse(jsonString);
+      } catch (parseError) {
+        console.error("JSON 파싱 실패, 기본 구조로 대체:", parseError);
+        // Fallback to creating a structured response
+        result = {
+          summary: "AI 응답 파싱에 실패하여 원본 내용을 제공합니다.",
+          consolidatedPositivePoints: analysisContent.substring(0, 500) + "...",
+          consolidatedConcerns: "파싱 오류로 인해 우려사항을 추출할 수 없습니다.",
+          averageTargetPrice: "파싱 오류"
+        };
+      }
       console.log("종합 분석 완료:", result);
       
       return {
