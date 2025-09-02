@@ -209,32 +209,29 @@ export default function AnalystReports() {
   const analysisMutation = useMutation({
     mutationFn: (reportId: number) => 
       apiRequest(`/api/analyst-reports/${reportId}/analyze`, { method: "POST" }),
-    onSuccess: (_, reportId) => {
-      setAnalysisStates(prev => ({ ...prev, [reportId]: 'analyzing' }));
-      toast({
-        title: "AI 분석 시작",
-        description: "리포트 분석이 시작되었습니다. 잠시 후 결과를 확인하세요.",
-      });
-      
-      // Poll for analysis completion
-      const pollAnalysis = async () => {
-        try {
-          const result = await apiRequest(`/api/analyst-reports/${reportId}/analysis`) as AnalystReportAnalysis;
-          if (result.analysisStatus === 'completed') {
-            setAnalysisStates(prev => ({ ...prev, [reportId]: 'completed' }));
-          } else if (result.analysisStatus === 'failed') {
-            setAnalysisStates(prev => ({ ...prev, [reportId]: 'failed' }));
-          } else {
-            // Continue polling
-            setTimeout(pollAnalysis, 3000);
-          }
-        } catch (error) {
-          console.error('Error polling analysis:', error);
-          setAnalysisStates(prev => ({ ...prev, [reportId]: 'failed' }));
-        }
-      };
-      
-      setTimeout(pollAnalysis, 3000);
+    onSuccess: (result: any, reportId) => {
+      // Check the analysis status from the response
+      if (result.analysisStatus === 'completed') {
+        setAnalysisStates(prev => ({ ...prev, [reportId]: 'completed' }));
+        toast({
+          title: "AI 분석 완료",
+          description: "리포트 분석이 완료되었습니다.",
+        });
+      } else if (result.analysisStatus === 'failed') {
+        setAnalysisStates(prev => ({ ...prev, [reportId]: 'failed' }));
+        toast({
+          title: "분석 실패",
+          description: "AI 분석에 실패했습니다.",
+          variant: "destructive",
+        });
+      } else {
+        // Still analyzing - shouldn't happen with sync processing
+        setAnalysisStates(prev => ({ ...prev, [reportId]: 'analyzing' }));
+        toast({
+          title: "AI 분석 중",
+          description: "리포트 분석이 진행 중입니다.",
+        });
+      }
     },
     onError: (error) => {
       toast({
