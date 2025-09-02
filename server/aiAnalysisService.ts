@@ -45,7 +45,9 @@ export class AIAnalysisService {
           const pdfData = await pdfParse(pdfBuffer);
           pdfText = pdfData.text;
           console.log(`PDF 텍스트 추출 완료: ${pdfText.length} 문자`);
-          console.log(`PDF 텍스트 샘플: ${pdfText.substring(0, 500)}...`);
+          console.log(`PDF 텍스트 전체 내용:`);
+          console.log(pdfText);
+          console.log(`--- PDF 텍스트 끝 ---`);
           
         } catch (error) {
           console.error("PDF 파일 처리 오류:", error);
