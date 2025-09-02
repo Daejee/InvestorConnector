@@ -237,6 +237,9 @@ export default function AnalystReports() {
     mutationFn: (reportId: number) => 
       apiRequest(`/api/analyst-reports/${reportId}/analyze`, { method: "POST" }),
     onSuccess: (result: any, reportId) => {
+      // Invalidate analysis cache for this specific report
+      queryClient.invalidateQueries({ queryKey: [`/api/analyst-reports/${reportId}/analysis`] });
+      
       // Check the analysis status from the response
       if (result.analysisStatus === 'completed') {
         setAnalysisStates(prev => ({ ...prev, [reportId]: 'completed' }));
