@@ -58,20 +58,22 @@ export class AIAnalysisService {
       
       // Analyze with OpenAI
       const analysisPrompt = `
-다음은 한국 증권사의 애널리스트 리포트 내용입니다. 이를 분석해서 다음 3가지 항목을 JSON 형태로 정리해주세요:
+다음은 한국 증권사의 애널리스트 리포트 내용입니다. 매우 정확하게 분석해서 다음 3가지 항목을 JSON 형태로 정리해주세요:
 
 1. positivePoints: 긍정적 평가 사항들 (한국어로 3-5개 주요 포인트, 각 포인트는 "• " 로 시작)
 2. concerns: 우려사항들 (한국어로 3-5개 주요 포인트, 각 포인트는 "• " 로 시작)  
-3. averageTargetPrice: 목표주가 (정확한 금액이 있으면 "50,000원" 형태로, 없으면 "목표주가 정보 없음")
+3. averageTargetPrice: 목표주가 (리포트에 명시된 정확한 금액을 찾아서 "81,000원" 형태로 표기. 목표주가, 적정주가, Target Price 등의 표현을 모두 찾아보세요. 금액이 없으면 "목표주가 정보 없음")
+
+**중요**: 목표주가는 리포트에 명시된 정확한 숫자를 그대로 사용하세요. 추정하거나 임의로 변경하지 마세요.
 
 리포트 내용:
-${pdfText.substring(0, 10000)} // 처음 10000자만 사용
+${pdfText.substring(0, 15000)} // 15000자로 확대해서 더 많은 내용 분석
 
 응답은 반드시 다음과 같은 JSON 형태로만 해주세요:
 {
   "positivePoints": "• 첫 번째 긍정 포인트\n• 두 번째 긍정 포인트\n• 세 번째 긍정 포인트",
   "concerns": "• 첫 번째 우려사항\n• 두 번째 우려사항\n• 세 번째 우려사항",
-  "averageTargetPrice": "50,000원"
+  "averageTargetPrice": "81,000원"
 }
 `;
 
