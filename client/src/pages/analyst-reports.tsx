@@ -82,14 +82,16 @@ export default function AnalystReports() {
         // Save report metadata
         const filePath = uploadResponse.uploadURL.split('?')[0]; // Remove query params
         const reportData = {
+          organizationId: 1, // TODO: Get from auth context
           title: data.title,
           analystId: data.analystId,
-          description: data.description,
+          description: data.description || null,
           publishDate: data.publishDate,
           originalFileName: data.file.name,
           filePath: filePath,
           fileSize: data.file.size,
           fileType: data.file.type,
+          uploadedBy: "System", // TODO: Get from user context
         };
 
         return await apiRequest("/api/analyst-reports", {
@@ -97,8 +99,17 @@ export default function AnalystReports() {
           body: JSON.stringify(reportData),
         });
       } catch (error) {
-        console.error("Upload error:", error);
-        throw error;
+        console.error("Upload error details:", {
+          message: error instanceof Error ? error.message : 'Unknown error',
+          stack: error instanceof Error ? error.stack : undefined,
+          error: error
+        });
+        
+        if (error instanceof Error) {
+          throw error;
+        } else {
+          throw new Error('알 수 없는 오류가 발생했습니다');
+        }
       }
     },
     onSuccess: () => {
