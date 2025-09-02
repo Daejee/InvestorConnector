@@ -355,9 +355,29 @@ export default function AnalystReports() {
   };
 
   const handleDownload = (report: AnalystReport) => {
-    // Create download link using the file path
-    const downloadUrl = report.filePath.replace('/replit-objstore-', '/objects/');
-    window.open(downloadUrl, '_blank');
+    // Create download link using the server's objects endpoint
+    if (report.filePath && report.filePath.startsWith('https://storage.googleapis.com/')) {
+      // Extract the object path from the Google Cloud Storage URL
+      const url = new URL(report.filePath);
+      const pathParts = url.pathname.split('/.private/uploads/');
+      if (pathParts.length === 2) {
+        const objectId = pathParts[1];
+        const downloadUrl = `/objects/uploads/${objectId}`;
+        window.open(downloadUrl, '_blank');
+      } else {
+        toast({
+          title: "다운로드 실패",
+          description: "파일 경로를 분석할 수 없습니다.",
+          variant: "destructive",
+        });
+      }
+    } else {
+      toast({
+        title: "다운로드 실패", 
+        description: "파일 경로가 올바르지 않습니다.",
+        variant: "destructive",
+      });
+    }
   };
 
   const getAnalystName = (analystId: number) => {
