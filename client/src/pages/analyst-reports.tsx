@@ -790,7 +790,7 @@ export default function AnalystReports() {
                 <div className="space-y-3">
                   <div className="flex items-center space-x-2">
                     <Brain className="h-5 w-5 text-blue-500" />
-                    <h3 className="text-lg font-semibold text-blue-700">평균 목표주가</h3>
+                    <h3 className="text-lg font-semibold text-blue-700">목표주가</h3>
                   </div>
                   <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
                     <div className="text-sm text-blue-800 font-medium">
