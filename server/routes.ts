@@ -33,6 +33,7 @@ import {
   ObjectStorageService,
   ObjectNotFoundError,
 } from "./objectStorage";
+import { AIAnalysisService } from "./aiAnalysisService";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Configure multer for file upload
@@ -3076,6 +3077,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(204).send();
     } else {
       res.status(404).json({ message: "Analyst report not found" });
+    }
+  });
+
+  // Analyst Report AI Analysis routes
+  app.get("/api/analyst-reports/:id/analysis", async (req, res) => {
+    try {
+      const reportId = parseInt(req.params.id);
+      const analysis = await storage.getAnalystReportAnalysis(reportId);
+      if (analysis) {
+        res.json(analysis);
+      } else {
+        res.status(404).json({ message: "Analysis not found" });
+      }
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get analysis", error });
+    }
+  });
+
+  app.post("/api/analyst-reports/:id/analyze", async (req, res) => {
+    try {
+      const reportId = parseInt(req.params.id);
+      const organizationId = 1; // TODO: Extract from auth context
+      
+      // Get the report details
+      const report = await storage.getAnalystReport(reportId, organizationId);
+      if (!report) {
+        return res.status(404).json({ message: "Analyst report not found" });
+      }
+
+      // Create analysis record with 'analyzing' status
+      const initialAnalysis = await storage.createAnalystReportAnalysis({
+        reportId,
+        positivePoints: "",
+        concerns: "",
+        averageTargetPrice: "",
+        analysisStatus: "analyzing"
+      });
+
+      // Start AI analysis in background (don't await)
+      const aiService = new AIAnalysisService();
+      aiService.analyzeReport(report.filePath || "", report.title)
+        .then(async (result) => {
+          await storage.updateAnalystReportAnalysis(reportId, {
+            positivePoints: result.positivePoints,
+            concerns: result.concerns,
+            averageTargetPrice: result.averageTargetPrice,
+            analysisStatus: "completed"
+          });
+        })
+        .catch(async (error) => {
+          console.error("AI analysis failed:", error);
+          await storage.updateAnalystReportAnalysis(reportId, {
+            analysisStatus: "failed"
+          });
+        });
+
+      res.json(initialAnalysis);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to start analysis", error });
     }
   });
 

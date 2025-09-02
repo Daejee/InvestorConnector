@@ -530,3 +530,24 @@ export const insertAnalystReportSchema = createInsertSchema(analystReports).omit
 
 export type InsertAnalystReport = z.infer<typeof insertAnalystReportSchema>;
 export type AnalystReport = typeof analystReports.$inferSelect;
+
+// Analyst Report AI Analysis table
+export const analystReportAnalyses = pgTable('analyst_report_analyses', {
+  id: serial('id').primaryKey(),
+  reportId: integer('report_id').notNull().references(() => analystReports.id, { onDelete: 'cascade' }),
+  positivePoints: text('positive_points').notNull(),
+  concerns: text('concerns').notNull(),
+  averageTargetPrice: text('average_target_price'),
+  analysisStatus: text('analysis_status', { enum: ['analyzing', 'completed', 'failed'] }).notNull().default('analyzing'),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+export const insertAnalystReportAnalysisSchema = createInsertSchema(analystReportAnalyses).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertAnalystReportAnalysis = z.infer<typeof insertAnalystReportAnalysisSchema>;
+export type AnalystReportAnalysis = typeof analystReportAnalyses.$inferSelect;

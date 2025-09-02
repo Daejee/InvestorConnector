@@ -10,12 +10,12 @@ import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
-import { Search, Upload, Download, Trash2, FileText, Plus, Edit } from "lucide-react";
+import { Search, Upload, Download, Trash2, FileText, Plus, Edit, Brain, Clock, CheckCircle, XCircle } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { format } from "date-fns";
-import type { AnalystReport, Analyst } from "@/../../shared/schema";
+import type { AnalystReport, Analyst, AnalystReportAnalysis } from "@/../../shared/schema";
 
 // Form validation schema
 const uploadReportSchema = z.object({
@@ -31,8 +31,11 @@ export default function AnalystReports() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isAnalysisOpen, setIsAnalysisOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [editingReport, setEditingReport] = useState<AnalystReport | null>(null);
+  const [selectedAnalysis, setSelectedAnalysis] = useState<AnalystReportAnalysis | null>(null);
+  const [analysisStates, setAnalysisStates] = useState<Record<number, 'analyzing' | 'completed' | 'failed'>>({});
   const queryClient = useQueryClient();
 
   // Fetch analyst reports
@@ -202,6 +205,46 @@ export default function AnalystReports() {
     },
   });
 
+  // AI Analysis mutation
+  const analysisMutation = useMutation({
+    mutationFn: (reportId: number) => 
+      apiRequest(`/api/analyst-reports/${reportId}/analyze`, { method: "POST" }),
+    onSuccess: (_, reportId) => {
+      setAnalysisStates(prev => ({ ...prev, [reportId]: 'analyzing' }));
+      toast({
+        title: "AI 분석 시작",
+        description: "리포트 분석이 시작되었습니다. 잠시 후 결과를 확인하세요.",
+      });
+      
+      // Poll for analysis completion
+      const pollAnalysis = async () => {
+        try {
+          const result = await apiRequest(`/api/analyst-reports/${reportId}/analysis`) as AnalystReportAnalysis;
+          if (result.analysisStatus === 'completed') {
+            setAnalysisStates(prev => ({ ...prev, [reportId]: 'completed' }));
+          } else if (result.analysisStatus === 'failed') {
+            setAnalysisStates(prev => ({ ...prev, [reportId]: 'failed' }));
+          } else {
+            // Continue polling
+            setTimeout(pollAnalysis, 3000);
+          }
+        } catch (error) {
+          console.error('Error polling analysis:', error);
+          setAnalysisStates(prev => ({ ...prev, [reportId]: 'failed' }));
+        }
+      };
+      
+      setTimeout(pollAnalysis, 3000);
+    },
+    onError: (error) => {
+      toast({
+        title: "분석 실패",
+        description: `AI 분석에 실패했습니다: ${error.message}`,
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -245,6 +288,48 @@ export default function AnalystReports() {
   const handleEditSubmit = (data: UploadReportForm) => {
     if (!editingReport) return;
     editMutation.mutate({ ...data, id: editingReport.id });
+  };
+
+  const getAnalysisIcon = (reportId: number) => {
+    const state = analysisStates[reportId];
+    switch (state) {
+      case 'analyzing':
+        return <Clock className="h-4 w-4 text-yellow-500 animate-spin" />;
+      case 'completed':
+        return <CheckCircle className="h-4 w-4 text-green-500" />;
+      case 'failed':
+        return <XCircle className="h-4 w-4 text-red-500" />;
+      default:
+        return <Brain className="h-4 w-4 text-blue-500" />;
+    }
+  };
+
+  const getAnalysisButtonText = (reportId: number) => {
+    const state = analysisStates[reportId];
+    switch (state) {
+      case 'analyzing':
+        return "분석 중...";
+      case 'completed':
+        return "분석 완료";
+      case 'failed':
+        return "분석 재시도";
+      default:
+        return "AI 분석";
+    }
+  };
+
+  const handleViewAnalysis = async (reportId: number) => {
+    try {
+      const analysis = await apiRequest(`/api/analyst-reports/${reportId}/analysis`) as AnalystReportAnalysis;
+      setSelectedAnalysis(analysis);
+      setIsAnalysisOpen(true);
+    } catch (error) {
+      toast({
+        title: "분석 결과 로드 실패",
+        description: "분석 결과를 불러올 수 없습니다.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleDownload = (report: AnalystReport) => {
@@ -430,19 +515,20 @@ export default function AnalystReports() {
                   <TableHead>발행일</TableHead>
                   <TableHead>파일 크기</TableHead>
                   <TableHead>업로드일</TableHead>
+                  <TableHead className="text-center">AI 분석</TableHead>
                   <TableHead className="text-center">ACTIONS</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {reportsLoading ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8">
+                    <TableCell colSpan={8} className="text-center py-8">
                       로딩 중...
                     </TableCell>
                   </TableRow>
                 ) : filteredReports.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8 text-gray-500">
+                    <TableCell colSpan={8} className="text-center py-8 text-gray-500">
                       {searchQuery ? "검색 결과가 없습니다" : "등록된 리포트가 없습니다"}
                     </TableCell>
                   </TableRow>
@@ -474,6 +560,25 @@ export default function AnalystReports() {
                       </TableCell>
                       <TableCell>
                         {report.createdAt && format(new Date(report.createdAt), "yyyy-MM-dd")}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            if (analysisStates[report.id] === 'completed') {
+                              handleViewAnalysis(report.id);
+                            } else {
+                              analysisMutation.mutate(report.id);
+                            }
+                          }}
+                          disabled={analysisStates[report.id] === 'analyzing' || analysisMutation.isPending}
+                          title={getAnalysisButtonText(report.id)}
+                          className="flex items-center space-x-1"
+                        >
+                          {getAnalysisIcon(report.id)}
+                          <span className="text-xs">{getAnalysisButtonText(report.id)}</span>
+                        </Button>
                       </TableCell>
                       <TableCell>
                         <div className="flex justify-center space-x-2">
@@ -613,6 +718,84 @@ export default function AnalystReports() {
                 </div>
               </form>
             </Form>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* AI Analysis Results Dialog */}
+      <Dialog open={isAnalysisOpen} onOpenChange={setIsAnalysisOpen}>
+        <DialogContent className="sm:max-w-[700px] max-h-[90vh] flex flex-col">
+          <DialogHeader className="flex-shrink-0">
+            <DialogTitle>AI 분석 결과</DialogTitle>
+            <DialogDescription>
+              리포트에 대한 AI 분석 결과를 확인하세요
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex-1 overflow-y-auto pr-2 space-y-6">
+            {selectedAnalysis && (
+              <>
+                {/* Positive Points */}
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-2">
+                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <h3 className="text-lg font-semibold text-green-700">긍정적 평가 사항</h3>
+                  </div>
+                  <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                    <div className="whitespace-pre-line text-sm text-green-800">
+                      {selectedAnalysis.positivePoints || "분석 결과가 없습니다."}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Concerns */}
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-2">
+                    <XCircle className="h-5 w-5 text-red-500" />
+                    <h3 className="text-lg font-semibold text-red-700">우려사항</h3>
+                  </div>
+                  <div className="bg-red-50 p-4 rounded-lg border border-red-200">
+                    <div className="whitespace-pre-line text-sm text-red-800">
+                      {selectedAnalysis.concerns || "분석 결과가 없습니다."}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Target Price */}
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-2">
+                    <Brain className="h-5 w-5 text-blue-500" />
+                    <h3 className="text-lg font-semibold text-blue-700">평균 목표주가</h3>
+                  </div>
+                  <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                    <div className="text-sm text-blue-800 font-medium">
+                      {selectedAnalysis.averageTargetPrice || "목표주가 정보가 없습니다."}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Analysis Status */}
+                <div className="mt-6 pt-4 border-t border-gray-200">
+                  <div className="flex items-center justify-between text-sm text-gray-500">
+                    <span>분석 상태: {selectedAnalysis.analysisStatus === 'completed' ? '완료' : selectedAnalysis.analysisStatus}</span>
+                    <span>
+                      {selectedAnalysis.createdAt && 
+                        `분석일: ${format(new Date(selectedAnalysis.createdAt), "yyyy-MM-dd HH:mm")}`
+                      }
+                    </span>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+          <div className="flex justify-end pt-4 border-t border-gray-200">
+            <Button
+              onClick={() => {
+                setIsAnalysisOpen(false);
+                setSelectedAnalysis(null);
+              }}
+            >
+              닫기
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
