@@ -506,7 +506,9 @@ export default function AnalystReports() {
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                  {analysts.map((analyst) => (
+                                  {analysts
+                                    .sort((a, b) => a.name.localeCompare(b.name, 'ko'))
+                                    .map((analyst) => (
                                     <SelectItem key={analyst.id} value={analyst.id.toString()}>
                                       {analyst.name} - {analyst.company}
                                     </SelectItem>
@@ -788,7 +790,9 @@ export default function AnalystReports() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {analysts.map((analyst) => (
+                          {analysts
+                            .sort((a, b) => a.name.localeCompare(b.name, 'ko'))
+                            .map((analyst) => (
                             <SelectItem key={analyst.id} value={analyst.id.toString()}>
                               {analyst.name} - {analyst.company}
                             </SelectItem>
