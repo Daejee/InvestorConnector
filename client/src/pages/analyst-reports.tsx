@@ -9,13 +9,25 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/hooks/use-toast";
-import { Search, Upload, Download, Trash2, FileText, Plus, Edit, Brain, Clock, CheckCircle, XCircle } from "lucide-react";
+import { Search, Upload, Download, Trash2, FileText, Plus, Edit, Brain, Clock, CheckCircle, XCircle, ChevronDown, ChevronUp } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { format } from "date-fns";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 import type { AnalystReport, Analyst, AnalystReportAnalysis } from "@/../../shared/schema";
+
+interface ComprehensiveAnalysisResult {
+  summary: string;
+  consolidatedPositivePoints: string;
+  consolidatedConcerns: string;
+  averageTargetPrice: string;
+  reportTitles: string[];
+  analysisDate: string;
+}
 
 // Form validation schema
 const uploadReportSchema = z.object({
@@ -36,6 +48,10 @@ export default function AnalystReports() {
   const [editingReport, setEditingReport] = useState<AnalystReport | null>(null);
   const [selectedAnalysis, setSelectedAnalysis] = useState<AnalystReportAnalysis | null>(null);
   const [analysisStates, setAnalysisStates] = useState<Record<number, 'analyzing' | 'completed' | 'failed'>>({});
+  const [isComprehensiveOpen, setIsComprehensiveOpen] = useState(false);
+  const [selectedReportIds, setSelectedReportIds] = useState<number[]>([]);
+  const [comprehensiveResult, setComprehensiveResult] = useState<ComprehensiveAnalysisResult | null>(null);
+  const [isGeneratingComprehensive, setIsGeneratingComprehensive] = useState(false);
   const queryClient = useQueryClient();
 
   // Fetch analyst reports
@@ -390,6 +406,124 @@ export default function AnalystReports() {
     return analyst ? analyst.company : "Unknown";
   };
 
+  // Comprehensive analysis functions
+  const handleComprehensiveAnalysis = async () => {
+    if (selectedReportIds.length === 0) {
+      toast({
+        title: "리포트를 선택하세요",
+        description: "종합 분석을 위해 최소 1개 이상의 리포트를 선택해주세요.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsGeneratingComprehensive(true);
+    try {
+      const response = await apiRequest("/api/comprehensive-analysis", {
+        method: "POST",
+        body: JSON.stringify({ reportIds: selectedReportIds }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "종합 분석에 실패했습니다");
+      }
+
+      const result = await response.json();
+      setComprehensiveResult(result);
+      setIsComprehensiveOpen(true);
+      
+      toast({
+        title: "종합 분석 완료",
+        description: `${selectedReportIds.length}개 리포트의 종합 분석이 완료되었습니다.`,
+      });
+    } catch (error) {
+      console.error("Comprehensive analysis error:", error);
+      toast({
+        title: "종합 분석 실패",
+        description: error instanceof Error ? error.message : "종합 분석 중 오류가 발생했습니다.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingComprehensive(false);
+    }
+  };
+
+  const handleSelectAllReports = () => {
+    const completedReports = reports.filter(report => analysisStates[report.id] === 'completed');
+    if (selectedReportIds.length === completedReports.length) {
+      setSelectedReportIds([]);
+    } else {
+      setSelectedReportIds(completedReports.map(r => r.id));
+    }
+  };
+
+  const handleReportSelection = (reportId: number) => {
+    setSelectedReportIds(prev => 
+      prev.includes(reportId) 
+        ? prev.filter(id => id !== reportId)
+        : [...prev, reportId]
+    );
+  };
+
+  const exportToPDF = async () => {
+    if (!comprehensiveResult) return;
+
+    const element = document.getElementById('comprehensive-report');
+    if (!element) return;
+
+    try {
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+      });
+
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+      const imgWidth = 210; // A4 width in mm
+      const pageHeight = 295; // A4 height in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+
+      let position = 0;
+
+      // Add first page
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      // Add additional pages if needed
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+
+      pdf.save(`종합분석보고서_${comprehensiveResult.analysisDate}.pdf`);
+      
+      toast({
+        title: "PDF 내보내기 완료",
+        description: "종합 분석 보고서가 PDF로 저장되었습니다.",
+      });
+    } catch (error) {
+      console.error("PDF export error:", error);
+      toast({
+        title: "PDF 내보내기 실패",
+        description: "PDF 생성 중 오류가 발생했습니다.",
+        variant: "destructive",
+      });
+    }
+  };
+
   // Filter reports based on search query
   const filteredReports = reports.filter((report) =>
     report.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -406,16 +540,17 @@ export default function AnalystReports() {
             <div className="flex space-x-2">
               <Button
                 variant="outline"
-                onClick={() => {
-                  // TODO: Open comprehensive analysis dialog
-                  toast({
-                    title: "종합 분석 보고서",
-                    description: "여러 리포트를 선택해서 종합 분석 보고서를 생성할 수 있습니다.",
-                  });
-                }}
+                onClick={handleComprehensiveAnalysis}
+                disabled={isGeneratingComprehensive}
+                className="relative"
               >
                 <FileText className="h-4 w-4 mr-2" />
-                종합 분석 보고서
+                {isGeneratingComprehensive ? "분석 중..." : "종합 분석 보고서"}
+                {selectedReportIds.length > 0 && (
+                  <Badge variant="secondary" className="ml-2 bg-blue-600 text-white">
+                    {selectedReportIds.length}
+                  </Badge>
+                )}
               </Button>
               <Dialog open={isUploadOpen} onOpenChange={setIsUploadOpen}>
                 <DialogTrigger asChild>
@@ -567,6 +702,13 @@ export default function AnalystReports() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-[50px]">
+                    <Checkbox
+                      checked={selectedReportIds.length > 0 && selectedReportIds.length === reports.filter(report => analysisStates[report.id] === 'completed').length}
+                      onCheckedChange={handleSelectAllReports}
+                      aria-label="전체 선택"
+                    />
+                  </TableHead>
                   <TableHead>제목</TableHead>
                   <TableHead>애널리스트</TableHead>
                   <TableHead>증권사</TableHead>
@@ -578,19 +720,27 @@ export default function AnalystReports() {
               <TableBody>
                 {reportsLoading ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-10">
+                    <TableCell colSpan={7} className="text-center py-10">
                       로딩 중...
                     </TableCell>
                   </TableRow>
                 ) : filteredReports.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-10">
+                    <TableCell colSpan={7} className="text-center py-10">
                       리포트가 없습니다.
                     </TableCell>
                   </TableRow>
                 ) : (
                   filteredReports.map((report) => (
                     <TableRow key={report.id}>
+                      <TableCell>
+                        <Checkbox
+                          checked={selectedReportIds.includes(report.id)}
+                          onCheckedChange={() => handleReportSelection(report.id)}
+                          disabled={analysisStates[report.id] !== 'completed'}
+                          aria-label={`리포트 선택: ${report.title}`}
+                        />
+                      </TableCell>
                       <TableCell className="font-medium">
                         <div className="max-w-[300px] truncate">
                           {report.title}
@@ -797,6 +947,141 @@ export default function AnalystReports() {
                     <p className="text-sm text-gray-600">{selectedAnalysis.averageTargetPrice}</p>
                   </div>
                 )}
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Comprehensive Analysis Dialog */}
+      <Dialog open={isComprehensiveOpen} onOpenChange={setIsComprehensiveOpen}>
+        <DialogContent className="sm:max-w-[1000px] max-h-[90vh] flex flex-col">
+          <DialogHeader className="flex-shrink-0">
+            <DialogTitle className="flex items-center justify-between">
+              <span>종합 분석 보고서</span>
+              <div className="flex space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={exportToPDF}
+                  disabled={!comprehensiveResult}
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  PDF 내보내기
+                </Button>
+              </div>
+            </DialogTitle>
+            <DialogDescription>
+              선택한 {selectedReportIds.length}개 리포트의 종합 분석 결과입니다
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="flex-1 overflow-y-auto pr-2">
+            {comprehensiveResult ? (
+              <div id="comprehensive-report" className="space-y-6 p-6 bg-white">
+                {/* Report Header */}
+                <div className="text-center border-b pb-4">
+                  <h1 className="text-2xl font-bold text-blue-800 mb-2">애널리스트 리포트 종합 분석</h1>
+                  <p className="text-gray-600">Analysis Report</p>
+                  <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
+                    <div className="bg-gray-50 p-3 rounded">
+                      <span className="font-semibold">분석 일자:</span> {comprehensiveResult.analysisDate}
+                    </div>
+                    <div className="bg-gray-50 p-3 rounded">
+                      <span className="font-semibold">분석 대상:</span> {comprehensiveResult.reportTitles.length}개 리포트
+                    </div>
+                  </div>
+                </div>
+
+                {/* Analysis Sections */}
+                <div className="space-y-6">
+                  {/* Summary Section */}
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <h2 className="text-lg font-semibold text-blue-800 mb-3 flex items-center">
+                      <span className="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-2">1</span>
+                      종합 요약
+                    </h2>
+                    <div className="bg-white p-4 rounded border">
+                      <p className="text-gray-700 leading-relaxed">{comprehensiveResult.summary}</p>
+                    </div>
+                  </div>
+
+                  {/* Positive Points Section */}
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <h2 className="text-lg font-semibold text-green-800 mb-3 flex items-center">
+                      <span className="bg-green-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-2">2</span>
+                      통합 긍정 요인
+                    </h2>
+                    <div className="bg-white p-4 rounded border">
+                      <div className="text-gray-700 leading-relaxed whitespace-pre-line">
+                        {comprehensiveResult.consolidatedPositivePoints}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Concerns Section */}
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <h2 className="text-lg font-semibold text-red-800 mb-3 flex items-center">
+                      <span className="bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-2">3</span>
+                      통합 우려사항
+                    </h2>
+                    <div className="bg-white p-4 rounded border">
+                      <div className="text-gray-700 leading-relaxed whitespace-pre-line">
+                        {comprehensiveResult.consolidatedConcerns}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Target Price Section */}
+                  <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                    <h2 className="text-lg font-semibold text-orange-800 mb-3 flex items-center">
+                      <span className="bg-orange-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-2">4</span>
+                      목표주가 분석
+                    </h2>
+                    <div className="bg-white p-4 rounded border">
+                      <p className="text-gray-700 leading-relaxed font-medium text-lg">
+                        {comprehensiveResult.averageTargetPrice}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Report List Section */}
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <h2 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                      <span className="bg-gray-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-2">5</span>
+                      분석 대상 리포트
+                    </h2>
+                    <div className="bg-white p-4 rounded border">
+                      <ul className="space-y-2">
+                        {comprehensiveResult.reportTitles.map((title, index) => (
+                          <li key={index} className="flex items-center text-gray-700">
+                            <span className="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center text-xs mr-3">
+                              {index + 1}
+                            </span>
+                            {title}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Footer */}
+                <div className="text-center pt-6 border-t text-sm text-gray-500">
+                  <p>IR CRM 시스템에서 생성된 종합 분석 보고서</p>
+                </div>
+              </div>
+            ) : isGeneratingComprehensive ? (
+              <div className="flex flex-col items-center justify-center py-20">
+                <Brain className="h-12 w-12 text-blue-600 animate-pulse mb-4" />
+                <p className="text-lg text-gray-600">종합 분석을 생성하고 있습니다...</p>
+                <p className="text-sm text-gray-500 mt-2">선택한 {selectedReportIds.length}개 리포트를 분석 중입니다</p>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-20">
+                <FileText className="h-12 w-12 text-gray-400 mb-4" />
+                <p className="text-lg text-gray-600">분석 결과가 없습니다</p>
+                <p className="text-sm text-gray-500 mt-2">리포트를 선택하고 종합 분석을 실행하세요</p>
               </div>
             )}
           </div>
