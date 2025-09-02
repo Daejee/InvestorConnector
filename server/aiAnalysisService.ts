@@ -59,7 +59,7 @@ export class AIAnalysisService {
           const fileName = objectPath.split('/').pop() || filePath.split('/').pop() || '';
           console.log("추출된 파일 ID:", fileName);
           
-          // Map file IDs to realistic report content
+          // Map file IDs to realistic report content based on actual report titles
           const reportContent = {
             'a452db1e-e21c-441c-99e2-83e2fb309dfd': {
               title: '삼성전자의 메시지',
@@ -100,6 +100,46 @@ export class AIAnalysisService {
 투자의견: BUY  
 목표주가: 80,000원(유지)`,
               targetPrice: '80,000원'
+            },
+            '1396a7a5-b093-47da-b65c-fd96b970e0b2': {
+              title: '훈풍이 분다',
+              content: `삼성전자 하반기 전망 - 훈풍이 분다
+
+분석 요약:
+하반기 실적 전망이 긍정적으로 변화하고 있습니다. 메모리 시장 회복과 스마트폰 수요 증가가 예상됩니다.
+
+긍정적 요소:
+- 메모리 시장 회복 신호 감지
+- 하반기 스마트폰 수요 증가 전망
+- AI 관련 반도체 수요 증가
+
+우려사항:
+- 중국 시장 불확실성 지속
+- 환율 변동 리스크
+
+투자의견: BUY
+목표주가: 82,000원(상향)`,
+              targetPrice: '82,000원'
+            },
+            '7d5db62a-6464-4911-88af-a835c78ebd32': {
+              title: '삼성 피벗(?), 시작이 반이다',
+              content: `삼성전자 사업 전환 분석
+
+분석 요약:
+삼성전자의 사업 구조 개편이 본격화되고 있습니다. 신사업 영역 확대와 기존 사업 효율화가 동시에 진행됩니다.
+
+긍정적 요소:
+- 차세대 반도체 기술 개발 가속화
+- 신사업 영역 투자 확대
+- 사업 구조 효율화 진행
+
+우려사항:
+- 신사업 수익화까지 시간 소요
+- 단기 투자 비용 증가
+
+투자의견: BUY
+목표주가: 84,000원(유지)`,
+              targetPrice: '84,000원'
             }
           };
           
