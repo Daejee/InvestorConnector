@@ -195,15 +195,16 @@ export default function AnalystReports() {
                   분석 리포트 업로드
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
-                <DialogHeader>
+              <DialogContent className="sm:max-w-[600px] max-h-[90vh] flex flex-col">
+                <DialogHeader className="flex-shrink-0">
                   <DialogTitle>애널리스트 분석 리포트 업로드</DialogTitle>
                   <DialogDescription>
                     애널리스트의 분석 리포트를 업로드하고 정보를 입력하세요
                   </DialogDescription>
                 </DialogHeader>
-                <Form {...form}>
-                  <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+                <div className="flex-1 overflow-y-auto pr-2">
+                  <Form {...form}>
+                    <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
                     <FormField
                       control={form.control}
                       name="title"
@@ -308,6 +309,7 @@ export default function AnalystReports() {
                     </div>
                   </form>
                 </Form>
+                </div>
               </DialogContent>
             </Dialog>
           </CardTitle>
