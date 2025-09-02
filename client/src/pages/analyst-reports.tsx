@@ -58,13 +58,24 @@ export default function AnalystReports() {
     mutationFn: async (data: UploadReportForm & { file: File }) => {
       try {
         // Get upload URL
-        const uploadResponse = (await apiRequest("/api/objects/upload", {
+        console.log("Requesting upload URL...");
+        const uploadRes = await apiRequest("/api/objects/upload", {
           method: "POST",
-        })) as unknown as { uploadURL: string };
+        });
+        
+        const uploadResponse = (await uploadRes.json()) as { uploadURL: string };
+        console.log("Upload response received:", uploadResponse);
         
         if (!uploadResponse || !uploadResponse.uploadURL) {
+          console.error("Invalid upload response:", {
+            response: uploadResponse,
+            hasUploadURL: uploadResponse && 'uploadURL' in uploadResponse,
+            uploadURL: uploadResponse?.uploadURL
+          });
           throw new Error("업로드 URL을 받지 못했습니다");
         }
+        
+        console.log("Upload URL obtained:", uploadResponse.uploadURL);
         
         // Upload file to object storage
         const uploadResult = await fetch(uploadResponse.uploadURL, {
