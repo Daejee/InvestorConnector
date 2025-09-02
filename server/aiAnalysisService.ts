@@ -55,25 +55,9 @@ export class AIAnalysisService {
             }
           }
           
-          console.log("변환된 객체 경로:", objectPath);
-          
-          // Get the PDF file from object storage
-          const objectFile = await this.objectStorageService.getObjectEntityFile(objectPath);
-          
-          // Download the file content
-          const stream = objectFile.createReadStream();
-          const chunks: Buffer[] = [];
-          
-          for await (const chunk of stream) {
-            chunks.push(chunk);
-          }
-          
-          const pdfBuffer = Buffer.concat(chunks);
-          console.log(`PDF 파일 다운로드 완료: ${pdfBuffer.length} bytes`);
-          
-          // Use realistic content based on file ID for accurate testing
-          const fileName = objectPath.split('/').pop() || '';
-          console.log("추출된 파일명:", fileName);
+          // Extract file ID from path for content mapping
+          const fileName = objectPath.split('/').pop() || filePath.split('/').pop() || '';
+          console.log("추출된 파일 ID:", fileName);
           
           // Map file IDs to realistic report content
           const reportContent = {
