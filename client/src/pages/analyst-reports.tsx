@@ -421,10 +421,7 @@ export default function AnalystReports() {
     try {
       const response = await apiRequest("/api/comprehensive-analysis", {
         method: "POST",
-        body: JSON.stringify({ reportIds: selectedReportIds }),
-        headers: {
-          "Content-Type": "application/json",
-        },
+        body: { reportIds: selectedReportIds },
       });
 
       if (!response.ok) {
