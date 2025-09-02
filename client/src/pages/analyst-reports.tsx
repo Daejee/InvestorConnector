@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/hooks/use-toast";
-import { Search, Upload, Download, Trash2, FileText, Plus, Edit, ChevronDown, ChevronUp, Eye } from "lucide-react";
+import { Search, Upload, Download, Trash2, FileText, Plus, Edit, ChevronDown, ChevronUp, Eye, Brain } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
