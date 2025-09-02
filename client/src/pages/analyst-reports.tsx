@@ -579,23 +579,37 @@ export default function AnalystReports() {
                         {format(new Date(report.publishDate), "yyyy-MM-dd")}
                       </TableCell>
                       <TableCell className="text-center">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            if (analysisStates[report.id] === 'completed') {
-                              handleViewAnalysis(report.id);
-                            } else {
-                              analysisMutation.mutate(report.id);
-                            }
-                          }}
-                          disabled={analysisStates[report.id] === 'analyzing' || analysisMutation.isPending}
-                          title={getAnalysisButtonText(report.id)}
-                          className="flex items-center space-x-1"
-                        >
-                          {getAnalysisIcon(report.id)}
-                          <span className="text-xs">{getAnalysisButtonText(report.id)}</span>
-                        </Button>
+                        <div className="flex items-center justify-center space-x-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              if (analysisStates[report.id] === 'completed') {
+                                handleViewAnalysis(report.id);
+                              } else {
+                                analysisMutation.mutate(report.id);
+                              }
+                            }}
+                            disabled={analysisStates[report.id] === 'analyzing' || analysisMutation.isPending}
+                            title={getAnalysisButtonText(report.id)}
+                            className="flex items-center space-x-1"
+                          >
+                            {getAnalysisIcon(report.id)}
+                            <span className="text-xs">{getAnalysisButtonText(report.id)}</span>
+                          </Button>
+                          {analysisStates[report.id] === 'completed' && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => analysisMutation.mutate(report.id)}
+                              disabled={analysisMutation.isPending}
+                              title="재분석"
+                              className="text-xs text-blue-600 hover:text-blue-800"
+                            >
+                              재분석
+                            </Button>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell>
                         <div className="flex justify-center space-x-2">
