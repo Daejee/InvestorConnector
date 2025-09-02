@@ -56,40 +56,50 @@ export default function AnalystReports() {
   // File upload mutation
   const uploadMutation = useMutation({
     mutationFn: async (data: UploadReportForm & { file: File }) => {
-      // Get upload URL
-      const uploadResponse = (await apiRequest("/api/objects/upload", {
-        method: "POST",
-      })) as unknown as { uploadURL: string };
-      
-      // Upload file to object storage
-      const uploadResult = await fetch(uploadResponse.uploadURL, {
-        method: "PUT",
-        body: data.file,
-        headers: {
-          "Content-Type": data.file.type,
-        },
-      });
+      try {
+        // Get upload URL
+        const uploadResponse = (await apiRequest("/api/objects/upload", {
+          method: "POST",
+        })) as unknown as { uploadURL: string };
+        
+        if (!uploadResponse || !uploadResponse.uploadURL) {
+          throw new Error("업로드 URL을 받지 못했습니다");
+        }
+        
+        // Upload file to object storage
+        const uploadResult = await fetch(uploadResponse.uploadURL, {
+          method: "PUT",
+          body: data.file,
+          headers: {
+            "Content-Type": data.file.type,
+          },
+        });
 
-      if (!uploadResult.ok) {
-        throw new Error("파일 업로드에 실패했습니다");
+        if (!uploadResult.ok) {
+          throw new Error("파일 업로드에 실패했습니다");
+        }
+
+        // Save report metadata
+        const filePath = uploadResponse.uploadURL.split('?')[0]; // Remove query params
+        const reportData = {
+          title: data.title,
+          analystId: data.analystId,
+          description: data.description,
+          publishDate: data.publishDate,
+          originalFileName: data.file.name,
+          filePath: filePath,
+          fileSize: data.file.size,
+          fileType: data.file.type,
+        };
+
+        return await apiRequest("/api/analyst-reports", {
+          method: "POST",
+          body: JSON.stringify(reportData),
+        });
+      } catch (error) {
+        console.error("Upload error:", error);
+        throw error;
       }
-
-      // Save report metadata
-      const reportData = {
-        title: data.title,
-        analystId: data.analystId,
-        description: data.description,
-        publishDate: data.publishDate,
-        originalFileName: data.file.name,
-        filePath: uploadResponse.uploadURL.split('?')[0], // Remove query params
-        fileSize: data.file.size,
-        fileType: data.file.type,
-      };
-
-      return await apiRequest("/api/analyst-reports", {
-        method: "POST",
-        body: JSON.stringify(reportData),
-      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/analyst-reports"] });
