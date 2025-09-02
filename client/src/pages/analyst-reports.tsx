@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
@@ -47,6 +47,30 @@ export default function AnalystReports() {
   const { data: analysts = [] } = useQuery<Analyst[]>({
     queryKey: ["/api/analysts"],
   });
+
+  // Check analysis status for each report when reports are loaded
+  useEffect(() => {
+    const checkAnalysisStatus = async () => {
+      if (reports && reports.length > 0) {
+        const statusChecks = reports.map(async (report) => {
+          try {
+            const analysis = await apiRequest(`/api/analyst-reports/${report.id}/analysis`);
+            if (analysis && analysis.analysisStatus) {
+              setAnalysisStates(prev => ({
+                ...prev,
+                [report.id]: analysis.analysisStatus
+              }));
+            }
+          } catch (error) {
+            // Analysis doesn't exist yet, keep default state
+          }
+        });
+        await Promise.all(statusChecks);
+      }
+    };
+
+    checkAnalysisStatus();
+  }, [reports]);
 
   const form = useForm<UploadReportForm>({
     resolver: zodResolver(uploadReportSchema),
