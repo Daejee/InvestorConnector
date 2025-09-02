@@ -259,8 +259,8 @@ export default function AnalystReports() {
       title: data.title,
       analystId: data.analystId,
       targetPrice: data.targetPrice,
-      contentText: data.positivePoints,
-      description: data.concerns,
+      contentText: data.contentText,
+      description: data.description,
       publishDate: data.publishDate,
       file: selectedFile
     };
@@ -273,8 +273,8 @@ export default function AnalystReports() {
     editForm.reset({
       title: report.title,
       analystId: report.analystId,
-      positivePoints: report.contentText || "",
-      concerns: report.description || "",
+      contentText: report.contentText || "",
+      description: report.description || "",
       targetPrice: report.targetPrice || "",
       publishDate: report.publishDate,
     });
@@ -289,8 +289,8 @@ export default function AnalystReports() {
       title: data.title,
       analystId: data.analystId,
       targetPrice: data.targetPrice,
-      contentText: data.positivePoints,
-      description: data.concerns,
+      contentText: data.contentText,
+      description: data.description,
       publishDate: data.publishDate,
     };
     editMutation.mutate(mappedData);
