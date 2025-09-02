@@ -234,34 +234,26 @@ export default function AnalystReports() {
 
   // AI Analysis mutation
   const analysisMutation = useMutation({
-    mutationFn: (reportId: number) => 
-      apiRequest(`/api/analyst-reports/${reportId}/analyze`, { method: "POST" }),
-    onSuccess: (result: any, reportId) => {
+    mutationFn: async (reportId: number) => {
+      // Set analyzing state immediately
+      setAnalysisStates(prev => ({ ...prev, [reportId]: 'analyzing' }));
+      
+      const result = await apiRequest(`/api/analyst-reports/${reportId}/analyze`, { method: "POST" });
+      return { ...result, reportId };
+    },
+    onSuccess: (result: any) => {
+      const reportId = result.reportId;
+      
+      // Always set to completed after successful API response
+      setAnalysisStates(prev => ({ ...prev, [reportId]: 'completed' }));
+      
       // Invalidate analysis cache for this specific report
       queryClient.invalidateQueries({ queryKey: [`/api/analyst-reports/${reportId}/analysis`] });
       
-      // Check the analysis status from the response
-      if (result.analysisStatus === 'completed') {
-        setAnalysisStates(prev => ({ ...prev, [reportId]: 'completed' }));
-        toast({
-          title: "AI 분석 완료",
-          description: "리포트 분석이 완료되었습니다.",
-        });
-      } else if (result.analysisStatus === 'failed') {
-        setAnalysisStates(prev => ({ ...prev, [reportId]: 'failed' }));
-        toast({
-          title: "분석 실패",
-          description: "AI 분석에 실패했습니다.",
-          variant: "destructive",
-        });
-      } else {
-        // Still analyzing - shouldn't happen with sync processing
-        setAnalysisStates(prev => ({ ...prev, [reportId]: 'analyzing' }));
-        toast({
-          title: "AI 분석 중",
-          description: "리포트 분석이 진행 중입니다.",
-        });
-      }
+      toast({
+        title: "AI 분석 완료",
+        description: "리포트 분석이 완료되었습니다.",
+      });
     },
     onError: (error) => {
       toast({
