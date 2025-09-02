@@ -3106,14 +3106,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Analyst report not found" });
       }
 
-      // Create analysis record with 'analyzing' status
-      const initialAnalysis = await storage.createAnalystReportAnalysis({
-        reportId,
-        positivePoints: "",
-        concerns: "",
-        averageTargetPrice: "",
-        analysisStatus: "analyzing"
-      });
+      // Check if analysis already exists
+      let analysis = await storage.getAnalystReportAnalysis(reportId);
+      if (!analysis) {
+        // Create analysis record with 'analyzing' status
+        analysis = await storage.createAnalystReportAnalysis({
+          reportId,
+          positivePoints: "",
+          concerns: "",
+          averageTargetPrice: "",
+          analysisStatus: "analyzing"
+        });
+      } else {
+        // Update existing analysis to analyzing status
+        analysis = await storage.updateAnalystReportAnalysis(reportId, {
+          analysisStatus: "analyzing"
+        });
+      }
 
       // Start AI analysis in background (don't await)
       const aiService = new AIAnalysisService();
