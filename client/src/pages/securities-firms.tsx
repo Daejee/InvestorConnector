@@ -68,11 +68,11 @@ export default function SecuritiesFirms() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/securities-firms"] });
       setShowCreateDialog(false);
-      toast({ title: "Securities firm created successfully / 증권사가 성공적으로 생성되었습니다" });
+      toast({ title: "증권사가 성공적으로 생성되었습니다" });
     },
     onError: () => {
       toast({ 
-        title: "Failed to create securities firm / 증권사 생성에 실패했습니다", 
+        title: "증권사 생성에 실패했습니다", 
         variant: "destructive" 
       });
     },
@@ -91,11 +91,11 @@ export default function SecuritiesFirms() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/securities-firms"] });
       setShowEditDialog(false);
-      toast({ title: "Securities firm updated successfully / 증권사가 성공적으로 업데이트되었습니다" });
+      toast({ title: "증권사가 성공적으로 업데이트되었습니다" });
     },
     onError: () => {
       toast({ 
-        title: "Failed to update securities firm / 증권사 업데이트에 실패했습니다", 
+        title: "증권사 업데이트에 실패했습니다", 
         variant: "destructive" 
       });
     },
@@ -111,11 +111,11 @@ export default function SecuritiesFirms() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/securities-firms"] });
-      toast({ title: "Securities firm deleted successfully / 증권사가 성공적으로 삭제되었습니다" });
+      toast({ title: "증권사가 성공적으로 삭제되었습니다" });
     },
     onError: () => {
       toast({ 
-        title: "Failed to delete securities firm / 증권사 삭제에 실패했습니다", 
+        title: "증권사 삭제에 실패했습니다", 
         variant: "destructive" 
       });
     },
@@ -145,20 +145,20 @@ export default function SecuritiesFirms() {
       
       if (result.created > 0) {
         toast({ 
-          title: `Successfully imported ${result.created} securities firms / ${result.created}개의 증권사를 성공적으로 가져왔습니다` 
+          title: `${result.created}개의 증권사를 성공적으로 가져왔습니다` 
         });
       }
       
       if (result.skipped > 0 && result.errors) {
         toast({ 
-          title: `${result.skipped} rows skipped / ${result.skipped}개 행 건너뜀`,
+          title: `${result.skipped}개 행 건너뜀`,
           description: result.errors.slice(0, 3).join(', '),
           variant: "destructive"
         });
       }
     } catch (error) {
       toast({ 
-        title: "Failed to upload CSV / CSV 업로드에 실패했습니다", 
+        title: "CSV 업로드에 실패했습니다", 
         variant: "destructive" 
       });
     } finally {
@@ -192,7 +192,7 @@ export default function SecuritiesFirms() {
       <div className="mb-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">증권사/ Brokerage Firms</h2>
+            <h2 className="text-2xl font-bold text-gray-900">증권사</h2>
             <p className="text-gray-600 mt-1">증권사 및 중개업체 관리</p>
           </div>
           <div className="mt-4 sm:mt-0 flex space-x-3">
@@ -200,16 +200,16 @@ export default function SecuritiesFirms() {
             <DialogTrigger asChild>
               <Button variant="outline">
                 <Upload className="mr-2 h-4 w-4" />
-                CSV Upload / CSV 업로드
+                CSV 업로드
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Upload Securities Firms CSV / 증권사 CSV 업로드</DialogTitle>
+                <DialogTitle>증권사 CSV 업로드</DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="csv-file">CSV File / CSV 파일</Label>
+                  <Label htmlFor="csv-file">CSV 파일</Label>
                   <Input
                     id="csv-file"
                     type="file"
@@ -218,7 +218,7 @@ export default function SecuritiesFirms() {
                   />
                 </div>
                 <div className="text-sm text-gray-600">
-                  <p className="font-medium mb-2">Required columns / 필수 컬럼:</p>
+                  <p className="font-medium mb-2">필수 컬럼:</p>
                   <ul className="list-disc list-inside space-y-1">
                     <li>이름 or 증권사 (필수)</li>
                     <li>주소 (필수)</li>
@@ -226,18 +226,18 @@ export default function SecuritiesFirms() {
                     <li>웹사이트 (선택사항)</li>
                   </ul>
                   <p className="mt-3 text-xs text-gray-500">
-                    Supported formats / 지원 형식: 이름,주소,대표번호,웹사이트 OR 증권사,주소,대표전화,웹사이트
+                    지원 형식: 이름,주소,대표번호,웹사이트 OR 증권사,주소,대표전화,웹사이트
                   </p>
                 </div>
                 <div className="flex justify-end gap-3">
                   <Button variant="outline" onClick={() => setShowUploadDialog(false)}>
-                    Cancel / 취소
+                    취소
                   </Button>
                   <Button 
                     onClick={handleCsvUpload} 
                     disabled={!csvFile || isUploading}
                   >
-                    {isUploading ? "Uploading... / 업로드 중..." : "Upload / 업로드"}
+                    {isUploading ? "업로드 중..." : "업로드"}
                   </Button>
                 </div>
               </div>
@@ -248,12 +248,12 @@ export default function SecuritiesFirms() {
             <DialogTrigger asChild>
               <Button>
                 <Plus className="mr-2 h-4 w-4" />
-                Add Securities Firm / 증권사 추가
+                증권사 추가
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Add New Securities Firm / 새 증권사 추가</DialogTitle>
+                <DialogTitle>새 증권사 추가</DialogTitle>
               </DialogHeader>
               <SecuritiesFirmForm
                 onSubmit={(data) => createMutation.mutate(data)}
@@ -281,18 +281,18 @@ export default function SecuritiesFirms() {
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Building className="h-5 w-5" />
-            <span>Securities Firms List / 증권사 목록</span>
+            <span>증권사 목록</span>
             <Badge variant="outline" className="ml-auto">
-              {filteredFirms.length} firms / 개 증권사
+              {filteredFirms.length}개 증권사
             </Badge>
           </CardTitle>
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="text-center py-8">Loading securities firms... / 증권사를 불러오는 중...</div>
+            <div className="text-center py-8">증권사를 불러오는 중...</div>
           ) : filteredFirms.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
-              No securities firms found / 증권사를 찾을 수 없습니다
+              증권사를 찾을 수 없습니다
             </div>
           ) : (
             <Table>
@@ -303,7 +303,7 @@ export default function SecuritiesFirms() {
                   <TableHead>전화번호</TableHead>
                   <TableHead>웹사이트</TableHead>
 
-                  <TableHead className="w-32">ACTIONS</TableHead>
+                  <TableHead className="w-32">작업</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -388,7 +388,7 @@ export default function SecuritiesFirms() {
       <Dialog open={showViewDialog} onOpenChange={setShowViewDialog}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Securities Firm Details / 증권사 상세 정보</DialogTitle>
+            <DialogTitle>증권사 상세 정보</DialogTitle>
           </DialogHeader>
           {selectedFirm && (
             <div className="space-y-4">
@@ -398,9 +398,9 @@ export default function SecuritiesFirms() {
                   <p className="text-lg font-semibold">{selectedFirm.name}</p>
                 </div>
                 <div>
-                  <Label className="text-sm font-medium text-gray-500">Status / 상태</Label>
+                  <Label className="text-sm font-medium text-gray-500">상태</Label>
                   <Badge variant={selectedFirm.status === 'active' ? 'default' : 'secondary'}>
-                    {selectedFirm.status === 'active' ? 'Active / 활성' : 'Archived / 보관됨'}
+                    {selectedFirm.status === 'active' ? '활성' : '보관됨'}
                   </Badge>
                 </div>
               </div>
@@ -425,7 +425,7 @@ export default function SecuritiesFirms() {
                       {selectedFirm.website}
                     </a>
                   ) : (
-                    <p className="text-sm text-gray-400">Not provided / 제공되지 않음</p>
+                    <p className="text-sm text-gray-400">제공되지 않음</p>
                   )}
                 </div>
               </div>
@@ -438,7 +438,7 @@ export default function SecuritiesFirms() {
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit Securities Firm / 증권사 편집</DialogTitle>
+            <DialogTitle>증권사 편집</DialogTitle>
           </DialogHeader>
           {selectedFirm && (
             <SecuritiesFirmForm
@@ -484,7 +484,7 @@ function SecuritiesFirmForm({ firm, onSubmit, onCancel, isSubmitting }: Securiti
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           required
-          placeholder="Enter securities firm name / 증권사 이름을 입력하세요"
+          placeholder="증권사 이름을 입력하세요"
         />
       </div>
       
@@ -495,7 +495,7 @@ function SecuritiesFirmForm({ firm, onSubmit, onCancel, isSubmitting }: Securiti
           value={formData.address}
           onChange={(e) => setFormData({ ...formData, address: e.target.value })}
           required
-          placeholder="Enter full address / 전체 주소를 입력하세요"
+          placeholder="전체 주소를 입력하세요"
         />
       </div>
       
@@ -506,7 +506,7 @@ function SecuritiesFirmForm({ firm, onSubmit, onCancel, isSubmitting }: Securiti
           value={formData.phone}
           onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
           required
-          placeholder="Enter phone number / 전화번호를 입력하세요"
+          placeholder="전화번호를 입력하세요"
         />
       </div>
       
@@ -516,16 +516,16 @@ function SecuritiesFirmForm({ firm, onSubmit, onCancel, isSubmitting }: Securiti
           id="website"
           value={formData.website || ""}
           onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-          placeholder="Enter website URL / 웹사이트 URL을 입력하세요"
+          placeholder="웹사이트 URL을 입력하세요"
         />
       </div>
 
       <div className="flex justify-end space-x-3">
         <Button type="button" variant="outline" onClick={onCancel}>
-          Cancel / 취소
+          취소
         </Button>
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Saving... / 저장 중..." : firm ? "Update / 업데이트" : "Create / 생성"}
+          {isSubmitting ? "저장 중..." : firm ? "업데이트" : "생성"}
         </Button>
       </div>
     </form>
