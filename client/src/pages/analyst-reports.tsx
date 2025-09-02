@@ -317,8 +317,8 @@ export default function AnalystReports() {
 
   const handleViewAnalysis = async (reportId: number) => {
     try {
-      const analysis = await apiRequest(`/api/analyst-reports/${reportId}/analysis`) as AnalystReportAnalysis;
-      setSelectedAnalysis(analysis);
+      const analysis = await apiRequest(`/api/analyst-reports/${reportId}/analysis`);
+      setSelectedAnalysis(analysis as AnalystReportAnalysis);
       setIsAnalysisOpen(true);
     } catch (error) {
       toast({
