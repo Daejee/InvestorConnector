@@ -71,8 +71,8 @@ export default function AnalystReports() {
     defaultValues: {
       title: "",
       analystId: 0,
-      positivePoints: "",
-      concerns: "",
+      contentText: "",
+      description: "",
       targetPrice: "",
       publishDate: format(new Date(), "yyyy-MM-dd"),
     },
@@ -83,8 +83,8 @@ export default function AnalystReports() {
     defaultValues: {
       title: "",
       analystId: 0,
-      positivePoints: "",
-      concerns: "",
+      contentText: "",
+      description: "",
       targetPrice: "",
       publishDate: format(new Date(), "yyyy-MM-dd"),
     },
@@ -271,7 +271,7 @@ export default function AnalystReports() {
   const handleEdit = (report: AnalystReport) => {
     setEditingReport(report);
     editForm.reset({
-      title: report.title,
+      title: report.title || "",
       analystId: report.analystId,
       contentText: report.contentText || "",
       description: report.description || "",
@@ -455,7 +455,7 @@ export default function AnalystReports() {
 
   // Filter reports based on search query
   const filteredReports = reports.filter((report) =>
-    report.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (report.title || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
     getAnalystName(report.analystId).toLowerCase().includes(searchQuery.toLowerCase()) ||
     getAnalystCompany(report.analystId).toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -701,12 +701,12 @@ export default function AnalystReports() {
                         <Checkbox
                           checked={selectedReportIds.includes(report.id)}
                           onCheckedChange={() => handleReportSelection(report.id)}
-                          aria-label={`리포트 선택: ${report.title}`}
+                          aria-label={`리포트 선택: ${report.title || "제목 없음"}`}
                         />
                       </TableCell>
                       <TableCell className="font-medium">
                         <div className="max-w-[300px] truncate">
-                          {report.title}
+                          {report.title || "제목 없음"}
                         </div>
                         {report.description && (
                           <div className="text-sm text-gray-500 max-w-[300px] truncate">
