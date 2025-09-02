@@ -161,7 +161,7 @@ ${pdfText}
 
       // Prepare comprehensive analysis prompt
       const comprehensivePrompt = `
-다음은 여러 증권사의 애널리스트 리포트 분석 결과들입니다. 이를 종합하여 통합 분석 보고서를 작성해주세요.
+다음은 여러 증권사의 애널리스트 리포트 분석 결과들입니다. 이를 종합하여 통합 분석 보고서를 작성하고, 결과를 JSON 형식으로 제공해주세요.
 
 ## 분석 대상 리포트들:
 ${analysisResults.map((result, index) => `
@@ -177,7 +177,7 @@ ${analysisResults.map((result, index) => `
 3. **통합 우려사항**: 여러 리포트에서 공통으로 지적된 리스크와 각 리포트별 고유 우려사항들을 종합
 4. **목표주가 분석**: 계산된 평균 목표주가 "${averageTargetPrice}"에 대한 해석
 
-응답 형식 (정확히 이 형태로만):
+응답을 다음 JSON 형식으로 정확히 제공해주세요:
 {
   "summary": "전체 리포트들의 핵심 요약",
   "consolidatedPositivePoints": "통합된 긍정적 요소들 (각 줄은 • 로 시작)",
@@ -191,7 +191,7 @@ ${analysisResults.map((result, index) => `
         messages: [
           {
             role: "system",
-            content: "당신은 증권사 애널리스트 리포트들을 종합 분석하는 전문가입니다. 여러 리포트의 내용을 객관적으로 통합하여 포괄적인 분석을 제공하세요."
+            content: "당신은 증권사 애널리스트 리포트들을 종합 분석하는 전문가입니다. 여러 리포트의 내용을 객관적으로 통합하여 포괄적인 분석을 제공하고, 모든 응답을 JSON 형식으로 제공해주세요."
           },
           {
             role: "user",
