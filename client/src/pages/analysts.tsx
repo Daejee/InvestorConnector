@@ -367,7 +367,7 @@ export default function Analysts() {
                 애널리스트 추가
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl">
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>
                   {selectedAnalyst ? "애널리스트 수정" : "애널리스트 추가"}
@@ -477,7 +477,7 @@ export default function Analysts() {
 
       {/* View Analyst Dialog */}
       <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>애널리스트 상세정보</DialogTitle>
           </DialogHeader>
