@@ -61,9 +61,14 @@ export default function Dashboard() {
   const upcomingMeetingsList = upcomingMeetings || [];
 
   const getAttendeeInfo = (meeting: Meeting) => {
-    if (meeting.investorId) {
-      const investor = investors.find(inv => inv.id === meeting.investorId);
+    if (meeting.investorIds && meeting.investorIds.length > 0) {
+      const investorId = parseInt(meeting.investorIds[0]);
+      const investor = investors.find(inv => inv.id === investorId);
       return investor ? { name: investor.name, type: 'Investor', company: investor.company } : null;
+    }
+    if (meeting.analystId) {
+      const analyst = analysts.find(a => a.id === meeting.analystId);
+      return analyst ? { name: analyst.name, type: 'Analyst', company: analyst.company } : null;
     }
     return { name: 'Other / 기타', type: 'Other', company: '' };
   };
@@ -264,7 +269,7 @@ export default function Dashboard() {
                             <span className="text-gray-700">{dateTime.time}</span>
                           </div>
                           <span className="px-2 py-1 text-xs bg-purple-100 text-purple-700 rounded">
-                            {meeting.category || '탐방'}
+                            {meeting.meetingCategory || '탐방'}
                           </span>
                           {getStatusBadge(meeting)}
                         </div>
@@ -328,7 +333,7 @@ export default function Dashboard() {
                             <span className="text-gray-700">{dateTime.time}</span>
                           </div>
                           <span className="px-2 py-1 text-xs bg-purple-100 text-purple-700 rounded">
-                            {meeting.category || '탐방'}
+                            {meeting.meetingCategory || '탐방'}
                           </span>
                           {getStatusBadge(meeting)}
                         </div>
