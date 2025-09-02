@@ -540,8 +540,6 @@ export default function AnalystReports() {
                   <TableHead>애널리스트</TableHead>
                   <TableHead>증권사</TableHead>
                   <TableHead>발행일</TableHead>
-                  <TableHead>파일 크기</TableHead>
-                  <TableHead>업로드일</TableHead>
                   <TableHead className="text-center">AI 분석</TableHead>
                   <TableHead className="text-center">ACTIONS</TableHead>
                 </TableRow>
@@ -549,13 +547,13 @@ export default function AnalystReports() {
               <TableBody>
                 {reportsLoading ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center py-8">
+                    <TableCell colSpan={6} className="text-center py-8">
                       로딩 중...
                     </TableCell>
                   </TableRow>
                 ) : filteredReports.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center py-8 text-gray-500">
+                    <TableCell colSpan={6} className="text-center py-8 text-gray-500">
                       {searchQuery ? "검색 결과가 없습니다" : "등록된 리포트가 없습니다"}
                     </TableCell>
                   </TableRow>
@@ -579,14 +577,6 @@ export default function AnalystReports() {
                       <TableCell>{getAnalystCompany(report.analystId)}</TableCell>
                       <TableCell>
                         {format(new Date(report.publishDate), "yyyy-MM-dd")}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline">
-                          {(report.fileSize / 1024 / 1024).toFixed(2)} MB
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        {report.createdAt && format(new Date(report.createdAt), "yyyy-MM-dd")}
                       </TableCell>
                       <TableCell className="text-center">
                         <Button
