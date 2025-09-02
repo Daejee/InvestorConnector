@@ -1088,7 +1088,7 @@ export default function AnalystReports() {
                   <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
                     <h2 className="text-lg font-semibold text-orange-800 mb-3 flex items-center">
                       <span className="bg-orange-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-2">4</span>
-                      목표주가 분석
+                      평균목표주가 분석
                     </h2>
                     <div className="bg-white p-4 rounded border">
                       <p className="text-gray-700 leading-relaxed font-medium text-lg">
