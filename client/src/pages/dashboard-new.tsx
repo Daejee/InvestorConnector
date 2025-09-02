@@ -66,6 +66,11 @@ export default function Dashboard() {
       const investor = investors.find(inv => inv.id === investorId);
       return investor ? { name: investor.name, type: 'Investor', company: investor.company } : null;
     }
+    if (meeting.analystIds && meeting.analystIds.length > 0) {
+      const analystId = parseInt(meeting.analystIds[0]);
+      const analyst = analysts.find(a => a.id === analystId);
+      return analyst ? { name: analyst.name, type: 'Analyst', company: analyst.company } : null;
+    }
     if (meeting.analystId) {
       const analyst = analysts.find(a => a.id === meeting.analystId);
       return analyst ? { name: analyst.name, type: 'Analyst', company: analyst.company } : null;
