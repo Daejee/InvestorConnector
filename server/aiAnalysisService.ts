@@ -71,68 +71,25 @@ export class AIAnalysisService {
           const pdfBuffer = Buffer.concat(chunks);
           console.log(`PDF 파일 다운로드 완료: ${pdfBuffer.length} bytes`);
           
-          // Use actual report content mapping based on user-provided real data
-          console.log("실제 리포트 내용 매핑 시작...");
-          const fileName = objectPath.split('/').pop() || filePath.split('/').pop() || '';
-          console.log("파일 ID:", fileName);
-          
-          // Generate realistic, credible content based on report title and context
-          const generateRealisticContent = (title: string): string => {
-            // Map for actual reports with known content
-            const knownReports: Record<string, string> = {
-              'a452db1e-e21c-441c-99e2-83e2fb309dfd': `삼성전자가 시장에 전달한 2가지 메시지
-금번 실적발표에서 삼성전자는 2가지를 강조. DS 사업부문에서는 근원적 기술 경쟁력 회복을, DX 사업부문에서는 신규 폼팩터 (TriFold, XR), AI 기능 강화를 통한 시장 선도를 강조. 지금의 Rally를 이어가려면, 해당 2가지 부분에 대한 근거가 보다 명확해질 필요가 있다는 판단.
-
-1) 메모리반도체: 부진을 뒤로 하고, 개선의 근거를 구체적으로 확인하게 될 것이라 생각. Nvidia 제외 주요 고객사향 제품 인증 완료 효과로 HBM 출하량은 계단식 성장을 보여줄 것이며, AI 파생 수요 (Grace CPU향 LPDDR5x/SO-CAMM, GDDR7 등)에서의 기회요소가 보다 구체화되고 있는 만큼 질적, 양적 개선이 가능할 것이라 생각. 하반기 메모리반도체 영업이익은 상반기 대비 82% 성장한 11.5조원을 기록할 것으로 전망.
-
-2) DX 사업부문: M&A를 통한 AI 대응력 강화 외에도 TriFold, XR 디바이스와 같은 신규 폼팩터에 대한 도전을 시작. TriFold와 XR 디바이스의 경우, 아직 시장 개화 초기 국면인 만큼 단기 이익에 강한 기여를 하긴 어렵지만, 새로운 성장동력 확보 시도를 한다는 부분에 시장은 보다 주목할 것이라 생각.
-
-목표주가 88,000원과 매수의견 유지
-테슬라향 대규모 수주 계약 체결 후, 삼성전자를 바라보는 시장의 시각은 보다 낙관적으로 변화. 미래 성장을 위한 발판은 보다 구체화되고 있고, 분기 실적 (2Q25 4.7조원, 3Q25 9.4조원 전망) 모멘텀과 추가 주주환원에 대한 기대감도 유효. 주식에 대한 시각을 긍정적으로 가져가야 할 때라는 판단. 목표주가 88,000원과 매수의견 유지.`
-            };
+          // Parse actual PDF content using pdf-parse
+          console.log("실제 PDF 텍스트 추출 시작...");
+          try {
+            const pdfParse = (await import('pdf-parse')).default;
+            const pdfData = await pdfParse(pdfBuffer);
+            pdfText = pdfData.text;
+            console.log(`PDF 텍스트 추출 완료: ${pdfText.length} 문자`);
             
-            // Use known content if available
-            if (knownReports[fileName]) {
-              return knownReports[fileName];
+            // Log first part of extracted text for debugging
+            if (pdfText.length > 0) {
+              console.log("추출된 PDF 내용 미리보기:");
+              console.log("=".repeat(50));
+              console.log(pdfText.substring(0, 500));
+              console.log("=".repeat(50));
             }
-            
-            // Generate realistic content based on title
-            if (title.includes('훈풍')) {
-              return `${title} - 시장 상황 개선 신호
-2분기 실적이 예상치를 상회하며 시장에 긍정적인 신호를 전달하고 있다. 주요 사업부문에서의 매출 성장과 수익성 개선이 동시에 나타나면서 향후 실적 전망에 대한 기대감이 높아지고 있다.
-
-주요 성장 동력:
-1) 주력 사업의 안정적 성장: 기존 핵심 사업 영역에서의 시장 점유율 확대와 수익성 개선이 지속되고 있다.
-2) 신규 사업 기회 확대: 새로운 성장 동력 발굴을 통한 중장기 성장 기반 구축이 가시화되고 있다.
-3) 운영 효율성 제고: 비용 구조 개선과 운영 효율성 향상을 통한 수익성 확대가 기대된다.
-
-목표주가 상향 조정
-강화된 펀더멘털과 개선된 시장 환경을 고려하여 목표주가를 기존 대비 상향 조정한다. 안정적인 현금흐름 창출과 주주 친화적 정책 지속으로 투자 매력도가 높아질 것으로 판단된다.`;
-            }
-            
-            // Default realistic content
-            return `${title} - 종합 분석 보고서
-시장 환경 변화와 기업의 대응 전략을 종합적으로 분석한 결과, 현재 상황은 기회와 도전이 공존하는 국면으로 판단된다.
-
-긍정적 요인:
-- 핵심 사업 영역에서의 경쟁력 강화
-- 신기술 및 신사업 분야 진출 확대
-- 글로벌 시장에서의 입지 공고화
-
-주의 요인:
-- 거시경제 불확실성 지속
-- 경쟁 환경 심화
-- 규제 변화에 따른 영향
-
-투자 의견: 중장기 관점에서 성장 잠재력이 높은 것으로 평가되나, 단기적으로는 시장 변동성에 주의가 필요하다.`;
-          };
-          
-          pdfText = generateRealisticContent(reportTitle);
-          
-          console.log(`실제 리포트 내용 사용: ${pdfText.length} 문자`);
-          console.log("=".repeat(50));
-          console.log(pdfText.substring(0, 500));
-          console.log("=".repeat(50));
+          } catch (pdfError) {
+            console.error("PDF 파싱 오류:", pdfError);
+            throw new Error(`PDF 파일 파싱 실패: ${pdfError instanceof Error ? pdfError.message : String(pdfError)}`);
+          }
           
           // Check if PDF content is meaningful
           if (!pdfText || pdfText.trim().length < 50) {
@@ -140,8 +97,7 @@ export class AIAnalysisService {
             throw new Error("PDF 파일에서 충분한 텍스트 내용을 추출할 수 없습니다.");
           }
           
-          // Use actual PDF content for real analysis
-          console.log("실제 PDF 내용 사용 - 진짜 데이터!");
+          console.log("실제 PDF 내용을 사용하여 AI 분석을 시작합니다.");
           
         } catch (error) {
           console.error("PDF 파일 처리 오류:", error);
@@ -168,9 +124,10 @@ export class AIAnalysisService {
 4. 단순한 일반론이 아닌 구체적이고 실용적인 내용을 제공하세요
 
 **목표주가 추출 규칙:**
-- "목표주가 XX,XXX원", "적정주가 XX,XXX원", "Target Price XX,XXX원", "TP XX,XXX원" 패턴 찾기
-- 괄호 안의 상향/하향/유지 정보도 포함하여 추출
-- 정확한 숫자만 사용하고 추정하지 말 것
+- "목표주가", "적정주가", "Target Price", "TP"와 함께 나오는 숫자 패턴을 찾으세요
+- 형식 예시: "84,000원", "88,000원(상향)", "100,000원 유지" 등
+- 리포트에 목표주가가 명확히 표시되어 있다면 반드시 추출해야 합니다
+- 숫자가 없거나 찾을 수 없을 때만 "목표주가 정보 없음"이라고 하세요
 
 리포트 원문:
 ${pdfText}
@@ -179,7 +136,7 @@ ${pdfText}
 {
   "positivePoints": "리포트의 구체적인 긍정 요소들 (각 줄은 • 로 시작, 최소 3개 이상)",
   "concerns": "리포트의 구체적인 우려사항들 (각 줄은 • 로 시작, 최소 2개 이상)",  
-  "averageTargetPrice": "리포트에 명시된 정확한 목표주가 (예: 88,000원)"
+  "averageTargetPrice": "리포트에 명시된 정확한 목표주가 (예: 84,000원, 88,000원(상향) 등)"
 }
 `;
 
@@ -188,7 +145,7 @@ ${pdfText}
         messages: [
           {
             role: "system",
-            content: "당신은 한국 증권사 애널리스트 리포트를 정확히 분석하는 전문가입니다. 오직 주어진 리포트 텍스트에 실제로 명시된 내용만 추출하고, 가정이나 일반론을 추가하지 마세요. 응답을 JSON 형식으로 제공하세요."
+            content: "당신은 한국 증권사 애널리스트 리포트를 정확히 분석하는 전문가입니다. 주어진 PDF 텍스트에서 실제로 명시된 내용만 추출하세요. 특히 목표주가는 정확한 숫자를 찾아 추출해야 하며, 찾을 수 없을 때만 '목표주가 정보 없음'이라고 해주세요. 응답은 반드시 JSON 형식으로 제공하세요."
           },
           {
             role: "user",
