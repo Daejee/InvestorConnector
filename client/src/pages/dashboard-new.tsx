@@ -249,7 +249,7 @@ export default function Dashboard() {
                   return (
                     <div key={meeting.id} className="flex items-start space-x-4 p-4 border rounded-lg bg-blue-50 hover:bg-blue-100">
                       <div className="flex flex-col items-center">
-                        <div className="text-2xl font-bold text-blue-600">
+                        <div className="text-lg font-bold text-blue-600">
                           {monthShort}{dayOfMonth.toString().padStart(2, '0')}
                         </div>
                       </div>
@@ -313,7 +313,7 @@ export default function Dashboard() {
                   return (
                     <div key={meeting.id} className="flex items-start space-x-4 p-4 border rounded-lg bg-blue-50 hover:bg-blue-100">
                       <div className="flex flex-col items-center">
-                        <div className="text-2xl font-bold text-blue-600">
+                        <div className="text-lg font-bold text-blue-600">
                           {monthShort}{dayOfMonth.toString().padStart(2, '0')}
                         </div>
                       </div>
