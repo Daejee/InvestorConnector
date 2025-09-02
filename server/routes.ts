@@ -3172,7 +3172,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log(`종합 분석 요청: ${reportIds.length}개 리포트`);
 
-      // Get all analysis results for the selected reports
+      // Get all reports with manual input data
       const analysisResults = [];
       const organizationId = 1; // TODO: Extract from auth context
       
@@ -3182,19 +3182,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
           continue;
         }
 
-        const analysisResult = await storage.getAnalystReportAnalysis(reportId);
-        if (analysisResult && analysisResult.analysisStatus === 'completed') {
+        // Use manual input data instead of AI analysis results
+        if (report.positivePoints || report.concerns || report.targetPrice) {
           analysisResults.push({
-            positivePoints: analysisResult.positivePoints,
-            concerns: analysisResult.concerns,
-            averageTargetPrice: analysisResult.averageTargetPrice || "",
+            positivePoints: report.positivePoints || "",
+            concerns: report.concerns || "",
+            averageTargetPrice: report.targetPrice || "",
             reportTitle: report.title
           });
         }
       }
 
       if (analysisResults.length === 0) {
-        return res.status(400).json({ error: "분석된 리포트가 없습니다. 먼저 개별 리포트 분석을 완료하세요." });
+        return res.status(400).json({ error: "분석할 수 있는 리포트가 없습니다. 리포트에 긍정적 요인, 우려사항 또는 목표주가 중 하나 이상이 입력되어야 합니다." });
       }
 
       // Perform comprehensive analysis
