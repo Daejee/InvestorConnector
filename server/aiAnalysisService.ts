@@ -45,6 +45,7 @@ export class AIAnalysisService {
           const pdfData = await pdfParse(pdfBuffer);
           pdfText = pdfData.text;
           console.log(`PDF 텍스트 추출 완료: ${pdfText.length} 문자`);
+          console.log(`PDF 텍스트 샘플: ${pdfText.substring(0, 500)}...`);
           
         } catch (error) {
           console.error("PDF 파일 처리 오류:", error);
@@ -56,24 +57,28 @@ export class AIAnalysisService {
         pdfText = `리포트 제목: ${reportTitle}`;
       }
       
-      // Analyze with OpenAI
+      // Analyze with OpenAI  
       const analysisPrompt = `
-다음은 한국 증권사의 애널리스트 리포트 내용입니다. 매우 정확하게 분석해서 다음 3가지 항목을 JSON 형태로 정리해주세요:
+다음은 한국 증권사의 애널리스트 리포트 원문입니다. 이 텍스트에서 정확한 정보를 추출해서 분석해주세요.
 
-1. positivePoints: 긍정적 평가 사항들 (한국어로 3-5개 주요 포인트, 각 포인트는 "• " 로 시작)
-2. concerns: 우려사항들 (한국어로 3-5개 주요 포인트, 각 포인트는 "• " 로 시작)  
-3. averageTargetPrice: 목표주가 (리포트에 명시된 정확한 금액을 찾아서 "81,000원" 형태로 표기. 목표주가, 적정주가, Target Price 등의 표현을 모두 찾아보세요. 금액이 없으면 "목표주가 정보 없음")
+**1단계: 목표주가 찾기**
+다음 키워드들을 찾아서 정확한 목표주가를 추출하세요:
+- "목표주가", "적정주가", "Target Price", "TP"
+- "상향", "하향", "유지" 
+- 원, 천원, 만원 단위의 숫자
+- 예: "목표주가 81,000원", "TP 85,000원(상향)" 등
 
-**중요**: 목표주가는 리포트에 명시된 정확한 숫자를 그대로 사용하세요. 추정하거나 임의로 변경하지 마세요.
+**2단계: 분석 내용 정리**
+JSON 형태로 다음 3가지 항목을 정리하세요:
 
-리포트 내용:
-${pdfText.substring(0, 15000)} // 15000자로 확대해서 더 많은 내용 분석
+리포트 원문:
+${pdfText}
 
-응답은 반드시 다음과 같은 JSON 형태로만 해주세요:
+응답 형식 (정확히 이 형태로만):
 {
-  "positivePoints": "• 첫 번째 긍정 포인트\n• 두 번째 긍정 포인트\n• 세 번째 긍정 포인트",
-  "concerns": "• 첫 번째 우려사항\n• 두 번째 우려사항\n• 세 번째 우려사항",
-  "averageTargetPrice": "81,000원"
+  "positivePoints": "리포트에서 언급된 실제 긍정적 내용 (각 줄은 • 로 시작)",
+  "concerns": "리포트에서 언급된 실제 우려사항 (각 줄은 • 로 시작)",  
+  "averageTargetPrice": "리포트에 명시된 정확한 목표주가 (예: 81,000원) 또는 목표주가 정보 없음"
 }
 `;
 
