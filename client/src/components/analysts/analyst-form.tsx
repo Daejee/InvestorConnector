@@ -47,7 +47,6 @@ export function AnalystForm({ analyst, onClose }: AnalystFormProps) {
       position: analyst?.position ?? "",
       specialization: analyst?.specialization ?? [],
       coverage: analyst?.coverage ?? "",
-      language: analyst?.language ?? "Korean",
       status: analyst?.status ?? "No",
       notes: analyst?.notes ?? "",
     },
@@ -66,7 +65,7 @@ export function AnalystForm({ analyst, onClose }: AnalystFormProps) {
       const response = await fetch("/api/analysts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...data, country: "Korea" }),
+        body: JSON.stringify({ ...data, country: "Korea", language: "Korean" }),
       });
       if (!response.ok) throw new Error("Failed to create analyst");
       return response.json();
@@ -93,7 +92,7 @@ export function AnalystForm({ analyst, onClose }: AnalystFormProps) {
       const response = await fetch(`/api/analysts/${analyst!.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...data, country: "Korea" }),
+        body: JSON.stringify({ ...data, country: "Korea", language: "Korean" }),
       });
       if (!response.ok) throw new Error("Failed to update analyst");
       return response.json();
@@ -329,30 +328,6 @@ export function AnalystForm({ analyst, onClose }: AnalystFormProps) {
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="language"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>언어</FormLabel>
-                <FormControl>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="언어 선택" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Korean">한국어</SelectItem>
-                      <SelectItem value="English">영어</SelectItem>
-                      <SelectItem value="Japanese">일본어</SelectItem>
-                      <SelectItem value="Chinese">중국어</SelectItem>
-                      <SelectItem value="Other">기타</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
 
           <FormField
             control={form.control}
