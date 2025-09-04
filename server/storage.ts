@@ -220,9 +220,10 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createInvestor(insertInvestor: InsertInvestor, organizationId: number): Promise<Investor> {
+    const investorData = { ...insertInvestor, organizationId };
     const [investor] = await db
       .insert(investors)
-      .values({ ...insertInvestor, organizationId })
+      .values(investorData as any)
       .returning();
     return investor;
   }
@@ -230,7 +231,7 @@ export class DatabaseStorage implements IStorage {
   async updateInvestor(id: number, updateData: Partial<InsertInvestor>, organizationId: number): Promise<Investor | undefined> {
     const [investor] = await db
       .update(investors)
-      .set(updateData)
+      .set(updateData as any)
       .where(sql`${investors.id} = ${id} AND ${investors.organizationId} = ${organizationId}`)
       .returning();
     return investor || undefined;

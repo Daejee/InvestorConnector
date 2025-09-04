@@ -76,7 +76,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(investor);
     } catch (error) {
       console.error('Create investor error:', error);
-      res.status(400).json({ message: "Invalid investor data", error: error.message });
+      res.status(400).json({ message: "Invalid investor data", error: error instanceof Error ? error.message : 'Unknown error' });
     }
   });
 
@@ -121,7 +121,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(investor);
     } catch (error) {
       console.error('Update investor error:', error);
-      res.status(400).json({ message: "Invalid investor data", error: error.message });
+      res.status(400).json({ message: "Invalid investor data", error: error instanceof Error ? error.message : 'Unknown error' });
     }
   });
 
@@ -3164,7 +3164,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log("Report title:", report.title);
         
         const aiService = new AIAnalysisService();
-        const result = await aiService.analyzeReport(report.filePath || "", report.title);
+        const result = await aiService.analyzeReport(report.filePath || "", report.title || "");
         console.log("AI analysis completed, updating database...");
         
         const updatedAnalysis = await storage.updateAnalystReportAnalysis(reportId, {
@@ -3219,7 +3219,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             positivePoints: report.contentText || "",
             concerns: report.description || "",
             averageTargetPrice: report.targetPrice || "",
-            reportTitle: report.title
+            reportTitle: report.title || "Untitled Report"
           });
         }
       }

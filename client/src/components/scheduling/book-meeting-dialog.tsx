@@ -113,7 +113,7 @@ export function BookMeetingDialog({
         ...data,
         scheduledDate: data.scheduledDate.toISOString(),
       };
-      return apiRequest("POST", "/api/meetings", formattedData);
+      return apiRequest("/api/meetings", { method: "POST", body: formattedData });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/meetings"] });
