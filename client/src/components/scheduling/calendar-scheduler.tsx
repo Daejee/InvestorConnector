@@ -30,10 +30,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { insertMeetingSchema } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { type Meeting, type Investor, type Analyst, type OverseasInvestor } from "@shared/schema";
+import { type Meeting, type Investor, type Analyst, type OverseasInvestor, type User } from "@shared/schema";
 
 interface CalendarSchedulerProps {
   selectedInvestor?: Investor;
@@ -76,6 +77,10 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
 
   const { data: ndrConferences = [] } = useQuery<any[]>({
     queryKey: ["/api/ndr-conferences"],
+  });
+
+  const { data: users = [] } = useQuery<User[]>({
+    queryKey: ["/api/users"],
   });
 
   const form = useForm<any>({
@@ -766,6 +771,53 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
                         rows={3}
                       />
                     </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              {/* IR담당자 선택 섹션 */}
+              <FormField
+                control={form.control}
+                name="assignedUserIds"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center gap-2">
+                      <Users className="h-4 w-4" />
+                      IR담당자
+                    </FormLabel>
+                    <div className="grid grid-cols-2 gap-3 max-h-32 overflow-y-auto border rounded-md p-3">
+                      {users.map((user) => {
+                        const isSelected = field.value?.includes(user.id.toString()) || false;
+                        return (
+                          <div key={user.id} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={`user-${user.id}`}
+                              checked={isSelected}
+                              onCheckedChange={(checked) => {
+                                const currentIds = field.value || [];
+                                if (checked) {
+                                  field.onChange([...currentIds, user.id.toString()]);
+                                } else {
+                                  field.onChange(currentIds.filter((id: string) => id !== user.id.toString()));
+                                }
+                              }}
+                            />
+                            <label
+                              htmlFor={`user-${user.id}`}
+                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                            >
+                              {user.name}
+                              {user.role && <span className="text-xs text-gray-500 ml-1">({user.role})</span>}
+                            </label>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    {field.value?.length > 0 && (
+                      <p className="text-sm text-gray-600">
+                        선택된 IR담당자: {field.value.length}명
+                      </p>
+                    )}
                   </FormItem>
                 )}
               />

@@ -319,7 +319,7 @@ export function BookMeetingDialog({
                 <FormItem>
                   <FormLabel className="flex items-center gap-2">
                     <Users className="h-4 w-4" />
-                    미팅담당자
+                    IR담당자
                   </FormLabel>
                   <div className="grid grid-cols-2 gap-3 max-h-32 overflow-y-auto border rounded-md p-3">
                     {users.map((user) => {
@@ -351,7 +351,7 @@ export function BookMeetingDialog({
                   </div>
                   {watchedAssignedUserIds?.length > 0 && (
                     <p className="text-sm text-gray-600">
-                      선택된 담당자: {watchedAssignedUserIds.length}명
+                      선택된 IR담당자: {watchedAssignedUserIds.length}명
                     </p>
                   )}
                 </FormItem>
