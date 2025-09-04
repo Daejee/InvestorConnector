@@ -175,6 +175,9 @@ export interface IStorage {
   updateUser(id: number, user: Partial<InsertUser>): Promise<User | undefined>;
   deleteUser(id: number): Promise<boolean>;
 
+  // Organizations
+  getOrganization(id: number): Promise<Organization | undefined>;
+
   // Investor Insights
   getInvestorInsights(organizationId: number): Promise<InvestorInsight[]>;
   getInvestorInsight(id: number, organizationId: number): Promise<InvestorInsight | undefined>;
@@ -1036,6 +1039,13 @@ export class DatabaseStorage implements IStorage {
       eq(analystReportAnalyses.reportId, reportId)
     );
     return result.rowCount! > 0;
+  }
+
+
+  // Organizations
+  async getOrganization(id: number): Promise<Organization | undefined> {
+    const [organization] = await db.select().from(organizations).where(eq(organizations.id, id));
+    return organization || undefined;
   }
 
 }

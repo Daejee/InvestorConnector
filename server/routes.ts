@@ -35,19 +35,69 @@ import {
 } from "./objectStorage";
 import { AIAnalysisService } from "./aiAnalysisService";
 
+// Organization domain to ID mapping
+const DOMAIN_TO_ORG_ID: Record<string, number> = {
+  'default': 1,
+  'samsung': 2,
+};
+
+// Middleware to extract organization ID from various sources
+function extractOrganizationId(req: any): number {
+  // Check header: X-Organization-Id (from frontend)
+  if (req.headers['x-organization-id']) {
+    const orgId = parseInt(req.headers['x-organization-id']);
+    if (!isNaN(orgId)) return orgId;
+  }
+  
+  // Check URL path: /org/samsung/investors
+  const orgFromPath = req.path.match(/^\/org\/([^\/]+)/);
+  if (orgFromPath) {
+    const domain = orgFromPath[1];
+    return DOMAIN_TO_ORG_ID[domain] || 1; // Default to org 1 if not found
+  }
+  
+  // Check query parameter: ?org=samsung
+  if (req.query.org) {
+    return DOMAIN_TO_ORG_ID[req.query.org] || 1;
+  }
+  
+  // Check header: X-Organization (domain)
+  if (req.headers['x-organization']) {
+    return DOMAIN_TO_ORG_ID[req.headers['x-organization']] || 1;
+  }
+  
+  // Default to organization 1
+  return 1;
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Configure multer for file upload
   const upload = multer({ storage: multer.memoryStorage() });
+  
+  // Organizations routes
+  app.get("/api/organizations/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const organization = await storage.getOrganization(id);
+      if (!organization) {
+        return res.status(404).json({ message: "Organization not found" });
+      }
+      res.json(organization);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get organization", error });
+    }
+  });
+
   // Investors routes
   app.get("/api/investors", async (req, res) => {
-    const organizationId = 1; // 기본 조직 데이터 표시
+    const organizationId = extractOrganizationId(req);
     const investors = await storage.getInvestors(organizationId);
     res.json(investors);
   });
 
   app.get("/api/investors/:id", async (req, res) => {
     const id = parseInt(req.params.id);
-    const organizationId = 1; // TODO: Extract from auth context
+    const organizationId = extractOrganizationId(req);
     const investor = await storage.getInvestor(id, organizationId);
     if (!investor) {
       return res.status(404).json({ message: "Investor not found" });
@@ -71,7 +121,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         data.numberOfManagedFunds = typeof data.numberOfManagedFunds === 'string' ? parseInt(data.numberOfManagedFunds) : data.numberOfManagedFunds;
       }
       
-      const organizationId = 1; // TODO: Extract from auth context
+      const organizationId = extractOrganizationId(req);
       const investor = await storage.createInvestor(data, organizationId);
       res.status(201).json(investor);
     } catch (error) {
@@ -84,7 +134,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       const data = insertInvestorSchema.partial().parse(req.body);
-      const organizationId = 1; // TODO: Extract from auth context
+      const organizationId = extractOrganizationId(req);
       const investor = await storage.updateInvestor(id, data, organizationId);
       if (!investor) {
         return res.status(404).json({ message: "Investor not found" });
@@ -113,7 +163,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         data.numberOfManagedFunds = typeof data.numberOfManagedFunds === 'string' ? parseInt(data.numberOfManagedFunds) : data.numberOfManagedFunds;
       }
       
-      const organizationId = 1; // TODO: Extract from auth context
+      const organizationId = extractOrganizationId(req);
       const investor = await storage.updateInvestor(id, data, organizationId);
       if (!investor) {
         return res.status(404).json({ message: "Investor not found" });

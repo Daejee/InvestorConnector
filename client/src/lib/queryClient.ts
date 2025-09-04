@@ -7,6 +7,22 @@ async function throwIfResNotOk(res: Response) {
   }
 }
 
+// Function to get current organization ID from URL
+function getCurrentOrganizationId(): number {
+  const path = window.location.pathname;
+  const orgMatch = path.match(/^\/org\/([^\/]+)/);
+  if (orgMatch) {
+    const domain = orgMatch[1];
+    // Map domain to organization ID
+    const domainToOrgId: Record<string, number> = {
+      'default': 1,
+      'samsung': 2,
+    };
+    return domainToOrgId[domain] || 1;
+  }
+  return 1; // Default organization
+}
+
 export async function apiRequest(
   url: string,
   options?: {
@@ -16,11 +32,13 @@ export async function apiRequest(
   }
 ): Promise<Response> {
   const { method = "GET", body, headers = {} } = options || {};
+  const organizationId = getCurrentOrganizationId();
   
   const res = await fetch(url, {
     method,
     headers: {
       ...(body ? { "Content-Type": "application/json" } : {}),
+      "X-Organization-Id": organizationId.toString(),
       ...headers,
     },
     body: body ? JSON.stringify(body) : undefined,
@@ -37,7 +55,12 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
+    const organizationId = getCurrentOrganizationId();
+    
     const res = await fetch(queryKey[0] as string, {
+      headers: {
+        "X-Organization-Id": organizationId.toString(),
+      },
       credentials: "include",
     });
 
