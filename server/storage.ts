@@ -177,6 +177,11 @@ export interface IStorage {
 
   // Organizations
   getOrganization(id: number): Promise<Organization | undefined>;
+  getAllOrganizations(): Promise<Organization[]>;
+  createOrganization(organization: InsertOrganization): Promise<Organization>;
+  getDatabaseStats(): Promise<any>;
+  exportOrganizationData(organizationId: number): Promise<any>;
+  exportAllData(): Promise<any>;
 
   // Investor Insights
   getInvestorInsights(organizationId: number): Promise<InvestorInsight[]>;
@@ -1046,6 +1051,86 @@ export class DatabaseStorage implements IStorage {
   async getOrganization(id: number): Promise<Organization | undefined> {
     const [organization] = await db.select().from(organizations).where(eq(organizations.id, id));
     return organization || undefined;
+  }
+
+  async getAllOrganizations(): Promise<Organization[]> {
+    return await db.select().from(organizations).orderBy(organizations.id);
+  }
+
+  async createOrganization(orgData: InsertOrganization): Promise<Organization> {
+    const [organization] = await db
+      .insert(organizations)
+      .values(orgData)
+      .returning();
+    return organization;
+  }
+
+  async getDatabaseStats(): Promise<any> {
+    const [investorCount] = await db.select({ count: sql<number>`count(*)` }).from(investors);
+    const [overseasInvestorCount] = await db.select({ count: sql<number>`count(*)` }).from(overseasInvestors);
+    const [analystCount] = await db.select({ count: sql<number>`count(*)` }).from(analysts);
+    const [companyCount] = await db.select({ count: sql<number>`count(*)` }).from(companies);
+    const [overseasCompanyCount] = await db.select({ count: sql<number>`count(*)` }).from(overseasCompanies);
+    const [securitiesFirmCount] = await db.select({ count: sql<number>`count(*)` }).from(securitiesFirms);
+    const [fundCount] = await db.select({ count: sql<number>`count(*)` }).from(funds);
+    const [overseasFundCount] = await db.select({ count: sql<number>`count(*)` }).from(overseasFunds);
+    const [meetingCount] = await db.select({ count: sql<number>`count(*)` }).from(meetings);
+    const [documentCount] = await db.select({ count: sql<number>`count(*)` }).from(documents);
+    const [userCount] = await db.select({ count: sql<number>`count(*)` }).from(users);
+    const [analystReportCount] = await db.select({ count: sql<number>`count(*)` }).from(analystReports);
+
+    return {
+      investors: investorCount.count,
+      overseasInvestors: overseasInvestorCount.count,
+      analysts: analystCount.count,
+      companies: companyCount.count,
+      overseasCompanies: overseasCompanyCount.count,
+      securitiesFirms: securitiesFirmCount.count,
+      funds: fundCount.count,
+      overseasFunds: overseasFundCount.count,
+      meetings: meetingCount.count,
+      documents: documentCount.count,
+      users: userCount.count,
+      analystReports: analystReportCount.count,
+    };
+  }
+
+  async exportOrganizationData(organizationId: number): Promise<any> {
+    const organization = await this.getOrganization(organizationId);
+    const investorData = await this.getInvestors(organizationId);
+    const analystData = await this.getAnalysts(organizationId);
+    const companyData = await this.getCompanies(organizationId);
+    const meetingData = await this.getMeetings(organizationId);
+    const insightData = await this.getInvestorInsights(organizationId);
+    const reportData = await this.getAnalystReports(organizationId);
+
+    return {
+      organization,
+      data: {
+        investors: investorData,
+        analysts: analystData,
+        companies: companyData,
+        meetings: meetingData,
+        insights: insightData,
+        reports: reportData,
+      },
+      exportedAt: new Date().toISOString(),
+    };
+  }
+
+  async exportAllData(): Promise<any> {
+    const organizations = await this.getAllOrganizations();
+    const exportData = [];
+
+    for (const org of organizations) {
+      const orgData = await this.exportOrganizationData(org.id);
+      exportData.push(orgData);
+    }
+
+    return {
+      organizations: exportData,
+      exportedAt: new Date().toISOString(),
+    };
   }
 
 }

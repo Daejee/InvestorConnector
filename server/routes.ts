@@ -3289,6 +3289,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin routes
+  app.get("/api/organizations", async (req, res) => {
+    try {
+      const organizations = await storage.getAllOrganizations();
+      res.json(organizations);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get organizations", error });
+    }
+  });
+
+  app.post("/api/organizations", async (req, res) => {
+    try {
+      const { name, domain, subscriptionTier } = req.body;
+      const organization = await storage.createOrganization({
+        name,
+        domain,
+        subscriptionTier: subscriptionTier || 'starter',
+        settings: {},
+        isActive: true
+      });
+      res.status(201).json(organization);
+    } catch (error) {
+      res.status(400).json({ message: "Failed to create organization", error });
+    }
+  });
+
+  app.get("/api/admin/stats", async (req, res) => {
+    try {
+      const stats = await storage.getDatabaseStats();
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get database stats", error });
+    }
+  });
+
+  app.get("/api/admin/export/:organizationId", async (req, res) => {
+    try {
+      const organizationId = parseInt(req.params.organizationId);
+      if (isNaN(organizationId)) {
+        return res.status(400).json({ message: "Invalid organization ID" });
+      }
+
+      const data = await storage.exportOrganizationData(organizationId);
+      
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Content-Disposition', `attachment; filename="organization_${organizationId}_data.json"`);
+      res.json(data);
+    } catch (error) {
+      console.error('Error exporting organization data:', error);
+      res.status(500).json({ message: "Failed to export organization data", error });
+    }
+  });
+
+  app.get("/api/admin/export-all", async (req, res) => {
+    try {
+      const data = await storage.exportAllData();
+      
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Content-Disposition', 'attachment; filename="all_organizations_data.json"');
+      res.json(data);
+    } catch (error) {
+      console.error('Error exporting all data:', error);
+      res.status(500).json({ message: "Failed to export all data", error });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

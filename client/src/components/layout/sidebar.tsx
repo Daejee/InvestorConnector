@@ -20,7 +20,8 @@ import {
   ChevronRight,
   FileEdit,
   Brain,
-  TrendingUp
+  TrendingUp,
+  Crown
 } from "lucide-react";
 
 interface SidebarProps {
@@ -347,6 +348,19 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                 >
                   <Users className="mr-3 h-5 w-5" />
                   사용자
+                </div>
+              </Link>
+              <Link href="/admin">
+                <div className={cn(
+                  "group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer",
+                  location === "/admin"
+                    ? "bg-primary text-white"
+                    : "text-gray-700 hover:bg-gray-50"
+                )}
+                onClick={() => onClose()}
+                >
+                  <Crown className="mr-3 h-5 w-5" />
+                  관리자
                 </div>
               </Link>
             </div>

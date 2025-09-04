@@ -27,6 +27,7 @@ import EmailLogs from "@/pages/email-logs";
 import Users from "@/pages/users";
 import InvestorInsights from "@/pages/investor-insights";
 import AnalystReports from "@/pages/analyst-reports";
+import Admin from "@/pages/admin";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -58,6 +59,7 @@ function Router() {
           <Route path="/org/:orgDomain/reports" component={Reports} />
           <Route path="/org/:orgDomain/investor-insights" component={InvestorInsights} />
           <Route path="/org/:orgDomain/analyst-reports" component={AnalystReports} />
+          <Route path="/org/:orgDomain/admin" component={Admin} />
           
           {/* Legacy routes redirect to default organization */}
           <Route path="/" component={() => { window.location.href = '/org/default'; return null; }} />
@@ -82,6 +84,7 @@ function Router() {
           <Route path="/reports" component={() => { window.location.href = '/org/default/reports'; return null; }} />
           <Route path="/investor-insights" component={() => { window.location.href = '/org/default/investor-insights'; return null; }} />
           <Route path="/analyst-reports" component={() => { window.location.href = '/org/default/analyst-reports'; return null; }} />
+          <Route path="/admin" component={() => { window.location.href = '/org/default/admin'; return null; }} />
           
           <Route component={NotFound} />
         </Switch>
