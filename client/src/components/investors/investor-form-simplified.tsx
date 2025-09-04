@@ -411,12 +411,9 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel, 
                         <FormLabel>총운용경력 (년)</FormLabel>
                         <FormControl>
                           <Input 
-                            type="number" 
-                            step="0.1"
                             placeholder="예: 5.5" 
                             {...field} 
                             value={field.value ?? ""}
-                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
                           />
                         </FormControl>
                         <FormMessage />
@@ -432,12 +429,9 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel, 
                         <FormLabel>현회사운용경력 (년)</FormLabel>
                         <FormControl>
                           <Input 
-                            type="number" 
-                            step="0.1"
                             placeholder="예: 3.2" 
                             {...field} 
                             value={field.value ?? ""}
-                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
                           />
                         </FormControl>
                         <FormMessage />
@@ -458,7 +452,7 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel, 
                             placeholder="예: 500.00" 
                             {...field} 
                             value={field.value ?? ""}
-                            onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                            onChange={(e) => field.onChange(e.target.value ? (e.target.value ? parseFloat(e.target.value) : null) : null)}
                           />
                         </FormControl>
                         <FormMessage />
@@ -478,7 +472,7 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel, 
                             placeholder="예: 3" 
                             {...field} 
                             value={field.value ?? ""}
-                            onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                            onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : null)}
                           />
                         </FormControl>
                         <FormMessage />
