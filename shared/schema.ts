@@ -313,8 +313,13 @@ export const emailLogs = pgTable("email_logs", {
   language: text("language").default("Korean"), // Korean, English
 });
 
-export const insertInvestorSchema = createInsertSchema(investors).omit({
+const baseInvestorSchema = createInsertSchema(investors).omit({
   id: true,
+});
+
+export const insertInvestorSchema = baseInvestorSchema.omit({
+  managedFundAum: true,
+  numberOfManagedFunds: true,
 }).extend({
   managedFundAum: z.union([z.number(), z.string(), z.null()]).optional().transform(val => {
     if (val === null || val === undefined || val === '') return null;
