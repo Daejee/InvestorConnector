@@ -447,11 +447,9 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel, 
                         <FormLabel>운용펀드AUM (억원)</FormLabel>
                         <FormControl>
                           <Input 
-                            type="number" 
-                            step="0.01"
                             placeholder="예: 500.00" 
+                            {...field} 
                             value={field.value ?? ""}
-                            onChange={(e) => field.onChange(e.target.value === "" ? null : parseFloat(e.target.value) || null)}
                           />
                         </FormControl>
                         <FormMessage />
@@ -467,10 +465,9 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel, 
                         <FormLabel>운용펀드수</FormLabel>
                         <FormControl>
                           <Input 
-                            type="number" 
                             placeholder="예: 3" 
+                            {...field} 
                             value={field.value ?? ""}
-                            onChange={(e) => field.onChange(e.target.value === "" ? null : parseInt(e.target.value) || null)}
                           />
                         </FormControl>
                         <FormMessage />

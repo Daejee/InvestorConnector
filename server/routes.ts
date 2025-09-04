@@ -58,6 +58,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/investors", async (req, res) => {
     try {
       const data = insertInvestorSchema.parse(req.body);
+      
+      // Convert string numbers to actual numbers for decimal/integer fields
+      if (data.managedFundAum && typeof data.managedFundAum === 'string') {
+        data.managedFundAum = parseFloat(data.managedFundAum);
+      }
+      if (data.numberOfManagedFunds && typeof data.numberOfManagedFunds === 'string') {
+        data.numberOfManagedFunds = parseInt(data.numberOfManagedFunds);
+      }
+      
       const organizationId = 1; // TODO: Extract from auth context
       const investor = await storage.createInvestor(data, organizationId);
       res.status(201).json(investor);
@@ -85,6 +94,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       const data = insertInvestorSchema.partial().parse(req.body);
+      
+      // Convert string numbers to actual numbers for decimal/integer fields
+      if (data.managedFundAum && typeof data.managedFundAum === 'string') {
+        data.managedFundAum = parseFloat(data.managedFundAum);
+      }
+      if (data.numberOfManagedFunds && typeof data.numberOfManagedFunds === 'string') {
+        data.numberOfManagedFunds = parseInt(data.numberOfManagedFunds);
+      }
+      
       const organizationId = 1; // TODO: Extract from auth context
       const investor = await storage.updateInvestor(id, data, organizationId);
       if (!investor) {
