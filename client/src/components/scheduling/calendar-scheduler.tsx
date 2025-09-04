@@ -783,41 +783,32 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
                   <FormItem>
                     <FormLabel className="flex items-center gap-2">
                       <Users className="h-4 w-4" />
-                      IR담당자
+                      IR담당자 선택
                     </FormLabel>
-                    <div className="grid grid-cols-2 gap-3 max-h-32 overflow-y-auto border rounded-md p-3">
-                      {users.map((user) => {
-                        const isSelected = field.value?.includes(user.id.toString()) || false;
-                        return (
-                          <div key={user.id} className="flex items-center space-x-2">
-                            <Checkbox
-                              id={`user-${user.id}`}
-                              checked={isSelected}
-                              onCheckedChange={(checked) => {
-                                const currentIds = field.value || [];
-                                if (checked) {
-                                  field.onChange([...currentIds, user.id.toString()]);
-                                } else {
-                                  field.onChange(currentIds.filter((id: string) => id !== user.id.toString()));
-                                }
-                              }}
-                            />
-                            <label
-                              htmlFor={`user-${user.id}`}
-                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                            >
-                              {user.name}
-                              {user.role && <span className="text-xs text-gray-500 ml-1">({user.role})</span>}
-                            </label>
-                          </div>
-                        );
-                      })}
-                    </div>
-                    {field.value?.length > 0 && (
-                      <p className="text-sm text-gray-600">
-                        선택된 IR담당자: {field.value.length}명
-                      </p>
-                    )}
+                    <Select 
+                      onValueChange={(value) => {
+                        if (value) {
+                          field.onChange([value]); // 단일 선택
+                        } else {
+                          field.onChange([]);
+                        }
+                      }}
+                      value={field.value?.[0] || ""}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="IR담당자를 선택하세요" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {users.map((user) => (
+                          <SelectItem key={user.id} value={user.id.toString()}>
+                            {user.name}
+                            {user.role && <span className="text-xs text-gray-500 ml-1">({user.role})</span>}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </FormItem>
                 )}
               />
