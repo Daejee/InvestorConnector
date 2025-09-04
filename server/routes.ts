@@ -3573,6 +3573,118 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/admin/export-funds-csv/:organizationId", async (req, res) => {
+    try {
+      const organizationId = parseInt(req.params.organizationId);
+      if (isNaN(organizationId)) {
+        return res.status(400).json({ message: "Invalid organization ID" });
+      }
+
+      const funds = await storage.getFunds(organizationId);
+      
+      const csvHeaders = [
+        'ID', '펀드명', '자산운용사', '펀드 유형', '운용규모', '설명', '생성일'
+      ];
+      
+      const csvRows = funds.map(fund => [
+        fund.id,
+        `"${fund.name || ''}"`,
+        `"${fund.managementCompany || ''}"`,
+        `"${fund.fundType || ''}"`,
+        fund.aum || '',
+        `"${fund.description || ''}"`,
+        fund.createdAt ? new Date(fund.createdAt).toLocaleDateString('ko-KR') : ''
+      ]);
+      
+      const csvContent = [
+        csvHeaders.join(','),
+        ...csvRows.map(row => row.join(','))
+      ].join('\n');
+      
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('Content-Disposition', `attachment; filename="funds_org_${organizationId}.csv"`);
+      res.send('\uFEFF' + csvContent);
+    } catch (error) {
+      console.error('Error exporting funds CSV:', error);
+      res.status(500).json({ message: "Failed to export funds CSV", error });
+    }
+  });
+
+  app.get("/api/admin/export-overseas-funds-csv/:organizationId", async (req, res) => {
+    try {
+      const organizationId = parseInt(req.params.organizationId);
+      if (isNaN(organizationId)) {
+        return res.status(400).json({ message: "Invalid organization ID" });
+      }
+
+      const funds = await storage.getOverseasFunds(organizationId);
+      
+      const csvHeaders = [
+        'ID', '펀드명', '자산운용사', '펀드 유형', '운용규모', '국가', '설명', '생성일'
+      ];
+      
+      const csvRows = funds.map(fund => [
+        fund.id,
+        `"${fund.name || ''}"`,
+        `"${fund.managementCompany || ''}"`,
+        `"${fund.fundType || ''}"`,
+        fund.aum || '',
+        `"${fund.country || ''}"`,
+        `"${fund.description || ''}"`,
+        fund.createdAt ? new Date(fund.createdAt).toLocaleDateString('ko-KR') : ''
+      ]);
+      
+      const csvContent = [
+        csvHeaders.join(','),
+        ...csvRows.map(row => row.join(','))
+      ].join('\n');
+      
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('Content-Disposition', `attachment; filename="overseas_funds_org_${organizationId}.csv"`);
+      res.send('\uFEFF' + csvContent);
+    } catch (error) {
+      console.error('Error exporting overseas funds CSV:', error);
+      res.status(500).json({ message: "Failed to export overseas funds CSV", error });
+    }
+  });
+
+  app.get("/api/admin/export-securities-firms-csv/:organizationId", async (req, res) => {
+    try {
+      const organizationId = parseInt(req.params.organizationId);
+      if (isNaN(organizationId)) {
+        return res.status(400).json({ message: "Invalid organization ID" });
+      }
+
+      const firms = await storage.getSecuritiesFirms(organizationId);
+      
+      const csvHeaders = [
+        'ID', '증권사명', '업종', '시가총액', '웹사이트', '설명', '생성일'
+      ];
+      
+      const csvRows = firms.map(firm => [
+        firm.id,
+        `"${firm.name || ''}"`,
+        `"${firm.industry || ''}"`,
+        firm.marketCap || '',
+        `"${firm.website || ''}"`,
+        `"${firm.description || ''}"`,
+        firm.createdAt ? new Date(firm.createdAt).toLocaleDateString('ko-KR') : ''
+      ]);
+      
+      const csvContent = [
+        csvHeaders.join(','),
+        ...csvRows.map(row => row.join(','))
+      ].join('\n');
+      
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('Content-Disposition', `attachment; filename="securities_firms_org_${organizationId}.csv"`);
+      res.send('\uFEFF' + csvContent);
+    } catch (error) {
+      console.error('Error exporting securities firms CSV:', error);
+      res.status(500).json({ message: "Failed to export securities firms CSV", error });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

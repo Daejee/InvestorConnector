@@ -328,6 +328,105 @@ export default function Admin() {
     },
   });
 
+  const exportFundsCsvMutation = useMutation({
+    mutationFn: async (organizationId: number) => {
+      const response = await fetch(`/api/admin/export-funds-csv/${organizationId}`, {
+        method: "GET",
+      });
+      if (!response.ok) throw new Error("CSV export failed");
+      return { blob: await response.blob(), organizationId };
+    },
+    onSuccess: ({ blob, organizationId }) => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.style.display = "none";
+      a.href = url;
+      a.download = `funds_org_${organizationId}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast({
+        title: "성공",
+        description: "자산운용사(국내) 목록이 CSV로 다운로드되었습니다.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "오류",
+        description: "자산운용사(국내) CSV 다운로드에 실패했습니다.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const exportOverseasFundsCsvMutation = useMutation({
+    mutationFn: async (organizationId: number) => {
+      const response = await fetch(`/api/admin/export-overseas-funds-csv/${organizationId}`, {
+        method: "GET",
+      });
+      if (!response.ok) throw new Error("CSV export failed");
+      return { blob: await response.blob(), organizationId };
+    },
+    onSuccess: ({ blob, organizationId }) => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.style.display = "none";
+      a.href = url;
+      a.download = `overseas_funds_org_${organizationId}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast({
+        title: "성공",
+        description: "자산운용사(해외) 목록이 CSV로 다운로드되었습니다.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "오류",
+        description: "자산운용사(해외) CSV 다운로드에 실패했습니다.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const exportSecuritiesFirmsCsvMutation = useMutation({
+    mutationFn: async (organizationId: number) => {
+      const response = await fetch(`/api/admin/export-securities-firms-csv/${organizationId}`, {
+        method: "GET",
+      });
+      if (!response.ok) throw new Error("CSV export failed");
+      return { blob: await response.blob(), organizationId };
+    },
+    onSuccess: ({ blob, organizationId }) => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.style.display = "none";
+      a.href = url;
+      a.download = `securities_firms_org_${organizationId}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast({
+        title: "성공",
+        description: "증권사 목록이 CSV로 다운로드되었습니다.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "오류",
+        description: "증권사 CSV 다운로드에 실패했습니다.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const exportAllDataMutation = useMutation({
     mutationFn: async () => {
       const response = await fetch("/api/admin/export-all", {
@@ -415,6 +514,24 @@ export default function Admin() {
   const handleExportOverseasInvestorsCsv = async () => {
     setIsDownloading(true);
     await exportOverseasInvestorsCsvMutation.mutateAsync();
+    setIsDownloading(false);
+  };
+
+  const handleExportFundsCsv = async (organizationId: number) => {
+    setIsDownloading(true);
+    await exportFundsCsvMutation.mutateAsync(organizationId);
+    setIsDownloading(false);
+  };
+
+  const handleExportOverseasFundsCsv = async (organizationId: number) => {
+    setIsDownloading(true);
+    await exportOverseasFundsCsvMutation.mutateAsync(organizationId);
+    setIsDownloading(false);
+  };
+
+  const handleExportSecuritiesFirmsCsv = async (organizationId: number) => {
+    setIsDownloading(true);
+    await exportSecuritiesFirmsCsvMutation.mutateAsync(organizationId);
     setIsDownloading(false);
   };
 
@@ -542,22 +659,30 @@ export default function Admin() {
             <div className="text-center py-4">통계 로딩 중...</div>
           ) : stats ? (
             <div className="space-y-6">
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
                 <div className="text-center p-3 bg-blue-50 rounded-lg">
                   <div className="text-2xl font-bold text-blue-600">{stats.investors}</div>
-                  <div className="text-sm text-gray-600">국내 투자자</div>
+                  <div className="text-sm text-gray-600">투자자(국내)</div>
+                </div>
+                <div className="text-center p-3 bg-purple-50 rounded-lg">
+                  <div className="text-2xl font-bold text-purple-600">{stats.funds}</div>
+                  <div className="text-sm text-gray-600">자산운용사(국내)</div>
                 </div>
                 <div className="text-center p-3 bg-green-50 rounded-lg">
                   <div className="text-2xl font-bold text-green-600">{stats.overseasInvestors}</div>
-                  <div className="text-sm text-gray-600">해외 투자자</div>
+                  <div className="text-sm text-gray-600">투자자(해외)</div>
                 </div>
-                <div className="text-center p-3 bg-purple-50 rounded-lg">
-                  <div className="text-2xl font-bold text-purple-600">{stats.analysts}</div>
-                  <div className="text-sm text-gray-600">애널리스트</div>
+                <div className="text-center p-3 bg-emerald-50 rounded-lg">
+                  <div className="text-2xl font-bold text-emerald-600">{stats.overseasFunds}</div>
+                  <div className="text-sm text-gray-600">자산운용사(해외)</div>
+                </div>
+                <div className="text-center p-3 bg-yellow-50 rounded-lg">
+                  <div className="text-2xl font-bold text-yellow-600">{stats.analysts}</div>
+                  <div className="text-sm text-gray-600">애널리스트/브로커</div>
                 </div>
                 <div className="text-center p-3 bg-orange-50 rounded-lg">
-                  <div className="text-2xl font-bold text-orange-600">{stats.companies}</div>
-                  <div className="text-sm text-gray-600">국내 회사</div>
+                  <div className="text-2xl font-bold text-orange-600">{stats.securitiesFirms}</div>
+                  <div className="text-sm text-gray-600">증권사</div>
                 </div>
                 <div className="text-center p-3 bg-red-50 rounded-lg">
                   <div className="text-2xl font-bold text-red-600">{stats.meetings}</div>
@@ -572,7 +697,7 @@ export default function Admin() {
               {/* CSV Export Actions */}
               <div className="border-t pt-4">
                 <h4 className="text-sm font-medium text-gray-700 mb-3">데이터 내보내기 (CSV)</h4>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2">
                   <Button
                     size="sm"
                     variant="outline"
@@ -581,7 +706,17 @@ export default function Admin() {
                     className="flex items-center gap-2 text-xs"
                   >
                     <FileText className="h-3 w-3" />
-                    국내 투자자
+                    투자자(국내)
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleExportFundsCsv(1)}
+                    disabled={isDownloading}
+                    className="flex items-center gap-2 text-xs"
+                  >
+                    <FileText className="h-3 w-3" />
+                    자산운용사(국내)
                   </Button>
                   <Button
                     size="sm"
@@ -591,7 +726,17 @@ export default function Admin() {
                     className="flex items-center gap-2 text-xs"
                   >
                     <FileText className="h-3 w-3" />
-                    해외 투자자
+                    투자자(해외)
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleExportOverseasFundsCsv(1)}
+                    disabled={isDownloading}
+                    className="flex items-center gap-2 text-xs"
+                  >
+                    <FileText className="h-3 w-3" />
+                    자산운용사(해외)
                   </Button>
                   <Button
                     size="sm"
@@ -601,17 +746,17 @@ export default function Admin() {
                     className="flex items-center gap-2 text-xs"
                   >
                     <FileText className="h-3 w-3" />
-                    애널리스트
+                    애널리스트/브로커
                   </Button>
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => handleExportCompaniesCsv(1)}
+                    onClick={() => handleExportSecuritiesFirmsCsv(1)}
                     disabled={isDownloading}
                     className="flex items-center gap-2 text-xs"
                   >
                     <FileText className="h-3 w-3" />
-                    국내 회사
+                    증권사
                   </Button>
                   <Button
                     size="sm"
