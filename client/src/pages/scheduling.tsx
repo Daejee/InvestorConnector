@@ -11,7 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import CalendarScheduler from "@/components/scheduling/calendar-scheduler";
-import { insertMeetingSchema, type Meeting, type Investor, type Analyst } from "@shared/schema";
+import { insertMeetingSchema, type Meeting, type Investor, type Analyst, type OverseasInvestor } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
@@ -38,6 +38,10 @@ export default function Scheduling() {
 
   const { data: investors = [] } = useQuery<Investor[]>({
     queryKey: ["/api/investors"],
+  });
+
+  const { data: overseasInvestors = [] } = useQuery<OverseasInvestor[]>({
+    queryKey: ["/api/overseas-investors"],
   });
 
   const { data: analysts = [] } = useQuery<Analyst[]>({
@@ -335,8 +339,13 @@ export default function Scheduling() {
                           </FormControl>
                           <SelectContent>
                             {investors.map((investor) => (
-                              <SelectItem key={investor.id} value={investor.id.toString()}>
-                                {investor.name} - {investor.company}
+                              <SelectItem key={`domestic-${investor.id}`} value={`domestic-${investor.id}`}>
+                                {investor.name} - {investor.company} (국내)
+                              </SelectItem>
+                            ))}
+                            {overseasInvestors.map((investor) => (
+                              <SelectItem key={`overseas-${investor.id}`} value={`overseas-${investor.id}`}>
+                                {investor.name} - {investor.company} (해외)
                               </SelectItem>
                             ))}
                           </SelectContent>

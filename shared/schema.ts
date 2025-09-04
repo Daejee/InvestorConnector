@@ -176,6 +176,8 @@ export const meetings = pgTable("meetings", {
   organizationId: integer("organization_id").references(() => organizations.id), // 기업별 격리
   attendeeType: text("attendee_type").notNull(), // investor, analyst, other
   investorIds: text("investor_ids").array(), // Array of investor IDs for multiple investor meetings
+  investorType: text("investor_type"), // domestic, overseas
+  overseasInvestorId: integer("overseas_investor_id"), // For overseas investors
   analystId: integer("analyst_id"), // Backward compatibility - will be deprecated
   analystIds: text("analyst_ids").array(), // Array of analyst IDs for multiple analyst meetings
   ndrConferenceId: integer("ndr_conference_id"), // Optional - for NDR/Conference meetings

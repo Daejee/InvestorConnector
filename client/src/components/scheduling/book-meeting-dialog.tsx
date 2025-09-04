@@ -34,7 +34,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Checkbox } from "@/components/ui/checkbox";
 import { Clock, MapPin, Calendar as CalendarIcon, Users } from "lucide-react";
 import { format } from "date-fns";
-import type { Investor, Analyst, User } from "@shared/schema";
+import type { Investor, Analyst, User, OverseasInvestor } from "@shared/schema";
 
 interface BookMeetingDialogProps {
   open: boolean;
@@ -56,6 +56,10 @@ export function BookMeetingDialog({
     queryKey: ["/api/investors"],
   });
 
+  const { data: overseasInvestors = [] } = useQuery<OverseasInvestor[]>({
+    queryKey: ["/api/overseas-investors"],
+  });
+
   const { data: analysts = [] } = useQuery<Analyst[]>({
     queryKey: ["/api/analysts"],
   });
@@ -68,6 +72,8 @@ export function BookMeetingDialog({
     defaultValues: {
       attendeeType: "investor",
       investorId: null,
+      investorType: null,
+      overseasInvestorId: null,
       analystId: null,
       assignedUserIds: [],
       title: "",
@@ -205,8 +211,24 @@ export function BookMeetingDialog({
                     <FormItem>
                       <FormLabel>Select Investor / 투자자 선택</FormLabel>
                       <Select 
-                        onValueChange={(value) => field.onChange(parseInt(value))}
-                        value={field.value ? field.value.toString() : ""}
+                        onValueChange={(value) => {
+                          const [type, id] = value.split('-');
+                          form.setValue('investorType', type);
+                          if (type === 'domestic') {
+                            field.onChange(parseInt(id));
+                            form.setValue('overseasInvestorId', null);
+                          } else if (type === 'overseas') {
+                            form.setValue('overseasInvestorId', parseInt(id));
+                            field.onChange(null);
+                          }
+                        }}
+                        value={
+                          form.watch('investorType') === 'overseas' 
+                            ? `overseas-${form.watch('overseasInvestorId')}` 
+                            : field.value 
+                              ? `domestic-${field.value}` 
+                              : ""
+                        }
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -215,8 +237,13 @@ export function BookMeetingDialog({
                         </FormControl>
                         <SelectContent>
                           {investors.map((investor) => (
-                            <SelectItem key={investor.id} value={investor.id.toString()}>
-                              {investor.name} - {investor.company}
+                            <SelectItem key={`domestic-${investor.id}`} value={`domestic-${investor.id}`}>
+                              {investor.name} - {investor.company} (국내)
+                            </SelectItem>
+                          ))}
+                          {overseasInvestors.map((investor) => (
+                            <SelectItem key={`overseas-${investor.id}`} value={`overseas-${investor.id}`}>
+                              {investor.name} - {investor.company} (해외)
                             </SelectItem>
                           ))}
                         </SelectContent>
