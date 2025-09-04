@@ -3393,6 +3393,186 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/admin/export-investors-csv/:organizationId", async (req, res) => {
+    try {
+      const organizationId = parseInt(req.params.organizationId);
+      if (isNaN(organizationId)) {
+        return res.status(400).json({ message: "Invalid organization ID" });
+      }
+
+      const investors = await storage.getInvestors(organizationId);
+      
+      const csvHeaders = [
+        'ID', '이름', '이메일', '전화번호', '회사', '펀드', '직책', '전문분야', '국가', '언어'
+      ];
+      
+      const csvRows = investors.map(investor => [
+        investor.id,
+        `"${investor.name || ''}"`,
+        `"${investor.email || ''}"`,
+        `"${investor.phone || ''}"`,
+        `"${investor.company || ''}"`,
+        `"${investor.fund || ''}"`,
+        `"${investor.position || ''}"`,
+        `"${Array.isArray(investor.specialty) ? investor.specialty.join('; ') : (investor.specialty || '')}"`,
+        `"${investor.country || ''}"`,
+        `"${investor.language || ''}"`
+      ]);
+      
+      const csvContent = [
+        csvHeaders.join(','),
+        ...csvRows.map(row => row.join(','))
+      ].join('\n');
+      
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('Content-Disposition', `attachment; filename="investors_org_${organizationId}.csv"`);
+      res.send('\uFEFF' + csvContent);
+    } catch (error) {
+      console.error('Error exporting investors CSV:', error);
+      res.status(500).json({ message: "Failed to export investors CSV", error });
+    }
+  });
+
+  app.get("/api/admin/export-analysts-csv/:organizationId", async (req, res) => {
+    try {
+      const organizationId = parseInt(req.params.organizationId);
+      if (isNaN(organizationId)) {
+        return res.status(400).json({ message: "Invalid organization ID" });
+      }
+
+      const analysts = await storage.getAnalysts(organizationId);
+      
+      const csvHeaders = [
+        'ID', '이름', '이메일', '전화번호', '회사', '직책', '전문분야'
+      ];
+      
+      const csvRows = analysts.map(analyst => [
+        analyst.id,
+        `"${analyst.name || ''}"`,
+        `"${analyst.email || ''}"`,
+        `"${analyst.phone || ''}"`,
+        `"${analyst.company || ''}"`,
+        `"${analyst.position || ''}"`,
+        `"${Array.isArray(analyst.specialization) ? analyst.specialization.join('; ') : (analyst.specialization || '')}"`
+      ]);
+      
+      const csvContent = [
+        csvHeaders.join(','),
+        ...csvRows.map(row => row.join(','))
+      ].join('\n');
+      
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('Content-Disposition', `attachment; filename="analysts_org_${organizationId}.csv"`);
+      res.send('\uFEFF' + csvContent);
+    } catch (error) {
+      console.error('Error exporting analysts CSV:', error);
+      res.status(500).json({ message: "Failed to export analysts CSV", error });
+    }
+  });
+
+  app.get("/api/admin/export-meetings-csv/:organizationId", async (req, res) => {
+    try {
+      const organizationId = parseInt(req.params.organizationId);
+      if (isNaN(organizationId)) {
+        return res.status(400).json({ message: "Invalid organization ID" });
+      }
+
+      const meetings = await storage.getMeetings(organizationId);
+      
+      const csvHeaders = [
+        'ID', '제목', '참석자 유형', '예정일시', '장소', '상태', '카테고리', '설명'
+      ];
+      
+      const csvRows = meetings.map(meeting => [
+        meeting.id,
+        `"${meeting.title || ''}"`,
+        `"${meeting.attendeeType || ''}"`,
+        meeting.scheduledDate ? new Date(meeting.scheduledDate).toLocaleString('ko-KR') : '',
+        `"${meeting.location || ''}"`,
+        `"${meeting.status || ''}"`,
+        `"${meeting.meetingCategory || ''}"`,
+        `"${meeting.description || ''}"`
+      ]);
+      
+      const csvContent = [
+        csvHeaders.join(','),
+        ...csvRows.map(row => row.join(','))
+      ].join('\n');
+      
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('Content-Disposition', `attachment; filename="meetings_org_${organizationId}.csv"`);
+      res.send('\uFEFF' + csvContent);
+    } catch (error) {
+      console.error('Error exporting meetings CSV:', error);
+      res.status(500).json({ message: "Failed to export meetings CSV", error });
+    }
+  });
+
+  app.get("/api/admin/export-users-csv", async (req, res) => {
+    try {
+      const users = await storage.getUsers();
+      
+      const csvHeaders = [
+        'ID', '이름', '이메일', '조직ID', '생성일'
+      ];
+      
+      const csvRows = users.map(user => [
+        user.id,
+        `"${user.name || ''}"`,
+        `"${user.email || ''}"`,
+        user.organizationId || '',
+        user.createdAt ? new Date(user.createdAt).toLocaleDateString('ko-KR') : ''
+      ]);
+      
+      const csvContent = [
+        csvHeaders.join(','),
+        ...csvRows.map(row => row.join(','))
+      ].join('\n');
+      
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('Content-Disposition', 'attachment; filename="users.csv"');
+      res.send('\uFEFF' + csvContent);
+    } catch (error) {
+      console.error('Error exporting users CSV:', error);
+      res.status(500).json({ message: "Failed to export users CSV", error });
+    }
+  });
+
+  app.get("/api/admin/export-overseas-investors-csv", async (req, res) => {
+    try {
+      const investors = await storage.getOverseasInvestors();
+      
+      const csvHeaders = [
+        'ID', '이름', '이메일', '전화번호', '회사', '펀드', '직책', '전문분야', '국가', '언어'
+      ];
+      
+      const csvRows = investors.map(investor => [
+        investor.id,
+        `"${investor.name || ''}"`,
+        `"${investor.email || ''}"`,
+        `"${investor.phone || ''}"`,
+        `"${investor.company || ''}"`,
+        `"${investor.fund || ''}"`,
+        `"${investor.position || ''}"`,
+        `"${Array.isArray(investor.specialty) ? investor.specialty.join('; ') : (investor.specialty || '')}"`,
+        `"${investor.country || ''}"`,
+        `"${investor.language || ''}"`
+      ]);
+      
+      const csvContent = [
+        csvHeaders.join(','),
+        ...csvRows.map(row => row.join(','))
+      ].join('\n');
+      
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('Content-Disposition', 'attachment; filename="overseas_investors.csv"');
+      res.send('\uFEFF' + csvContent);
+    } catch (error) {
+      console.error('Error exporting overseas investors CSV:', error);
+      res.status(500).json({ message: "Failed to export overseas investors CSV", error });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

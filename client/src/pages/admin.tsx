@@ -162,6 +162,172 @@ export default function Admin() {
     },
   });
 
+  // CSV Export mutations for each data type
+  const exportInvestorsCsvMutation = useMutation({
+    mutationFn: async (organizationId: number) => {
+      const response = await fetch(`/api/admin/export-investors-csv/${organizationId}`, {
+        method: "GET",
+      });
+      if (!response.ok) throw new Error("CSV export failed");
+      return { blob: await response.blob(), organizationId };
+    },
+    onSuccess: ({ blob, organizationId }) => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.style.display = "none";
+      a.href = url;
+      a.download = `investors_org_${organizationId}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast({
+        title: "성공",
+        description: "국내 투자자 목록이 CSV로 다운로드되었습니다.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "오류",
+        description: "국내 투자자 CSV 다운로드에 실패했습니다.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const exportAnalystsCsvMutation = useMutation({
+    mutationFn: async (organizationId: number) => {
+      const response = await fetch(`/api/admin/export-analysts-csv/${organizationId}`, {
+        method: "GET",
+      });
+      if (!response.ok) throw new Error("CSV export failed");
+      return { blob: await response.blob(), organizationId };
+    },
+    onSuccess: ({ blob, organizationId }) => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.style.display = "none";
+      a.href = url;
+      a.download = `analysts_org_${organizationId}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast({
+        title: "성공",
+        description: "애널리스트 목록이 CSV로 다운로드되었습니다.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "오류",
+        description: "애널리스트 CSV 다운로드에 실패했습니다.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const exportMeetingsCsvMutation = useMutation({
+    mutationFn: async (organizationId: number) => {
+      const response = await fetch(`/api/admin/export-meetings-csv/${organizationId}`, {
+        method: "GET",
+      });
+      if (!response.ok) throw new Error("CSV export failed");
+      return { blob: await response.blob(), organizationId };
+    },
+    onSuccess: ({ blob, organizationId }) => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.style.display = "none";
+      a.href = url;
+      a.download = `meetings_org_${organizationId}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast({
+        title: "성공",
+        description: "미팅 목록이 CSV로 다운로드되었습니다.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "오류",
+        description: "미팅 CSV 다운로드에 실패했습니다.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const exportUsersCsvMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch(`/api/admin/export-users-csv`, {
+        method: "GET",
+      });
+      if (!response.ok) throw new Error("CSV export failed");
+      return response.blob();
+    },
+    onSuccess: (blob) => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.style.display = "none";
+      a.href = url;
+      a.download = `users.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast({
+        title: "성공",
+        description: "사용자 목록이 CSV로 다운로드되었습니다.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "오류",
+        description: "사용자 CSV 다운로드에 실패했습니다.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const exportOverseasInvestorsCsvMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch(`/api/admin/export-overseas-investors-csv`, {
+        method: "GET",
+      });
+      if (!response.ok) throw new Error("CSV export failed");
+      return response.blob();
+    },
+    onSuccess: (blob) => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.style.display = "none";
+      a.href = url;
+      a.download = `overseas_investors.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast({
+        title: "성공",
+        description: "해외 투자자 목록이 CSV로 다운로드되었습니다.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "오류",
+        description: "해외 투자자 CSV 다운로드에 실패했습니다.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const exportAllDataMutation = useMutation({
     mutationFn: async () => {
       const response = await fetch("/api/admin/export-all", {
@@ -219,6 +385,36 @@ export default function Admin() {
   const handleExportCompaniesCsv = async (organizationId: number) => {
     setIsDownloading(true);
     await exportCompaniesCsvMutation.mutateAsync(organizationId);
+    setIsDownloading(false);
+  };
+
+  const handleExportInvestorsCsv = async (organizationId: number) => {
+    setIsDownloading(true);
+    await exportInvestorsCsvMutation.mutateAsync(organizationId);
+    setIsDownloading(false);
+  };
+
+  const handleExportAnalystsCsv = async (organizationId: number) => {
+    setIsDownloading(true);
+    await exportAnalystsCsvMutation.mutateAsync(organizationId);
+    setIsDownloading(false);
+  };
+
+  const handleExportMeetingsCsv = async (organizationId: number) => {
+    setIsDownloading(true);
+    await exportMeetingsCsvMutation.mutateAsync(organizationId);
+    setIsDownloading(false);
+  };
+
+  const handleExportUsersCsv = async () => {
+    setIsDownloading(true);
+    await exportUsersCsvMutation.mutateAsync();
+    setIsDownloading(false);
+  };
+
+  const handleExportOverseasInvestorsCsv = async () => {
+    setIsDownloading(true);
+    await exportOverseasInvestorsCsvMutation.mutateAsync();
     setIsDownloading(false);
   };
 
@@ -345,30 +541,99 @@ export default function Admin() {
           {statsLoading ? (
             <div className="text-center py-4">통계 로딩 중...</div>
           ) : stats ? (
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-              <div className="text-center p-3 bg-blue-50 rounded-lg">
-                <div className="text-2xl font-bold text-blue-600">{stats.investors}</div>
-                <div className="text-sm text-gray-600">국내 투자자</div>
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                <div className="text-center p-3 bg-blue-50 rounded-lg">
+                  <div className="text-2xl font-bold text-blue-600">{stats.investors}</div>
+                  <div className="text-sm text-gray-600">국내 투자자</div>
+                </div>
+                <div className="text-center p-3 bg-green-50 rounded-lg">
+                  <div className="text-2xl font-bold text-green-600">{stats.overseasInvestors}</div>
+                  <div className="text-sm text-gray-600">해외 투자자</div>
+                </div>
+                <div className="text-center p-3 bg-purple-50 rounded-lg">
+                  <div className="text-2xl font-bold text-purple-600">{stats.analysts}</div>
+                  <div className="text-sm text-gray-600">애널리스트</div>
+                </div>
+                <div className="text-center p-3 bg-orange-50 rounded-lg">
+                  <div className="text-2xl font-bold text-orange-600">{stats.companies}</div>
+                  <div className="text-sm text-gray-600">국내 회사</div>
+                </div>
+                <div className="text-center p-3 bg-red-50 rounded-lg">
+                  <div className="text-2xl font-bold text-red-600">{stats.meetings}</div>
+                  <div className="text-sm text-gray-600">미팅</div>
+                </div>
+                <div className="text-center p-3 bg-gray-50 rounded-lg">
+                  <div className="text-2xl font-bold text-gray-600">{stats.users}</div>
+                  <div className="text-sm text-gray-600">사용자</div>
+                </div>
               </div>
-              <div className="text-center p-3 bg-green-50 rounded-lg">
-                <div className="text-2xl font-bold text-green-600">{stats.overseasInvestors}</div>
-                <div className="text-sm text-gray-600">해외 투자자</div>
-              </div>
-              <div className="text-center p-3 bg-purple-50 rounded-lg">
-                <div className="text-2xl font-bold text-purple-600">{stats.analysts}</div>
-                <div className="text-sm text-gray-600">애널리스트</div>
-              </div>
-              <div className="text-center p-3 bg-orange-50 rounded-lg">
-                <div className="text-2xl font-bold text-orange-600">{stats.companies}</div>
-                <div className="text-sm text-gray-600">국내 회사</div>
-              </div>
-              <div className="text-center p-3 bg-red-50 rounded-lg">
-                <div className="text-2xl font-bold text-red-600">{stats.meetings}</div>
-                <div className="text-sm text-gray-600">미팅</div>
-              </div>
-              <div className="text-center p-3 bg-gray-50 rounded-lg">
-                <div className="text-2xl font-bold text-gray-600">{stats.users}</div>
-                <div className="text-sm text-gray-600">사용자</div>
+
+              {/* CSV Export Actions */}
+              <div className="border-t pt-4">
+                <h4 className="text-sm font-medium text-gray-700 mb-3">데이터 내보내기 (CSV)</h4>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleExportInvestorsCsv(1)}
+                    disabled={isDownloading}
+                    className="flex items-center gap-2 text-xs"
+                  >
+                    <FileText className="h-3 w-3" />
+                    국내 투자자
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleExportOverseasInvestorsCsv}
+                    disabled={isDownloading}
+                    className="flex items-center gap-2 text-xs"
+                  >
+                    <FileText className="h-3 w-3" />
+                    해외 투자자
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleExportAnalystsCsv(1)}
+                    disabled={isDownloading}
+                    className="flex items-center gap-2 text-xs"
+                  >
+                    <FileText className="h-3 w-3" />
+                    애널리스트
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleExportCompaniesCsv(1)}
+                    disabled={isDownloading}
+                    className="flex items-center gap-2 text-xs"
+                  >
+                    <FileText className="h-3 w-3" />
+                    국내 회사
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleExportMeetingsCsv(1)}
+                    disabled={isDownloading}
+                    className="flex items-center gap-2 text-xs"
+                  >
+                    <FileText className="h-3 w-3" />
+                    미팅
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleExportUsersCsv}
+                    disabled={isDownloading}
+                    className="flex items-center gap-2 text-xs"
+                  >
+                    <FileText className="h-3 w-3" />
+                    사용자
+                  </Button>
+                </div>
               </div>
             </div>
           ) : (
