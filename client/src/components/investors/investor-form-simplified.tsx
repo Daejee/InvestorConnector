@@ -450,9 +450,8 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel, 
                             type="number" 
                             step="0.01"
                             placeholder="예: 500.00" 
-                            {...field} 
                             value={field.value ?? ""}
-                            onChange={(e) => field.onChange(e.target.value ? (e.target.value ? parseFloat(e.target.value) : null) : null)}
+                            onChange={(e) => field.onChange(e.target.value === "" ? null : parseFloat(e.target.value) || null)}
                           />
                         </FormControl>
                         <FormMessage />
@@ -470,9 +469,8 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel, 
                           <Input 
                             type="number" 
                             placeholder="예: 3" 
-                            {...field} 
                             value={field.value ?? ""}
-                            onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : null)}
+                            onChange={(e) => field.onChange(e.target.value === "" ? null : parseInt(e.target.value) || null)}
                           />
                         </FormControl>
                         <FormMessage />
