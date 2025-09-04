@@ -416,7 +416,7 @@ export default function InvestorTable({ investors, isLoading, apiBasePath = "/ap
               )}
               <td className="px-1 py-4 whitespace-nowrap">
                 <div className="text-sm text-gray-900">
-                  {investor.totalAssets ? `${Number(investor.totalAssets).toLocaleString()}` : '-'}
+                  {investor.totalAssets ? `${Math.round(Number(investor.totalAssets) * 100) / 100}` : '-'}
                 </div>
               </td>
               {!isOverseas && (
