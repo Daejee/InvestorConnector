@@ -60,11 +60,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const data = insertInvestorSchema.parse(req.body);
       
       // Convert string numbers to actual numbers for decimal/integer fields
-      if (data.managedFundAum && typeof data.managedFundAum === 'string') {
-        data.managedFundAum = parseFloat(data.managedFundAum);
+      if (data.managedFundAum !== undefined && data.managedFundAum !== null && data.managedFundAum !== '') {
+        data.managedFundAum = typeof data.managedFundAum === 'string' ? parseFloat(data.managedFundAum) : data.managedFundAum;
       }
-      if (data.numberOfManagedFunds && typeof data.numberOfManagedFunds === 'string') {
-        data.numberOfManagedFunds = parseInt(data.numberOfManagedFunds);
+      if (data.numberOfManagedFunds !== undefined && data.numberOfManagedFunds !== null && data.numberOfManagedFunds !== '') {
+        data.numberOfManagedFunds = typeof data.numberOfManagedFunds === 'string' ? parseInt(data.numberOfManagedFunds) : data.numberOfManagedFunds;
       }
       
       const organizationId = 1; // TODO: Extract from auth context
@@ -96,11 +96,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const data = insertInvestorSchema.partial().parse(req.body);
       
       // Convert string numbers to actual numbers for decimal/integer fields
-      if (data.managedFundAum && typeof data.managedFundAum === 'string') {
-        data.managedFundAum = parseFloat(data.managedFundAum);
+      if (data.managedFundAum !== undefined && data.managedFundAum !== null && data.managedFundAum !== '') {
+        data.managedFundAum = typeof data.managedFundAum === 'string' ? parseFloat(data.managedFundAum) : data.managedFundAum;
       }
-      if (data.numberOfManagedFunds && typeof data.numberOfManagedFunds === 'string') {
-        data.numberOfManagedFunds = parseInt(data.numberOfManagedFunds);
+      if (data.numberOfManagedFunds !== undefined && data.numberOfManagedFunds !== null && data.numberOfManagedFunds !== '') {
+        data.numberOfManagedFunds = typeof data.numberOfManagedFunds === 'string' ? parseInt(data.numberOfManagedFunds) : data.numberOfManagedFunds;
       }
       
       const organizationId = 1; // TODO: Extract from auth context
