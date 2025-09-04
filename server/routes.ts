@@ -57,8 +57,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/investors", async (req, res) => {
     try {
-      // Skip validation for now and directly create
-      const data = req.body;
+      // Skip validation completely and directly create
+      const data = { ...req.body };
       
       // Convert numeric fields if they're strings
       if (data.managedFundAum !== undefined && data.managedFundAum !== null && data.managedFundAum !== '') {
@@ -99,8 +99,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       
-      // Skip validation for now and directly update
-      const data = req.body;
+      // Skip validation completely and directly update
+      const data = { ...req.body };
       
       // Convert numeric fields if they're strings
       if (data.managedFundAum !== undefined && data.managedFundAum !== null && data.managedFundAum !== '') {

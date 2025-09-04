@@ -320,8 +320,13 @@ const baseInvestorSchema = createInsertSchema(investors).omit({
 export const insertInvestorSchema = baseInvestorSchema.omit({
   managedFundAum: true,
   numberOfManagedFunds: true,
+  totalAssets: true,
 }).extend({
   managedFundAum: z.union([z.number(), z.string(), z.null()]).optional().transform(val => {
+    if (val === null || val === undefined || val === '') return null;
+    return typeof val === 'string' ? parseFloat(val) : val;
+  }),
+  totalAssets: z.union([z.number(), z.string(), z.null()]).optional().transform(val => {
     if (val === null || val === undefined || val === '') return null;
     return typeof val === 'string' ? parseFloat(val) : val;
   }),
