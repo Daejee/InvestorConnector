@@ -96,13 +96,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Pre-process the request body to convert string numbers to actual numbers
       const requestData = { ...req.body };
+      console.log('Original request data:', JSON.stringify(requestData, null, 2));
+      
       if (requestData.managedFundAum !== undefined && requestData.managedFundAum !== null && requestData.managedFundAum !== '') {
+        const original = requestData.managedFundAum;
         requestData.managedFundAum = typeof requestData.managedFundAum === 'string' ? parseFloat(requestData.managedFundAum) : requestData.managedFundAum;
+        console.log(`Converted managedFundAum: ${original} (${typeof original}) -> ${requestData.managedFundAum} (${typeof requestData.managedFundAum})`);
       }
       if (requestData.numberOfManagedFunds !== undefined && requestData.numberOfManagedFunds !== null && requestData.numberOfManagedFunds !== '') {
+        const original = requestData.numberOfManagedFunds;
         requestData.numberOfManagedFunds = typeof requestData.numberOfManagedFunds === 'string' ? parseInt(requestData.numberOfManagedFunds) : requestData.numberOfManagedFunds;
+        console.log(`Converted numberOfManagedFunds: ${original} (${typeof original}) -> ${requestData.numberOfManagedFunds} (${typeof requestData.numberOfManagedFunds})`);
       }
       
+      console.log('Processed request data:', JSON.stringify(requestData, null, 2));
       const data = insertInvestorSchema.partial().parse(requestData);
       const organizationId = 1; // TODO: Extract from auth context
       const investor = await storage.updateInvestor(id, data, organizationId);
@@ -111,6 +118,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       res.json(investor);
     } catch (error) {
+      console.error('Validation error:', error);
       res.status(400).json({ message: "Invalid investor data", error });
     }
   });
