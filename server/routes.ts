@@ -57,16 +57,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/investors", async (req, res) => {
     try {
-      const data = insertInvestorSchema.parse(req.body);
-      
-      // Convert string numbers to actual numbers for decimal/integer fields
-      if (data.managedFundAum !== undefined && data.managedFundAum !== null && data.managedFundAum !== '') {
-        data.managedFundAum = typeof data.managedFundAum === 'string' ? parseFloat(data.managedFundAum) : data.managedFundAum;
+      // Pre-process the request body to convert string numbers to actual numbers
+      const requestData = { ...req.body };
+      if (requestData.managedFundAum !== undefined && requestData.managedFundAum !== null && requestData.managedFundAum !== '') {
+        requestData.managedFundAum = typeof requestData.managedFundAum === 'string' ? parseFloat(requestData.managedFundAum) : requestData.managedFundAum;
       }
-      if (data.numberOfManagedFunds !== undefined && data.numberOfManagedFunds !== null && data.numberOfManagedFunds !== '') {
-        data.numberOfManagedFunds = typeof data.numberOfManagedFunds === 'string' ? parseInt(data.numberOfManagedFunds) : data.numberOfManagedFunds;
+      if (requestData.numberOfManagedFunds !== undefined && requestData.numberOfManagedFunds !== null && requestData.numberOfManagedFunds !== '') {
+        requestData.numberOfManagedFunds = typeof requestData.numberOfManagedFunds === 'string' ? parseInt(requestData.numberOfManagedFunds) : requestData.numberOfManagedFunds;
       }
       
+      const data = insertInvestorSchema.parse(requestData);
       const organizationId = 1; // TODO: Extract from auth context
       const investor = await storage.createInvestor(data, organizationId);
       res.status(201).json(investor);
@@ -93,16 +93,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/investors/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const data = insertInvestorSchema.partial().parse(req.body);
       
-      // Convert string numbers to actual numbers for decimal/integer fields
-      if (data.managedFundAum !== undefined && data.managedFundAum !== null && data.managedFundAum !== '') {
-        data.managedFundAum = typeof data.managedFundAum === 'string' ? parseFloat(data.managedFundAum) : data.managedFundAum;
+      // Pre-process the request body to convert string numbers to actual numbers
+      const requestData = { ...req.body };
+      if (requestData.managedFundAum !== undefined && requestData.managedFundAum !== null && requestData.managedFundAum !== '') {
+        requestData.managedFundAum = typeof requestData.managedFundAum === 'string' ? parseFloat(requestData.managedFundAum) : requestData.managedFundAum;
       }
-      if (data.numberOfManagedFunds !== undefined && data.numberOfManagedFunds !== null && data.numberOfManagedFunds !== '') {
-        data.numberOfManagedFunds = typeof data.numberOfManagedFunds === 'string' ? parseInt(data.numberOfManagedFunds) : data.numberOfManagedFunds;
+      if (requestData.numberOfManagedFunds !== undefined && requestData.numberOfManagedFunds !== null && requestData.numberOfManagedFunds !== '') {
+        requestData.numberOfManagedFunds = typeof requestData.numberOfManagedFunds === 'string' ? parseInt(requestData.numberOfManagedFunds) : requestData.numberOfManagedFunds;
       }
       
+      const data = insertInvestorSchema.partial().parse(requestData);
       const organizationId = 1; // TODO: Extract from auth context
       const investor = await storage.updateInvestor(id, data, organizationId);
       if (!investor) {

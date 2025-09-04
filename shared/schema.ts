@@ -315,9 +315,6 @@ export const emailLogs = pgTable("email_logs", {
 
 export const insertInvestorSchema = createInsertSchema(investors).omit({
   id: true,
-}).extend({
-  managedFundAum: z.union([z.number(), z.string()]).optional().nullable(),
-  numberOfManagedFunds: z.union([z.number(), z.string()]).optional().nullable(),
 });
 
 export const insertOverseasInvestorSchema = createInsertSchema(overseasInvestors).omit({
