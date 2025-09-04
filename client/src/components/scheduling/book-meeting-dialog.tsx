@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertMeetingSchema } from "@shared/schema";
@@ -51,6 +51,7 @@ export function BookMeetingDialog({
 }: BookMeetingDialogProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [searchTerm, setSearchTerm] = useState<string>("");
 
   const { data: investors = [] } = useQuery<Investor[]>({
     queryKey: ["/api/investors"],
@@ -210,6 +211,12 @@ export function BookMeetingDialog({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Select Investor / 투자자 선택</FormLabel>
+                      <Input
+                        placeholder="투자자 이름 검색..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="mb-2"
+                      />
                       <Select 
                         onValueChange={(value) => {
                           const [type, id] = value.split('-');
@@ -236,16 +243,26 @@ export function BookMeetingDialog({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {investors.map((investor) => (
-                            <SelectItem key={`domestic-${investor.id}`} value={`domestic-${investor.id}`}>
-                              {investor.name} - {investor.company} (국내)
-                            </SelectItem>
-                          ))}
-                          {overseasInvestors.map((investor) => (
-                            <SelectItem key={`overseas-${investor.id}`} value={`overseas-${investor.id}`}>
-                              {investor.name} - {investor.company} (해외)
-                            </SelectItem>
-                          ))}
+                          {investors
+                            .filter((investor) => 
+                              investor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                              investor.company.toLowerCase().includes(searchTerm.toLowerCase())
+                            )
+                            .map((investor) => (
+                              <SelectItem key={`domestic-${investor.id}`} value={`domestic-${investor.id}`}>
+                                {investor.name} - {investor.company} (국내)
+                              </SelectItem>
+                            ))}
+                          {overseasInvestors
+                            .filter((investor) => 
+                              investor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                              investor.company.toLowerCase().includes(searchTerm.toLowerCase())
+                            )
+                            .map((investor) => (
+                              <SelectItem key={`overseas-${investor.id}`} value={`overseas-${investor.id}`}>
+                                {investor.name} - {investor.company} (해외)
+                              </SelectItem>
+                            ))}
                         </SelectContent>
                       </Select>
                     </FormItem>
@@ -260,6 +277,12 @@ export function BookMeetingDialog({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Select Analyst / 애널리스트 선택</FormLabel>
+                      <Input
+                        placeholder="애널리스트 이름 검색..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="mb-2"
+                      />
                       <Select 
                         onValueChange={(value) => field.onChange(parseInt(value))}
                         value={field.value ? field.value.toString() : ""}
@@ -270,11 +293,16 @@ export function BookMeetingDialog({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {analysts.map((analyst) => (
-                            <SelectItem key={analyst.id} value={analyst.id.toString()}>
-                              {analyst.name} - {analyst.company}
-                            </SelectItem>
-                          ))}
+                          {analysts
+                            .filter((analyst) => 
+                              analyst.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                              analyst.company.toLowerCase().includes(searchTerm.toLowerCase())
+                            )
+                            .map((analyst) => (
+                              <SelectItem key={analyst.id} value={analyst.id.toString()}>
+                                {analyst.name} - {analyst.company}
+                              </SelectItem>
+                            ))}
                         </SelectContent>
                       </Select>
                     </FormItem>

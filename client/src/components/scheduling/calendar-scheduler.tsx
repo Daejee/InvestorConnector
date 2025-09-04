@@ -57,6 +57,7 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
   const [selectedTime, setSelectedTime] = useState<string>("");
   const [selectedDuration, setSelectedDuration] = useState<number>(60); // Default 1 hour
   const [isBookingOpen, setIsBookingOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState<string>("");
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -594,6 +595,12 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
                     <FormItem>
                       <FormLabel>Select Investors / 투자자 선택</FormLabel>
                       <div className="space-y-2">
+                        <Input
+                          placeholder="투자자 이름 검색..."
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          className="mb-2"
+                        />
                         <div className="text-sm text-gray-600">
                           {field.value && field.value.length > 0 
                             ? `${field.value.length} investors selected / ${field.value.length}명의 투자자가 선택됨`
@@ -601,68 +608,78 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
                           }
                         </div>
                         <div className="border rounded-lg max-h-32 overflow-y-auto p-2">
-                          {investors.map((investor) => {
-                            const isSelected = field.value?.includes(investor.id.toString()) || false;
-                            return (
-                              <div key={investor.id} className="flex items-center space-x-2 py-1">
-                                <input
-                                  type="checkbox"
-                                  checked={isSelected}
-                                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          {investors
+                            .filter((investor) => 
+                              investor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                              investor.company.toLowerCase().includes(searchTerm.toLowerCase())
+                            )
+                            .map((investor) => {
+                              const isSelected = field.value?.includes(investor.id.toString()) || false;
+                              return (
+                                <div key={investor.id} className="flex items-center space-x-2 py-1">
+                                  <input
+                                    type="checkbox"
+                                    checked={isSelected}
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                      const currentIds = field.value || [];
+                                      if (e.target.checked) {
+                                        field.onChange([...currentIds, investor.id.toString()]);
+                                      } else {
+                                        field.onChange(currentIds.filter((id: string) => id !== investor.id.toString()));
+                                      }
+                                    }}
+                                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                  />
+                                  <label className="text-sm cursor-pointer flex-1" onClick={() => {
                                     const currentIds = field.value || [];
-                                    if (e.target.checked) {
-                                      field.onChange([...currentIds, investor.id.toString()]);
-                                    } else {
+                                    const isCurrentlySelected = currentIds.includes(investor.id.toString());
+                                    if (isCurrentlySelected) {
                                       field.onChange(currentIds.filter((id: string) => id !== investor.id.toString()));
-                                    }
-                                  }}
-                                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                                />
-                                <label className="text-sm cursor-pointer flex-1" onClick={() => {
-                                  const currentIds = field.value || [];
-                                  const isCurrentlySelected = currentIds.includes(investor.id.toString());
-                                  if (isCurrentlySelected) {
-                                    field.onChange(currentIds.filter((id: string) => id !== investor.id.toString()));
-                                  } else {
-                                    field.onChange([...currentIds, investor.id.toString()]);
-                                  }
-                                }}>
-                                  {investor.name} - {investor.company} (국내)
-                                </label>
-                              </div>
-                            );
-                          })}
-                          {overseasInvestors.map((investor) => {
-                            const isSelected = field.value?.includes(`overseas-${investor.id}`) || false;
-                            return (
-                              <div key={`overseas-${investor.id}`} className="flex items-center space-x-2 py-1">
-                                <input
-                                  type="checkbox"
-                                  checked={isSelected}
-                                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                                    const currentIds = field.value || [];
-                                    if (e.target.checked) {
-                                      field.onChange([...currentIds, `overseas-${investor.id}`]);
                                     } else {
-                                      field.onChange(currentIds.filter((id: string) => id !== `overseas-${investor.id}`));
+                                      field.onChange([...currentIds, investor.id.toString()]);
                                     }
-                                  }}
-                                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                                />
-                                <label className="text-sm cursor-pointer flex-1" onClick={() => {
-                                  const currentIds = field.value || [];
-                                  const isCurrentlySelected = currentIds.includes(`overseas-${investor.id}`);
-                                  if (isCurrentlySelected) {
-                                    field.onChange(currentIds.filter((id: string) => id !== `overseas-${investor.id}`));
-                                  } else {
-                                    field.onChange([...currentIds, `overseas-${investor.id}`]);
-                                  }
-                                }}>
-                                  {investor.name} - {investor.company} (해외)
-                                </label>
-                              </div>
-                            );
-                          })}
+                                  }}>
+                                    {investor.name} - {investor.company} (국내)
+                                  </label>
+                                </div>
+                              );
+                            })}
+                          {overseasInvestors
+                            .filter((investor) => 
+                              investor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                              investor.company.toLowerCase().includes(searchTerm.toLowerCase())
+                            )
+                            .map((investor) => {
+                              const isSelected = field.value?.includes(`overseas-${investor.id}`) || false;
+                              return (
+                                <div key={`overseas-${investor.id}`} className="flex items-center space-x-2 py-1">
+                                  <input
+                                    type="checkbox"
+                                    checked={isSelected}
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                      const currentIds = field.value || [];
+                                      if (e.target.checked) {
+                                        field.onChange([...currentIds, `overseas-${investor.id}`]);
+                                      } else {
+                                        field.onChange(currentIds.filter((id: string) => id !== `overseas-${investor.id}`));
+                                      }
+                                    }}
+                                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                  />
+                                  <label className="text-sm cursor-pointer flex-1" onClick={() => {
+                                    const currentIds = field.value || [];
+                                    const isCurrentlySelected = currentIds.includes(`overseas-${investor.id}`);
+                                    if (isCurrentlySelected) {
+                                      field.onChange(currentIds.filter((id: string) => id !== `overseas-${investor.id}`));
+                                    } else {
+                                      field.onChange([...currentIds, `overseas-${investor.id}`]);
+                                    }
+                                  }}>
+                                    {investor.name} - {investor.company} (해외)
+                                  </label>
+                                </div>
+                              );
+                            })}
                         </div>
                       </div>
                     </FormItem>
@@ -678,6 +695,12 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
                     <FormItem>
                       <FormLabel>Select Analysts / 애널리스트 선택</FormLabel>
                       <div className="space-y-2">
+                        <Input
+                          placeholder="애널리스트 이름 검색..."
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          className="mb-2"
+                        />
                         <div className="text-sm text-gray-600">
                           {field.value && field.value.length > 0 
                             ? `${field.value.length} analysts selected / ${field.value.length}명의 애널리스트가 선택됨`
@@ -685,7 +708,12 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
                           }
                         </div>
                         <div className="border rounded-lg max-h-32 overflow-y-auto p-2">
-                          {analysts.map((analyst) => {
+                          {analysts
+                            .filter((analyst) => 
+                              analyst.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                              analyst.company.toLowerCase().includes(searchTerm.toLowerCase())
+                            )
+                            .map((analyst) => {
                             const isSelected = field.value?.includes(analyst.id.toString()) || false;
                             return (
                               <div key={analyst.id} className="flex items-center space-x-2 py-1">
