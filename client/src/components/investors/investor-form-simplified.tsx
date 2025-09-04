@@ -73,7 +73,7 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel, 
       avatarInitials: investor?.avatarInitials ?? "",
       totalExperience: (investor as Investor)?.totalExperience ?? undefined,
       currentCompanyExperience: (investor as Investor)?.currentCompanyExperience ?? undefined,
-      managedFundAum: (investor as Investor)?.managedFundAum ?? undefined,
+      totalAssets: (investor as Investor)?.totalAssets ?? undefined,
       numberOfManagedFunds: (investor as Investor)?.numberOfManagedFunds ?? undefined,
     },
   });
@@ -441,7 +441,7 @@ export default function InvestorFormSimplified({ investor, onSuccess, onCancel, 
 
                   <FormField
                     control={form.control}
-                    name="managedFundAum"
+                    name="totalAssets"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>운용펀드AUM (억원)</FormLabel>

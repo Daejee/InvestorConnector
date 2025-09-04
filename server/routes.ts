@@ -64,6 +64,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (data.managedFundAum !== undefined && data.managedFundAum !== null && data.managedFundAum !== '') {
         data.managedFundAum = typeof data.managedFundAum === 'string' ? parseFloat(data.managedFundAum) : data.managedFundAum;
       }
+      if (data.totalAssets !== undefined && data.totalAssets !== null && data.totalAssets !== '') {
+        data.totalAssets = typeof data.totalAssets === 'string' ? parseFloat(data.totalAssets) : data.totalAssets;
+      }
       if (data.numberOfManagedFunds !== undefined && data.numberOfManagedFunds !== null && data.numberOfManagedFunds !== '') {
         data.numberOfManagedFunds = typeof data.numberOfManagedFunds === 'string' ? parseInt(data.numberOfManagedFunds) : data.numberOfManagedFunds;
       }
@@ -102,6 +105,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Convert numeric fields if they're strings
       if (data.managedFundAum !== undefined && data.managedFundAum !== null && data.managedFundAum !== '') {
         data.managedFundAum = typeof data.managedFundAum === 'string' ? parseFloat(data.managedFundAum) : data.managedFundAum;
+      }
+      if (data.totalAssets !== undefined && data.totalAssets !== null && data.totalAssets !== '') {
+        data.totalAssets = typeof data.totalAssets === 'string' ? parseFloat(data.totalAssets) : data.totalAssets;
       }
       if (data.numberOfManagedFunds !== undefined && data.numberOfManagedFunds !== null && data.numberOfManagedFunds !== '') {
         data.numberOfManagedFunds = typeof data.numberOfManagedFunds === 'string' ? parseInt(data.numberOfManagedFunds) : data.numberOfManagedFunds;
