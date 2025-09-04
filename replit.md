@@ -68,3 +68,121 @@ UI Language: Korean only display - use only Korean text for all new features and
 - **Type Safety**: TypeScript
 - **Database Migrations**: Drizzle Kit
 - **Bundling**: Vite, ESBuild
+
+## 🚀 SaaS Expansion Plan (Multi-Tenant Architecture)
+
+### Business Vision
+Transform the current single-organization IR CRM into a multi-tenant SaaS platform where each asset management company can have their own isolated environment with dedicated login credentials and data separation.
+
+### Multi-Tenant Architecture Design
+
+#### 1. Data Isolation Strategy
+- **Complete Data Separation**: Each organization (company) has completely isolated data
+- **Security Model**: organizationId-based filtering on all database queries
+- **No Data Sharing**: Investment data, meetings, and client relationships remain confidential per company
+- **Row Level Security**: Database-level enforcement of data isolation
+
+#### 2. Organization Structure
+```typescript
+Organization {
+  id: string
+  name: "삼성자산운용"
+  domain: "samsung" // for samsung.ircrm.com
+  logo: URL
+  brandColor: "#1428A0"
+  timezone: "Asia/Seoul" 
+  subscription: "premium" | "professional" | "starter"
+  settings: {
+    meetingTypes: ["NDR", "컨퍼런스", "사무실방문"]
+    workingHours: "09:00-18:00"
+    customBranding: boolean
+  }
+  createdAt: Date
+  isActive: boolean
+}
+```
+
+#### 3. Authentication & Access Control
+- **Company-Specific Login**: Each organization has isolated login system
+- **Role-Based Access**: Admin, IR Manager, IR Staff, Viewer roles per organization  
+- **Invitation System**: Organization admins can invite team members
+- **Session Management**: Organization context maintained throughout user session
+
+#### 4. Database Schema Extensions
+```sql
+-- Add organizationId to all existing tables
+ALTER TABLE investors ADD COLUMN organizationId INT REFERENCES organizations(id);
+ALTER TABLE analysts ADD COLUMN organizationId INT REFERENCES organizations(id);
+ALTER TABLE meetings ADD COLUMN organizationId INT REFERENCES organizations(id);
+ALTER TABLE users ADD COLUMN organizationId INT REFERENCES organizations(id);
+
+-- Create organizations table
+CREATE TABLE organizations (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  domain VARCHAR(50) UNIQUE,
+  subscription_tier VARCHAR(20) DEFAULT 'starter',
+  settings JSONB,
+  created_at TIMESTAMP DEFAULT NOW(),
+  is_active BOOLEAN DEFAULT true
+);
+```
+
+#### 5. Template Data System
+- **Default Dataset**: New organizations start with pre-populated template data
+- **Template Organization (ID=0)**: Contains baseline investors, analysts, and meeting templates
+- **Onboarding Options**:
+  - Use template data (recommended for quick start)
+  - Start with empty database
+  - Import from Excel/CSV files
+- **Data Copying**: Template data automatically copied to new organization with new organizationId
+- **Customizable**: Organizations can modify, delete, or add to template data after onboarding
+
+#### 6. Subscription Tiers & Pricing
+- **Starter** ($99/month): 5 users, 100 investors, basic features
+- **Professional** ($299/month): 20 users, 1000 investors, advanced analytics
+- **Enterprise** ($899/month): Unlimited users/data, custom integrations, dedicated support
+
+#### 7. Technical Implementation Plan
+
+##### Phase 1: Foundation (Database & Auth)
+- Create organizations table and user-organization relationships
+- Migrate existing data to "default organization" 
+- Implement organizationId filtering in all API endpoints
+- Add organization context to authentication system
+
+##### Phase 2: Multi-Tenant Core Features
+- Organization-specific login pages and branding
+- Template data system and onboarding flow
+- Admin dashboard for organization management
+- Data isolation testing and security audit
+
+##### Phase 3: SaaS Business Features  
+- Subscription management and billing integration
+- Usage analytics and reporting per organization
+- Custom branding and white-label options
+- Advanced admin controls and organization settings
+
+#### 8. Security Considerations
+- **API Middleware**: Automatic organizationId injection in all database queries
+- **Row Level Security**: PostgreSQL RLS policies for additional data protection
+- **Audit Logging**: All actions tracked with organization context
+- **API Key Separation**: External service integrations (SendGrid, OpenAI) per organization
+
+#### 9. UI/UX Changes
+- **Login Flow**: Company domain/code input before user credentials
+- **Header Branding**: Display organization logo and name
+- **Data Context**: All views filtered and labeled with organization context
+- **Admin Interface**: Organization management dashboard for platform administrators
+
+#### 10. Migration Strategy
+- **Backward Compatibility**: Existing single-tenant deployment remains functional
+- **Gradual Rollout**: Phase-by-phase implementation with feature flags
+- **Data Migration**: Safe migration of current data to new multi-tenant structure
+- **Testing**: Comprehensive testing of data isolation between organizations
+
+### Success Metrics
+- **Customer Acquisition**: Target 50+ asset management companies in first year
+- **Revenue Growth**: $50K+ MRR from subscription model
+- **Data Security**: Zero data leakage incidents between organizations
+- **User Adoption**: 90%+ of new organizations actively use template data
