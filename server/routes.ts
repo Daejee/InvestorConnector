@@ -40,7 +40,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const upload = multer({ storage: multer.memoryStorage() });
   // Investors routes
   app.get("/api/investors", async (req, res) => {
-    const organizationId = 1; // TODO: Extract from auth context
+    const organizationId = 2; // 테스트: 삼성자산운용 데이터 표시 (원래는 1)
     const investors = await storage.getInvestors(organizationId);
     res.json(investors);
   });
