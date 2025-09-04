@@ -316,8 +316,14 @@ export const emailLogs = pgTable("email_logs", {
 export const insertInvestorSchema = createInsertSchema(investors).omit({
   id: true,
 }).extend({
-  managedFundAum: z.number().nullable().optional(),
-  numberOfManagedFunds: z.number().nullable().optional(),
+  managedFundAum: z.union([z.number(), z.string(), z.null()]).optional().transform(val => {
+    if (val === null || val === undefined || val === '') return null;
+    return typeof val === 'string' ? parseFloat(val) : val;
+  }),
+  numberOfManagedFunds: z.union([z.number(), z.string(), z.null()]).optional().transform(val => {
+    if (val === null || val === undefined || val === '') return null;
+    return typeof val === 'string' ? parseInt(val) : val;
+  }),
 });
 
 export const insertOverseasInvestorSchema = createInsertSchema(overseasInvestors).omit({
