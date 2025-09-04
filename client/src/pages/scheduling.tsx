@@ -53,6 +53,8 @@ export default function Scheduling() {
     defaultValues: {
       attendeeType: "other",
       investorId: null,
+      investorType: null,
+      overseasInvestorId: null,
       analystId: null,
       title: "",
       description: "",
@@ -329,8 +331,24 @@ export default function Scheduling() {
                       <FormItem>
                         <FormLabel>투자자 선택</FormLabel>
                         <Select 
-                          onValueChange={(value) => field.onChange(parseInt(value))}
-                          value={field.value?.toString() || ""}
+                          onValueChange={(value) => {
+                            const [type, id] = value.split('-');
+                            editForm.setValue('investorType', type);
+                            if (type === 'domestic') {
+                              field.onChange(parseInt(id));
+                              editForm.setValue('overseasInvestorId', null);
+                            } else if (type === 'overseas') {
+                              editForm.setValue('overseasInvestorId', parseInt(id));
+                              field.onChange(null);
+                            }
+                          }}
+                          value={
+                            editForm.watch('investorType') === 'overseas' 
+                              ? `overseas-${editForm.watch('overseasInvestorId')}` 
+                              : field.value 
+                                ? `domestic-${field.value}` 
+                                : ""
+                          }
                         >
                           <FormControl>
                             <SelectTrigger>
@@ -465,16 +483,19 @@ export default function Scheduling() {
                 <div className="flex items-center space-x-2">
                   <p className="text-sm">
                     {(() => {
-                      const investor = investors.find(inv => inv.id === viewingMeeting.investorId);
-                      const analyst = analysts.find(an => an.id === viewingMeeting.analystId);
-                      
-                      if (viewingMeeting.attendeeType === 'investor' && investor) {
-                        return investor.name;
-                      } else if (viewingMeeting.attendeeType === 'analyst' && analyst) {
-                        return analyst.name;
-                      } else {
-                        return '기타';
+                      if (viewingMeeting.attendeeType === 'investor') {
+                        if (viewingMeeting.investorType === 'overseas' && viewingMeeting.overseasInvestorId) {
+                          const overseasInvestor = overseasInvestors.find(inv => inv.id === viewingMeeting.overseasInvestorId);
+                          return overseasInvestor ? `${overseasInvestor.name} (해외)` : '해외투자자';
+                        } else if (viewingMeeting.investorId) {
+                          const investor = investors.find(inv => inv.id === viewingMeeting.investorId);
+                          return investor ? `${investor.name} (국내)` : '국내투자자';
+                        }
+                      } else if (viewingMeeting.attendeeType === 'analyst') {
+                        const analyst = analysts.find(an => an.id === viewingMeeting.analystId);
+                        return analyst ? analyst.name : '애널리스트';
                       }
+                      return '기타';
                     })()}
                   </p>
                   <span className="text-xs px-2 py-1 bg-gray-100 rounded-full">
