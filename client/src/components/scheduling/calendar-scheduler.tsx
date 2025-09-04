@@ -33,7 +33,7 @@ import { Badge } from "@/components/ui/badge";
 import { insertMeetingSchema } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { type Meeting, type Investor, type Analyst } from "@shared/schema";
+import { type Meeting, type Investor, type Analyst, type OverseasInvestor } from "@shared/schema";
 
 interface CalendarSchedulerProps {
   selectedInvestor?: Investor;
@@ -63,6 +63,10 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
 
   const { data: investors = [] } = useQuery<Investor[]>({
     queryKey: ["/api/investors"],
+  });
+
+  const { data: overseasInvestors = [] } = useQuery<OverseasInvestor[]>({
+    queryKey: ["/api/overseas-investors"],
   });
 
   const { data: analysts = [] } = useQuery<Analyst[]>({
@@ -623,7 +627,38 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
                                     field.onChange([...currentIds, investor.id.toString()]);
                                   }
                                 }}>
-                                  {investor.name} - {investor.company}
+                                  {investor.name} - {investor.company} (국내)
+                                </label>
+                              </div>
+                            );
+                          })}
+                          {overseasInvestors.map((investor) => {
+                            const isSelected = field.value?.includes(`overseas-${investor.id}`) || false;
+                            return (
+                              <div key={`overseas-${investor.id}`} className="flex items-center space-x-2 py-1">
+                                <input
+                                  type="checkbox"
+                                  checked={isSelected}
+                                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                    const currentIds = field.value || [];
+                                    if (e.target.checked) {
+                                      field.onChange([...currentIds, `overseas-${investor.id}`]);
+                                    } else {
+                                      field.onChange(currentIds.filter((id: string) => id !== `overseas-${investor.id}`));
+                                    }
+                                  }}
+                                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                />
+                                <label className="text-sm cursor-pointer flex-1" onClick={() => {
+                                  const currentIds = field.value || [];
+                                  const isCurrentlySelected = currentIds.includes(`overseas-${investor.id}`);
+                                  if (isCurrentlySelected) {
+                                    field.onChange(currentIds.filter((id: string) => id !== `overseas-${investor.id}`));
+                                  } else {
+                                    field.onChange([...currentIds, `overseas-${investor.id}`]);
+                                  }
+                                }}>
+                                  {investor.name} - {investor.company} (해외)
                                 </label>
                               </div>
                             );
