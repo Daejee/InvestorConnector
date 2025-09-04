@@ -129,6 +129,39 @@ export default function Admin() {
     },
   });
 
+  const exportCompaniesCsvMutation = useMutation({
+    mutationFn: async (organizationId: number) => {
+      const response = await fetch(`/api/admin/export-companies-csv/${organizationId}`, {
+        method: "GET",
+      });
+      if (!response.ok) throw new Error("CSV export failed");
+      return { blob: await response.blob(), organizationId };
+    },
+    onSuccess: ({ blob, organizationId }) => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.style.display = "none";
+      a.href = url;
+      a.download = `companies_org_${organizationId}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast({
+        title: "성공",
+        description: "자산운용사 목록이 CSV로 다운로드되었습니다.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "오류",
+        description: "CSV 다운로드에 실패했습니다.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const exportAllDataMutation = useMutation({
     mutationFn: async () => {
       const response = await fetch("/api/admin/export-all", {
@@ -180,6 +213,12 @@ export default function Admin() {
   const handleExportAllData = async () => {
     setIsDownloading(true);
     await exportAllDataMutation.mutateAsync();
+    setIsDownloading(false);
+  };
+
+  const handleExportCompaniesCsv = async (organizationId: number) => {
+    setIsDownloading(true);
+    await exportCompaniesCsvMutation.mutateAsync(organizationId);
     setIsDownloading(false);
   };
 
@@ -387,14 +426,25 @@ export default function Admin() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
+                      <div className="flex justify-end gap-1">
                         <Button
                           size="sm"
                           variant="outline"
                           onClick={() => handleExportData(org.id)}
                           disabled={isDownloading}
+                          title="전체 데이터 JSON 다운로드"
                         >
                           <Download className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleExportCompaniesCsv(org.id)}
+                          disabled={isDownloading}
+                          title="자산운용사 목록 CSV 다운로드"
+                          className="bg-green-50 hover:bg-green-100 border-green-200"
+                        >
+                          <FileText className="h-4 w-4 text-green-600" />
                         </Button>
                         <Button size="sm" variant="outline">
                           <Edit className="h-4 w-4" />

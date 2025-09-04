@@ -3355,6 +3355,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/admin/export-companies-csv/:organizationId", async (req, res) => {
+    try {
+      const organizationId = parseInt(req.params.organizationId);
+      if (isNaN(organizationId)) {
+        return res.status(400).json({ message: "Invalid organization ID" });
+      }
+
+      const companies = await storage.getCompanies(organizationId);
+      
+      // Convert to CSV format
+      const csvHeaders = [
+        'ID', '회사명', '업종', '시가총액', '웹사이트', '설명', '생성일'
+      ];
+      
+      const csvRows = companies.map(company => [
+        company.id,
+        `"${company.name || ''}"`,
+        `"${company.industry || ''}"`,
+        company.marketCap || '',
+        `"${company.website || ''}"`,
+        `"${company.description || ''}"`,
+        company.createdAt ? new Date(company.createdAt).toLocaleDateString('ko-KR') : ''
+      ]);
+      
+      const csvContent = [
+        csvHeaders.join(','),
+        ...csvRows.map(row => row.join(','))
+      ].join('\n');
+      
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('Content-Disposition', `attachment; filename="companies_org_${organizationId}.csv"`);
+      res.send('\uFEFF' + csvContent); // Add BOM for Korean characters
+    } catch (error) {
+      console.error('Error exporting companies CSV:', error);
+      res.status(500).json({ message: "Failed to export companies CSV", error });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
