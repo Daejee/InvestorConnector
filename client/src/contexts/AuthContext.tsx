@@ -26,8 +26,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // 조직별 인증 상태 가져오기
   const currentAuth = organizationId ? authState[organizationId] : null;
-  const isAuthenticated = currentAuth?.isAuthenticated || false;
-  const user = currentAuth?.user;
+  
+  // 데모 조직(ID=3)인 경우 localStorage에서 직접 확인
+  let isAuthenticated = currentAuth?.isAuthenticated || false;
+  let user = currentAuth?.user;
+  
+  if (organizationId === 3 && !isAuthenticated) {
+    const demoAuth = localStorage.getItem('auth_3');
+    if (demoAuth) {
+      try {
+        const parsed = JSON.parse(demoAuth);
+        if (parsed.isAuthenticated) {
+          isAuthenticated = true;
+          user = parsed.user;
+          
+          // AuthState에도 반영
+          setAuthState(prev => ({
+            ...prev,
+            [3]: parsed
+          }));
+        }
+      } catch (error) {
+        console.error('Failed to parse demo auth:', error);
+      }
+    }
+  }
   
 
   // 조직 변경 시 인증 상태 확인
