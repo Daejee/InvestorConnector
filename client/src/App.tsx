@@ -29,6 +29,7 @@ import Users from "@/pages/users";
 import InvestorInsights from "@/pages/investor-insights";
 import AnalystReports from "@/pages/analyst-reports";
 import Admin from "@/pages/admin";
+import DemoLogin from "@/pages/login-demo";
 import NotFound from "@/pages/not-found";
 
 function OrganizationAwareSwitch() {
@@ -61,6 +62,9 @@ function OrganizationAwareSwitch() {
       <Route path="/org/:orgDomain/investor-insights" component={InvestorInsights} />
       <Route path="/org/:orgDomain/analyst-reports" component={AnalystReports} />
       <Route path="/org/:orgDomain/admin" component={Admin} />
+      
+      {/* Organization-specific login pages */}
+      <Route path="/login/demo" component={DemoLogin} />
       
       {/* Legacy routes redirect to default organization */}
       <Route path="/" component={() => { window.location.href = '/org/default'; return null; }} />
@@ -95,9 +99,17 @@ function OrganizationAwareSwitch() {
 function Router() {
   return (
     <OrganizationProvider>
-      <Layout>
-        <OrganizationAwareSwitch />
-      </Layout>
+      <Switch>
+        {/* Login pages without layout */}
+        <Route path="/login/demo" component={DemoLogin} />
+        
+        {/* All other routes with layout */}
+        <Route>
+          <Layout>
+            <OrganizationAwareSwitch />
+          </Layout>
+        </Route>
+      </Switch>
     </OrganizationProvider>
   );
 }
