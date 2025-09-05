@@ -19,11 +19,16 @@ function DemoLoginForm() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // 중복 클릭 방지
+    if (isLoading) return;
     setIsLoading(true);
 
     try {
       // 데모용 간단한 인증 로직
       if (email === "demo" && password === "demo") {
+        console.log("🔐 Demo login successful!");
+        
         // 데모 조직(ID=3)에 직접 인증 상태 저장
         const authState = {
           isAuthenticated: true,
@@ -36,30 +41,25 @@ function DemoLoginForm() {
           timestamp: Date.now()
         };
         
-        console.log("🔐 Demo login: Saving auth state for org 3:", authState);
-        
-        // 데모 조직 전용 인증 저장
         localStorage.setItem('auth_3', JSON.stringify(authState));
-        
-        // 브라우저 전체를 새로고침하여 상태 초기화 문제 해결
-        localStorage.setItem('demo_login_redirect', 'true');
         
         toast({
           title: "로그인 성공", 
-          description: "데모 회사 시스템에 오신 것을 환영합니다!",
+          description: "데모 대시보드로 이동합니다...",
         });
         
-        // 전체 페이지 새로고침으로 안정적인 리다이렉트
+        // 즉시 리다이렉트
         setTimeout(() => {
           window.location.href = "/org/demo";
-          window.location.reload();
-        }, 1000);
+        }, 500);
+        
       } else {
         toast({
           title: "로그인 실패",
-          description: "이메일 또는 비밀번호가 올바르지 않습니다.",
+          description: "아이디: demo, 비밀번호: demo를 입력하세요.",
           variant: "destructive",
         });
+        setIsLoading(false);
       }
     } catch (error) {
       toast({
@@ -67,7 +67,6 @@ function DemoLoginForm() {
         description: "로그인 중 오류가 발생했습니다.",
         variant: "destructive",
       });
-    } finally {
       setIsLoading(false);
     }
   };
