@@ -35,12 +35,12 @@ export interface IStorage {
   clearAllEmails(): Promise<void>;
 
   // Overseas Investors
-  getOverseasInvestors(): Promise<OverseasInvestor[]>;
-  getOverseasInvestor(id: number): Promise<OverseasInvestor | undefined>;
-  getOverseasInvestorByEmail(email: string): Promise<OverseasInvestor | undefined>;
-  createOverseasInvestor(investor: InsertOverseasInvestor): Promise<OverseasInvestor>;
-  updateOverseasInvestor(id: number, investor: Partial<InsertOverseasInvestor>): Promise<OverseasInvestor | undefined>;
-  deleteOverseasInvestor(id: number): Promise<boolean>;
+  getOverseasInvestors(organizationId: number): Promise<OverseasInvestor[]>;
+  getOverseasInvestor(id: number, organizationId: number): Promise<OverseasInvestor | undefined>;
+  getOverseasInvestorByEmail(email: string, organizationId: number): Promise<OverseasInvestor | undefined>;
+  createOverseasInvestor(investor: InsertOverseasInvestor, organizationId: number): Promise<OverseasInvestor>;
+  updateOverseasInvestor(id: number, investor: Partial<InsertOverseasInvestor>, organizationId: number): Promise<OverseasInvestor | undefined>;
+  deleteOverseasInvestor(id: number, organizationId: number): Promise<boolean>;
 
   // Companies
   getCompanies(organizationId: number): Promise<Company[]>;
@@ -51,10 +51,10 @@ export interface IStorage {
 
   // Overseas Companies
   getOverseasCompanies(organizationId: number): Promise<OverseasCompany[]>;
-  getOverseasCompany(id: number): Promise<OverseasCompany | undefined>;
-  createOverseasCompany(company: InsertOverseasCompany): Promise<OverseasCompany>;
-  updateOverseasCompany(id: number, company: Partial<InsertOverseasCompany>): Promise<OverseasCompany | undefined>;
-  deleteOverseasCompany(id: number): Promise<boolean>;
+  getOverseasCompany(id: number, organizationId: number): Promise<OverseasCompany | undefined>;
+  createOverseasCompany(company: InsertOverseasCompany, organizationId: number): Promise<OverseasCompany>;
+  updateOverseasCompany(id: number, company: Partial<InsertOverseasCompany>, organizationId: number): Promise<OverseasCompany | undefined>;
+  deleteOverseasCompany(id: number, organizationId: number): Promise<boolean>;
 
   // Investments
   getInvestments(): Promise<Investment[]>;
@@ -260,39 +260,45 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Overseas Investors
-  async getOverseasInvestors(): Promise<OverseasInvestor[]> {
-    return await db.select().from(overseasInvestors);
+  async getOverseasInvestors(organizationId: number): Promise<OverseasInvestor[]> {
+    return await db.select().from(overseasInvestors).where(eq(overseasInvestors.organizationId, organizationId));
   }
 
-  async getOverseasInvestor(id: number): Promise<OverseasInvestor | undefined> {
-    const [investor] = await db.select().from(overseasInvestors).where(eq(overseasInvestors.id, id));
+  async getOverseasInvestor(id: number, organizationId: number): Promise<OverseasInvestor | undefined> {
+    const [investor] = await db.select().from(overseasInvestors).where(
+      sql`${overseasInvestors.id} = ${id} AND ${overseasInvestors.organizationId} = ${organizationId}`
+    );
     return investor || undefined;
   }
 
-  async getOverseasInvestorByEmail(email: string): Promise<OverseasInvestor | undefined> {
-    const [investor] = await db.select().from(overseasInvestors).where(eq(overseasInvestors.email, email));
+  async getOverseasInvestorByEmail(email: string, organizationId: number): Promise<OverseasInvestor | undefined> {
+    const [investor] = await db.select().from(overseasInvestors).where(
+      sql`${overseasInvestors.email} = ${email} AND ${overseasInvestors.organizationId} = ${organizationId}`
+    );
     return investor || undefined;
   }
 
-  async createOverseasInvestor(insertInvestor: InsertOverseasInvestor): Promise<OverseasInvestor> {
+  async createOverseasInvestor(insertInvestor: InsertOverseasInvestor, organizationId: number): Promise<OverseasInvestor> {
     const [investor] = await db
       .insert(overseasInvestors)
-      .values(insertInvestor)
+      .values({ ...insertInvestor, organizationId })
       .returning();
     return investor;
   }
 
-  async updateOverseasInvestor(id: number, updateData: Partial<InsertOverseasInvestor>): Promise<OverseasInvestor | undefined> {
+  async updateOverseasInvestor(id: number, updateData: Partial<InsertOverseasInvestor>, organizationId: number): Promise<OverseasInvestor | undefined> {
     const [investor] = await db
       .update(overseasInvestors)
       .set(updateData)
-      .where(eq(overseasInvestors.id, id))
+      .where(sql`${overseasInvestors.id} = ${id} AND ${overseasInvestors.organizationId} = ${organizationId}`)
       .returning();
     return investor || undefined;
   }
 
-  async deleteOverseasInvestor(id: number): Promise<boolean> {
-    const result = await db.delete(overseasInvestors).where(eq(overseasInvestors.id, id));
+  async deleteOverseasInvestor(id: number, organizationId: number): Promise<boolean> {
+    const result = await db.delete(overseasInvestors).where(
+      sql`${overseasInvestors.id} = ${id} AND ${overseasInvestors.organizationId} = ${organizationId}`
+    );
     return result.rowCount! > 0;
   }
 
@@ -339,30 +345,34 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(overseasCompanies).where(eq(overseasCompanies.organizationId, organizationId));
   }
 
-  async getOverseasCompany(id: number): Promise<OverseasCompany | undefined> {
-    const [company] = await db.select().from(overseasCompanies).where(eq(overseasCompanies.id, id));
+  async getOverseasCompany(id: number, organizationId: number): Promise<OverseasCompany | undefined> {
+    const [company] = await db.select().from(overseasCompanies).where(
+      sql`${overseasCompanies.id} = ${id} AND ${overseasCompanies.organizationId} = ${organizationId}`
+    );
     return company || undefined;
   }
 
-  async createOverseasCompany(insertCompany: InsertOverseasCompany): Promise<OverseasCompany> {
+  async createOverseasCompany(insertCompany: InsertOverseasCompany, organizationId: number): Promise<OverseasCompany> {
     const [company] = await db
       .insert(overseasCompanies)
-      .values(insertCompany)
+      .values({ ...insertCompany, organizationId })
       .returning();
     return company;
   }
 
-  async updateOverseasCompany(id: number, updateData: Partial<InsertOverseasCompany>): Promise<OverseasCompany | undefined> {
+  async updateOverseasCompany(id: number, updateData: Partial<InsertOverseasCompany>, organizationId: number): Promise<OverseasCompany | undefined> {
     const [company] = await db
       .update(overseasCompanies)
       .set(updateData)
-      .where(eq(overseasCompanies.id, id))
+      .where(sql`${overseasCompanies.id} = ${id} AND ${overseasCompanies.organizationId} = ${organizationId}`)
       .returning();
     return company || undefined;
   }
 
-  async deleteOverseasCompany(id: number): Promise<boolean> {
-    const result = await db.delete(overseasCompanies).where(eq(overseasCompanies.id, id));
+  async deleteOverseasCompany(id: number, organizationId: number): Promise<boolean> {
+    const result = await db.delete(overseasCompanies).where(
+      sql`${overseasCompanies.id} = ${id} AND ${overseasCompanies.organizationId} = ${organizationId}`
+    );
     return result.rowCount! > 0;
   }
 

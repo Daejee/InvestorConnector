@@ -39,6 +39,7 @@ import { AIAnalysisService } from "./aiAnalysisService";
 const DOMAIN_TO_ORG_ID: Record<string, number> = {
   'default': 1,
   'samsung': 2,
+  'demo': 3,
 };
 
 // Middleware to extract organization ID from various sources
@@ -391,13 +392,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Overseas Investors routes
   app.get("/api/overseas-investors", async (req, res) => {
-    const investors = await storage.getOverseasInvestors();
+    const organizationId = extractOrganizationId(req);
+    const investors = await storage.getOverseasInvestors(organizationId);
     res.json(investors);
   });
 
   app.get("/api/overseas-investors/:id", async (req, res) => {
     const id = parseInt(req.params.id);
-    const investor = await storage.getOverseasInvestor(id);
+    const organizationId = extractOrganizationId(req);
+    const investor = await storage.getOverseasInvestor(id, organizationId);
     if (!investor) {
       return res.status(404).json({ message: "Overseas investor not found" });
     }
@@ -409,9 +412,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("Overseas investor request body:", req.body);
       const data = insertOverseasInvestorSchema.parse(req.body);
       console.log("Parsed data:", data);
-      // Add organizationId like in regular investor creation
-      const dataWithOrgId = { ...data, organizationId: 1 };
-      const investor = await storage.createOverseasInvestor(dataWithOrgId);
+      const organizationId = extractOrganizationId(req);
+      const investor = await storage.createOverseasInvestor(data, organizationId);
       res.status(201).json(investor);
     } catch (error) {
       console.error("Error creating overseas investor:", error);
@@ -422,8 +424,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/overseas-investors/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
+      const organizationId = extractOrganizationId(req);
       const data = insertOverseasInvestorSchema.partial().parse(req.body);
-      const investor = await storage.updateOverseasInvestor(id, data);
+      const investor = await storage.updateOverseasInvestor(id, data, organizationId);
       if (!investor) {
         return res.status(404).json({ message: "Overseas investor not found" });
       }
@@ -436,8 +439,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/overseas-investors/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
+      const organizationId = extractOrganizationId(req);
       const data = insertOverseasInvestorSchema.partial().parse(req.body);
-      const investor = await storage.updateOverseasInvestor(id, data);
+      const investor = await storage.updateOverseasInvestor(id, data, organizationId);
       if (!investor) {
         return res.status(404).json({ message: "Overseas investor not found" });
       }
@@ -450,13 +454,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/overseas-investors/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
+      const organizationId = extractOrganizationId(req);
       
-      const investor = await storage.getOverseasInvestor(id);
+      const investor = await storage.getOverseasInvestor(id, organizationId);
       if (!investor) {
         return res.status(404).json({ message: "Overseas investor not found" });
       }
       
-      const deleted = await storage.deleteOverseasInvestor(id);
+      const deleted = await storage.deleteOverseasInvestor(id, organizationId);
       if (!deleted) {
         return res.status(500).json({ message: "Failed to delete overseas investor" });
       }
@@ -840,14 +845,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Overseas Companies routes
   app.get("/api/overseas-companies", async (req, res) => {
-    const organizationId = 1; // TODO: Extract from auth context
+    const organizationId = extractOrganizationId(req);
     const companies = await storage.getOverseasCompanies(organizationId);
     res.json(companies);
   });
 
   app.get("/api/overseas-companies/:id", async (req, res) => {
     const id = parseInt(req.params.id);
-    const company = await storage.getOverseasCompany(id);
+    const organizationId = extractOrganizationId(req);
+    const company = await storage.getOverseasCompany(id, organizationId);
     if (!company) {
       return res.status(404).json({ message: "Overseas company not found" });
     }
@@ -857,8 +863,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/overseas-companies", async (req, res) => {
     try {
       const data = insertOverseasCompanySchema.parse(req.body);
-      const organizationId = 1; // TODO: Extract from auth context
-      const company = await storage.createOverseasCompany({ ...data, organizationId });
+      const organizationId = extractOrganizationId(req);
+      const company = await storage.createOverseasCompany(data, organizationId);
       res.status(201).json(company);
     } catch (error) {
       res.status(400).json({ message: "Invalid overseas company data", error });
@@ -868,8 +874,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/overseas-companies/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
+      const organizationId = extractOrganizationId(req);
       const data = insertOverseasCompanySchema.partial().parse(req.body);
-      const company = await storage.updateOverseasCompany(id, data);
+      const company = await storage.updateOverseasCompany(id, data, organizationId);
       if (!company) {
         return res.status(404).json({ message: "Overseas company not found" });
       }
@@ -882,8 +889,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/overseas-companies/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
+      const organizationId = extractOrganizationId(req);
       const data = insertOverseasCompanySchema.partial().parse(req.body);
-      const company = await storage.updateOverseasCompany(id, data);
+      const company = await storage.updateOverseasCompany(id, data, organizationId);
       if (!company) {
         return res.status(404).json({ message: "Overseas company not found" });
       }
@@ -896,13 +904,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/overseas-companies/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
+      const organizationId = extractOrganizationId(req);
       
-      const company = await storage.getOverseasCompany(id);
+      const company = await storage.getOverseasCompany(id, organizationId);
       if (!company) {
         return res.status(404).json({ message: "Overseas company not found" });
       }
       
-      const deleted = await storage.deleteOverseasCompany(id);
+      const deleted = await storage.deleteOverseasCompany(id, organizationId);
       if (!deleted) {
         return res.status(500).json({ message: "Failed to delete overseas company" });
       }
