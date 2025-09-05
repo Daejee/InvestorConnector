@@ -39,10 +39,17 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
   const { organization } = useOrganization();
   
+  console.log(`🛡️ ProtectedRoute: Auth=${isAuthenticated}, Org=${organization?.domain}`);
+  
   if (!isAuthenticated) {
     // 조직별 로그인 페이지로 리다이렉트
     const domain = organization?.domain || 'default';
-    window.location.href = `/login/${domain}`;
+    console.log(`🚫 Not authenticated, redirecting to /login/${domain}`);
+    
+    // 현재 URL이 이미 로그인 페이지가 아닌 경우에만 리다이렉트
+    if (!window.location.pathname.startsWith('/login/')) {
+      window.location.href = `/login/${domain}`;
+    }
     return null;
   }
   
