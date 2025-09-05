@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
+import { queryClient } from '@/lib/queryClient';
 
 interface Organization {
   id: number;
@@ -63,6 +64,12 @@ export function OrganizationProvider({ children }: { children: React.ReactNode }
         }
 
         const orgData = await response.json();
+        
+        // Clear React Query cache when organization changes
+        if (organizationId && organizationId !== orgId) {
+          queryClient.clear();
+        }
+        
         setOrganization(orgData);
         setOrganizationId(orgId);
       } catch (err) {
