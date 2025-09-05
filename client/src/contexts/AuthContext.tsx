@@ -27,15 +27,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // 조직별 인증 상태 가져오기
   const currentAuth = organizationId ? authState[organizationId] : null;
   
-  // 데모 조직(ID=3)인 경우 localStorage에서 직접 확인
+  // 특정 조직에서 localStorage 직접 확인 (데모=3, 기본=1)
   let isAuthenticated = currentAuth?.isAuthenticated || false;
   let user = currentAuth?.user;
   
-  if (organizationId === 3 && !isAuthenticated) {
-    const demoAuth = localStorage.getItem('auth_3');
-    if (demoAuth) {
+  if ((organizationId === 3 || organizationId === 1) && !isAuthenticated) {
+    const authKey = `auth_${organizationId}`;
+    const authData = localStorage.getItem(authKey);
+    if (authData) {
       try {
-        const parsed = JSON.parse(demoAuth);
+        const parsed = JSON.parse(authData);
         if (parsed.isAuthenticated) {
           isAuthenticated = true;
           user = parsed.user;
@@ -43,11 +44,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // AuthState에도 반영
           setAuthState(prev => ({
             ...prev,
-            [3]: parsed
+            [organizationId]: parsed
           }));
         }
       } catch (error) {
-        console.error('Failed to parse demo auth:', error);
+        console.error(`Failed to parse auth for org ${organizationId}:`, error);
       }
     }
   }

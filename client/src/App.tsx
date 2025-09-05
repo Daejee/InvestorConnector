@@ -39,12 +39,13 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
   const { organization, organizationId, isLoading } = useOrganization();
   
-  // 데모 조직(ID=3)인 경우 localStorage에서 직접 확인하여 우회
-  if (organizationId === 3) {
-    const demoAuth = localStorage.getItem('auth_3');
-    if (demoAuth) {
+  // 특정 조직(데모=3, 기본=1)에서 localStorage 직접 확인하여 우회
+  if (organizationId === 3 || organizationId === 1) {
+    const authKey = `auth_${organizationId}`;
+    const authData = localStorage.getItem(authKey);
+    if (authData) {
       try {
-        const parsed = JSON.parse(demoAuth);
+        const parsed = JSON.parse(authData);
         if (parsed.isAuthenticated) {
           return <>{children}</>;
         }
