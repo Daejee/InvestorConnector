@@ -16,6 +16,7 @@ function getCurrentOrganizationId(): number {
     // Map domain to organization ID
     const domainToOrgId: Record<string, number> = {
       'default': 1,
+      'default.com': 1,  // DB에 저장된 실제 도메인
       'samsung': 2,
       'demo': 3,
     };

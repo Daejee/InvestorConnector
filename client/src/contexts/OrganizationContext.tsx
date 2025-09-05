@@ -22,6 +22,7 @@ const OrganizationContext = createContext<OrganizationContextType | undefined>(u
 // Domain to Organization ID mapping
 const DOMAIN_TO_ORG_ID: Record<string, number> = {
   'default': 1,
+  'default.com': 1,  // DB에 저장된 실제 도메인
   'samsung': 2,
   'demo': 3,
 };

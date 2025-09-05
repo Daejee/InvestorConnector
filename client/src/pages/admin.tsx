@@ -543,8 +543,11 @@ export default function Admin() {
   };
 
   const handleAccessOrganization = (domain: string) => {
+    // 도메인이 '.com'으로 끝나면 제거
+    const cleanDomain = domain.replace('.com', '');
+    
     // 기본 조직으로 전환하는 경우 간단한 인증 설정
-    if (domain === 'default') {
+    if (cleanDomain === 'default') {
       // 기본 조직 인증 상태 생성
       const defaultAuthState = {
         isAuthenticated: true,
@@ -560,7 +563,8 @@ export default function Admin() {
       localStorage.setItem('auth_1', JSON.stringify(defaultAuthState));
     }
     
-    const url = `/org/${domain}`;
+    const url = `/org/${cleanDomain}`;
+    console.log("🔗 Redirecting to:", url);
     window.location.href = url; // Same tab navigation to trigger organization change
   };
 
