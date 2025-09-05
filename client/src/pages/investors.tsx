@@ -9,6 +9,7 @@ import InvestorFormSimplified from "@/components/investors/investor-form-simplif
 import { Plus, Search, Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { Investor } from "@shared/schema";
+import { useOrganization } from "@/contexts/OrganizationContext";
 
 export default function Investors() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -16,9 +17,11 @@ export default function Investors() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { organizationId } = useOrganization();
 
   const { data: investors, isLoading } = useQuery<Investor[]>({
-    queryKey: ["/api/investors"],
+    queryKey: ["/api/investors", organizationId],
+    enabled: !!organizationId,
   });
 
   const uploadInvestorsMutation = useMutation({
@@ -42,7 +45,7 @@ export default function Investors() {
         title: "투자자 업로드 성공",
         description: `${data.imported}개의 투자자 데이터가 성공적으로 업로드되었습니다.`,
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/investors"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/investors", organizationId] });
     },
     onError: (error) => {
       toast({

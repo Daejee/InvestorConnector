@@ -14,22 +14,29 @@ import {
   Mail
 } from "lucide-react";
 import type { Meeting, Investor, Analyst } from "@shared/schema";
+import { useOrganization } from "@/contexts/OrganizationContext";
 
 export default function Dashboard() {
+  const { organizationId } = useOrganization();
+
   const { data: allMeetings, isLoading: meetingsLoading } = useQuery<Meeting[]>({
-    queryKey: ["/api/meetings"],
+    queryKey: ["/api/meetings", organizationId],
+    enabled: !!organizationId,
   });
 
   const { data: upcomingMeetings, isLoading: upcomingLoading } = useQuery<Meeting[]>({
-    queryKey: ["/api/meetings/upcoming"],
+    queryKey: ["/api/meetings/upcoming", organizationId],
+    enabled: !!organizationId,
   });
 
   const { data: investors = [] } = useQuery<Investor[]>({
-    queryKey: ["/api/investors"],
+    queryKey: ["/api/investors", organizationId],
+    enabled: !!organizationId,
   });
 
   const { data: analysts = [] } = useQuery<Analyst[]>({
-    queryKey: ["/api/analysts"],
+    queryKey: ["/api/analysts", organizationId],
+    enabled: !!organizationId,
   });
 
   // Filter meetings into today and future meetings

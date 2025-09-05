@@ -11,6 +11,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { AnalystForm } from "@/components/analysts/analyst-form";
 import type { Analyst } from "@shared/schema";
+import { useOrganization } from "@/contexts/OrganizationContext";
 
 type SortField = 'name' | 'company' | 'specialization' | null;
 type SortDirection = 'asc' | 'desc';
@@ -25,9 +26,11 @@ export default function Analysts() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { organizationId } = useOrganization();
 
   const { data: analysts = [], isLoading } = useQuery<Analyst[]>({
-    queryKey: ["/api/analysts"],
+    queryKey: ["/api/analysts", organizationId],
+    enabled: !!organizationId,
   });
 
   const deleteAnalystMutation = useMutation({
@@ -39,7 +42,7 @@ export default function Analysts() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/analysts"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/analysts", organizationId] });
       toast({
         title: "성공",
         description: "애널리스트가 성공적으로 삭제되었습니다",
