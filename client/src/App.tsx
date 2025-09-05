@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { OrganizationProvider, useOrganization } from "@/contexts/OrganizationContext";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import Layout from "@/components/layout/layout";
 import Dashboard from "@/pages/dashboard-new";
 import Investors from "@/pages/investors";
@@ -30,19 +31,36 @@ import InvestorInsights from "@/pages/investor-insights";
 import AnalystReports from "@/pages/analyst-reports";
 import Admin from "@/pages/admin";
 import DemoLogin from "@/pages/login-demo";
+import DefaultLogin from "@/pages/login-default";
+import SamsungLogin from "@/pages/login-samsung";
 import NotFound from "@/pages/not-found";
+
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated } = useAuth();
+  const { organization } = useOrganization();
+  
+  if (!isAuthenticated) {
+    // 조직별 로그인 페이지로 리다이렉트
+    const domain = organization?.domain || 'default';
+    window.location.href = `/login/${domain}`;
+    return null;
+  }
+  
+  return <>{children}</>;
+}
 
 function OrganizationAwareSwitch() {
   const { organizationId } = useOrganization();
   
   return (
-    <Switch key={organizationId}>
-      {/* Organization-based routes */}
-      <Route path="/org/:orgDomain" component={Dashboard} />
-      <Route path="/org/:orgDomain/dashboard" component={Dashboard} />
-      <Route path="/org/:orgDomain/investors" component={Investors} />
-      <Route path="/org/:orgDomain/overseas-investors" component={OverseasInvestors} />
-      <Route path="/org/:orgDomain/analysts" component={Analysts} />
+    <AuthProvider>
+      <Switch key={organizationId}>
+        {/* Organization-based routes */}
+        <Route path="/org/:orgDomain" component={() => <ProtectedRoute><Dashboard /></ProtectedRoute>} />
+      <Route path="/org/:orgDomain/dashboard" component={() => <ProtectedRoute><Dashboard /></ProtectedRoute>} />
+      <Route path="/org/:orgDomain/investors" component={() => <ProtectedRoute><Investors /></ProtectedRoute>} />
+      <Route path="/org/:orgDomain/overseas-investors" component={() => <ProtectedRoute><OverseasInvestors /></ProtectedRoute>} />
+      <Route path="/org/:orgDomain/analysts" component={() => <ProtectedRoute><Analysts /></ProtectedRoute>} />
       <Route path="/org/:orgDomain/companies" component={Companies} />
       <Route path="/org/:orgDomain/overseas-companies" component={OverseasCompanies} />
       <Route path="/org/:orgDomain/securities-firms" component={SecuritiesFirms} />
@@ -61,7 +79,7 @@ function OrganizationAwareSwitch() {
       <Route path="/org/:orgDomain/reports" component={Reports} />
       <Route path="/org/:orgDomain/investor-insights" component={InvestorInsights} />
       <Route path="/org/:orgDomain/analyst-reports" component={AnalystReports} />
-      <Route path="/org/:orgDomain/admin" component={Admin} />
+      <Route path="/org/:orgDomain/admin" component={() => <ProtectedRoute><Admin /></ProtectedRoute>} />
       
       {/* Organization-specific login pages */}
       <Route path="/login/demo" component={DemoLogin} />
@@ -92,7 +110,8 @@ function OrganizationAwareSwitch() {
       <Route path="/admin" component={() => { window.location.href = '/org/default/admin'; return null; }} />
       
       <Route component={NotFound} />
-    </Switch>
+      </Switch>
+    </AuthProvider>
   );
 }
 
@@ -101,6 +120,8 @@ function Router() {
     <OrganizationProvider>
       <Switch>
         {/* Login pages without layout */}
+        <Route path="/login/default" component={DefaultLogin} />
+        <Route path="/login/samsung" component={SamsungLogin} />
         <Route path="/login/demo" component={DemoLogin} />
         
         {/* All other routes with layout */}

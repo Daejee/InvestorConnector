@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Building2, Lock, User, ArrowRight } from "lucide-react";
 
-function DemoLoginForm() {
+function DefaultLoginForm() {
   const [, setLocation] = useLocation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -22,23 +22,23 @@ function DemoLoginForm() {
     setIsLoading(true);
 
     try {
-      // 데모용 간단한 인증 로직
-      if (email === "demo@demo.com" && password === "demo123") {
+      // 기본 조직용 인증 로직
+      if (email === "admin@default.com" && password === "admin123") {
         // AuthContext에 로그인 상태 설정
         login({
           id: 1,
-          email: "demo@demo.com",
-          name: "데모 사용자",
-          organizationId: 3
+          email: "admin@default.com",
+          name: "관리자",
+          organizationId: 1
         });
         
         toast({
           title: "로그인 성공",
-          description: "데모 회사 시스템에 오신 것을 환영합니다!",
+          description: "IR CRM 시스템에 오신 것을 환영합니다!",
         });
         
-        // 데모 조직 대시보드로 리다이렉트
-        setLocation("/org/demo");
+        // 기본 조직 대시보드로 리다이렉트
+        setLocation("/org/default");
       } else {
         toast({
           title: "로그인 실패",
@@ -58,17 +58,17 @@ function DemoLoginForm() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-slate-100 flex items-center justify-center p-4">
       <Card className="w-full max-w-md shadow-xl border-0">
         <CardHeader className="text-center space-y-4 pb-8">
-          {/* 데모 회사 로고 영역 */}
-          <div className="mx-auto w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+          {/* 기본 조직 로고 영역 */}
+          <div className="mx-auto w-16 h-16 bg-gradient-to-br from-gray-600 to-slate-700 rounded-xl flex items-center justify-center">
             <Building2 className="w-8 h-8 text-white" />
           </div>
           
           <div className="space-y-2">
             <CardTitle className="text-2xl font-bold text-gray-900">
-              데모 회사
+              기본 조직
             </CardTitle>
             <CardDescription className="text-gray-600">
               IR CRM 시스템에 로그인하세요
@@ -87,7 +87,7 @@ function DemoLoginForm() {
                   <Input
                     id="email"
                     type="email"
-                    placeholder="demo@demo.com"
+                    placeholder="admin@default.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="pl-10 h-11"
@@ -118,7 +118,7 @@ function DemoLoginForm() {
 
             <Button 
               type="submit" 
-              className="w-full h-11 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-medium"
+              className="w-full h-11 bg-gradient-to-r from-gray-600 to-slate-700 hover:from-gray-700 hover:to-slate-800 text-white font-medium"
               disabled={isLoading}
             >
               {isLoading ? (
@@ -132,18 +132,18 @@ function DemoLoginForm() {
             </Button>
           </form>
 
-          {/* 데모 계정 정보 */}
-          <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-            <h4 className="font-medium text-blue-900 mb-2">데모 계정 정보</h4>
-            <div className="text-sm text-blue-700 space-y-1">
-              <p><strong>이메일:</strong> demo@demo.com</p>
-              <p><strong>비밀번호:</strong> demo123</p>
+          {/* 기본 계정 정보 */}
+          <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+            <h4 className="font-medium text-gray-900 mb-2">기본 계정 정보</h4>
+            <div className="text-sm text-gray-700 space-y-1">
+              <p><strong>이메일:</strong> admin@default.com</p>
+              <p><strong>비밀번호:</strong> admin123</p>
             </div>
           </div>
 
           {/* 푸터 */}
           <div className="mt-8 text-center text-sm text-gray-500">
-            <p>데모 회사 IR CRM 시스템</p>
+            <p>기본 조직 IR CRM 시스템</p>
             <p className="mt-1">© 2025 All rights reserved</p>
           </div>
         </CardContent>
@@ -152,11 +152,11 @@ function DemoLoginForm() {
   );
 }
 
-export default function DemoLogin() {
+export default function DefaultLogin() {
   return (
     <OrganizationProvider>
       <AuthProvider>
-        <DemoLoginForm />
+        <DefaultLoginForm />
       </AuthProvider>
     </OrganizationProvider>
   );
