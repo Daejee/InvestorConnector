@@ -17,6 +17,7 @@ function getCurrentOrganizationId(): number {
     const domainToOrgId: Record<string, number> = {
       'default': 1,
       'samsung': 2,
+      'demo': 3,
     };
     return domainToOrgId[domain] || 1;
   }
