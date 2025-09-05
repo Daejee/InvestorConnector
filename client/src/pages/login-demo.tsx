@@ -38,7 +38,9 @@ function DemoLoginForm() {
         });
         
         // 데모 조직 대시보드로 리다이렉트
-        setLocation("/org/demo");
+        setTimeout(() => {
+          window.location.href = "/org/demo";
+        }, 100);
       } else {
         toast({
           title: "로그인 실패",
