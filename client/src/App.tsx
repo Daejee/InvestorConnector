@@ -39,6 +39,8 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
   const { organization, organizationId, isLoading } = useOrganization();
   
+  console.log("🔒 ProtectedRoute:", { isAuthenticated, organizationId, isLoading, orgName: organization?.name });
+  
   // 특정 조직(데모=3, 기본=1)에서 localStorage 직접 확인하여 우회
   if (organizationId === 3 || organizationId === 1) {
     const authKey = `auth_${organizationId}`;
