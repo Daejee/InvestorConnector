@@ -41,8 +41,14 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   
   console.log(`🛡️ ProtectedRoute: Auth=${isAuthenticated}, OrgId=${organizationId}, Loading=${isLoading}, Org=${organization?.domain}`);
   
-  // 조직 정보가 로딩 중이면 대기
-  if (isLoading) {
+  // 조직 ID가 있고 인증되어 있으면 바로 통과 (로딩 대기 없음)
+  if (organizationId && isAuthenticated) {
+    console.log(`✅ Both org and auth are ready, allowing access`);
+    return <>{children}</>;
+  }
+  
+  // 조직 정보가 로딩 중이면 짧은 대기만
+  if (isLoading && !organizationId) {
     console.log(`⏳ Organization loading, waiting...`);
     return <div>로딩 중...</div>;
   }
