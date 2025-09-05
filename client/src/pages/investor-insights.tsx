@@ -42,13 +42,6 @@ export default function InvestorInsights() {
 
   const { data: insights = [], isLoading } = useQuery<InvestorInsight[]>({
     queryKey: ['/api/investor-insights'],
-    queryFn: async () => {
-      const response = await fetch('/api/investor-insights');
-      if (!response.ok) {
-        throw new Error('Failed to fetch insights');
-      }
-      return response.json();
-    }
   });
 
   const generateInsightMutation = useMutation({
