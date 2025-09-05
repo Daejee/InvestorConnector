@@ -44,9 +44,17 @@ const DOMAIN_TO_ORG_ID: Record<string, number> = {
 
 // Middleware to extract organization ID from various sources
 function extractOrganizationId(req: any): number {
+  console.log('=== Organization ID Extraction Debug ===');
+  console.log('Request URL:', req.url);
+  console.log('Request Path:', req.path);
+  console.log('X-Organization-Id header:', req.headers['x-organization-id']);
+  console.log('X-Organization header:', req.headers['x-organization']);
+  console.log('Query org parameter:', req.query.org);
+  
   // Check header: X-Organization-Id (from frontend)
   if (req.headers['x-organization-id']) {
     const orgId = parseInt(req.headers['x-organization-id']);
+    console.log('Using header X-Organization-Id:', orgId);
     if (!isNaN(orgId)) return orgId;
   }
   
@@ -54,20 +62,28 @@ function extractOrganizationId(req: any): number {
   const orgFromPath = req.path.match(/^\/org\/([^\/]+)/);
   if (orgFromPath) {
     const domain = orgFromPath[1];
-    return DOMAIN_TO_ORG_ID[domain] || 1; // Default to org 1 if not found
+    const orgId = DOMAIN_TO_ORG_ID[domain] || 1;
+    console.log('Using URL path domain:', domain, '-> orgId:', orgId);
+    return orgId; // Default to org 1 if not found
   }
   
   // Check query parameter: ?org=samsung
   if (req.query.org) {
-    return DOMAIN_TO_ORG_ID[req.query.org] || 1;
+    const orgId = DOMAIN_TO_ORG_ID[req.query.org] || 1;
+    console.log('Using query parameter:', req.query.org, '-> orgId:', orgId);
+    return orgId;
   }
   
   // Check header: X-Organization (domain)
   if (req.headers['x-organization']) {
-    return DOMAIN_TO_ORG_ID[req.headers['x-organization']] || 1;
+    const orgId = DOMAIN_TO_ORG_ID[req.headers['x-organization']] || 1;
+    console.log('Using header X-Organization:', req.headers['x-organization'], '-> orgId:', orgId);
+    return orgId;
   }
   
   // Default to organization 1
+  console.log('Using default organization ID: 1');
+  console.log('========================================');
   return 1;
 }
 
