@@ -23,11 +23,11 @@ function DemoLoginForm() {
 
     try {
       // 데모용 간단한 인증 로직
-      if (email === "demo@demo.com" && password === "demo123") {
+      if (email === "demo" && password === "demo") {
         // AuthContext에 로그인 상태 설정
         login({
           id: 1,
-          email: "demo@demo.com",
+          email: "demo",
           name: "데모 사용자",
           organizationId: 3
         });
@@ -81,13 +81,13 @@ function DemoLoginForm() {
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-sm font-medium text-gray-700">
-                  이메일
+                  아이디
                 </Label>
                 <div className="relative">
                   <Input
                     id="email"
-                    type="email"
-                    placeholder="demo@demo.com"
+                    type="text"
+                    placeholder="demo"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="pl-10 h-11"
@@ -136,8 +136,8 @@ function DemoLoginForm() {
           <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
             <h4 className="font-medium text-blue-900 mb-2">데모 계정 정보</h4>
             <div className="text-sm text-blue-700 space-y-1">
-              <p><strong>이메일:</strong> demo@demo.com</p>
-              <p><strong>비밀번호:</strong> demo123</p>
+              <p><strong>아이디:</strong> demo</p>
+              <p><strong>비밀번호:</strong> demo</p>
             </div>
           </div>
 
