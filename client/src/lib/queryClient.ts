@@ -13,12 +13,14 @@ function getCurrentOrganizationId(): number {
   const orgMatch = path.match(/^\/org\/([^\/]+)/);
   if (orgMatch) {
     const domain = orgMatch[1];
-    // Map domain to organization ID
+    
+    // 확장된 정적 매핑 (새로운 조직이 추가되면 여기에 수동 추가 필요)
     const domainToOrgId: Record<string, number> = {
       'default': 1,
-      'default.com': 1,  // DB에 저장된 실제 도메인
+      'default.com': 1,
       'samsung': 2,
       'demo': 3,
+      'LG': 4,
     };
     return domainToOrgId[domain] || 1;
   }

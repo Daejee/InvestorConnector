@@ -33,6 +33,7 @@ import Admin from "@/pages/admin";
 import DemoLogin from "@/pages/login-demo";
 import DefaultLogin from "@/pages/login-default";
 import SamsungLogin from "@/pages/login-samsung";
+import LoginLG from "@/pages/login-lg";
 import NotFound from "@/pages/not-found";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -41,8 +42,8 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   
   console.log("🔒 ProtectedRoute:", { isAuthenticated, organizationId, isLoading, orgName: organization?.name });
   
-  // 특정 조직(데모=3, 기본=1)에서 localStorage 직접 확인하여 우회
-  if (organizationId === 3 || organizationId === 1) {
+  // 특정 조직(데모=3, 기본=1, LG=4)에서 localStorage 직접 확인하여 우회
+  if (organizationId === 3 || organizationId === 1 || organizationId === 4) {
     const authKey = `auth_${organizationId}`;
     const authData = localStorage.getItem(authKey);
     if (authData) {
@@ -156,6 +157,7 @@ function Router() {
         {/* Login pages without layout */}
         <Route path="/login/default" component={DefaultLogin} />
         <Route path="/login/samsung" component={SamsungLogin} />
+        <Route path="/login/LG" component={LoginLG} />
         
         {/* All other routes with layout */}
         <Route>

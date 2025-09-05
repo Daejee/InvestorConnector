@@ -19,13 +19,45 @@ interface OrganizationContextType {
 
 const OrganizationContext = createContext<OrganizationContextType | undefined>(undefined);
 
-// Domain to Organization ID mapping
-const DOMAIN_TO_ORG_ID: Record<string, number> = {
-  'default': 1,
-  'default.com': 1,  // DB에 저장된 실제 도메인
-  'samsung': 2,
-  'demo': 3,
-};
+// 동적 도메인 매핑 캐시
+let domainMappingCache: Record<string, number> | null = null;
+
+// DB에서 조직 도메인 매핑을 가져오는 함수
+async function fetchDomainMapping(): Promise<Record<string, number>> {
+  if (domainMappingCache) {
+    return domainMappingCache;
+  }
+  
+  try {
+    const response = await fetch('/api/organizations');
+    if (response.ok) {
+      const organizations = await response.json();
+      const mapping: Record<string, number> = {};
+      
+      organizations.forEach((org: any) => {
+        mapping[org.domain] = org.id;
+        // .com 제거한 버전도 매핑 추가
+        if (org.domain.endsWith('.com')) {
+          mapping[org.domain.replace('.com', '')] = org.id;
+        }
+      });
+      
+      domainMappingCache = mapping;
+      console.log("🗺️ Domain mapping loaded:", mapping);
+      return mapping;
+    }
+  } catch (error) {
+    console.error('Failed to fetch domain mapping:', error);
+  }
+  
+  // Fallback to basic mapping
+  return {
+    'default': 1,
+    'default.com': 1,
+    'samsung': 2,
+    'demo': 3,
+  };
+}
 
 export function OrganizationProvider({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
@@ -52,19 +84,19 @@ export function OrganizationProvider({ children }: { children: React.ReactNode }
       return 'default';
     };
 
-    const orgDomain = extractOrgFromPath();
-    const newOrgId = DOMAIN_TO_ORG_ID[orgDomain] || 1;
-    
-    console.log("🔍 OrganizationContext:", { location, orgDomain, newOrgId, organizationId });
-    
-    
-    // If organization changed, clear React Query caches only (preserve auth state)
-    if (organizationId && organizationId !== newOrgId) {
-      // Clear all React Query caches
-      queryClient.clear();
-    }
+    const loadOrganizationFromDomain = async () => {
+      const orgDomain = extractOrgFromPath();
+      const domainMapping = await fetchDomainMapping();
+      const newOrgId = domainMapping[orgDomain] || 1;
+      
+      console.log("🔍 OrganizationContext:", { location, orgDomain, newOrgId, organizationId, domainMapping });
+      
+      // If organization changed, clear React Query caches only (preserve auth state)
+      if (organizationId && organizationId !== newOrgId) {
+        // Clear all React Query caches
+        queryClient.clear();
+      }
 
-    const loadOrganization = async () => {
       try {
         setIsLoading(true);
         setError(null);
@@ -72,7 +104,6 @@ export function OrganizationProvider({ children }: { children: React.ReactNode }
         if (!newOrgId) {
           throw new Error(`Unknown organization: ${orgDomain}`);
         }
-
 
         // Fetch organization details from API
         const response = await fetch(`/api/organizations/${newOrgId}`);
@@ -91,8 +122,8 @@ export function OrganizationProvider({ children }: { children: React.ReactNode }
         setIsLoading(false);
       }
     };
-
-    loadOrganization();
+    
+    loadOrganizationFromDomain();
   }, [location, organizationId]);
 
   return (
