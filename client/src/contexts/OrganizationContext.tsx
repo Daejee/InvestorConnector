@@ -22,6 +22,7 @@ const OrganizationContext = createContext<OrganizationContextType | undefined>(u
 const DOMAIN_TO_ORG_ID: Record<string, number> = {
   'default': 1,
   'samsung': 2,
+  'demo': 3,
 };
 
 export function OrganizationProvider({ children }: { children: React.ReactNode }) {
