@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
+import { useOrganization } from "@/contexts/OrganizationContext";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { BookMeetingDialog } from "@/components/scheduling/book-meeting-dialog";
@@ -80,8 +81,15 @@ const navigation = [
 
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const [location] = useLocation();
+  const { organization } = useOrganization();
   const [expandedItems, setExpandedItems] = useState<string[]>(["Meeting 관리", "보고서작성", "Companies / 회사", "Meetings / 회의"]);
   const [isBookMeetingOpen, setIsBookMeetingOpen] = useState(false);
+
+  // 조직별 URL 생성 함수
+  const getOrgPath = (path: string) => {
+    if (!organization?.domain) return path;
+    return `/org/${organization.domain}${path}`;
+  };
 
   const toggleExpanded = (itemName: string) => {
     setExpandedItems(prev => 
@@ -127,7 +135,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                   {hasSubmenu ? (
                     <>
                       <div className="flex items-center">
-                        <Link href={item.href}>
+                        <Link href={getOrgPath(item.href)}>
                           <div
                             className={cn(
                               "flex-1 group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer",
@@ -157,7 +165,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                           {item.submenu.map((subItem) => {
                             const subIsActive = location === subItem.href;
                             return (
-                              <Link key={subItem.name} href={subItem.href}>
+                              <Link key={subItem.name} href={getOrgPath(subItem.href)}>
                                 <div
                                   className={cn(
                                     "group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer",
@@ -177,7 +185,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                       )}
                     </>
                   ) : (
-                    <Link href={item.href}>
+                    <Link href={getOrgPath(item.href)}>
                       <div
                         className={cn(
                           "group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer",
@@ -203,7 +211,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               Event 관리
             </h3>
             <div className="mt-2 space-y-1">
-              <Link href="/ndr-conferences">
+              <Link href={getOrgPath("/ndr-conferences")}>
                 <div className={cn(
                   "group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer",
                   location === "/ndr-conferences"
@@ -216,7 +224,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                   실적발표/NDR/CorpDay
                 </div>
               </Link>
-              <Link href="/other-events">
+              <Link href={getOrgPath("/other-events")}>
                 <div className={cn(
                   "group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer",
                   location === "/other-events"
@@ -248,7 +256,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                     {hasSubmenu ? (
                       <>
                         <div className="flex items-center">
-                          <Link href={item.href}>
+                          <Link href={getOrgPath(item.href)}>
                             <div
                               className={cn(
                                 "flex-1 group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer",
@@ -278,7 +286,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                             {item.submenu.map((subItem) => {
                               const subIsActive = location === subItem.href;
                               return (
-                                <Link key={subItem.name} href={subItem.href}>
+                                <Link key={subItem.name} href={getOrgPath(subItem.href)}>
                                   <div
                                     className={cn(
                                       "group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer",
@@ -298,7 +306,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                         )}
                       </>
                     ) : (
-                      <Link href={item.href}>
+                      <Link href={getOrgPath(item.href)}>
                         <div
                           className={cn(
                             "group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer",
@@ -324,7 +332,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               기타DB
             </h3>
             <div className="mt-2 space-y-1">
-              <Link href="/documents">
+              <Link href={getOrgPath("/documents")}>
                 <div className={cn(
                   "group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer",
                   location === "/documents"
@@ -337,7 +345,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                   문서
                 </div>
               </Link>
-              <Link href="/users">
+              <Link href={getOrgPath("/users")}>
                 <div className={cn(
                   "group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer",
                   location === "/users"
@@ -350,7 +358,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                   사용자
                 </div>
               </Link>
-              <Link href="/admin">
+              <Link href={getOrgPath("/admin")}>
                 <div className={cn(
                   "group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer",
                   location === "/admin"
