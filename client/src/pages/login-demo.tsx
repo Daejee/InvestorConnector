@@ -28,18 +28,29 @@ function DemoLoginForm() {
       // 데모용 간단한 인증 로직
       if (email === "demo" && password === "demo") {
         
-        // 간단한 데모 인증
-        localStorage.setItem('demo_authenticated', 'true');
+        // 데모 조직(ID=3)에 인증 상태 저장
+        const authState = {
+          isAuthenticated: true,
+          user: {
+            id: 1,
+            email: "demo", 
+            name: "데모 사용자",
+            organizationId: 3
+          },
+          timestamp: Date.now()
+        };
+        
+        localStorage.setItem('auth_3', JSON.stringify(authState));
         
         toast({
           title: "로그인 성공", 
-          description: "데모 대시보드로 이동합니다...",
+          description: "데모 회사 시스템으로 이동합니다...",
         });
         
-        // 강제로 페이지 전체 새로고침하여 라우팅 문제 해결
+        // 데모 조직으로 리다이렉트
         setTimeout(() => {
-          window.location.replace("/demo-dashboard");
-        }, 200);
+          window.location.href = "/org/demo";
+        }, 500);
         
       } else {
         toast({

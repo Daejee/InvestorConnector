@@ -33,7 +33,6 @@ import Admin from "@/pages/admin";
 import DemoLogin from "@/pages/login-demo";
 import DefaultLogin from "@/pages/login-default";
 import SamsungLogin from "@/pages/login-samsung";
-import DemoDashboard from "@/pages/demo-dashboard";
 import NotFound from "@/pages/not-found";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -133,9 +132,8 @@ function Router() {
   return (
     <OrganizationProvider>
       <Switch>
-        {/* Demo routes - completely independent */}
+        {/* Demo login page */}
         <Route path="/login/demo" component={DemoLogin} />
-        <Route path="/demo-dashboard" component={DemoDashboard} />
         
         {/* Login pages without layout */}
         <Route path="/login/default" component={DefaultLogin} />
