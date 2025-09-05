@@ -56,17 +56,14 @@ export function OrganizationProvider({ children }: { children: React.ReactNode }
     
     console.log('Current location:', location, 'Domain:', orgDomain, 'New org ID:', newOrgId, 'Current org ID:', organizationId);
     
-    // If organization changed, clear all caches and force re-render
+    // If organization changed, clear React Query caches only (preserve auth state)
     if (organizationId && organizationId !== newOrgId) {
-      console.log('🔄 Organization changed from', organizationId, 'to', newOrgId, 'clearing all caches');
+      console.log('🔄 Organization changed from', organizationId, 'to', newOrgId, 'clearing query caches only');
       
       // Clear all React Query caches
       queryClient.clear();
       
-      // Clear local storage to remove any cached state
-      localStorage.clear();
-      
-      console.log('💾 All caches cleared, updating organization context');
+      console.log('💾 Query caches cleared, preserving auth state');
     }
 
     const loadOrganization = async () => {
