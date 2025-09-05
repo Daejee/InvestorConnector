@@ -37,9 +37,15 @@ import NotFound from "@/pages/not-found";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
-  const { organization } = useOrganization();
+  const { organization, organizationId, isLoading } = useOrganization();
   
-  console.log(`🛡️ ProtectedRoute: Auth=${isAuthenticated}, Org=${organization?.domain}`);
+  console.log(`🛡️ ProtectedRoute: Auth=${isAuthenticated}, OrgId=${organizationId}, Loading=${isLoading}, Org=${organization?.domain}`);
+  
+  // 조직 정보가 로딩 중이면 대기
+  if (isLoading) {
+    console.log(`⏳ Organization loading, waiting...`);
+    return <div>로딩 중...</div>;
+  }
   
   if (!isAuthenticated) {
     // 조직별 로그인 페이지로 리다이렉트

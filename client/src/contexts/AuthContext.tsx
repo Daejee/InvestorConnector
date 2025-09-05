@@ -28,6 +28,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const currentAuth = organizationId ? authState[organizationId] : null;
   const isAuthenticated = currentAuth?.isAuthenticated || false;
   const user = currentAuth?.user;
+  
+  console.log(`🔍 Auth state check: orgId=${organizationId}, auth=${isAuthenticated}, currentAuth=`, currentAuth);
 
   // 조직 변경 시 인증 상태 확인
   useEffect(() => {
