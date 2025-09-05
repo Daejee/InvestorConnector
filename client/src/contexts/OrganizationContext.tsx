@@ -45,37 +45,36 @@ export function OrganizationProvider({ children }: { children: React.ReactNode }
       return 'default';
     };
 
+    const orgDomain = extractOrgFromPath();
+    const newOrgId = DOMAIN_TO_ORG_ID[orgDomain] || 1;
+    
+    console.log('Current location:', location, 'Domain:', orgDomain, 'New org ID:', newOrgId, 'Current org ID:', organizationId);
+    
+    // If organization changed, force page reload
+    if (organizationId && organizationId !== newOrgId) {
+      console.log('🔄 Organization changed from', organizationId, 'to', newOrgId, 'forcing page reload');
+      window.location.reload();
+      return;
+    }
+
     const loadOrganization = async () => {
       try {
         setIsLoading(true);
         setError(null);
 
-        const orgDomain = extractOrgFromPath();
-        const orgId = DOMAIN_TO_ORG_ID[orgDomain];
-
-        if (!orgId) {
+        if (!newOrgId) {
           throw new Error(`Unknown organization: ${orgDomain}`);
         }
 
         // Fetch organization details from API
-        const response = await fetch(`/api/organizations/${orgId}`);
+        const response = await fetch(`/api/organizations/${newOrgId}`);
         if (!response.ok) {
           throw new Error('Failed to load organization');
         }
 
         const orgData = await response.json();
-        
-        // Clear React Query cache when organization changes
-        if (organizationId && organizationId !== orgId) {
-          console.log('Organization changed from', organizationId, 'to', orgId, 'clearing cache and forcing reload');
-          queryClient.clear();
-          // Force a complete page reload to ensure clean state
-          window.location.reload();
-          return;
-        }
-        
         setOrganization(orgData);
-        setOrganizationId(orgId);
+        setOrganizationId(newOrgId);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Unknown error');
         // Fallback to default organization
@@ -86,7 +85,7 @@ export function OrganizationProvider({ children }: { children: React.ReactNode }
     };
 
     loadOrganization();
-  }, [location]);
+  }, [location, organizationId]);
 
   return (
     <OrganizationContext.Provider value={{ organization, organizationId, isLoading, error }}>
