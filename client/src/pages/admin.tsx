@@ -538,7 +538,7 @@ export default function Admin() {
 
   const handleAccessOrganization = (domain: string) => {
     const url = `/org/${domain}`;
-    window.open(url, '_blank');
+    window.location.href = url; // Same tab navigation to trigger organization change
   };
 
   const getTierBadgeColor = (tier: string) => {
