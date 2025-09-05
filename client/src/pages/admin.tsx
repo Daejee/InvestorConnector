@@ -23,7 +23,8 @@ import {
   Edit,
   Trash2,
   Crown,
-  BarChart3
+  BarChart3,
+  ExternalLink
 } from "lucide-react";
 
 interface Organization {
@@ -535,6 +536,11 @@ export default function Admin() {
     setIsDownloading(false);
   };
 
+  const handleAccessOrganization = (domain: string) => {
+    const url = `/org/${domain}`;
+    window.open(url, '_blank');
+  };
+
   const getTierBadgeColor = (tier: string) => {
     switch (tier) {
       case "enterprise": return "bg-purple-100 text-purple-800";
@@ -837,6 +843,15 @@ export default function Admin() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-1">
+                        <Button
+                          size="sm"
+                          variant="default"
+                          onClick={() => handleAccessOrganization(org.domain)}
+                          className="bg-blue-600 hover:bg-blue-700 text-white"
+                          title="조직에 접속하기"
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                        </Button>
                         <Button
                           size="sm"
                           variant="outline"
