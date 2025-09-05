@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { useOrganization } from "@/contexts/OrganizationContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -64,14 +65,19 @@ export default function Admin() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const { toast } = useToast();
+  const { organizationId } = useOrganization();
+
+  console.log("🏢 Admin page organizationId:", organizationId);
 
   const { data: organizations = [], isLoading: orgsLoading } = useQuery<Organization[]>({
-    queryKey: ["/api/organizations"],
+    queryKey: ["/api/organizations", organizationId],
   });
 
   const { data: stats, isLoading: statsLoading } = useQuery<DatabaseStats>({
-    queryKey: ["/api/admin/stats"],
+    queryKey: ["/api/admin/stats", organizationId],
   });
+
+  console.log("📊 Admin stats data:", stats);
 
   const createOrgMutation = useMutation({
     mutationFn: async (data: OrganizationForm) => {
