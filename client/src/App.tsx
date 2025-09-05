@@ -33,30 +33,26 @@ import Admin from "@/pages/admin";
 import DemoLogin from "@/pages/login-demo";
 import DefaultLogin from "@/pages/login-default";
 import SamsungLogin from "@/pages/login-samsung";
+import DemoDashboard from "@/pages/demo-dashboard";
 import NotFound from "@/pages/not-found";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
   const { organization, organizationId, isLoading } = useOrganization();
   
-  console.log(`🛡️ ProtectedRoute: Auth=${isAuthenticated}, OrgId=${organizationId}, Loading=${isLoading}, Org=${organization?.domain}`);
-  
-  // 조직 ID가 있고 인증되어 있으면 바로 통과 (로딩 대기 없음)
+  // 조직 ID가 있고 인증되어 있으면 바로 통과
   if (organizationId && isAuthenticated) {
-    console.log(`✅ Both org and auth are ready, allowing access`);
     return <>{children}</>;
   }
   
   // 조직 정보가 로딩 중이면 짧은 대기만
   if (isLoading && !organizationId) {
-    console.log(`⏳ Organization loading, waiting...`);
     return <div>로딩 중...</div>;
   }
   
   if (!isAuthenticated) {
     // 조직별 로그인 페이지로 리다이렉트
     const domain = organization?.domain || 'default';
-    console.log(`🚫 Not authenticated, redirecting to /login/${domain}`);
     
     // 현재 URL이 이미 로그인 페이지가 아닌 경우에만 리다이렉트
     if (!window.location.pathname.startsWith('/login/')) {
@@ -102,6 +98,7 @@ function OrganizationAwareSwitch() {
       
       {/* Organization-specific login pages */}
       <Route path="/login/demo" component={DemoLogin} />
+      <Route path="/demo-dashboard" component={DemoDashboard} />
       
       {/* Legacy routes redirect to default organization */}
       <Route path="/" component={() => { window.location.href = '/org/default'; return null; }} />

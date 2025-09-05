@@ -27,30 +27,18 @@ function DemoLoginForm() {
     try {
       // 데모용 간단한 인증 로직
       if (email === "demo" && password === "demo") {
-        console.log("🔐 Demo login successful!");
         
-        // 데모 조직(ID=3)에 직접 인증 상태 저장
-        const authState = {
-          isAuthenticated: true,
-          user: {
-            id: 1,
-            email: "demo", 
-            name: "데모 사용자",
-            organizationId: 3
-          },
-          timestamp: Date.now()
-        };
-        
-        localStorage.setItem('auth_3', JSON.stringify(authState));
+        // 간단한 데모 인증
+        localStorage.setItem('demo_authenticated', 'true');
         
         toast({
           title: "로그인 성공", 
           description: "데모 대시보드로 이동합니다...",
         });
         
-        // 즉시 리다이렉트
+        // 데모 대시보드로 직접 이동
         setTimeout(() => {
-          window.location.href = "/org/demo";
+          window.location.href = "/demo-dashboard";
         }, 500);
         
       } else {

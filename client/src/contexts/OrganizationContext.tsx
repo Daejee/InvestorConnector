@@ -54,16 +54,11 @@ export function OrganizationProvider({ children }: { children: React.ReactNode }
     const orgDomain = extractOrgFromPath();
     const newOrgId = DOMAIN_TO_ORG_ID[orgDomain] || 1;
     
-    console.log('Current location:', location, 'Domain:', orgDomain, 'New org ID:', newOrgId, 'Current org ID:', organizationId);
     
     // If organization changed, clear React Query caches only (preserve auth state)
     if (organizationId && organizationId !== newOrgId) {
-      console.log('🔄 Organization changed from', organizationId, 'to', newOrgId, 'clearing query caches only');
-      
       // Clear all React Query caches
       queryClient.clear();
-      
-      console.log('💾 Query caches cleared, preserving auth state');
     }
 
     const loadOrganization = async () => {
