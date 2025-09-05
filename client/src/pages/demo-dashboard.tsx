@@ -1,15 +1,62 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Users, Building2, Calendar, BarChart3 } from "lucide-react";
 
+interface DemoStats {
+  investors: number;
+  overseasInvestors: number;
+  analysts: number;
+  meetings: number;
+}
+
 export default function DemoDashboard() {
-  // 데모 접근 확인
+  const [stats, setStats] = useState<DemoStats>({
+    investors: 0,
+    overseasInvestors: 0,
+    analysts: 0,
+    meetings: 0
+  });
+
+  // 데모 접근 확인 및 데이터 로드
   useEffect(() => {
     const demoAuth = localStorage.getItem('demo_authenticated');
     if (!demoAuth) {
       window.location.href = '/login/demo';
+      return;
     }
+
+    // 데모 조직(ID=3) 데이터 로드
+    const loadDemoData = async () => {
+      try {
+        const headers = { 'x-organization-id': '3' };
+        
+        const [investorsRes, overseasRes, analystsRes, meetingsRes] = await Promise.all([
+          fetch('/api/investors', { headers }),
+          fetch('/api/overseas-investors', { headers }),
+          fetch('/api/analysts', { headers }),
+          fetch('/api/meetings', { headers })
+        ]);
+
+        const [investors, overseas, analysts, meetings] = await Promise.all([
+          investorsRes.json(),
+          overseasRes.json(),
+          analystsRes.json(),
+          meetingsRes.json()
+        ]);
+
+        setStats({
+          investors: investors.length,
+          overseasInvestors: overseas.length,
+          analysts: analysts.length,
+          meetings: meetings.length
+        });
+      } catch (error) {
+        console.error('Failed to load demo data:', error);
+      }
+    };
+
+    loadDemoData();
   }, []);
 
   const handleLogout = () => {
@@ -44,8 +91,10 @@ export default function DemoDashboard() {
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">1</div>
-              <p className="text-xs text-muted-foreground">김철수</p>
+              <div className="text-2xl font-bold">{stats.investors}</div>
+              <p className="text-xs text-muted-foreground">
+                {stats.investors > 0 ? '등록된 투자자' : '등록된 투자자 없음'}
+              </p>
             </CardContent>
           </Card>
 
@@ -55,8 +104,10 @@ export default function DemoDashboard() {
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">0</div>
-              <p className="text-xs text-muted-foreground">등록된 해외 투자자 없음</p>
+              <div className="text-2xl font-bold">{stats.overseasInvestors}</div>
+              <p className="text-xs text-muted-foreground">
+                {stats.overseasInvestors > 0 ? '등록된 해외 투자자' : '등록된 해외 투자자 없음'}
+              </p>
             </CardContent>
           </Card>
 
@@ -66,8 +117,10 @@ export default function DemoDashboard() {
               <Calendar className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">0</div>
-              <p className="text-xs text-muted-foreground">예정된 미팅 없음</p>
+              <div className="text-2xl font-bold">{stats.meetings}</div>
+              <p className="text-xs text-muted-foreground">
+                {stats.meetings > 0 ? '예정된 미팅' : '예정된 미팅 없음'}
+              </p>
             </CardContent>
           </Card>
 
@@ -77,8 +130,10 @@ export default function DemoDashboard() {
               <BarChart3 className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">0</div>
-              <p className="text-xs text-muted-foreground">등록된 애널리스트 없음</p>
+              <div className="text-2xl font-bold">{stats.analysts}</div>
+              <p className="text-xs text-muted-foreground">
+                {stats.analysts > 0 ? '등록된 애널리스트' : '등록된 애널리스트 없음'}
+              </p>
             </CardContent>
           </Card>
         </div>
