@@ -543,6 +543,23 @@ export default function Admin() {
   };
 
   const handleAccessOrganization = (domain: string) => {
+    // 기본 조직으로 전환하는 경우 간단한 인증 설정
+    if (domain === 'default') {
+      // 기본 조직 인증 상태 생성
+      const defaultAuthState = {
+        isAuthenticated: true,
+        user: {
+          id: 1,
+          email: "admin",
+          name: "관리자",
+          organizationId: 1
+        },
+        timestamp: Date.now()
+      };
+      
+      localStorage.setItem('auth_1', JSON.stringify(defaultAuthState));
+    }
+    
     const url = `/org/${domain}`;
     window.location.href = url; // Same tab navigation to trigger organization change
   };
