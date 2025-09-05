@@ -41,15 +41,19 @@ function DemoLoginForm() {
         // 데모 조직 전용 인증 저장
         localStorage.setItem('auth_3', JSON.stringify(authState));
         
+        // 브라우저 전체를 새로고침하여 상태 초기화 문제 해결
+        localStorage.setItem('demo_login_redirect', 'true');
+        
         toast({
-          title: "로그인 성공",
+          title: "로그인 성공", 
           description: "데모 회사 시스템에 오신 것을 환영합니다!",
         });
         
-        // 데모 조직 대시보드로 강제 리다이렉트 (캐시 문제 방지)
+        // 전체 페이지 새로고침으로 안정적인 리다이렉트
         setTimeout(() => {
-          window.location.replace("/org/demo");
-        }, 500);
+          window.location.href = "/org/demo";
+          window.location.reload();
+        }, 1000);
       } else {
         toast({
           title: "로그인 실패",
