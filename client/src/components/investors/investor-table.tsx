@@ -9,10 +9,14 @@ import { useToast } from "@/hooks/use-toast";
 import { Eye, Edit, Trash2, Calendar, Users, Mail, Phone, Building, Briefcase, ChevronUp, ChevronDown } from "lucide-react";
 import InvestorFormSimplified from "@/components/investors/investor-form-simplified";
 import type { Investor, Meeting } from "@shared/schema";
+import { useOrganization } from "@/contexts/OrganizationContext";
 
 function InvestorDetailView({ investor }: { investor: Investor }) {
+  const { organizationId } = useOrganization();
+  
   const { data: meetings = [] } = useQuery<Meeting[]>({
-    queryKey: ["/api/meetings"],
+    queryKey: ["/api/meetings", organizationId],
+    enabled: !!organizationId,
   });
 
   const investorMeetings = meetings.filter(meeting => 
