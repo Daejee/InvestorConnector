@@ -168,7 +168,7 @@ export interface IStorage {
   getEmailLogsByRecipient(email: string): Promise<EmailLog[]>;
 
   // Users
-  getUsers(): Promise<User[]>;
+  getUsers(organizationId: number): Promise<User[]>;
   getUser(id: number): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
@@ -895,8 +895,10 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Users
-  async getUsers(): Promise<User[]> {
-    return await db.select().from(users).orderBy(desc(users.createdAt));
+  async getUsers(organizationId: number): Promise<User[]> {
+    return await db.select().from(users)
+      .where(eq(users.organizationId, organizationId))
+      .orderBy(desc(users.createdAt));
   }
 
   async getUser(id: number): Promise<User | undefined> {

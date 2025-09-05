@@ -44,17 +44,9 @@ const DOMAIN_TO_ORG_ID: Record<string, number> = {
 
 // Middleware to extract organization ID from various sources
 function extractOrganizationId(req: any): number {
-  console.log('=== Organization ID Extraction Debug ===');
-  console.log('Request URL:', req.url);
-  console.log('Request Path:', req.path);
-  console.log('X-Organization-Id header:', req.headers['x-organization-id']);
-  console.log('X-Organization header:', req.headers['x-organization']);
-  console.log('Query org parameter:', req.query.org);
-  
   // Check header: X-Organization-Id (from frontend)
   if (req.headers['x-organization-id']) {
     const orgId = parseInt(req.headers['x-organization-id']);
-    console.log('Using header X-Organization-Id:', orgId);
     if (!isNaN(orgId)) return orgId;
   }
   
@@ -62,34 +54,36 @@ function extractOrganizationId(req: any): number {
   const orgFromPath = req.path.match(/^\/org\/([^\/]+)/);
   if (orgFromPath) {
     const domain = orgFromPath[1];
-    const orgId = DOMAIN_TO_ORG_ID[domain] || 1;
-    console.log('Using URL path domain:', domain, '-> orgId:', orgId);
-    return orgId; // Default to org 1 if not found
+    return DOMAIN_TO_ORG_ID[domain] || 1; // Default to org 1 if not found
   }
   
   // Check query parameter: ?org=samsung
   if (req.query.org) {
-    const orgId = DOMAIN_TO_ORG_ID[req.query.org] || 1;
-    console.log('Using query parameter:', req.query.org, '-> orgId:', orgId);
-    return orgId;
+    return DOMAIN_TO_ORG_ID[req.query.org] || 1;
   }
   
   // Check header: X-Organization (domain)
   if (req.headers['x-organization']) {
-    const orgId = DOMAIN_TO_ORG_ID[req.headers['x-organization']] || 1;
-    console.log('Using header X-Organization:', req.headers['x-organization'], '-> orgId:', orgId);
-    return orgId;
+    return DOMAIN_TO_ORG_ID[req.headers['x-organization']] || 1;
   }
   
   // Default to organization 1
-  console.log('Using default organization ID: 1');
-  console.log('========================================');
   return 1;
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Configure multer for file upload
   const upload = multer({ storage: multer.memoryStorage() });
+  
+  // Middleware to add organization-specific cache headers
+  app.use('/api', (req, res, next) => {
+    const orgId = extractOrganizationId(req);
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    res.setHeader('X-Organization-Context', orgId.toString());
+    next();
+  });
   
   // Organizations routes
   app.get("/api/organizations/:id", async (req, res) => {
@@ -2889,7 +2883,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Users routes
   app.get("/api/users", async (req, res) => {
-    const users = await storage.getUsers();
+    const organizationId = extractOrganizationId(req);
+    const users = await storage.getUsers(organizationId);
     res.json(users);
   });
 
