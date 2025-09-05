@@ -36,9 +36,15 @@ export function OrganizationProvider({ children }: { children: React.ReactNode }
   useEffect(() => {
     const extractOrgFromPath = () => {
       // Extract organization from URL: /org/samsung/dashboard -> 'samsung'
-      const pathMatch = location.match(/^\/org\/([^\/]+)/);
-      if (pathMatch) {
-        return pathMatch[1];
+      const orgPathMatch = location.match(/^\/org\/([^\/]+)/);
+      if (orgPathMatch) {
+        return orgPathMatch[1];
+      }
+      
+      // Extract organization from login URL: /login/demo -> 'demo'
+      const loginPathMatch = location.match(/^\/login\/([^\/]+)/);
+      if (loginPathMatch) {
+        return loginPathMatch[1];
       }
       
       // Default to 'default' organization if no org in path

@@ -29,12 +29,14 @@ function DemoLoginForm() {
           isAuthenticated: true,
           user: {
             id: 1,
-            email: "demo",
+            email: "demo", 
             name: "데모 사용자",
             organizationId: 3
           },
           timestamp: Date.now()
         };
+        
+        console.log("🔐 Demo login: Saving auth state for org 3:", authState);
         
         // 데모 조직 전용 인증 저장
         localStorage.setItem('auth_3', JSON.stringify(authState));
