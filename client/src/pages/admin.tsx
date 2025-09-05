@@ -65,11 +65,56 @@ export default function Admin() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const { toast } = useToast();
+
+  // 조직 삭제 mutation
+  const deleteOrganizationMutation = useMutation({
+    mutationFn: async (organizationId: number) => {
+      const response = await apiRequest(`/api/organizations/${organizationId}`, {
+        method: "DELETE",
+      });
+      return response;
+    },
+    onSuccess: () => {
+      toast({
+        title: "성공",
+        description: "조직이 성공적으로 삭제되었습니다.",
+      });
+      
+      // 조직 목록 새로고침
+      refetchOrganizations();
+    },
+    onError: (error: any) => {
+      toast({
+        title: "오류",
+        description: error.message || "조직 삭제에 실패했습니다.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleDeleteOrganization = (orgId: number, orgName: string) => {
+    if (orgId === 1) {
+      toast({
+        title: "삭제 불가",
+        description: "기본 조직은 삭제할 수 없습니다.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `정말로 "${orgName}" 조직을 삭제하시겠습니까?\n\n⚠️ 경고: 이 작업은 되돌릴 수 없으며, 해당 조직의 모든 데이터(투자자, 애널리스트, 미팅 등)가 영구적으로 삭제됩니다.`
+    );
+    
+    if (confirmed) {
+      deleteOrganizationMutation.mutate(orgId);
+    }
+  };
   const { organizationId } = useOrganization();
 
   console.log("🏢 Admin page organizationId:", organizationId);
 
-  const { data: organizations = [], isLoading: orgsLoading } = useQuery<Organization[]>({
+  const { data: organizations = [], isLoading: orgsLoading, refetch: refetchOrganizations } = useQuery<Organization[]>({
     queryKey: ["/api/organizations", organizationId],
   });
 
@@ -901,6 +946,18 @@ export default function Admin() {
                         <Button size="sm" variant="outline">
                           <Edit className="h-4 w-4" />
                         </Button>
+                        {org.id !== 1 && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleDeleteOrganization(org.id, org.name)}
+                            disabled={deleteOrganizationMutation.isPending}
+                            title="조직 삭제"
+                            className="border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>

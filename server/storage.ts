@@ -179,6 +179,7 @@ export interface IStorage {
   getOrganization(id: number): Promise<Organization | undefined>;
   getAllOrganizations(): Promise<Organization[]>;
   createOrganization(organization: InsertOrganization): Promise<Organization>;
+  deleteOrganization(id: number): Promise<boolean>;
   getDatabaseStats(): Promise<any>;
   exportOrganizationData(organizationId: number): Promise<any>;
   exportAllData(): Promise<any>;
@@ -1075,6 +1076,33 @@ export class DatabaseStorage implements IStorage {
       .values(orgData)
       .returning();
     return organization;
+  }
+
+  async deleteOrganization(id: number): Promise<boolean> {
+    try {
+      // 트랜잭션으로 연관된 모든 데이터 삭제
+      await db.transaction(async (tx) => {
+        // 조직에 속한 모든 데이터 삭제
+        await tx.delete(investors).where(eq(investors.organizationId, id));
+        await tx.delete(overseasInvestors).where(eq(overseasInvestors.organizationId, id));
+        await tx.delete(analysts).where(eq(analysts.organizationId, id));
+        await tx.delete(companies).where(eq(companies.organizationId, id));
+        await tx.delete(overseasCompanies).where(eq(overseasCompanies.organizationId, id));
+        await tx.delete(meetings).where(eq(meetings.organizationId, id));
+        await tx.delete(overseasFunds).where(eq(overseasFunds.organizationId, id));
+        await tx.delete(users).where(eq(users.organizationId, id));
+        await tx.delete(analystReports).where(eq(analystReports.organizationId, id));
+        await tx.delete(investorInsights).where(eq(investorInsights.organizationId, id));
+        
+        // 마지막으로 조직 자체 삭제
+        await tx.delete(organizations).where(eq(organizations.id, id));
+      });
+      
+      return true;
+    } catch (error) {
+      console.error('Error deleting organization:', error);
+      return false;
+    }
   }
 
   async getDatabaseStats(): Promise<any> {

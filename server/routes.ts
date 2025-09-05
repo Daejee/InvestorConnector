@@ -3335,6 +3335,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.delete("/api/organizations/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      
+      // 기본 조직(ID=1)은 삭제 불가
+      if (id === 1) {
+        return res.status(403).json({ message: "기본 조직은 삭제할 수 없습니다." });
+      }
+      
+      // 조직이 존재하는지 확인
+      const organization = await storage.getOrganization(id);
+      if (!organization) {
+        return res.status(404).json({ message: "조직을 찾을 수 없습니다." });
+      }
+      
+      // 조직 삭제 (연관된 데이터도 함께 삭제)
+      const deleted = await storage.deleteOrganization(id);
+      if (!deleted) {
+        return res.status(500).json({ message: "조직 삭제에 실패했습니다." });
+      }
+      
+      res.status(204).send();
+    } catch (error: any) {
+      console.error('Error deleting organization:', error);
+      res.status(500).json({ 
+        message: "조직 삭제 중 오류가 발생했습니다.", 
+        error: error.message 
+      });
+    }
+  });
+
   app.get("/api/admin/stats", async (req, res) => {
     try {
       const stats = await storage.getDatabaseStats();
