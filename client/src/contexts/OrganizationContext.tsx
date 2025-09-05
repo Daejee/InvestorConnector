@@ -67,7 +67,11 @@ export function OrganizationProvider({ children }: { children: React.ReactNode }
         
         // Clear React Query cache when organization changes
         if (organizationId && organizationId !== orgId) {
+          console.log('Organization changed from', organizationId, 'to', orgId, 'clearing cache and forcing reload');
           queryClient.clear();
+          // Force a complete page reload to ensure clean state
+          window.location.reload();
+          return;
         }
         
         setOrganization(orgData);
