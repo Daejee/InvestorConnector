@@ -34,6 +34,14 @@ export default function Dashboard() {
     enabled: !!organizationId,
   });
 
+  // Debug: Log received data
+  console.log('🏠 Dashboard data:', {
+    organizationId,
+    investorsCount: investors?.length,
+    firstInvestor: investors?.[0]?.name,
+    firstInvestorOrgId: investors?.[0]?.organizationId
+  });
+
   const { data: analysts = [] } = useQuery<Analyst[]>({
     queryKey: ["/api/analysts", organizationId],
     enabled: !!organizationId,

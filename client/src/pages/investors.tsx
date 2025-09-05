@@ -24,6 +24,14 @@ export default function Investors() {
     enabled: !!organizationId,
   });
 
+  // Debug: Log received data
+  console.log('🔍 Investors page data:', {
+    organizationId,
+    investorsCount: investors?.length,
+    firstInvestor: investors?.[0]?.name,
+    firstInvestorOrgId: investors?.[0]?.organizationId
+  });
+
   const uploadInvestorsMutation = useMutation({
     mutationFn: async (file: File) => {
       const formData = new FormData();
