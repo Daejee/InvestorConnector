@@ -28,7 +28,10 @@ function DemoLoginForm() {
       // 데모용 간단한 인증 로직
       if (email === "demo" && password === "demo") {
         
-        // 데모 조직(ID=3)에 인증 상태 저장
+        // 모든 localStorage 데이터 정리
+        localStorage.clear();
+        
+        // 데모 조직(ID=3)에만 인증 상태 저장
         const authState = {
           isAuthenticated: true,
           user: {
@@ -44,13 +47,11 @@ function DemoLoginForm() {
         
         toast({
           title: "로그인 성공", 
-          description: "데모 회사 시스템으로 이동합니다...",
+          description: "데모 시스템으로 이동합니다...",
         });
         
-        // 데모 조직으로 리다이렉트
-        setTimeout(() => {
-          window.location.href = "/org/demo";
-        }, 500);
+        // 즉시 이동 (지연 없음)
+        window.location.href = "/org/demo";
         
       } else {
         toast({

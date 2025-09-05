@@ -70,14 +70,6 @@ export function OrganizationProvider({ children }: { children: React.ReactNode }
           throw new Error(`Unknown organization: ${orgDomain}`);
         }
 
-        // 데모 로그인 후 리다이렉트인 경우 즉시 조직 설정
-        if (localStorage.getItem('demo_login_redirect') && newOrgId === 3) {
-          localStorage.removeItem('demo_login_redirect');
-          setOrganizationId(3);
-          setOrganization({ id: 3, name: "데모 회사", domain: "demo", plan: "demo", status: "active" });
-          setIsLoading(false);
-          return;
-        }
 
         // Fetch organization details from API
         const response = await fetch(`/api/organizations/${newOrgId}`);
