@@ -96,9 +96,7 @@ function OrganizationAwareSwitch() {
       <Route path="/org/:orgDomain/analyst-reports" component={AnalystReports} />
       <Route path="/org/:orgDomain/admin" component={() => <ProtectedRoute><Admin /></ProtectedRoute>} />
       
-      {/* Organization-specific login pages */}
-      <Route path="/login/demo" component={DemoLogin} />
-      <Route path="/demo-dashboard" component={DemoDashboard} />
+      {/* Organization-specific login pages - demo handled in Router */}
       
       {/* Legacy routes redirect to default organization */}
       <Route path="/" component={() => { window.location.href = '/org/default'; return null; }} />
@@ -135,10 +133,13 @@ function Router() {
   return (
     <OrganizationProvider>
       <Switch>
+        {/* Demo routes - completely independent */}
+        <Route path="/login/demo" component={DemoLogin} />
+        <Route path="/demo-dashboard" component={DemoDashboard} />
+        
         {/* Login pages without layout */}
         <Route path="/login/default" component={DefaultLogin} />
         <Route path="/login/samsung" component={SamsungLogin} />
-        <Route path="/login/demo" component={DemoLogin} />
         
         {/* All other routes with layout */}
         <Route>

@@ -36,8 +36,10 @@ function DemoLoginForm() {
           description: "데모 대시보드로 이동합니다...",
         });
         
-        // 데모 대시보드로 직접 이동 (즉시)
-        window.location.href = "/demo-dashboard";
+        // 강제로 페이지 전체 새로고침하여 라우팅 문제 해결
+        setTimeout(() => {
+          window.location.replace("/demo-dashboard");
+        }, 200);
         
       } else {
         toast({
