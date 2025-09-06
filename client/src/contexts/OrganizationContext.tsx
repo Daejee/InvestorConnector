@@ -29,34 +29,29 @@ async function fetchDomainMapping(): Promise<Record<string, number>> {
   }
   
   try {
-    const response = await fetch('/api/organizations');
+    // 새로운 도메인 매핑 API 사용 (조직 필터링 없음)
+    const response = await fetch('/api/domain-mapping');
     if (response.ok) {
-      const organizations = await response.json();
-      const mapping: Record<string, number> = {};
-      
-      organizations.forEach((org: any) => {
-        mapping[org.domain] = org.id;
-        // .com 제거한 버전도 매핑 추가
-        if (org.domain.endsWith('.com')) {
-          mapping[org.domain.replace('.com', '')] = org.id;
-        }
-      });
-      
-      domainMappingCache = mapping;
-      console.log("🗺️ Domain mapping loaded:", mapping);
-      return mapping;
+      domainMappingCache = await response.json();
+      console.log("🗺️ Domain mapping loaded:", domainMappingCache);
+      return domainMappingCache;
     }
   } catch (error) {
     console.error('Failed to fetch domain mapping:', error);
   }
   
   // Fallback to basic mapping
-  return {
+  const fallback = {
     'default': 1,
     'default.com': 1,
     'samsung': 2,
     'demo': 3,
+    'LG': 4,
   };
+  
+  domainMappingCache = fallback;
+  console.log("🔄 Using fallback domain mapping:", fallback);
+  return fallback;
 }
 
 export function OrganizationProvider({ children }: { children: React.ReactNode }) {

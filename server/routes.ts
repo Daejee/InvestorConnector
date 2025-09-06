@@ -134,8 +134,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Middleware to add organization-specific cache headers
   app.use('/api', async (req, res, next) => {
-    // Skip organization extraction for domain-mapping endpoint
-    if (req.path === '/api/domain-mapping') {
+    // Skip organization extraction for global endpoints
+    const skipOrgExtraction = ['/api/domain-mapping', '/api/organizations'].includes(req.path);
+    
+    if (skipOrgExtraction) {
       res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
       res.setHeader('Pragma', 'no-cache');
       res.setHeader('Expires', '0');
