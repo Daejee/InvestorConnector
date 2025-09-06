@@ -123,12 +123,9 @@ export default function CalendarScheduler({ selectedInvestor }: CalendarSchedule
       };
       
       console.log("Form data being submitted:", formattedData);
-      const response = await fetch("/api/meetings", {
+      const response = await apiRequest("/api/meetings", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formattedData),
+        body: formattedData,
       });
       return response.json();
     },
