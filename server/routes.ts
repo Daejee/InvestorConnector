@@ -1082,11 +1082,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/meetings", async (req, res) => {
     try {
+      console.log('🎯 REAL Meeting API - Headers:', {
+        'x-organization-id': req.headers['x-organization-id'],
+        'x-organization': req.headers['x-organization'],
+        path: req.path
+      });
+      console.log('🎯 REAL Meeting API - Body:', req.body);
+      
       const data = insertMeetingSchema.parse(req.body);
       const organizationId = await extractOrganizationId(req);
+      console.log('🎯 REAL Meeting API - Organization ID:', organizationId);
+      
       const meeting = await storage.createMeeting(data, organizationId);
+      console.log('🎯 REAL Meeting API - Created meeting:', meeting);
       res.status(201).json(meeting);
     } catch (error) {
+      console.error('🎯 REAL Meeting API - Error:', error);
       res.status(400).json({ message: "Invalid meeting data", error });
     }
   });
