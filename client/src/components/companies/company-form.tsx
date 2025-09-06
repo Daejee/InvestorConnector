@@ -127,12 +127,8 @@ export default function CompanyForm({ company, onSuccess, onCancel, apiPath = "/
           />
         </div>
 
-        {/* 선택 필드들 - 접을 수 있게 */}
-        <details className="border border-gray-200 rounded-lg">
-          <summary className="cursor-pointer p-4 bg-gray-50 hover:bg-gray-100 font-medium text-gray-700">
-            추가 정보 (선택사항)
-          </summary>
-          <div className="p-4 space-y-4">
+        {/* 추가 정보 */}
+        <div className="space-y-4">
             {/* Two-column layout */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Left Column */}
@@ -302,7 +298,7 @@ export default function CompanyForm({ company, onSuccess, onCancel, apiPath = "/
               />
             )}
           </div>
-        </details>
+        </div>
 
         <div className="flex justify-end space-x-4">
           {onCancel && (
