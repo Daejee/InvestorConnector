@@ -24,7 +24,6 @@ export default function CompanyForm({ company, onSuccess, onCancel, apiPath = "/
     resolver: zodResolver(insertCompanySchema),
     defaultValues: {
       name: company?.name || "",
-      hqLocation: company?.hqLocation || "",
       aum: company ? parseFloat(company.aum).toString() : "",
       type: company?.type || "",
       area: company?.area || "",
@@ -114,19 +113,6 @@ export default function CompanyForm({ company, onSuccess, onCancel, apiPath = "/
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Left Column */}
           <div className="space-y-4">
-            <FormField
-              control={form.control}
-              name="hqLocation"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>HQ Location</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter headquarters location" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
 
             <FormField
               control={form.control}
@@ -134,9 +120,18 @@ export default function CompanyForm({ company, onSuccess, onCancel, apiPath = "/
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Type</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter company type (e.g., VC, PE, Hedge Fund)" {...field} />
-                  </FormControl>
+                  <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="회사 유형을 선택하세요" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="Mutual">Mutual</SelectItem>
+                      <SelectItem value="Hedge">Hedge</SelectItem>
+                      <SelectItem value="기타">기타</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
