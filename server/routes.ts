@@ -38,6 +38,12 @@ import { AIAnalysisService } from "./aiAnalysisService";
 // 동적 도메인 매핑 캐시
 let domainMappingCache: Record<string, number> | null = null;
 
+// 캐시 초기화 함수
+function clearDomainMappingCache() {
+  domainMappingCache = null;
+  console.log("🗑️ Domain mapping cache cleared");
+}
+
 // DB에서 조직 도메인 매핑을 가져오는 함수
 async function fetchDomainMapping(): Promise<Record<string, number>> {
   if (domainMappingCache) {
@@ -3360,6 +3366,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         settings: {},
         isActive: true
       });
+      
+      // 새 조직 생성 시 도메인 매핑 캐시 초기화
+      clearDomainMappingCache();
+      
       res.status(201).json(organization);
     } catch (error) {
       res.status(400).json({ message: "Failed to create organization", error });
@@ -3386,6 +3396,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!deleted) {
         return res.status(500).json({ message: "조직 삭제에 실패했습니다." });
       }
+      
+      // 조직 삭제 시 도메인 매핑 캐시 초기화
+      clearDomainMappingCache();
       
       res.status(204).send();
     } catch (error: any) {
