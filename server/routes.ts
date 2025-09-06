@@ -79,10 +79,23 @@ async function fetchDomainMapping(): Promise<Record<string, number>> {
 
 // Middleware to extract organization ID from various sources
 async function extractOrganizationId(req: any): Promise<number> {
+  console.log('🔍 Extracting organization ID from request:', {
+    method: req.method,
+    path: req.path,
+    headers: {
+      'x-organization-id': req.headers['x-organization-id'],
+      'x-organization': req.headers['x-organization']
+    },
+    query: req.query
+  });
+  
   // Check header: X-Organization-Id (from frontend)
   if (req.headers['x-organization-id']) {
     const orgId = parseInt(req.headers['x-organization-id']);
-    if (!isNaN(orgId)) return orgId;
+    if (!isNaN(orgId)) {
+      console.log('✅ Using organization ID from X-Organization-Id header:', orgId);
+      return orgId;
+    }
   }
   
   const domainMapping = await fetchDomainMapping();
@@ -91,20 +104,27 @@ async function extractOrganizationId(req: any): Promise<number> {
   const orgFromPath = req.path.match(/^\/org\/([^\/]+)/);
   if (orgFromPath) {
     const domain = orgFromPath[1];
-    return domainMapping[domain] || 1; // Default to org 1 if not found
+    const mappedOrgId = domainMapping[domain] || 1;
+    console.log('🗂️ Using organization ID from URL path:', { domain, mappedOrgId });
+    return mappedOrgId;
   }
   
   // Check query parameter: ?org=samsung
   if (req.query.org) {
-    return domainMapping[req.query.org] || 1;
+    const mappedOrgId = domainMapping[req.query.org] || 1;
+    console.log('🔗 Using organization ID from query parameter:', { org: req.query.org, mappedOrgId });
+    return mappedOrgId;
   }
   
   // Check header: X-Organization (domain)
   if (req.headers['x-organization']) {
-    return domainMapping[req.headers['x-organization']] || 1;
+    const mappedOrgId = domainMapping[req.headers['x-organization']] || 1;
+    console.log('🏢 Using organization ID from X-Organization header:', { domain: req.headers['x-organization'], mappedOrgId });
+    return mappedOrgId;
   }
   
   // Default to organization 1
+  console.log('⚠️ Defaulting to organization ID 1 - no valid source found');
   return 1;
 }
 
