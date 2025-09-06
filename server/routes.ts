@@ -1685,13 +1685,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/meetings", async (req, res) => {
     try {
-      console.log('Raw request body:', req.body);
+      console.log('📝 Creating meeting - Headers:', {
+        'x-organization-id': req.headers['x-organization-id'],
+        'x-organization': req.headers['x-organization'],
+        path: req.path
+      });
+      console.log('📝 Raw request body:', req.body);
+      
       // Skip validation for now and directly create
       const data = { ...req.body };
-      console.log('Data to process:', data);
+      console.log('📝 Data to process:', data);
       
       const organizationId = await extractOrganizationId(req);
+      console.log('📝 Final organization ID for meeting:', organizationId);
+      
       const meeting = await storage.createMeeting(data, organizationId);
+      console.log('📝 Meeting created:', meeting);
       res.status(201).json(meeting);
     } catch (error) {
       console.error('Meeting creation error:', error);
