@@ -126,7 +126,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         <nav className="mt-6 px-3 lg:mt-0">
           <div className="space-y-1">
             {navigation.slice(0, 4).map((item) => {
-              const isActive = location === item.href;
+              const isActive = location.endsWith(item.href);
               const hasSubmenu = item.submenu && item.submenu.length > 0;
               const expanded = isExpanded(item.name);
               
@@ -214,7 +214,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               <Link href={getOrgPath("/ndr-conferences")}>
                 <div className={cn(
                   "group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer",
-                  location === "/ndr-conferences"
+                  location.endsWith("/ndr-conferences")
                     ? "bg-primary text-white"
                     : "text-gray-700 hover:bg-gray-50"
                 )}
@@ -227,7 +227,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               <Link href={getOrgPath("/other-events")}>
                 <div className={cn(
                   "group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer",
-                  location === "/other-events"
+                  location.endsWith("/other-events")
                     ? "bg-primary text-white"
                     : "text-gray-700 hover:bg-gray-50"
                 )}
@@ -247,7 +247,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             </h3>
             <div className="mt-2 space-y-1">
               {navigation.slice(4).map((item) => {
-                const isActive = location === item.href;
+                const isActive = location.endsWith(item.href);
                 const hasSubmenu = item.submenu && item.submenu.length > 0;
                 const expanded = isExpanded(item.name);
                 
@@ -335,7 +335,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               <Link href={getOrgPath("/documents")}>
                 <div className={cn(
                   "group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer",
-                  location === "/documents"
+                  location.endsWith("/documents")
                     ? "bg-primary text-white"
                     : "text-gray-700 hover:bg-gray-50"
                 )}
@@ -348,7 +348,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               <Link href={getOrgPath("/users")}>
                 <div className={cn(
                   "group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer",
-                  location === "/users"
+                  location.endsWith("/users")
                     ? "bg-primary text-white"
                     : "text-gray-700 hover:bg-gray-50"
                 )}
@@ -361,7 +361,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               <Link href={getOrgPath("/admin")}>
                 <div className={cn(
                   "group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer",
-                  location === "/admin"
+                  location.endsWith("/admin")
                     ? "bg-primary text-white"
                     : "text-gray-700 hover:bg-gray-50"
                 )}
