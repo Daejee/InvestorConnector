@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { BarChart, Download, Users, Calendar, FileText, Building, TrendingUp, Wallet } from "lucide-react";
 import { format } from "date-fns";
+import jsPDF from "jspdf";
 
 interface Investor {
   id: number;
@@ -205,6 +206,90 @@ export default function Reports() {
     }
   };
 
+  // PDF 생성 함수
+  const generateMeetingPDF = (meeting: Meeting) => {
+    const doc = new jsPDF();
+    
+    // 제목
+    doc.setFontSize(16);
+    doc.text("미팅 보고서", 20, 20);
+    
+    // 미팅 정보
+    doc.setFontSize(12);
+    let yPosition = 40;
+    
+    doc.text(`미팅 제목: ${meeting.title || "제목 없음"}`, 20, yPosition);
+    yPosition += 10;
+    
+    doc.text(`일시: ${format(new Date(meeting.scheduledDate), "yyyy년 MM월 dd일 HH:mm")}`, 20, yPosition);
+    yPosition += 10;
+    
+    doc.text(`상태: ${meeting.status}`, 20, yPosition);
+    yPosition += 10;
+    
+    if (meeting.meetingCategory) {
+      doc.text(`카테고리: ${meeting.meetingCategory}`, 20, yPosition);
+      yPosition += 10;
+    }
+    
+    if (meeting.location) {
+      doc.text(`장소: ${meeting.location}`, 20, yPosition);
+      yPosition += 10;
+    }
+    
+    doc.text(`소요 시간: ${meeting.duration || 60}분`, 20, yPosition);
+    yPosition += 15;
+    
+    // 참석자 정보
+    const attendeeNames = [];
+    if (meeting.attendeeType === "investor" && meeting.investorIds) {
+      const meetingInvestors = investors.filter(inv => 
+        meeting.investorIds?.includes(inv.id.toString())
+      );
+      attendeeNames.push(...meetingInvestors.map(inv => `${inv.name} (${inv.company})`));
+    }
+    
+    if (meeting.attendeeType === "analyst" && meeting.analystIds) {
+      const meetingAnalysts = analysts.filter(analyst => 
+        meeting.analystIds?.includes(analyst.id.toString())
+      );
+      attendeeNames.push(...meetingAnalysts.map(analyst => `${analyst.name} (${analyst.company})`));
+    }
+    
+    if (attendeeNames.length > 0) {
+      doc.text("참석자:", 20, yPosition);
+      yPosition += 8;
+      attendeeNames.forEach(name => {
+        doc.text(`• ${name}`, 25, yPosition);
+        yPosition += 8;
+      });
+      yPosition += 5;
+    }
+    
+    // 설명
+    if (meeting.description) {
+      doc.text("설명:", 20, yPosition);
+      yPosition += 8;
+      
+      // 긴 텍스트를 여러 줄로 분할
+      const splitText = doc.splitTextToSize(meeting.description, 170);
+      splitText.forEach((line: string) => {
+        doc.text(line, 20, yPosition);
+        yPosition += 6;
+      });
+    }
+    
+    // 회의록 파일 정보
+    if (meeting.minutesFileName) {
+      yPosition += 10;
+      doc.text(`회의록 파일: ${meeting.minutesFileName}`, 20, yPosition);
+    }
+    
+    // PDF 다운로드
+    const fileName = `meeting_report_${meeting.id}_${format(new Date(meeting.scheduledDate), "yyyy-MM-dd")}.pdf`;
+    doc.save(fileName);
+  };
+
   return (
     <div>
       <div className="mb-8">
@@ -212,12 +297,6 @@ export default function Reports() {
           <div>
             <h2 className="text-2xl font-bold text-gray-900">보고서</h2>
             <p className="text-gray-600 mt-1">투자자 및 미팅 종합 보고서 생성</p>
-          </div>
-          <div className="mt-4 sm:mt-0">
-            <Button onClick={exportReport} disabled={activeTab === "investor-reports" && !investorReport}>
-              <Download className="mr-2 h-4 w-4" />
-              보고서 내보내기
-            </Button>
           </div>
         </div>
       </div>
@@ -550,12 +629,25 @@ export default function Reports() {
                               </div>
                             )}
                             
-                            {meeting.minutesFileName && (
-                              <div className="flex items-center gap-2">
-                                <FileText className="h-4 w-4 text-blue-500" />
-                                <span className="text-sm text-blue-600">회의록: {meeting.minutesFileName}</span>
+                            <div className="flex items-center justify-between mt-4">
+                              <div>
+                                {meeting.minutesFileName && (
+                                  <div className="flex items-center gap-2">
+                                    <FileText className="h-4 w-4 text-blue-500" />
+                                    <span className="text-sm text-blue-600">회의록: {meeting.minutesFileName}</span>
+                                  </div>
+                                )}
                               </div>
-                            )}
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => generateMeetingPDF(meeting)}
+                                className="ml-4"
+                              >
+                                <Download className="mr-2 h-3 w-3" />
+                                PDF 다운로드
+                              </Button>
+                            </div>
                           </div>
                         );
                       })}
