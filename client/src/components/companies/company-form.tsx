@@ -142,7 +142,7 @@ export default function CompanyForm({ company, onSuccess, onCancel, apiPath = "/
               name="shareholderStatus"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>주주여부 / Shareholder Status</FormLabel>
+                  <FormLabel>주주여부</FormLabel>
                   <Select onValueChange={(value) => {
                     field.onChange(value);
                     if (value !== "Yes") {
