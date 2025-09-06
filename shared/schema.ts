@@ -119,17 +119,17 @@ export const companies = pgTable("companies", {
   id: serial("id").primaryKey(),
   organizationId: integer("organization_id").references(() => organizations.id), // 기업별 격리
   name: text("name").notNull(),
-  hqLocation: text("hq_location").notNull(),
-  aum: decimal("aum", { precision: 20, scale: 2 }).notNull(),
+  hqLocation: text("hq_location"), // 선택사항으로 변경
+  aum: decimal("aum", { precision: 20, scale: 2 }).default("0"), // 선택사항으로 변경, 기본값 0
   aumKrw: decimal("aum_krw", { precision: 20, scale: 2 }), // AUM in Korean Won (trillion)
-  type: text("type").notNull(), // VC, PE, Hedge Fund, etc.
+  type: text("type"), // 선택사항으로 변경
   area: text("area"), // US, EU, Hong Kong, Singapore, Korea, Other
   shareholderStatus: text("shareholder_status").default("N/A"), // Yes, No, N/A
   shareCount: text("share_count"), // Number of shares if shareholderStatus is Yes
   // New fields for Korean companies
   fundManagerCount: integer("fund_manager_count"), // 펀드 매니저수
   establishedDate: date("established_date"), // 설립일자
-  address: text("address"), // 주소
+  address: text("address").notNull(), // 주소를 필수로 변경
   phone: text("phone"), // TEL
   website: text("website"), // WEB주소
   status: text("status").notNull().default("active"), // active, archived
@@ -344,6 +344,10 @@ export const insertOverseasInvestorSchema = createInsertSchema(overseasInvestors
 
 export const insertCompanySchema = createInsertSchema(companies).omit({
   id: true,
+}).extend({
+  aum: z.string().optional().default("0"), // AUM을 선택사항으로, 기본값 "0"
+  type: z.string().optional(), // Type을 선택사항으로
+  hqLocation: z.string().optional(), // HQ Location을 선택사항으로
 });
 
 export const insertOverseasCompanySchema = createInsertSchema(overseasCompanies).omit({
