@@ -35,36 +35,67 @@ import {
 } from "./objectStorage";
 import { AIAnalysisService } from "./aiAnalysisService";
 
-// Organization domain to ID mapping
-const DOMAIN_TO_ORG_ID: Record<string, number> = {
-  'default': 1,
-  'samsung': 2,
-  'demo': 3,
-};
+// 동적 도메인 매핑 캐시
+let domainMappingCache: Record<string, number> | null = null;
+
+// DB에서 조직 도메인 매핑을 가져오는 함수
+async function fetchDomainMapping(): Promise<Record<string, number>> {
+  if (domainMappingCache) {
+    return domainMappingCache;
+  }
+  
+  try {
+    const organizations = await storage.getAllOrganizations();
+    const mapping: Record<string, number> = {};
+    
+    organizations.forEach((org: any) => {
+      mapping[org.domain] = org.id;
+      // .com 제거한 버전도 매핑 추가
+      if (org.domain.endsWith('.com')) {
+        mapping[org.domain.replace('.com', '')] = org.id;
+      }
+    });
+    
+    domainMappingCache = mapping;
+    console.log("🗺️ Backend domain mapping loaded:", mapping);
+    return mapping;
+  } catch (error) {
+    console.error("Failed to fetch domain mapping:", error);
+    // 에러 시 기본 매핑 사용
+    return {
+      'default': 1,
+      'default.com': 1,
+      'samsung': 2,
+      'demo': 3
+    };
+  }
+}
 
 // Middleware to extract organization ID from various sources
-function extractOrganizationId(req: any): number {
+async function extractOrganizationId(req: any): Promise<number> {
   // Check header: X-Organization-Id (from frontend)
   if (req.headers['x-organization-id']) {
     const orgId = parseInt(req.headers['x-organization-id']);
     if (!isNaN(orgId)) return orgId;
   }
   
+  const domainMapping = await fetchDomainMapping();
+  
   // Check URL path: /org/samsung/investors
   const orgFromPath = req.path.match(/^\/org\/([^\/]+)/);
   if (orgFromPath) {
     const domain = orgFromPath[1];
-    return DOMAIN_TO_ORG_ID[domain] || 1; // Default to org 1 if not found
+    return domainMapping[domain] || 1; // Default to org 1 if not found
   }
   
   // Check query parameter: ?org=samsung
   if (req.query.org) {
-    return DOMAIN_TO_ORG_ID[req.query.org] || 1;
+    return domainMapping[req.query.org] || 1;
   }
   
   // Check header: X-Organization (domain)
   if (req.headers['x-organization']) {
-    return DOMAIN_TO_ORG_ID[req.headers['x-organization']] || 1;
+    return domainMapping[req.headers['x-organization']] || 1;
   }
   
   // Default to organization 1
@@ -76,8 +107,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const upload = multer({ storage: multer.memoryStorage() });
   
   // Middleware to add organization-specific cache headers
-  app.use('/api', (req, res, next) => {
-    const orgId = extractOrganizationId(req);
+  app.use('/api', async (req, res, next) => {
+    const orgId = await extractOrganizationId(req);
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
@@ -101,14 +132,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Investors routes
   app.get("/api/investors", async (req, res) => {
-    const organizationId = extractOrganizationId(req);
+    const organizationId = await extractOrganizationId(req);
     const investors = await storage.getInvestors(organizationId);
     res.json(investors);
   });
 
   app.get("/api/investors/:id", async (req, res) => {
     const id = parseInt(req.params.id);
-    const organizationId = extractOrganizationId(req);
+    const organizationId = await extractOrganizationId(req);
     const investor = await storage.getInvestor(id, organizationId);
     if (!investor) {
       return res.status(404).json({ message: "Investor not found" });
@@ -132,7 +163,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         data.numberOfManagedFunds = typeof data.numberOfManagedFunds === 'string' ? parseInt(data.numberOfManagedFunds) : data.numberOfManagedFunds;
       }
       
-      const organizationId = extractOrganizationId(req);
+      const organizationId = await extractOrganizationId(req);
       const investor = await storage.createInvestor(data, organizationId);
       res.status(201).json(investor);
     } catch (error) {
@@ -145,7 +176,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       const data = insertInvestorSchema.partial().parse(req.body);
-      const organizationId = extractOrganizationId(req);
+      const organizationId = await extractOrganizationId(req);
       const investor = await storage.updateInvestor(id, data, organizationId);
       if (!investor) {
         return res.status(404).json({ message: "Investor not found" });
@@ -174,7 +205,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         data.numberOfManagedFunds = typeof data.numberOfManagedFunds === 'string' ? parseInt(data.numberOfManagedFunds) : data.numberOfManagedFunds;
       }
       
-      const organizationId = extractOrganizationId(req);
+      const organizationId = await extractOrganizationId(req);
       const investor = await storage.updateInvestor(id, data, organizationId);
       if (!investor) {
         return res.status(404).json({ message: "Investor not found" });
@@ -190,7 +221,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       
-      const organizationId = extractOrganizationId(req);
+      const organizationId = await extractOrganizationId(req);
       
       // Check if investor exists
       const investor = await storage.getInvestor(id, organizationId);
@@ -372,7 +403,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                   }
                   
                   const validatedData = insertInvestorSchema.parse(inv);
-                  const organizationId = extractOrganizationId(req);
+                  const organizationId = await extractOrganizationId(req);
                   const createdInvestor = await storage.createInvestor(validatedData, organizationId);
                   created.push(createdInvestor);
                   console.log(`Successfully created investor: ${inv.name}`);
@@ -402,14 +433,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Overseas Investors routes
   app.get("/api/overseas-investors", async (req, res) => {
-    const organizationId = extractOrganizationId(req);
+    const organizationId = await extractOrganizationId(req);
     const investors = await storage.getOverseasInvestors(organizationId);
     res.json(investors);
   });
 
   app.get("/api/overseas-investors/:id", async (req, res) => {
     const id = parseInt(req.params.id);
-    const organizationId = extractOrganizationId(req);
+    const organizationId = await extractOrganizationId(req);
     const investor = await storage.getOverseasInvestor(id, organizationId);
     if (!investor) {
       return res.status(404).json({ message: "Overseas investor not found" });
@@ -422,7 +453,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("Overseas investor request body:", req.body);
       const data = insertOverseasInvestorSchema.parse(req.body);
       console.log("Parsed data:", data);
-      const organizationId = extractOrganizationId(req);
+      const organizationId = await extractOrganizationId(req);
       const investor = await storage.createOverseasInvestor(data, organizationId);
       res.status(201).json(investor);
     } catch (error) {
@@ -434,7 +465,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/overseas-investors/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const organizationId = extractOrganizationId(req);
+      const organizationId = await extractOrganizationId(req);
       const data = insertOverseasInvestorSchema.partial().parse(req.body);
       const investor = await storage.updateOverseasInvestor(id, data, organizationId);
       if (!investor) {
@@ -449,7 +480,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/overseas-investors/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const organizationId = extractOrganizationId(req);
+      const organizationId = await extractOrganizationId(req);
       const data = insertOverseasInvestorSchema.partial().parse(req.body);
       const investor = await storage.updateOverseasInvestor(id, data, organizationId);
       if (!investor) {
@@ -464,7 +495,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/overseas-investors/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const organizationId = extractOrganizationId(req);
+      const organizationId = await extractOrganizationId(req);
       
       const investor = await storage.getOverseasInvestor(id, organizationId);
       if (!investor) {
@@ -487,7 +518,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Companies routes
   app.get("/api/companies", async (req, res) => {
-    const organizationId = extractOrganizationId(req);
+    const organizationId = await extractOrganizationId(req);
     const companies = await storage.getCompanies(organizationId);
     res.json(companies);
   });
@@ -503,7 +534,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Auto-calculate AUM in KRW (trillion won) with 1.4x multiplier
         data.aumKrw = (aumValue * 1.4).toString();
       }
-      const organizationId = extractOrganizationId(req);
+      const organizationId = await extractOrganizationId(req);
       const company = await storage.createCompany(data, organizationId);
       res.status(201).json(company);
     } catch (error) {
@@ -529,7 +560,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       console.log('Final data for update:', data);
-      const organizationId = extractOrganizationId(req);
+      const organizationId = await extractOrganizationId(req);
       const company = await storage.updateCompany(id, data, organizationId);
       if (!company) {
         return res.status(404).json({ message: "Company not found" });
@@ -543,7 +574,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/companies/:id", async (req, res) => {
     const id = parseInt(req.params.id);
-    const organizationId = extractOrganizationId(req);
+    const organizationId = await extractOrganizationId(req);
     const deleted = await storage.deleteCompany(id, organizationId);
     if (!deleted) {
       return res.status(404).json({ message: "Company not found" });
@@ -554,7 +585,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/companies/:id/archive", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const organizationId = extractOrganizationId(req);
+      const organizationId = await extractOrganizationId(req);
       const company = await storage.updateCompany(id, { status: 'archived' }, organizationId);
       if (!company) {
         return res.status(404).json({ message: "Company not found" });
@@ -568,7 +599,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/companies/:id/restore", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const organizationId = extractOrganizationId(req);
+      const organizationId = await extractOrganizationId(req);
       const company = await storage.updateCompany(id, { status: 'active' }, organizationId);
       if (!company) {
         return res.status(404).json({ message: "Company not found" });
@@ -821,7 +852,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       for (const companyData of results) {
         try {
           // Check if company already exists
-          const organizationId = extractOrganizationId(req);
+          const organizationId = await extractOrganizationId(req);
           const existingCompany = await storage.getCompanies(organizationId);
           const duplicate = existingCompany.find(c => c.name.toLowerCase() === companyData.name.toLowerCase());
           
@@ -855,14 +886,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Overseas Companies routes
   app.get("/api/overseas-companies", async (req, res) => {
-    const organizationId = extractOrganizationId(req);
+    const organizationId = await extractOrganizationId(req);
     const companies = await storage.getOverseasCompanies(organizationId);
     res.json(companies);
   });
 
   app.get("/api/overseas-companies/:id", async (req, res) => {
     const id = parseInt(req.params.id);
-    const organizationId = extractOrganizationId(req);
+    const organizationId = await extractOrganizationId(req);
     const company = await storage.getOverseasCompany(id, organizationId);
     if (!company) {
       return res.status(404).json({ message: "Overseas company not found" });
@@ -873,7 +904,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/overseas-companies", async (req, res) => {
     try {
       const data = insertOverseasCompanySchema.parse(req.body);
-      const organizationId = extractOrganizationId(req);
+      const organizationId = await extractOrganizationId(req);
       const company = await storage.createOverseasCompany(data, organizationId);
       res.status(201).json(company);
     } catch (error) {
@@ -884,7 +915,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/overseas-companies/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const organizationId = extractOrganizationId(req);
+      const organizationId = await extractOrganizationId(req);
       const data = insertOverseasCompanySchema.partial().parse(req.body);
       const company = await storage.updateOverseasCompany(id, data, organizationId);
       if (!company) {
@@ -899,7 +930,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/overseas-companies/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const organizationId = extractOrganizationId(req);
+      const organizationId = await extractOrganizationId(req);
       const data = insertOverseasCompanySchema.partial().parse(req.body);
       const company = await storage.updateOverseasCompany(id, data, organizationId);
       if (!company) {
@@ -914,7 +945,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/overseas-companies/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const organizationId = extractOrganizationId(req);
+      const organizationId = await extractOrganizationId(req);
       
       const company = await storage.getOverseasCompany(id, organizationId);
       if (!company) {
@@ -991,13 +1022,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Meetings routes
   app.get("/api/meetings", async (req, res) => {
-    const organizationId = extractOrganizationId(req);
+    const organizationId = await extractOrganizationId(req);
     const meetings = await storage.getMeetings(organizationId);
     res.json(meetings);
   });
 
   app.get("/api/meetings/upcoming", async (req, res) => {
-    const organizationId = extractOrganizationId(req);
+    const organizationId = await extractOrganizationId(req);
     const meetings = await storage.getUpcomingMeetings(organizationId);
     res.json(meetings);
   });
@@ -1005,7 +1036,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/meetings", async (req, res) => {
     try {
       const data = insertMeetingSchema.parse(req.body);
-      const organizationId = extractOrganizationId(req);
+      const organizationId = await extractOrganizationId(req);
       const meeting = await storage.createMeeting(data, organizationId);
       res.status(201).json(meeting);
     } catch (error) {
@@ -1017,7 +1048,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       const data = insertMeetingSchema.partial().parse(req.body);
-      const organizationId = extractOrganizationId(req);
+      const organizationId = await extractOrganizationId(req);
       const meeting = await storage.updateMeeting(id, data, organizationId);
       if (!meeting) {
         return res.status(404).json({ message: "Meeting not found" });
@@ -1060,7 +1091,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/meetings/:meetingId/minutes", async (req, res) => {
     try {
       const meetingId = parseInt(req.params.meetingId);
-      const organizationId = extractOrganizationId(req);
+      const organizationId = await extractOrganizationId(req);
       const meeting = await storage.getMeeting(meetingId, organizationId);
       
       if (!meeting || !meeting.minutesFilePath) {
@@ -1203,7 +1234,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const finalShareAmount = (data.shareAmount || data['Share Amount'] || data['share amount'] || "").toString().trim();
 
           // Find company by name
-          const organizationId = extractOrganizationId(req);
+          const organizationId = await extractOrganizationId(req);
           const companies = await storage.getCompanies(organizationId);
           const company = companies.find(c => c.name.toLowerCase() === finalCompanyName.toLowerCase());
           if (!company) {
@@ -1287,14 +1318,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Overseas Funds routes
   app.get("/api/overseas-funds", async (req, res) => {
-    const organizationId = extractOrganizationId(req);
+    const organizationId = await extractOrganizationId(req);
     const funds = await storage.getOverseasFunds(organizationId);
     res.json(funds);
   });
 
   app.get("/api/overseas-funds/:id", async (req, res) => {
     const id = parseInt(req.params.id);
-    const organizationId = extractOrganizationId(req);
+    const organizationId = await extractOrganizationId(req);
     const fund = await storage.getOverseasFund(id, organizationId);
     if (!fund) {
       return res.status(404).json({ message: "Overseas fund not found" });
@@ -1305,7 +1336,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/overseas-funds", async (req, res) => {
     try {
       const data = insertOverseasFundSchema.parse(req.body);
-      const organizationId = extractOrganizationId(req);
+      const organizationId = await extractOrganizationId(req);
       const fund = await storage.createOverseasFund(data, organizationId);
       res.status(201).json(fund);
     } catch (error) {
@@ -1317,7 +1348,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       const data = insertOverseasFundSchema.parse(req.body);
-      const organizationId = extractOrganizationId(req);
+      const organizationId = await extractOrganizationId(req);
       const fund = await storage.updateOverseasFund(id, data, organizationId);
       if (!fund) {
         return res.status(404).json({ message: "Overseas fund not found" });
@@ -1330,7 +1361,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/overseas-funds/:id", async (req, res) => {
     const id = parseInt(req.params.id);
-    const organizationId = extractOrganizationId(req);
+    const organizationId = await extractOrganizationId(req);
     const success = await storage.deleteOverseasFund(id, organizationId);
     if (!success) {
       return res.status(404).json({ message: "Overseas fund not found" });
@@ -1405,7 +1436,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const finalShareAmount = (data.shareAmount || data['Share Amount'] || data['share amount'] || "").toString().trim();
 
           // Find overseas company by name (with flexible matching)
-          const organizationId = extractOrganizationId(req);
+          const organizationId = await extractOrganizationId(req);
           const companies = await storage.getOverseasCompanies(organizationId);
           console.log(`Looking for company: "${finalCompanyName}" in:`, companies.map(c => c.name));
           
@@ -1582,14 +1613,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Meetings routes (for scheduling)
   app.get("/api/meetings", async (req, res) => {
-    const organizationId = extractOrganizationId(req);
+    const organizationId = await extractOrganizationId(req);
     const meetings = await storage.getMeetings(organizationId);
     res.json(meetings);
   });
 
   app.get("/api/meetings/:id", async (req, res) => {
     const id = parseInt(req.params.id);
-    const organizationId = extractOrganizationId(req);
+    const organizationId = await extractOrganizationId(req);
     const meeting = await storage.getMeeting(id, organizationId);
     if (meeting) {
       res.json(meeting);
@@ -1600,7 +1631,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/meetings/investor/:investorId", async (req, res) => {
     const investorId = parseInt(req.params.investorId);
-    const organizationId = extractOrganizationId(req);
+    const organizationId = await extractOrganizationId(req);
     const meetings = await storage.getMeetingsByInvestor(investorId, organizationId);
     res.json(meetings);
   });
@@ -1612,7 +1643,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const data = { ...req.body };
       console.log('Data to process:', data);
       
-      const organizationId = extractOrganizationId(req);
+      const organizationId = await extractOrganizationId(req);
       const meeting = await storage.createMeeting(data, organizationId);
       res.status(201).json(meeting);
     } catch (error) {
@@ -1630,7 +1661,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         scheduledDate: req.body.scheduledDate ? new Date(req.body.scheduledDate) : undefined
       };
       const data = insertMeetingSchema.partial().parse(requestData);
-      const organizationId = extractOrganizationId(req);
+      const organizationId = await extractOrganizationId(req);
       const meeting = await storage.updateMeeting(id, data, organizationId);
       if (meeting) {
         res.json(meeting);
@@ -1644,7 +1675,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/meetings/:id", async (req, res) => {
     const id = parseInt(req.params.id);
-    const organizationId = extractOrganizationId(req);
+    const organizationId = await extractOrganizationId(req);
     const success = await storage.deleteMeeting(id, organizationId);
     if (success) {
       res.status(204).send();
@@ -1690,7 +1721,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
 
       console.log("Updating meeting with data:", minutesData);
-      const organizationId = extractOrganizationId(req);
+      const organizationId = await extractOrganizationId(req);
       const updatedMeeting = await storage.updateMeeting(meetingId, minutesData, organizationId);
       console.log("Update result:", updatedMeeting);
       
@@ -1701,7 +1732,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Also add to Documents table with "Meeting Notes" category
       try {
-        const organizationId = extractOrganizationId(req);
+        const organizationId = await extractOrganizationId(req);
         const meeting = await storage.getMeeting(meetingId, organizationId);
         const documentName = fileName.replace(/\.[^/.]+$/, ""); // Remove file extension
         const fileType = fileName.split('.').pop() || 'unknown';
@@ -1754,7 +1785,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         minutesUploadedAt: null
       };
 
-      const organizationId = extractOrganizationId(req);
+      const organizationId = await extractOrganizationId(req);
       const meeting = await storage.updateMeeting(meetingId, updateData, organizationId);
       if (!meeting) {
         return res.status(404).json({ error: "Meeting not found" });
@@ -1892,7 +1923,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Dashboard stats
   app.get("/api/dashboard/stats", async (req, res) => {
-    const organizationId = extractOrganizationId(req);
+    const organizationId = await extractOrganizationId(req);
     const investors = await storage.getInvestors(organizationId);
     const investments = await storage.getInvestments();
     const meetings = await storage.getMeetings(organizationId);
@@ -2009,7 +2040,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Get investors based on targeting criteria
-      const organizationId = extractOrganizationId(req);
+      const organizationId = await extractOrganizationId(req);
       const allInvestors = await storage.getInvestors(organizationId);
       const targetInvestors = allInvestors.filter(investor => {
         if (targetLanguage && investor.language !== targetLanguage) return false;
@@ -2048,14 +2079,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Analysts routes
   app.get("/api/analysts", async (req, res) => {
-    const organizationId = extractOrganizationId(req);
+    const organizationId = await extractOrganizationId(req);
     const analysts = await storage.getAnalysts(organizationId);
     res.json(analysts);
   });
 
   app.get("/api/analysts/:id", async (req, res) => {
     const id = parseInt(req.params.id);
-    const organizationId = extractOrganizationId(req);
+    const organizationId = await extractOrganizationId(req);
     const analyst = await storage.getAnalyst(id, organizationId);
     if (!analyst) {
       return res.status(404).json({ error: "Analyst not found" });
@@ -2066,7 +2097,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/analysts", async (req, res) => {
     try {
       const analystData = insertAnalystSchema.parse(req.body);
-      const organizationId = extractOrganizationId(req);
+      const organizationId = await extractOrganizationId(req);
       const analyst = await storage.createAnalyst(analystData, organizationId);
       res.status(201).json(analyst);
     } catch (error) {
@@ -2078,7 +2109,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       const updateData = insertAnalystSchema.partial().parse(req.body);
-      const organizationId = extractOrganizationId(req);
+      const organizationId = await extractOrganizationId(req);
       const analyst = await storage.updateAnalyst(id, updateData, organizationId);
       if (!analyst) {
         return res.status(404).json({ error: "Analyst not found" });
@@ -2091,7 +2122,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/analysts/:id", async (req, res) => {
     const id = parseInt(req.params.id);
-    const organizationId = extractOrganizationId(req);
+    const organizationId = await extractOrganizationId(req);
     const success = await storage.deleteAnalyst(id, organizationId);
     if (!success) {
       return res.status(404).json({ error: "Analyst not found" });
@@ -2169,7 +2200,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             notes: ''
           };
 
-          const organizationId = extractOrganizationId(req);
+          const organizationId = await extractOrganizationId(req);
           const createdAnalyst = await storage.createAnalyst(analystData, organizationId);
           createdAnalysts.push(createdAnalyst);
         } catch (error) {
@@ -2548,7 +2579,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (recipients.investors && recipients.investors.length > 0) {
         for (const investorId of recipients.investors) {
-          const organizationId = extractOrganizationId(req);
+          const organizationId = await extractOrganizationId(req);
           const investor = await storage.getInvestor(investorId, organizationId);
           if (investor && investor.email) {
             investorEmails.push(investor.email);
@@ -2558,7 +2589,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (recipients.analysts && recipients.analysts.length > 0) {
         for (const analystId of recipients.analysts) {
-          const organizationId = extractOrganizationId(req);
+          const organizationId = await extractOrganizationId(req);
           const analyst = await storage.getAnalyst(analystId, organizationId);
           if (analyst && analyst.email) {
             analystEmails.push(analyst.email);
@@ -2790,7 +2821,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         minutesUploadedAt: new Date()
       };
 
-      const organizationId = extractOrganizationId(req);
+      const organizationId = await extractOrganizationId(req);
       const meeting = await storage.updateMeeting(id, updateData, organizationId);
       if (!meeting) {
         return res.status(404).json({ error: "Meeting not found" });
@@ -2810,7 +2841,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/meetings/:id/minutes", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const organizationId = extractOrganizationId(req);
+      const organizationId = await extractOrganizationId(req);
       const meeting = await storage.getMeeting(id, organizationId);
       
       if (!meeting) {
@@ -2883,7 +2914,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Users routes
   app.get("/api/users", async (req, res) => {
-    const organizationId = extractOrganizationId(req);
+    const organizationId = await extractOrganizationId(req);
     const users = await storage.getUsers(organizationId);
     res.json(users);
   });
@@ -2940,7 +2971,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Investor Insights routes
   app.get("/api/investor-insights", async (req, res) => {
-    const organizationId = extractOrganizationId(req);
+    const organizationId = await extractOrganizationId(req);
     const insights = await storage.getInvestorInsights(organizationId);
     res.json(insights);
   });
@@ -2948,7 +2979,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/investor-insights/generate", async (req, res) => {
     try {
       const { startDate, endDate } = req.body;
-      const organizationId = extractOrganizationId(req);
+      const organizationId = await extractOrganizationId(req);
       
       if (!startDate || !endDate) {
         return res.status(400).json({ message: "주간 시작일과 종료일이 필요합니다." });
@@ -2999,7 +3030,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (isNaN(id)) {
         return res.status(400).json({ message: "Invalid ID parameter" });
       }
-      const organizationId = extractOrganizationId(req);
+      const organizationId = await extractOrganizationId(req);
       const insight = await storage.getInvestorInsight(id, organizationId);
       if (!insight) {
         return res.status(404).json({ message: "Investor insight not found" });
@@ -3020,7 +3051,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (isNaN(id)) {
         return res.status(400).json({ message: "Invalid ID parameter" });
       }
-      const organizationId = extractOrganizationId(req);
+      const organizationId = await extractOrganizationId(req);
       const deleted = await storage.deleteInvestorInsight(id, organizationId);
       if (!deleted) {
         return res.status(404).json({ message: "Investor insight not found" });
@@ -3038,7 +3069,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Expected Questions API endpoint
   app.post("/api/investor-insights/expected-questions", async (req, res) => {
     try {
-      const organizationId = extractOrganizationId(req);
+      const organizationId = await extractOrganizationId(req);
       
       // Get meetings from the last 30 days
       const thirtyDaysAgo = new Date();
@@ -3078,7 +3109,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/investor-insights/expected-questions/export", async (req, res) => {
     try {
       const { format, startDate, endDate } = req.body;
-      const organizationId = extractOrganizationId(req);
+      const organizationId = await extractOrganizationId(req);
       
       if (!startDate || !endDate) {
         return res.status(400).json({ message: "시작일과 종료일이 필요합니다." });
@@ -3128,14 +3159,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Analyst Reports routes
   app.get("/api/analyst-reports", async (req, res) => {
-    const organizationId = extractOrganizationId(req);
+    const organizationId = await extractOrganizationId(req);
     const reports = await storage.getAnalystReports(organizationId);
     res.json(reports);
   });
 
   app.get("/api/analyst-reports/:id", async (req, res) => {
     const id = parseInt(req.params.id);
-    const organizationId = extractOrganizationId(req);
+    const organizationId = await extractOrganizationId(req);
     const report = await storage.getAnalystReport(id, organizationId);
     if (!report) {
       return res.status(404).json({ message: "Analyst report not found" });
@@ -3145,7 +3176,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/analyst-reports", async (req, res) => {
     try {
-      const organizationId = extractOrganizationId(req);
+      const organizationId = await extractOrganizationId(req);
       const data = insertAnalystReportSchema.parse(req.body);
       const report = await storage.createAnalystReport(data, organizationId);
       res.status(201).json(report);
@@ -3157,7 +3188,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/analyst-reports/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const organizationId = extractOrganizationId(req);
+      const organizationId = await extractOrganizationId(req);
       const data = insertAnalystReportSchema.partial().parse(req.body);
       const report = await storage.updateAnalystReport(id, data, organizationId);
       if (report) {
@@ -3172,7 +3203,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/analyst-reports/:id", async (req, res) => {
     const id = parseInt(req.params.id);
-    const organizationId = extractOrganizationId(req);
+    const organizationId = await extractOrganizationId(req);
     const success = await storage.deleteAnalystReport(id, organizationId);
     if (success) {
       res.status(204).send();
@@ -3199,7 +3230,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/analyst-reports/:id/analyze", async (req, res) => {
     try {
       const reportId = parseInt(req.params.id);
-      const organizationId = extractOrganizationId(req);
+      const organizationId = await extractOrganizationId(req);
       
       // Get the report details
       const report = await storage.getAnalystReport(reportId, organizationId);
@@ -3275,7 +3306,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Get all reports with manual input data
       const analysisResults = [];
-      const organizationId = extractOrganizationId(req);
+      const organizationId = await extractOrganizationId(req);
       
       for (const reportId of reportIds) {
         const report = await storage.getAnalystReport(reportId, organizationId);
