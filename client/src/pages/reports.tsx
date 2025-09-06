@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { BarChart, Download, Users, Calendar, FileText, Building, TrendingUp, Wallet } from "lucide-react";
 import { format } from "date-fns";
 import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 interface Investor {
   id: number;
@@ -207,62 +208,8 @@ export default function Reports() {
   };
 
   // PDF 생성 함수
-  const generateMeetingPDF = (meeting: Meeting) => {
-    const doc = new jsPDF();
-    
-    // 헤더 배경색 설정
-    doc.setFillColor(59, 130, 246); // blue-500
-    doc.rect(0, 0, 210, 30, 'F');
-    
-    // 제목 (흰색)
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(18);
-    doc.text("Meeting Report", 20, 20);
-    
-    // 텍스트 색상을 검정으로 리셋
-    doc.setTextColor(0, 0, 0);
-    
-    // 미팅 기본 정보 섹션
-    let yPosition = 45;
-    doc.setFontSize(14);
-    doc.setTextColor(59, 130, 246);
-    doc.text("Meeting Information", 20, yPosition);
-    yPosition += 5;
-    
-    // 구분선
-    doc.setDrawColor(200, 200, 200);
-    doc.line(20, yPosition, 190, yPosition);
-    yPosition += 15;
-    
-    // 미팅 정보 (검정색)
-    doc.setTextColor(0, 0, 0);
-    doc.setFontSize(11);
-    
-    const meetingTitle = meeting.title || "No Title";
-    doc.text(`Title: ${meetingTitle}`, 20, yPosition);
-    yPosition += 8;
-    
-    const meetingDate = format(new Date(meeting.scheduledDate), "yyyy-MM-dd HH:mm");
-    doc.text(`Date & Time: ${meetingDate}`, 20, yPosition);
-    yPosition += 8;
-    
-    doc.text(`Status: ${meeting.status}`, 20, yPosition);
-    yPosition += 8;
-    
-    if (meeting.meetingCategory) {
-      doc.text(`Category: ${meeting.meetingCategory}`, 20, yPosition);
-      yPosition += 8;
-    }
-    
-    if (meeting.location) {
-      doc.text(`Location: ${meeting.location}`, 20, yPosition);
-      yPosition += 8;
-    }
-    
-    doc.text(`Duration: ${meeting.duration || 60} minutes`, 20, yPosition);
-    yPosition += 15;
-    
-    // 참석자 섹션
+  const generateMeetingPDF = async (meeting: Meeting) => {
+    // 참석자 정보 가져오기
     const attendeeNames = [];
     if (meeting.attendeeType === "investor" && meeting.investorIds) {
       const meetingInvestors = investors.filter(inv => 
@@ -277,84 +224,191 @@ export default function Reports() {
       );
       attendeeNames.push(...meetingAnalysts.map(analyst => `${analyst.name} (${analyst.company})`));
     }
-    
-    if (attendeeNames.length > 0) {
-      doc.setFontSize(14);
-      doc.setTextColor(59, 130, 246);
-      doc.text("Attendees", 20, yPosition);
-      yPosition += 5;
-      
-      doc.setDrawColor(200, 200, 200);
-      doc.line(20, yPosition, 190, yPosition);
-      yPosition += 10;
-      
-      doc.setTextColor(0, 0, 0);
-      doc.setFontSize(11);
-      
-      attendeeNames.forEach(name => {
-        doc.text(`• ${name}`, 25, yPosition);
-        yPosition += 7;
+
+    // HTML 요소 생성
+    const htmlContent = `
+      <div style="
+        font-family: 'Malgun Gothic', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        width: 800px;
+        padding: 40px;
+        background: white;
+        color: #333;
+        line-height: 1.6;
+      ">
+        <!-- 헤더 -->
+        <div style="
+          background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+          color: white;
+          padding: 30px;
+          margin: -40px -40px 30px -40px;
+          text-align: center;
+          border-radius: 0 0 8px 8px;
+        ">
+          <h1 style="margin: 0; font-size: 28px; font-weight: 700;">미팅 보고서</h1>
+          <p style="margin: 8px 0 0 0; opacity: 0.9; font-size: 14px;">Meeting Report</p>
+        </div>
+
+        <!-- 미팅 정보 섹션 -->
+        <div style="margin-bottom: 30px;">
+          <h2 style="
+            color: #3b82f6;
+            font-size: 18px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 8px;
+          ">📅 미팅 정보</h2>
+          
+          <div style="background: #f8fafc; padding: 20px; border-radius: 8px; border-left: 4px solid #3b82f6;">
+            <div style="display: grid; grid-template-columns: 140px 1fr; gap: 12px; font-size: 14px;">
+              <div style="font-weight: 600; color: #4b5563;">미팅 제목:</div>
+              <div>${meeting.title || "제목 없음"}</div>
+              
+              <div style="font-weight: 600; color: #4b5563;">일시:</div>
+              <div>${format(new Date(meeting.scheduledDate), "yyyy년 MM월 dd일 HH:mm")}</div>
+              
+              <div style="font-weight: 600; color: #4b5563;">상태:</div>
+              <div>
+                <span style="
+                  background: ${meeting.status === 'completed' ? '#10b981' : '#6b7280'};
+                  color: white;
+                  padding: 4px 12px;
+                  border-radius: 20px;
+                  font-size: 12px;
+                  font-weight: 500;
+                ">${meeting.status}</span>
+              </div>
+              
+              ${meeting.meetingCategory ? `
+                <div style="font-weight: 600; color: #4b5563;">카테고리:</div>
+                <div>${meeting.meetingCategory}</div>
+              ` : ''}
+              
+              ${meeting.location ? `
+                <div style="font-weight: 600; color: #4b5563;">장소:</div>
+                <div>${meeting.location}</div>
+              ` : ''}
+              
+              <div style="font-weight: 600; color: #4b5563;">소요 시간:</div>
+              <div>${meeting.duration || 60}분</div>
+            </div>
+          </div>
+        </div>
+
+        ${attendeeNames.length > 0 ? `
+        <!-- 참석자 섹션 -->
+        <div style="margin-bottom: 30px;">
+          <h2 style="
+            color: #3b82f6;
+            font-size: 18px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 8px;
+          ">👥 참석자</h2>
+          
+          <div style="background: #f8fafc; padding: 20px; border-radius: 8px; border-left: 4px solid #10b981;">
+            ${attendeeNames.map(name => `
+              <div style="
+                padding: 8px 0;
+                border-bottom: 1px solid #e5e7eb;
+                font-size: 14px;
+              ">• ${name}</div>
+            `).join('')}
+          </div>
+        </div>
+        ` : ''}
+
+        ${meeting.description ? `
+        <!-- 설명 섹션 -->
+        <div style="margin-bottom: 30px;">
+          <h2 style="
+            color: #3b82f6;
+            font-size: 18px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 8px;
+          ">📝 미팅 내용</h2>
+          
+          <div style="
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #f59e0b;
+            font-size: 14px;
+            line-height: 1.7;
+            white-space: pre-wrap;
+          ">${meeting.description}</div>
+        </div>
+        ` : ''}
+
+        ${meeting.minutesFileName ? `
+        <!-- 회의록 섹션 -->
+        <div style="margin-bottom: 30px;">
+          <h2 style="
+            color: #3b82f6;
+            font-size: 18px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 8px;
+          ">📄 회의록</h2>
+          
+          <div style="background: #f8fafc; padding: 20px; border-radius: 8px; border-left: 4px solid #8b5cf6;">
+            <div style="display: flex; align-items: center; font-size: 14px;">
+              <span style="margin-right: 8px;">📎</span>
+              <span>${meeting.minutesFileName}</span>
+            </div>
+          </div>
+        </div>
+        ` : ''}
+
+        <!-- 푸터 -->
+        <div style="
+          margin-top: 40px;
+          padding-top: 20px;
+          border-top: 1px solid #e5e7eb;
+          text-align: center;
+          font-size: 12px;
+          color: #6b7280;
+        ">
+          <p style="margin: 0;">생성일시: ${format(new Date(), "yyyy년 MM월 dd일 HH:mm")}</p>
+        </div>
+      </div>
+    `;
+
+    // 임시 DOM 요소 생성
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = htmlContent;
+    tempDiv.style.position = 'absolute';
+    tempDiv.style.left = '-9999px';
+    tempDiv.style.top = '-9999px';
+    document.body.appendChild(tempDiv);
+
+    try {
+      // HTML을 캔버스로 변환
+      const canvas = await html2canvas(tempDiv.firstElementChild as HTMLElement, {
+        width: 800,
+        height: tempDiv.firstElementChild?.scrollHeight || 1000,
+        scale: 2,
+        backgroundColor: '#ffffff',
+        useCORS: true
       });
-      yPosition += 10;
+
+      // PDF 생성
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      
+      const imgWidth = 210; // A4 폭
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      
+      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+
+      // PDF 다운로드
+      const fileName = `meeting_report_${meeting.id}_${format(new Date(meeting.scheduledDate), "yyyy-MM-dd")}.pdf`;
+      pdf.save(fileName);
+
+    } finally {
+      // 임시 요소 제거
+      document.body.removeChild(tempDiv);
     }
-    
-    // 설명 섹션
-    if (meeting.description) {
-      doc.setFontSize(14);
-      doc.setTextColor(59, 130, 246);
-      doc.text("Description", 20, yPosition);
-      yPosition += 5;
-      
-      doc.setDrawColor(200, 200, 200);
-      doc.line(20, yPosition, 190, yPosition);
-      yPosition += 10;
-      
-      doc.setTextColor(0, 0, 0);
-      doc.setFontSize(11);
-      
-      // 긴 텍스트를 여러 줄로 분할
-      const splitText = doc.splitTextToSize(meeting.description, 170);
-      splitText.forEach((line: string) => {
-        if (yPosition > 270) { // 페이지 넘김
-          doc.addPage();
-          yPosition = 20;
-        }
-        doc.text(line, 20, yPosition);
-        yPosition += 6;
-      });
-      yPosition += 10;
-    }
-    
-    // 회의록 파일 정보
-    if (meeting.minutesFileName) {
-      doc.setFontSize(14);
-      doc.setTextColor(59, 130, 246);
-      doc.text("Meeting Minutes", 20, yPosition);
-      yPosition += 5;
-      
-      doc.setDrawColor(200, 200, 200);
-      doc.line(20, yPosition, 190, yPosition);
-      yPosition += 10;
-      
-      doc.setTextColor(0, 0, 0);
-      doc.setFontSize(11);
-      doc.text(`File: ${meeting.minutesFileName}`, 20, yPosition);
-      yPosition += 10;
-    }
-    
-    // 푸터
-    const pageCount = doc.internal.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i);
-      doc.setFontSize(8);
-      doc.setTextColor(100, 100, 100);
-      doc.text(`Generated on ${format(new Date(), "yyyy-MM-dd HH:mm")}`, 20, 285);
-      doc.text(`Page ${i} of ${pageCount}`, 170, 285);
-    }
-    
-    // PDF 다운로드
-    const fileName = `meeting_report_${meeting.id}_${format(new Date(meeting.scheduledDate), "yyyy-MM-dd")}.pdf`;
-    doc.save(fileName);
   };
 
   return (
