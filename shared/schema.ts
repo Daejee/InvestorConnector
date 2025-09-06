@@ -344,6 +344,7 @@ export const insertOverseasInvestorSchema = createInsertSchema(overseasInvestors
 
 export const insertCompanySchema = createInsertSchema(companies).omit({
   id: true,
+  organizationId: true, // 백엔드에서 자동 설정
 }).extend({
   aum: z.string().optional().default("0"), // AUM을 선택사항으로, 기본값 "0"
   type: z.string().optional(), // Type을 선택사항으로
