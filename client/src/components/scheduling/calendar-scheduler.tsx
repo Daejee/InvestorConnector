@@ -53,7 +53,7 @@ const meetingTypes = [
 ];
 
 export default function CalendarScheduler({ selectedInvestor }: CalendarSchedulerProps) {
-  const [currentWeek, setCurrentWeek] = useState(startOfWeek(new Date("2025-07-29")));
+  const [currentWeek, setCurrentWeek] = useState(startOfWeek(new Date()));
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<string>("");
   const [selectedDuration, setSelectedDuration] = useState<number>(60); // Default 1 hour
