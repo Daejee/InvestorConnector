@@ -101,9 +101,9 @@ export default function CompanyForm({ company, onSuccess, onCancel, apiPath = "/
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Company Name</FormLabel>
+              <FormLabel>회사명</FormLabel>
               <FormControl>
-                <Input placeholder="Enter company name" {...field} />
+                <Input placeholder="회사명을 입력하세요" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -215,31 +215,6 @@ export default function CompanyForm({ company, onSuccess, onCancel, apiPath = "/
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="area"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Area</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select area" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="US">US</SelectItem>
-                      <SelectItem value="EU">EU</SelectItem>
-                      <SelectItem value="Hong Kong">Hong Kong</SelectItem>
-                      <SelectItem value="Singapore">Singapore</SelectItem>
-                      <SelectItem value="Korea">Korea</SelectItem>
-                      <SelectItem value="Other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
 
             <FormField
               control={form.control}
