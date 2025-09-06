@@ -7,6 +7,49 @@ async function throwIfResNotOk(res: Response) {
   }
 }
 
+// Global domain mapping cache
+let domainMappingCache: Record<string, number> | null = null;
+let domainMappingCacheTime = 0;
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+// Function to fetch domain mapping from backend
+async function fetchDomainMapping(): Promise<Record<string, number>> {
+  const now = Date.now();
+  
+  // Return cached mapping if still valid
+  if (domainMappingCache && (now - domainMappingCacheTime) < CACHE_DURATION) {
+    return domainMappingCache;
+  }
+  
+  try {
+    const response = await fetch("/api/domain-mapping", {
+      credentials: "include",
+    });
+    
+    if (response.ok) {
+      domainMappingCache = await response.json();
+      domainMappingCacheTime = now;
+      console.log("🗺️ Domain mapping loaded:", domainMappingCache);
+      return domainMappingCache;
+    }
+  } catch (error) {
+    console.error("Failed to fetch domain mapping:", error);
+  }
+  
+  // Fallback to static mapping if API fails
+  const fallback = {
+    'default': 1,
+    'default.com': 1,
+    'samsung': 2,
+    'demo': 3,
+    'LG': 4,
+  };
+  
+  domainMappingCache = fallback;
+  domainMappingCacheTime = now;
+  return fallback;
+}
+
 // Function to get current organization ID from URL
 function getCurrentOrganizationId(): number {
   const path = window.location.pathname;
@@ -14,7 +57,12 @@ function getCurrentOrganizationId(): number {
   if (orgMatch) {
     const domain = orgMatch[1];
     
-    // 확장된 정적 매핑 (새로운 조직이 추가되면 여기에 수동 추가 필요)
+    // Use cached domain mapping or fallback
+    if (domainMappingCache) {
+      return domainMappingCache[domain] || 1;
+    }
+    
+    // Static fallback for immediate use
     const domainToOrgId: Record<string, number> = {
       'default': 1,
       'default.com': 1,
@@ -27,6 +75,13 @@ function getCurrentOrganizationId(): number {
   return 1; // Default organization
 }
 
+// Initialize domain mapping on first API call
+async function ensureDomainMapping() {
+  if (!domainMappingCache) {
+    await fetchDomainMapping();
+  }
+}
+
 export async function apiRequest(
   url: string,
   options?: {
@@ -36,6 +91,7 @@ export async function apiRequest(
   }
 ): Promise<Response> {
   const { method = "GET", body, headers = {} } = options || {};
+  await ensureDomainMapping();
   const organizationId = getCurrentOrganizationId();
   
   const res = await fetch(url, {
