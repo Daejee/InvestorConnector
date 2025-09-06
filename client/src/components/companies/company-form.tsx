@@ -25,7 +25,7 @@ export default function CompanyForm({ company, onSuccess, onCancel, apiPath = "/
     defaultValues: {
       name: company?.name || "",
       address: company?.address || "",
-      aum: company ? parseFloat(company.aum).toString() : "0",
+      aum: company ? parseFloat(company.aum || "0").toString() : "0",
       type: company?.type || "",
       hqLocation: company?.hqLocation || "",
       area: company?.area || "",
@@ -129,175 +129,174 @@ export default function CompanyForm({ company, onSuccess, onCancel, apiPath = "/
 
         {/* 추가 정보 */}
         <div className="space-y-4">
-            {/* Two-column layout */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Left Column */}
-              <div className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="type"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>회사 유형</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="회사 유형을 선택하세요" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="Mutual">Mutual</SelectItem>
-                          <SelectItem value="Hedge">Hedge</SelectItem>
-                          <SelectItem value="기타">기타</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="hqLocation"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>본사 위치</FormLabel>
-                      <FormControl>
-                        <Input placeholder="본사 위치를 입력하세요" value={field.value || ""} onChange={field.onChange} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="establishedDate"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>설립일자</FormLabel>
-                      <FormControl>
-                        <Input type="date" value={field.value || ""} onChange={field.onChange} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="phone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>전화번호</FormLabel>
-                      <FormControl>
-                        <Input placeholder="전화번호를 입력하세요" value={field.value || ""} onChange={field.onChange} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              {/* Right Column */}
-              <div className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="aum"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>AUM / 운용자산 (억원 단위)</FormLabel>
-                      <FormControl>
-                        <Input type="number" placeholder="예: 45000 (4조5천억원)" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="fundManagerCount"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>펀드 매니저수</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="number" 
-                          placeholder="펀드 매니저 수를 입력하세요" 
-                          value={field.value || ""} 
-                          onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : null)} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="shareholderStatus"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>주주여부</FormLabel>
-                      <Select 
-                        onValueChange={(value) => {
-                          field.onChange(value);
-                          if (value !== "Yes") {
-                            form.setValue("shareCount", "");
-                          }
-                        }} 
-                        defaultValue={field.value || "N/A"}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="주주 여부를 선택하세요" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="Yes">Yes</SelectItem>
-                          <SelectItem value="No">No</SelectItem>
-                          <SelectItem value="N/A">N/A</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="website"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>웹사이트</FormLabel>
-                      <FormControl>
-                        <Input placeholder="웹사이트 주소를 입력하세요" value={field.value || ""} onChange={field.onChange} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
-
-            {/* Conditional field for share count - spans full width */}
-            {form.watch("shareholderStatus") === "Yes" && (
+          {/* Two-column layout */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Left Column */}
+            <div className="space-y-4">
               <FormField
                 control={form.control}
-                name="shareCount"
+                name="type"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>주식수</FormLabel>
+                    <FormLabel>회사 유형</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="회사 유형을 선택하세요" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Mutual">Mutual</SelectItem>
+                        <SelectItem value="Hedge">Hedge</SelectItem>
+                        <SelectItem value="기타">기타</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="hqLocation"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>본사 위치</FormLabel>
                     <FormControl>
-                      <Input placeholder="보유 주식 수를 입력하세요" value={field.value || ""} onChange={field.onChange} />
+                      <Input placeholder="본사 위치를 입력하세요" value={field.value || ""} onChange={field.onChange} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-            )}
+
+              <FormField
+                control={form.control}
+                name="establishedDate"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>설립일자</FormLabel>
+                    <FormControl>
+                      <Input type="date" value={field.value || ""} onChange={field.onChange} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>전화번호</FormLabel>
+                    <FormControl>
+                      <Input placeholder="전화번호를 입력하세요" value={field.value || ""} onChange={field.onChange} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Right Column */}
+            <div className="space-y-4">
+              <FormField
+                control={form.control}
+                name="aum"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>AUM / 운용자산 (억원 단위)</FormLabel>
+                    <FormControl>
+                      <Input type="number" placeholder="예: 45000 (4조5천억원)" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="fundManagerCount"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>펀드 매니저수</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="number" 
+                        placeholder="펀드 매니저 수를 입력하세요" 
+                        value={field.value || ""} 
+                        onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : null)} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="shareholderStatus"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>주주여부</FormLabel>
+                    <Select 
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        if (value !== "Yes") {
+                          form.setValue("shareCount", "");
+                        }
+                      }} 
+                      defaultValue={field.value || "N/A"}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="주주 여부를 선택하세요" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Yes">Yes</SelectItem>
+                        <SelectItem value="No">No</SelectItem>
+                        <SelectItem value="N/A">N/A</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="website"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>웹사이트</FormLabel>
+                    <FormControl>
+                      <Input placeholder="웹사이트 주소를 입력하세요" value={field.value || ""} onChange={field.onChange} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
           </div>
+
+          {/* Conditional field for share count - spans full width */}
+          {form.watch("shareholderStatus") === "Yes" && (
+            <FormField
+              control={form.control}
+              name="shareCount"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>주식수</FormLabel>
+                  <FormControl>
+                    <Input placeholder="보유 주식 수를 입력하세요" value={field.value || ""} onChange={field.onChange} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
         </div>
 
         <div className="flex justify-end space-x-4">
