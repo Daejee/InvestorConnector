@@ -436,15 +436,6 @@ export default function Companies() {
                     </div>
                   </TableHead>
                   <TableHead 
-                    className="cursor-pointer hover:bg-gray-50 w-[180px] text-center"
-                    onClick={() => handleSort('hqLocation')}
-                  >
-                    <div className="flex items-center justify-center space-x-1">
-                      <span>본사 위치</span>
-                      {getSortIcon('hqLocation')}
-                    </div>
-                  </TableHead>
-                  <TableHead 
                     className="cursor-pointer hover:bg-gray-50 w-[120px] text-right"
                     onClick={() => handleSort('aum')}
                   >
@@ -480,7 +471,7 @@ export default function Companies() {
               <TableBody>
                 {filteredCompanies.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={9} className="text-center py-8 text-gray-500">
+                    <TableCell colSpan={8} className="text-center py-8 text-gray-500">
                       {searchQuery ? "검색 결과가 없습니다." : "등록된 회사가 없습니다."}
                     </TableCell>
                   </TableRow>
@@ -488,7 +479,6 @@ export default function Companies() {
                   filteredCompanies.map((company) => (
                     <TableRow key={company.id}>
                       <TableCell className="font-medium">{company.name}</TableCell>
-                      <TableCell className="text-center w-[180px] py-3 px-2 whitespace-normal break-words">{company.hqLocation}</TableCell>
                       <TableCell className="text-right">
                         {parseFloat(company.aum).toLocaleString()}
                       </TableCell>
