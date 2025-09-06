@@ -86,8 +86,8 @@ function DefaultLoginForm() {
                 <div className="relative">
                   <Input
                     id="email"
-                    type="email"
-                    placeholder="admin@default.com"
+                    type="text"
+                    placeholder="admin"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="pl-10 h-11"
