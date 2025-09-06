@@ -210,37 +210,59 @@ export default function Reports() {
   const generateMeetingPDF = (meeting: Meeting) => {
     const doc = new jsPDF();
     
-    // 제목
-    doc.setFontSize(16);
-    doc.text("미팅 보고서", 20, 20);
+    // 헤더 배경색 설정
+    doc.setFillColor(59, 130, 246); // blue-500
+    doc.rect(0, 0, 210, 30, 'F');
     
-    // 미팅 정보
-    doc.setFontSize(12);
-    let yPosition = 40;
+    // 제목 (흰색)
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(18);
+    doc.text("Meeting Report", 20, 20);
     
-    doc.text(`미팅 제목: ${meeting.title || "제목 없음"}`, 20, yPosition);
-    yPosition += 10;
+    // 텍스트 색상을 검정으로 리셋
+    doc.setTextColor(0, 0, 0);
     
-    doc.text(`일시: ${format(new Date(meeting.scheduledDate), "yyyy년 MM월 dd일 HH:mm")}`, 20, yPosition);
-    yPosition += 10;
+    // 미팅 기본 정보 섹션
+    let yPosition = 45;
+    doc.setFontSize(14);
+    doc.setTextColor(59, 130, 246);
+    doc.text("Meeting Information", 20, yPosition);
+    yPosition += 5;
     
-    doc.text(`상태: ${meeting.status}`, 20, yPosition);
-    yPosition += 10;
+    // 구분선
+    doc.setDrawColor(200, 200, 200);
+    doc.line(20, yPosition, 190, yPosition);
+    yPosition += 15;
+    
+    // 미팅 정보 (검정색)
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(11);
+    
+    const meetingTitle = meeting.title || "No Title";
+    doc.text(`Title: ${meetingTitle}`, 20, yPosition);
+    yPosition += 8;
+    
+    const meetingDate = format(new Date(meeting.scheduledDate), "yyyy-MM-dd HH:mm");
+    doc.text(`Date & Time: ${meetingDate}`, 20, yPosition);
+    yPosition += 8;
+    
+    doc.text(`Status: ${meeting.status}`, 20, yPosition);
+    yPosition += 8;
     
     if (meeting.meetingCategory) {
-      doc.text(`카테고리: ${meeting.meetingCategory}`, 20, yPosition);
-      yPosition += 10;
+      doc.text(`Category: ${meeting.meetingCategory}`, 20, yPosition);
+      yPosition += 8;
     }
     
     if (meeting.location) {
-      doc.text(`장소: ${meeting.location}`, 20, yPosition);
-      yPosition += 10;
+      doc.text(`Location: ${meeting.location}`, 20, yPosition);
+      yPosition += 8;
     }
     
-    doc.text(`소요 시간: ${meeting.duration || 60}분`, 20, yPosition);
+    doc.text(`Duration: ${meeting.duration || 60} minutes`, 20, yPosition);
     yPosition += 15;
     
-    // 참석자 정보
+    // 참석자 섹션
     const attendeeNames = [];
     if (meeting.attendeeType === "investor" && meeting.investorIds) {
       const meetingInvestors = investors.filter(inv => 
@@ -257,32 +279,77 @@ export default function Reports() {
     }
     
     if (attendeeNames.length > 0) {
-      doc.text("참석자:", 20, yPosition);
-      yPosition += 8;
+      doc.setFontSize(14);
+      doc.setTextColor(59, 130, 246);
+      doc.text("Attendees", 20, yPosition);
+      yPosition += 5;
+      
+      doc.setDrawColor(200, 200, 200);
+      doc.line(20, yPosition, 190, yPosition);
+      yPosition += 10;
+      
+      doc.setTextColor(0, 0, 0);
+      doc.setFontSize(11);
+      
       attendeeNames.forEach(name => {
         doc.text(`• ${name}`, 25, yPosition);
-        yPosition += 8;
+        yPosition += 7;
       });
-      yPosition += 5;
+      yPosition += 10;
     }
     
-    // 설명
+    // 설명 섹션
     if (meeting.description) {
-      doc.text("설명:", 20, yPosition);
-      yPosition += 8;
+      doc.setFontSize(14);
+      doc.setTextColor(59, 130, 246);
+      doc.text("Description", 20, yPosition);
+      yPosition += 5;
+      
+      doc.setDrawColor(200, 200, 200);
+      doc.line(20, yPosition, 190, yPosition);
+      yPosition += 10;
+      
+      doc.setTextColor(0, 0, 0);
+      doc.setFontSize(11);
       
       // 긴 텍스트를 여러 줄로 분할
       const splitText = doc.splitTextToSize(meeting.description, 170);
       splitText.forEach((line: string) => {
+        if (yPosition > 270) { // 페이지 넘김
+          doc.addPage();
+          yPosition = 20;
+        }
         doc.text(line, 20, yPosition);
         yPosition += 6;
       });
+      yPosition += 10;
     }
     
     // 회의록 파일 정보
     if (meeting.minutesFileName) {
+      doc.setFontSize(14);
+      doc.setTextColor(59, 130, 246);
+      doc.text("Meeting Minutes", 20, yPosition);
+      yPosition += 5;
+      
+      doc.setDrawColor(200, 200, 200);
+      doc.line(20, yPosition, 190, yPosition);
       yPosition += 10;
-      doc.text(`회의록 파일: ${meeting.minutesFileName}`, 20, yPosition);
+      
+      doc.setTextColor(0, 0, 0);
+      doc.setFontSize(11);
+      doc.text(`File: ${meeting.minutesFileName}`, 20, yPosition);
+      yPosition += 10;
+    }
+    
+    // 푸터
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setTextColor(100, 100, 100);
+      doc.text(`Generated on ${format(new Date(), "yyyy-MM-dd HH:mm")}`, 20, 285);
+      doc.text(`Page ${i} of ${pageCount}`, 170, 285);
     }
     
     // PDF 다운로드
