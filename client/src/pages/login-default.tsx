@@ -11,8 +11,8 @@ import { Building2, Lock, User, ArrowRight } from "lucide-react";
 
 function DefaultLoginForm() {
   const [, setLocation] = useLocation();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("admin");
+  const [password, setPassword] = useState("admin");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const { login } = useAuth();
@@ -22,12 +22,12 @@ function DefaultLoginForm() {
     setIsLoading(true);
 
     try {
-      // 기본 조직용 인증 로직
-      if (email === "admin@default.com" && password === "admin123") {
+      // 기본 조직용 인증 로직 (간편 로그인: admin/admin)
+      if ((email === "admin" || email === "admin@default.com") && (password === "admin" || password === "admin123")) {
         // AuthContext에 로그인 상태 설정
         login({
           id: 1,
-          email: "admin@default.com",
+          email: "admin",
           name: "관리자",
           organizationId: 1
         });
@@ -136,8 +136,8 @@ function DefaultLoginForm() {
           <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
             <h4 className="font-medium text-gray-900 mb-2">기본 계정 정보</h4>
             <div className="text-sm text-gray-700 space-y-1">
-              <p><strong>이메일:</strong> admin@default.com</p>
-              <p><strong>비밀번호:</strong> admin123</p>
+              <p><strong>이메일:</strong> admin</p>
+              <p><strong>비밀번호:</strong> admin</p>
             </div>
           </div>
 
