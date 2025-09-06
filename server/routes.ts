@@ -134,6 +134,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Middleware to add organization-specific cache headers
   app.use('/api', async (req, res, next) => {
+    // Skip organization extraction for domain-mapping endpoint
+    if (req.path === '/api/domain-mapping') {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+      return next();
+    }
+    
     const orgId = await extractOrganizationId(req);
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     res.setHeader('Pragma', 'no-cache');
@@ -142,6 +150,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     next();
   });
   
+  // Domain mapping route (no organization filtering)
+  app.get("/api/domain-mapping", async (req, res) => {
+    try {
+      const domainMapping = await fetchDomainMapping();
+      res.json(domainMapping);
+    } catch (error) {
+      console.error("Failed to get domain mapping:", error);
+      res.status(500).json({ message: "Failed to get domain mapping", error });
+    }
+  });
+
   // Organizations routes
   app.get("/api/organizations/:id", async (req, res) => {
     try {

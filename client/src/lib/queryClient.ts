@@ -22,8 +22,12 @@ async function fetchDomainMapping(): Promise<Record<string, number>> {
   }
   
   try {
+    // 도메인 매핑 API는 조직 컨텍스트 없이 호출 (모든 조직 정보 필요)
     const response = await fetch("/api/domain-mapping", {
       credentials: "include",
+      headers: {
+        "X-Skip-Organization-Filter": "true"  // 백엔드에 조직 필터링 건너뛰라고 알림
+      }
     });
     
     if (response.ok) {
@@ -47,6 +51,7 @@ async function fetchDomainMapping(): Promise<Record<string, number>> {
   
   domainMappingCache = fallback;
   domainMappingCacheTime = now;
+  console.log("🔄 Using fallback domain mapping:", fallback);
   return fallback;
 }
 
