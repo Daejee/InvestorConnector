@@ -156,7 +156,9 @@ function Router() {
         
         {/* Login pages without layout */}
         <Route path="/login/default" component={DefaultLogin} />
+        <Route path="/login/default.com" component={DefaultLogin} />
         <Route path="/login/samsung" component={SamsungLogin} />
+        <Route path="/login/lg" component={LoginLG} />
         <Route path="/login/LG" component={LoginLG} />
         
         {/* All other routes with layout */}
