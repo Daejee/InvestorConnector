@@ -1198,6 +1198,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 'assets': 'aum',
                 'assets under management': 'aum',
                 '운용자산규모': 'aum',
+                '운용자산규모(aum)': 'aum',
                 '운용규모': 'aum',
                 
                 'type': 'type',
@@ -1236,8 +1237,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       for (const row of results) {
         try {
+          console.log(`🔍 Processing row ${lineNumber}:`, row);
+          
           // Skip empty rows
           if (!row.name || !row.hqLocation || !row.aum || !row.type || !row.area) {
+            console.log(`❌ Row ${lineNumber} missing fields:`, {
+              name: row.name,
+              hqLocation: row.hqLocation, 
+              aum: row.aum,
+              type: row.type,
+              area: row.area
+            });
             errors.push(`Row ${lineNumber}: Missing required fields (Name, HQ Location, AUM, Type, Area)`);
             continue;
           }
