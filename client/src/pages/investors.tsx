@@ -39,6 +39,9 @@ export default function Investors() {
       
       const response = await fetch('/api/investors/upload-csv', {
         method: 'POST',
+        headers: {
+          'X-Organization-Id': organizationId?.toString() || '1',
+        },
         body: formData,
       });
       
