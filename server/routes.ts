@@ -1147,6 +1147,173 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Overseas Companies CSV Upload
+  app.post("/api/overseas-companies/upload-csv", upload.single("csvFile"), async (req, res) => {
+    try {
+      console.log('📁 해외 회사 CSV 업로드 시작:', {
+        fileName: req.file?.originalname,
+        fileSize: req.file?.size,
+        mimeType: req.file?.mimetype
+      });
+
+      if (!req.file) {
+        return res.status(400).json({ message: "No CSV file uploaded" });
+      }
+
+      const organizationId = await extractOrganizationId(req);
+      console.log('🏢 해외 회사 CSV 업로드 조직 ID:', organizationId);
+
+      const results: any[] = [];
+      const errors: string[] = [];
+      let lineNumber = 1;
+
+      // Parse CSV data
+      let detectedHeaders: string[] = [];
+      
+      await new Promise((resolve, reject) => {
+        const stream = Readable.from(req.file!.buffer.toString());
+        stream
+          .pipe(csvParser({
+            // Map CSV headers to our schema fields (case-insensitive)
+            mapHeaders: ({ header }) => {
+              detectedHeaders.push(header);
+              
+              const normalizedHeader = header.toLowerCase().trim();
+              
+              // Map various header formats to standard field names
+              const headerMapping: { [key: string]: string } = {
+                'company name': 'name',
+                'companyname': 'name',
+                'name': 'name',
+                '회사명': 'name',
+                
+                'hq location': 'hqLocation',
+                'hqlocation': 'hqLocation',
+                'headquarters': 'hqLocation',
+                'location': 'hqLocation',
+                '본사위치': 'hqLocation',
+                '본사 위치': 'hqLocation',
+                
+                'aum': 'aum',
+                'assets': 'aum',
+                'assets under management': 'aum',
+                '운용자산규모': 'aum',
+                '운용규모': 'aum',
+                
+                'type': 'type',
+                'company type': 'type',
+                'fund type': 'type',
+                '유형': 'type',
+                '타입': 'type',
+                
+                'area': 'area',
+                'region': 'area',
+                'location': 'area',
+                '지역': 'area',
+                '지역명': 'area'
+              };
+
+              return headerMapping[normalizedHeader] || header;
+            }
+          }))
+          .on('data', (data) => {
+            lineNumber++;
+            results.push(data);
+          })
+          .on('end', () => {
+            console.log(`✅ CSV 파싱 완료: ${results.length}개 행 감지`);
+            console.log('🔍 감지된 헤더:', detectedHeaders);
+            resolve(void 0);
+          })
+          .on('error', reject);
+      });
+
+      if (results.length === 0) {
+        return res.status(400).json({ message: "No valid data found in CSV file" });
+      }
+
+      // Process each row and create overseas companies
+      const createdCompanies: any[] = [];
+      
+      for (const row of results) {
+        try {
+          // Skip empty rows
+          if (!row.name || !row.hqLocation || !row.aum || !row.type || !row.area) {
+            errors.push(`Row ${lineNumber}: Missing required fields (Name, HQ Location, AUM, Type, Area)`);
+            continue;
+          }
+
+          // Parse AUM as decimal
+          const aumValue = typeof row.aum === 'string' ? 
+            parseFloat(row.aum.replace(/,/g, '')) : 
+            parseFloat(row.aum);
+
+          if (isNaN(aumValue)) {
+            errors.push(`Row ${lineNumber}: Invalid AUM value "${row.aum}"`);
+            continue;
+          }
+
+          // Validate area field
+          const validAreas = ['US', 'EU', 'Hong Kong', 'Singapore', 'Korea', 'Other'];
+          if (!validAreas.includes(row.area.trim())) {
+            errors.push(`Row ${lineNumber}: Invalid area "${row.area}". Must be one of: ${validAreas.join(', ')}`);
+            continue;
+          }
+
+          const companyData = {
+            name: row.name.trim(),
+            hqLocation: row.hqLocation.trim(),
+            aum: aumValue.toString(),
+            aumKrw: null, // Will be calculated later if needed
+            type: row.type.trim(),
+            area: row.area.trim(),
+            shareholderStatus: "N/A", // Default value
+            shareCount: null, // Default value
+            status: "active" // Default value
+          };
+
+          console.log('🏢 해외 회사 생성:', {
+            name: companyData.name,
+            organizationId,
+            aum: companyData.aum,
+            type: companyData.type,
+            area: companyData.area
+          });
+
+          const company = await storage.createOverseasCompany(companyData, organizationId);
+          createdCompanies.push(company);
+
+        } catch (error: any) {
+          console.error('❌ 해외 회사 생성 실패:', {
+            row,
+            error: error.message
+          });
+          errors.push(`Failed to create overseas company "${row.name}": ${error.message}`);
+        }
+      }
+
+      res.status(201).json({
+        message: `Successfully imported ${createdCompanies.length} overseas companies`,
+        importedCount: createdCompanies.length,
+        totalRows: results.length,
+        errors: errors.length > 0 ? errors : undefined,
+        companies: createdCompanies
+      });
+
+    } catch (error: any) {
+      console.error('❌ 해외 회사 CSV 업로드 전체 오류:', {
+        error: error.message,
+        stack: error.stack,
+        fileName: req.file?.originalname
+      });
+      res.status(500).json({ 
+        message: "Failed to process CSV file", 
+        error: error.message,
+        details: error.stack
+      });
+    }
+  });
+
   // Investments routes
   app.get("/api/investments", async (req, res) => {
     const investments = await storage.getInvestments();
