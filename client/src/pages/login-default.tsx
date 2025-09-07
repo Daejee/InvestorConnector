@@ -132,14 +132,6 @@ function DefaultLoginForm() {
             </Button>
           </form>
 
-          {/* 기본 계정 정보 */}
-          <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-            <h4 className="font-medium text-gray-900 mb-2">기본 계정 정보</h4>
-            <div className="text-sm text-gray-700 space-y-1">
-              <p><strong>이메일:</strong> admin</p>
-              <p><strong>비밀번호:</strong> admin</p>
-            </div>
-          </div>
 
           {/* 푸터 */}
           <div className="mt-8 text-center text-sm text-gray-500">
