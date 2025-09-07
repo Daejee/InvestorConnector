@@ -323,8 +323,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       readable
         .pipe(csvParser())
         .on('data', (data) => {
-          // Skip rows where all main fields are empty
-          const hasData = data['운용사'] || data['성명'] || data['company'] || data['name'];
+          // Skip rows where all main fields are empty - include new headers
+          const hasData = (
+            data['이름'] || data['성명'] || data['name'] ||      // Name fields
+            data['회사'] || data['운용사'] || data['company']   // Company fields
+          );
           if (hasData) {
             results.push(data);
           }
@@ -396,9 +399,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 return ''; // Always return empty email
               };
 
-              // Try multiple ways to get the company and name
-              const name = (cleanRow['성명'] || row['성명'] || cleanRow['name'] || '').trim();
-              const company = (cleanRow['운용사'] || row['운용사'] || cleanRow['company'] || '').trim();
+              // Try multiple ways to get the company and name - include new CSV headers
+              const name = (
+                cleanRow['이름'] || row['이름'] ||           // NEW: 이름 
+                cleanRow['성명'] || row['성명'] ||           // OLD: 성명
+                cleanRow['name'] || row['name'] || 
+                ''
+              ).trim();
+              const company = (
+                cleanRow['회사'] || row['회사'] ||           // NEW: 회사
+                cleanRow['운용사'] || row['운용사'] ||       // OLD: 운용사
+                cleanRow['company'] || row['company'] || 
+                ''
+              ).trim();
               
               console.log(`Processing row ${index}: name=${name}, company=${company}`);
               console.log(`Available keys:`, Object.keys(cleanRow));
@@ -411,18 +424,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
               const result = {
                 name,
-                email,
+                email: (cleanRow['이메일'] || row['이메일'] || cleanRow['email'] || row['email'] || '').trim(),
                 company,
-                phone: (cleanRow['phone'] || row['phone'] || cleanRow['연락처'] || row['연락처'] || '').trim(),
-                position: (cleanRow['position'] || row['position'] || cleanRow['직책'] || row['직책'] || 'Fund Manager').trim(),
-                positionType: 'PM', // Default to Portfolio Manager
-                totalExperience: parseExperience(cleanRow['총 운용경력'] || row['총 운용경력'] || cleanRow['총운용경력']),
-                currentCompanyExperience: parseExperience(cleanRow['현회사 운용경력'] || row['현회사 운용경력'] || cleanRow['현회사운용경력']),
-                numberOfManagedFunds: parseInt(cleanRow['펀드수'] || row['펀드수'] || cleanRow['운용펀드수'] || row['운용펀드수']) || 0,
-                totalAssets,
+                fund: (cleanRow['펀드'] || row['펀드'] || cleanRow['fund'] || row['fund'] || '').trim(),
+                phone: (cleanRow['전화번호'] || row['전화번호'] || cleanRow['phone'] || row['phone'] || cleanRow['연락처'] || row['연락처'] || '').trim(),
+                position: (cleanRow['직책'] || row['직책'] || cleanRow['position'] || row['position'] || 'Fund Manager').trim(),
+                positionType: (cleanRow['직책유형'] || row['직책유형'] || cleanRow['positionType'] || row['positionType'] || 'PM').trim(),
+                totalExperience: parseExperience(
+                  cleanRow['총운용경력'] || row['총운용경력'] || 
+                  cleanRow['총 운용경력'] || row['총 운용경력'] || 
+                  cleanRow['totalExperience'] || row['totalExperience']
+                ),
+                currentCompanyExperience: parseExperience(
+                  cleanRow['현회사운용경력'] || row['현회사운용경력'] ||
+                  cleanRow['현회사 운용경력'] || row['현회사 운용경력'] || 
+                  cleanRow['currentCompanyExperience'] || row['currentCompanyExperience']
+                ),
+                managedFundAum: parseAmount(
+                  cleanRow['운용펀드AUM(백만원)'] || row['운용펀드AUM(백만원)'] ||
+                  cleanRow['managedFundAum'] || row['managedFundAum']
+                ),
+                numberOfManagedFunds: parseInt(
+                  cleanRow['운용펀드수'] || row['운용펀드수'] ||
+                  cleanRow['펀드수'] || row['펀드수'] || 
+                  cleanRow['numberOfManagedFunds'] || row['numberOfManagedFunds'] || 
+                  '0'
+                ) || 0,
+                totalAssets: parseAmount(
+                  cleanRow['총자산(백만원)'] || row['총자산(백만원)'] ||
+                  cleanRow['totalAssets'] || row['totalAssets'] || 
+                  totalAssets  // fallback to previously parsed value
+                ),
+                ownsOurShare: (cleanRow['당사지분보유'] || row['당사지분보유'] || cleanRow['ownsOurShare'] || row['ownsOurShare'] || '').trim(),
+                shareAmount: (cleanRow['보유지분량'] || row['보유지분량'] || cleanRow['shareAmount'] || row['shareAmount'] || '').trim(),
+                note: (cleanRow['비고'] || row['비고'] || cleanRow['note'] || row['note'] || '').trim(),
                 specialty: [cleanRow['전문분야'] || row['전문분야'] || cleanRow['specialty'] || row['specialty'] || ''].filter(s => s),
-                country: 'Korea',
-                language: 'Korean',
+                country: (cleanRow['국가'] || row['국가'] || cleanRow['country'] || row['country'] || 'Korea').trim(),
+                language: (cleanRow['언어'] || row['언어'] || cleanRow['language'] || row['language'] || 'Korean').trim(),
                 avatarInitials: name.length >= 2 ? name.substring(0, 2).toUpperCase() : 'FM'
               };
               
