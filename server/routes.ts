@@ -572,7 +572,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/companies", async (req, res) => {
     try {
+      console.log('🏢 Company creation request body:', req.body);
       const data = insertCompanySchema.parse(req.body);
+      console.log('✅ Parsed data:', data);
+      
       // Store AUM value directly as entered (in billions)
       // No conversion needed since UI displays in billions and database stores the actual value
       if (data.aum) {
@@ -582,10 +585,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         data.aumKrw = (aumValue * 1.4).toString();
       }
       const organizationId = await extractOrganizationId(req);
+      console.log('🏢 Creating company with organizationId:', organizationId);
       const company = await storage.createCompany(data, organizationId);
       res.status(201).json(company);
     } catch (error) {
-      res.status(400).json({ message: "Invalid company data", error });
+      console.error('❌ Company creation error:', error);
+      if (error instanceof Error) {
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+      }
+      res.status(400).json({ 
+        message: "Invalid company data", 
+        error: error instanceof Error ? error.message : String(error),
+        details: error
+      });
     }
   });
 
