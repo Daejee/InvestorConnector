@@ -3599,7 +3599,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const analysts = await storage.getAnalysts(organizationId);
       
       const csvHeaders = [
-        'ID', '이름', '이메일', '전화번호', '회사', '직책', '전문분야'
+        'ID', '이름', '이메일', '전화번호', '회사', '직책', '담당산업', 'Coverage 여부'
       ];
       
       const csvRows = analysts.map(analyst => [
@@ -3609,7 +3609,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         `"${analyst.phone || ''}"`,
         `"${analyst.company || ''}"`,
         `"${analyst.position || ''}"`,
-        `"${Array.isArray(analyst.specialization) ? analyst.specialization.join('; ') : (analyst.specialization || '')}"`
+        `"${Array.isArray(analyst.specialization) ? analyst.specialization.join('; ') : (analyst.specialization || '')}"`,
+        `"${analyst.status || 'No'}"`
       ]);
       
       const csvContent = [
