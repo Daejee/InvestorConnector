@@ -51,8 +51,27 @@ export default function OverseasFunds() {
       const formData = new FormData();
       formData.append('file', file);
       
+      // Get organization ID from URL path
+      const path = window.location.pathname;
+      const orgMatch = path.match(/^\/org\/([^\/]+)/);
+      let organizationId = '1'; // default
+      if (orgMatch) {
+        const domain = orgMatch[1];
+        const domainToOrgId: Record<string, number> = {
+          'default': 1,
+          'default.com': 1,
+          'samsung': 2,
+          'demo': 3,
+          'LG': 4,
+        };
+        organizationId = (domainToOrgId[domain] || 1).toString();
+      }
+      
       const response = await fetch('/api/overseas-funds/upload-csv', {
         method: 'POST',
+        headers: {
+          'X-Organization-Id': organizationId,
+        },
         body: formData,
       });
       
