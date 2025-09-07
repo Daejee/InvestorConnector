@@ -3657,7 +3657,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const investors = await storage.getInvestors(organizationId);
       
       const csvHeaders = [
-        'ID', '이름', '이메일', '전화번호', '회사', '펀드', '직책', '전문분야', '국가', '언어'
+        'ID', '이름', '이메일', '전화번호', '회사', '펀드', '직책', '직책유형', 
+        '전문분야', '국가', '언어', '총운용경력', '현회사운용경력', 
+        '운용펀드AUM(백만원)', '운용펀드수', '총자산(백만원)', 
+        '당사지분보유', '보유지분량', '비고'
       ];
       
       const csvRows = investors.map(investor => [
@@ -3668,9 +3671,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         `"${investor.company || ''}"`,
         `"${investor.fund || ''}"`,
         `"${investor.position || ''}"`,
+        `"${investor.positionType || ''}"`,
         `"${Array.isArray(investor.specialty) ? investor.specialty.join('; ') : (investor.specialty || '')}"`,
         `"${investor.country || ''}"`,
-        `"${investor.language || ''}"`
+        `"${investor.language || ''}"`,
+        `"${investor.totalExperience || ''}"`,
+        `"${investor.currentCompanyExperience || ''}"`,
+        `"${investor.managedFundAum || ''}"`,
+        `"${investor.numberOfManagedFunds || ''}"`,
+        `"${investor.totalAssets || ''}"`,
+        `"${investor.ownsOurShare || ''}"`,
+        `"${investor.shareAmount || ''}"`,
+        `"${investor.note || ''}"`
       ]);
       
       const csvContent = [
