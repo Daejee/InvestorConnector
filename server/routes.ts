@@ -3468,13 +3468,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/organizations", async (req, res) => {
     try {
-      const { name, domain, subscriptionTier } = req.body;
+      const { name, domain, plan } = req.body;
       const organization = await storage.createOrganization({
         name,
         domain,
-        subscriptionTier: subscriptionTier || 'starter',
-        settings: {},
-        isActive: true
+        plan: plan || 'basic'
       });
       
       // 새 조직 생성 시 도메인 매핑 캐시 초기화
