@@ -673,6 +673,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // CSV upload endpoint for companies
   app.post("/api/companies/upload-csv", upload.single("csvFile"), async (req, res) => {
     try {
+      // Function to parse Korean date format (YYYY. M. D.) to YYYY-MM-DD
+      const parseKoreanDate = (dateStr: string): string | null => {
+        if (!dateStr) return null;
+        
+        // Handle Korean date format like "1999. 2. 9." or "1988. 7. 7."
+        const koreanDateMatch = dateStr.match(/^(\d{4})\.\s*(\d{1,2})\.\s*(\d{1,2})\.?$/);
+        if (koreanDateMatch) {
+          const [, year, month, day] = koreanDateMatch;
+          return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+        }
+        
+        // Handle standard ISO format (YYYY-MM-DD) - keep as is
+        if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+          return dateStr;
+        }
+        
+        // Handle other formats like YYYY/MM/DD
+        const slashMatch = dateStr.match(/^(\d{4})\/(\d{1,2})\/(\d{1,2})$/);
+        if (slashMatch) {
+          const [, year, month, day] = slashMatch;
+          return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+        }
+        
+        console.warn(`⚠️ Unrecognized date format: "${dateStr}"`);
+        return null; // Return null if format is not recognized
+      };
+
       console.log('📁 CSV 업로드 시작:', {
         fileName: req.file?.originalname,
         fileSize: req.file?.size,
@@ -880,7 +907,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 area: finalArea,
                 // Add new optional fields
                 fundManagerCount: fundManagerCountValue ? parseInt(fundManagerCountValue.toString().trim()) : null,
-                establishedDate: establishedDateValue ? establishedDateValue.toString().trim() : null,
+                establishedDate: establishedDateValue ? parseKoreanDate(establishedDateValue.toString().trim()) : null,
                 address: addressValue ? addressValue.toString().trim() : null,
                 phone: phoneValue ? phoneValue.toString().trim() : null,
                 website: websiteValue ? websiteValue.toString().trim() : null
