@@ -1208,7 +1208,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 
                 'area': 'area',
                 'region': 'area',
-                'location': 'area',
                 '지역': 'area',
                 '지역명': 'area'
               };
