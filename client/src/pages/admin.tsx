@@ -119,7 +119,6 @@ export default function Admin() {
   });
 
 
-  console.log("📊 Admin stats data:", stats);
 
   const createOrgMutation = useMutation({
     mutationFn: async (data: OrganizationForm) => {
