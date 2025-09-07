@@ -64,6 +64,9 @@ export default function Analysts() {
       
       const response = await fetch('/api/analysts/upload', {
         method: 'POST',
+        headers: {
+          'X-Organization-Id': organizationId?.toString() || '1',
+        },
         body: formData,
       });
       
@@ -74,7 +77,7 @@ export default function Analysts() {
       return response.json();
     },
     onSuccess: (result) => {
-      queryClient.invalidateQueries({ queryKey: ["/api/analysts"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/analysts", organizationId] });
       toast({
         title: "업로드 성공",
         description: result.message,
