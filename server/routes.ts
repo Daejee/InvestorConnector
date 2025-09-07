@@ -3522,7 +3522,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/admin/stats", async (req, res) => {
     try {
-      const stats = await storage.getDatabaseStats();
+      const organizationId = await extractOrganizationId(req);
+      const stats = await storage.getDatabaseStats(organizationId);
       res.json(stats);
     } catch (error) {
       res.status(500).json({ message: "Failed to get database stats", error });

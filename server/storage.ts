@@ -1105,19 +1105,19 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async getDatabaseStats(): Promise<any> {
-    const [investorCount] = await db.select({ count: sql<number>`count(*)` }).from(investors);
-    const [overseasInvestorCount] = await db.select({ count: sql<number>`count(*)` }).from(overseasInvestors);
-    const [analystCount] = await db.select({ count: sql<number>`count(*)` }).from(analysts);
-    const [companyCount] = await db.select({ count: sql<number>`count(*)` }).from(companies);
-    const [overseasCompanyCount] = await db.select({ count: sql<number>`count(*)` }).from(overseasCompanies);
-    const [securitiesFirmCount] = await db.select({ count: sql<number>`count(*)` }).from(securitiesFirms);
-    const [fundCount] = await db.select({ count: sql<number>`count(*)` }).from(funds);
-    const [overseasFundCount] = await db.select({ count: sql<number>`count(*)` }).from(overseasFunds);
-    const [meetingCount] = await db.select({ count: sql<number>`count(*)` }).from(meetings);
-    const [documentCount] = await db.select({ count: sql<number>`count(*)` }).from(documents);
-    const [userCount] = await db.select({ count: sql<number>`count(*)` }).from(users);
-    const [analystReportCount] = await db.select({ count: sql<number>`count(*)` }).from(analystReports);
+  async getDatabaseStats(organizationId: number): Promise<any> {
+    const [investorCount] = await db.select({ count: sql<number>`count(*)` }).from(investors).where(eq(investors.organizationId, organizationId));
+    const [overseasInvestorCount] = await db.select({ count: sql<number>`count(*)` }).from(overseasInvestors).where(eq(overseasInvestors.organizationId, organizationId));
+    const [analystCount] = await db.select({ count: sql<number>`count(*)` }).from(analysts).where(eq(analysts.organizationId, organizationId));
+    const [companyCount] = await db.select({ count: sql<number>`count(*)` }).from(companies).where(eq(companies.organizationId, organizationId));
+    const [overseasCompanyCount] = await db.select({ count: sql<number>`count(*)` }).from(overseasCompanies).where(eq(overseasCompanies.organizationId, organizationId));
+    const [securitiesFirmCount] = await db.select({ count: sql<number>`count(*)` }).from(securitiesFirms).where(eq(securitiesFirms.organizationId, organizationId));
+    const [fundCount] = await db.select({ count: sql<number>`count(*)` }).from(funds).where(eq(funds.organizationId, organizationId));
+    const [overseasFundCount] = await db.select({ count: sql<number>`count(*)` }).from(overseasFunds).where(eq(overseasFunds.organizationId, organizationId));
+    const [meetingCount] = await db.select({ count: sql<number>`count(*)` }).from(meetings).where(eq(meetings.organizationId, organizationId));
+    const [documentCount] = await db.select({ count: sql<number>`count(*)` }).from(documents).where(eq(documents.organizationId, organizationId));
+    const [userCount] = await db.select({ count: sql<number>`count(*)` }).from(users).where(eq(users.organizationId, organizationId));
+    const [analystReportCount] = await db.select({ count: sql<number>`count(*)` }).from(analystReports).where(eq(analystReports.organizationId, organizationId));
 
     return {
       investors: investorCount.count,
