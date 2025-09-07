@@ -717,6 +717,102 @@ export default function Admin() {
         </div>
       </div>
 
+      {/* CSV Export Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <FileText className="h-5 w-5" />
+            데이터 내보내기 (CSV)
+          </CardTitle>
+          <CardDescription>
+            각 데이터 유형별로 CSV 파일을 다운로드할 수 있습니다
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => handleExportInvestorsCsv(1)}
+              disabled={isDownloading}
+              className="flex items-center gap-2 text-xs"
+            >
+              <FileText className="h-3 w-3" />
+              투자자(국내)
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => handleExportCompaniesCsv(1)}
+              disabled={isDownloading}
+              className="flex items-center gap-2 text-xs"
+            >
+              <FileText className="h-3 w-3" />
+              자산운용사(국내)
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleExportOverseasInvestorsCsv}
+              disabled={isDownloading}
+              className="flex items-center gap-2 text-xs"
+            >
+              <FileText className="h-3 w-3" />
+              투자자(해외)
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => handleExportOverseasFundsCsv(1)}
+              disabled={isDownloading}
+              className="flex items-center gap-2 text-xs"
+            >
+              <FileText className="h-3 w-3" />
+              자산운용사(해외)
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => handleExportAnalystsCsv(1)}
+              disabled={isDownloading}
+              className="flex items-center gap-2 text-xs"
+            >
+              <FileText className="h-3 w-3" />
+              애널리스트/브로커
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => handleExportSecuritiesFirmsCsv(1)}
+              disabled={isDownloading}
+              className="flex items-center gap-2 text-xs"
+            >
+              <FileText className="h-3 w-3" />
+              증권사
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => handleExportMeetingsCsv(1)}
+              disabled={isDownloading}
+              className="flex items-center gap-2 text-xs"
+            >
+              <FileText className="h-3 w-3" />
+              미팅
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleExportUsersCsv}
+              disabled={isDownloading}
+              className="flex items-center gap-2 text-xs"
+            >
+              <FileText className="h-3 w-3" />
+              사용자
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Organizations Table */}
       <Card>
