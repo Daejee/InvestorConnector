@@ -711,6 +711,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 case 'company name / 회사명':
                 case 'company':
                 case '회사명':
+                case '자산운용사':  // 펀드 CSV의 자산운용사를 회사명으로 매핑
                   return 'name';
                 case 'hq location':
                 case 'hq location / 본사 위치':
