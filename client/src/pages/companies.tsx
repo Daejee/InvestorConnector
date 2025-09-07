@@ -295,7 +295,7 @@ export default function Companies() {
                   Upload CSV / CSV 업로드
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-2xl">
+              <DialogContent className="max-w-lg max-h-[75vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>CSV로 회사 정보 업로드</DialogTitle>
                 </DialogHeader>
