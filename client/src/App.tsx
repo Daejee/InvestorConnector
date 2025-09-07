@@ -116,8 +116,8 @@ function OrganizationAwareSwitch() {
       
       {/* Organization-specific login pages - demo handled in Router */}
       
-      {/* Legacy routes redirect to default organization */}
-      <Route path="/" component={() => { window.location.href = '/org/default'; return null; }} />
+      {/* Root path redirects to login */}
+      <Route path="/" component={() => { window.location.href = '/login/default'; return null; }} />
       <Route path="/investors" component={() => { window.location.href = '/org/default/investors'; return null; }} />
       <Route path="/overseas-investors" component={() => { window.location.href = '/org/default/overseas-investors'; return null; }} />
       <Route path="/analysts" component={() => { window.location.href = '/org/default/analysts'; return null; }} />
