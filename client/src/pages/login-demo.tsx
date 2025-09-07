@@ -56,7 +56,7 @@ function DemoLoginForm() {
       } else {
         toast({
           title: "로그인 실패",
-          description: "아이디: demo, 비밀번호: demo를 입력하세요.",
+          description: "아이디 또는 비밀번호가 올바르지 않습니다.",
           variant: "destructive",
         });
         setIsLoading(false);
@@ -101,7 +101,7 @@ function DemoLoginForm() {
                   <Input
                     id="email"
                     type="text"
-                    placeholder="demo"
+                    placeholder="아이디를 입력하세요"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="pl-10 h-11"
@@ -146,14 +146,6 @@ function DemoLoginForm() {
             </Button>
           </form>
 
-          {/* 데모 계정 정보 */}
-          <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-            <h4 className="font-medium text-blue-900 mb-2">데모 계정 정보</h4>
-            <div className="text-sm text-blue-700 space-y-1">
-              <p><strong>아이디:</strong> demo</p>
-              <p><strong>비밀번호:</strong> demo</p>
-            </div>
-          </div>
 
           {/* 푸터 */}
           <div className="mt-8 text-center text-sm text-gray-500">

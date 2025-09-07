@@ -87,7 +87,7 @@ function SamsungLoginForm() {
                   <Input
                     id="email"
                     type="email"
-                    placeholder="samsung@samsung.com"
+                    placeholder="이메일을 입력하세요"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="pl-10 h-11"
@@ -132,14 +132,6 @@ function SamsungLoginForm() {
             </Button>
           </form>
 
-          {/* 삼성 계정 정보 */}
-          <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-            <h4 className="font-medium text-blue-900 mb-2">삼성 계정 정보</h4>
-            <div className="text-sm text-blue-700 space-y-1">
-              <p><strong>이메일:</strong> samsung@samsung.com</p>
-              <p><strong>비밀번호:</strong> samsung123</p>
-            </div>
-          </div>
 
           {/* 푸터 */}
           <div className="mt-8 text-center text-sm text-gray-500">

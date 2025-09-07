@@ -53,7 +53,7 @@ export default function LoginLG() {
         window.location.href = "/org/LG";
         
       } else {
-        setError("아이디: lg, 비밀번호: lg123을 입력하세요.");
+        setError("아이디 또는 비밀번호가 올바르지 않습니다.");
         setIsLoading(false);
       }
     } catch (error) {
@@ -112,9 +112,6 @@ export default function LoginLG() {
           
           <div className="mt-6 text-center text-sm text-gray-600">
             <p>LG전자 조직 전용 로그인</p>
-            <p className="mt-2">
-              <span className="text-blue-600">테스트 계정:</span> lg / lg123
-            </p>
           </div>
         </CardContent>
       </Card>
