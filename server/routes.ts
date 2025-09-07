@@ -675,28 +675,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       // Function to parse Korean date format (YYYY. M. D.) to YYYY-MM-DD
       const parseKoreanDate = (dateStr: string): string | null => {
-        if (!dateStr) return null;
+        if (!dateStr || dateStr.trim() === '') return null;
         
-        // Handle Korean date format like "1999. 2. 9." or "1988. 7. 7."
-        const koreanDateMatch = dateStr.match(/^(\d{4})\.\s*(\d{1,2})\.\s*(\d{1,2})\.?$/);
+        const trimmed = dateStr.trim();
+        console.log(`🔍 Parsing date: "${trimmed}"`);
+        
+        // Handle Korean date format like "1999. 2. 9." or "1988. 7. 7." or "2010. 2. 11."
+        const koreanDateMatch = trimmed.match(/^(\d{4})\.\s*(\d{1,2})\.\s*(\d{1,2})\.?$/);
         if (koreanDateMatch) {
           const [, year, month, day] = koreanDateMatch;
-          return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+          const result = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+          console.log(`✅ Korean date converted: "${trimmed}" → "${result}"`);
+          return result;
         }
         
         // Handle standard ISO format (YYYY-MM-DD) - keep as is
-        if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
-          return dateStr;
+        if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+          console.log(`✅ ISO date kept: "${trimmed}"`);
+          return trimmed;
         }
         
         // Handle other formats like YYYY/MM/DD
-        const slashMatch = dateStr.match(/^(\d{4})\/(\d{1,2})\/(\d{1,2})$/);
+        const slashMatch = trimmed.match(/^(\d{4})\/(\d{1,2})\/(\d{1,2})$/);
         if (slashMatch) {
           const [, year, month, day] = slashMatch;
-          return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+          const result = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+          console.log(`✅ Slash date converted: "${trimmed}" → "${result}"`);
+          return result;
         }
         
-        console.warn(`⚠️ Unrecognized date format: "${dateStr}"`);
+        console.warn(`⚠️ Unrecognized date format: "${trimmed}"`);
         return null; // Return null if format is not recognized
       };
 
@@ -907,7 +915,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 area: finalArea,
                 // Add new optional fields
                 fundManagerCount: fundManagerCountValue ? parseInt(fundManagerCountValue.toString().trim()) : null,
-                establishedDate: establishedDateValue ? parseKoreanDate(establishedDateValue.toString().trim()) : null,
+                establishedDate: establishedDateValue ? (() => {
+                  const dateStr = establishedDateValue.toString().trim();
+                  const parsedDate = parseKoreanDate(dateStr);
+                  console.log(`📅 Date parsing: "${dateStr}" → "${parsedDate}"`);
+                  return parsedDate;
+                })() : null,
                 address: addressValue ? addressValue.toString().trim() : null,
                 phone: phoneValue ? phoneValue.toString().trim() : null,
                 website: websiteValue ? websiteValue.toString().trim() : null
@@ -952,24 +965,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
         organizationId: organizationId
       });
 
+      // Load existing company names once for performance (avoid N+1 queries)
+      console.log('🔍 기존 회사 목록 로딩...');
+      const existingCompanies = await storage.getCompanies(organizationId);
+      const existingCompanyNames = new Set(
+        existingCompanies.map(c => c.name.toLowerCase())
+      );
+      console.log(`📊 기존 회사 ${existingCompanies.length}개 로딩 완료`);
+
       const createdCompanies = [];
       for (const companyData of results) {
         try {
           console.log('🏢 회사 생성 시도:', {
-            name: companyData.name,
-            data: companyData
+            name: companyData.name
           });
 
           // Schema validation
           const validatedData = insertCompanySchema.parse(companyData);
-          console.log('✅ 스키마 검증 성공:', validatedData);
 
-          // Check if company already exists
-          const existingCompany = await storage.getCompanies(organizationId);
-          const duplicate = existingCompany.find(c => c.name.toLowerCase() === companyData.name.toLowerCase());
-          
-          if (duplicate) {
-            console.log(`❌ 중복 회사 발견: ${companyData.name}`);
+          // Check if company already exists (using pre-loaded names set for performance)
+          if (existingCompanyNames.has(companyData.name.toLowerCase())) {
+            console.log(`❌ 중복 회사 스킵: ${companyData.name}`);
             errors.push(`Company "${companyData.name}" already exists in database`);
             continue;
           }
@@ -977,11 +993,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const company = await storage.createCompany(validatedData, organizationId);
           console.log('✅ 회사 생성 성공:', company.name);
           createdCompanies.push(company);
+          
+          // Add to existing names set to catch duplicates within the same upload
+          existingCompanyNames.add(companyData.name.toLowerCase());
         } catch (error: any) {
           console.error('❌ 회사 생성 실패:', {
             companyName: companyData.name,
-            error: error.message,
-            stack: error.stack
+            error: error.message
           });
           errors.push(`Failed to create company "${companyData.name}": ${error.message}`);
         }
