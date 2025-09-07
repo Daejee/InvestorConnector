@@ -673,9 +673,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // CSV upload endpoint for companies
   app.post("/api/companies/upload-csv", upload.single("csvFile"), async (req, res) => {
     try {
+      console.log('📁 CSV 업로드 시작:', {
+        fileName: req.file?.originalname,
+        fileSize: req.file?.size,
+        mimeType: req.file?.mimetype
+      });
+
       if (!req.file) {
         return res.status(400).json({ message: "No CSV file uploaded" });
       }
+
+      const organizationId = await extractOrganizationId(req);
+      console.log('🏢 CSV 업로드 조직 ID:', organizationId);
 
       const results: any[] = [];
       const errors: string[] = [];
@@ -908,22 +917,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Insert valid companies into database, checking for duplicates
+      console.log('💾 회사 데이터베이스 저장 시작:', {
+        totalParsedRows: results.length,
+        organizationId: organizationId
+      });
+
       const createdCompanies = [];
       for (const companyData of results) {
         try {
+          console.log('🏢 회사 생성 시도:', {
+            name: companyData.name,
+            data: companyData
+          });
+
+          // Schema validation
+          const validatedData = insertCompanySchema.parse(companyData);
+          console.log('✅ 스키마 검증 성공:', validatedData);
+
           // Check if company already exists
-          const organizationId = await extractOrganizationId(req);
           const existingCompany = await storage.getCompanies(organizationId);
           const duplicate = existingCompany.find(c => c.name.toLowerCase() === companyData.name.toLowerCase());
           
           if (duplicate) {
+            console.log(`❌ 중복 회사 발견: ${companyData.name}`);
             errors.push(`Company "${companyData.name}" already exists in database`);
             continue;
           }
           
-          const company = await storage.createCompany(companyData, organizationId);
+          const company = await storage.createCompany(validatedData, organizationId);
+          console.log('✅ 회사 생성 성공:', company.name);
           createdCompanies.push(company);
         } catch (error: any) {
+          console.error('❌ 회사 생성 실패:', {
+            companyName: companyData.name,
+            error: error.message,
+            stack: error.stack
+          });
           errors.push(`Failed to create company "${companyData.name}": ${error.message}`);
         }
       }
@@ -937,9 +966,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
     } catch (error: any) {
+      console.error('❌ CSV 업로드 전체 오류:', {
+        error: error.message,
+        stack: error.stack,
+        fileName: req.file?.originalname
+      });
       res.status(500).json({ 
         message: "Failed to process CSV file", 
-        error: error.message 
+        error: error.message,
+        details: error.stack
       });
     }
   });
