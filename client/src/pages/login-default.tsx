@@ -11,8 +11,8 @@ import { Building2, Lock, User, ArrowRight } from "lucide-react";
 
 function DefaultLoginForm() {
   const [, setLocation] = useLocation();
-  const [email, setEmail] = useState("admin");
-  const [password, setPassword] = useState("admin");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const { login } = useAuth();
@@ -87,7 +87,7 @@ function DefaultLoginForm() {
                   <Input
                     id="email"
                     type="text"
-                    placeholder="admin"
+                    placeholder="이메일을 입력하세요"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="pl-10 h-11"
