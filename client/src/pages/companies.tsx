@@ -93,13 +93,13 @@ export default function Companies() {
           result = sortCompaniesByName(a, b);
           break;
         case 'hqLocation':
-          result = a.hqLocation.localeCompare(b.hqLocation, 'ko-KR');
+          result = (a.hqLocation || '').localeCompare(b.hqLocation || '', 'ko-KR');
           break;
         case 'area':
           result = (a.area || 'Korea').localeCompare(b.area || 'Korea', 'ko-KR');
           break;
         case 'aum':
-          result = parseFloat(a.aum) - parseFloat(b.aum);
+          result = parseFloat(a.aum || '0') - parseFloat(b.aum || '0');
           break;
         case 'fundManagerCount':
           result = (a.fundManagerCount || 0) - (b.fundManagerCount || 0);
@@ -121,8 +121,8 @@ export default function Companies() {
   const filteredCompanies = companies ? sortCompanies(
     companies.filter(company =>
       company.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      company.hqLocation.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      company.type.toLowerCase().includes(searchQuery.toLowerCase())
+      (company.hqLocation || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (company.type || '').toLowerCase().includes(searchQuery.toLowerCase())
     )
   ) : [];
 

@@ -720,6 +720,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 case 'headquarters':
                 case 'hq_location':
                 case '본사 위치':
+                case '본사위치':
                   return 'hqLocation';
                 case 'aum (억원)':
                   console.log(`Mapping "aum (억원)" to aumWon`);
@@ -778,6 +779,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 case 'web':
                 case 'homepage':
                 case 'url':
+                case '웹사이트':
                   return 'website';
                 default:
                   console.log(`No mapping for header: "${header}", keeping as: "${header}"`);
@@ -3567,19 +3569,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const companies = await storage.getCompanies(organizationId);
       
-      // Convert to CSV format
+      // Convert to CSV format matching the actual schema
       const csvHeaders = [
-        'ID', '회사명', '업종', '시가총액', '웹사이트', '설명', '생성일'
+        'ID', '회사명', '본사위치', 'AUM', '유형', '지역', '주소', '전화번호', '웹사이트', '설립일자'
       ];
       
       const csvRows = companies.map(company => [
         company.id,
         `"${company.name || ''}"`,
-        `"${company.industry || ''}"`,
-        company.marketCap || '',
+        `"${company.hqLocation || ''}"`,
+        company.aum || '',
+        `"${company.type || ''}"`,
+        `"${company.area || ''}"`,
+        `"${company.address || ''}"`,
+        `"${company.phone || ''}"`,
         `"${company.website || ''}"`,
-        `"${company.description || ''}"`,
-        company.createdAt ? new Date(company.createdAt).toLocaleDateString('ko-KR') : ''
+        company.establishedDate ? new Date(company.establishedDate).toLocaleDateString('ko-KR') : ''
       ]);
       
       const csvContent = [
