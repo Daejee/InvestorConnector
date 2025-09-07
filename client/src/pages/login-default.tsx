@@ -77,7 +77,7 @@ function DefaultLoginForm() {
         </CardHeader>
 
         <CardContent>
-          <form onSubmit={handleLogin} className="space-y-6">
+          <form onSubmit={handleLogin} className="space-y-6" autoComplete="off">
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-sm font-medium text-gray-700">
@@ -86,11 +86,13 @@ function DefaultLoginForm() {
                 <div className="relative">
                   <Input
                     id="email"
+                    name="username"
                     type="text"
                     placeholder="이메일을 입력하세요"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="pl-10 h-11"
+                    autoComplete="off"
                     required
                   />
                   <User className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
@@ -104,11 +106,13 @@ function DefaultLoginForm() {
                 <div className="relative">
                   <Input
                     id="password"
+                    name="user-password"
                     type="password"
                     placeholder="비밀번호를 입력하세요"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="pl-10 h-11"
+                    autoComplete="new-password"
                     required
                   />
                   <Lock className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
