@@ -415,7 +415,7 @@ export default function Admin() {
 
   const exportOverseasFundsCsvMutation = useMutation({
     mutationFn: async (organizationId: number) => {
-      const response = await fetch(`/api/admin/export-overseas-funds-csv/${organizationId}`, {
+      const response = await fetch(`/api/admin/export-overseas-companies-csv/${organizationId}`, {
         method: "GET",
       });
       if (!response.ok) throw new Error("CSV export failed");
@@ -426,7 +426,7 @@ export default function Admin() {
       const a = document.createElement("a");
       a.style.display = "none";
       a.href = url;
-      a.download = `overseas_funds_org_${organizationId}.csv`;
+      a.download = `overseas_companies_org_${organizationId}.csv`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);

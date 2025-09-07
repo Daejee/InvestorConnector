@@ -3953,6 +3953,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Export overseas companies CSV
+  app.get("/api/admin/export-overseas-companies-csv/:organizationId", async (req, res) => {
+    try {
+      const organizationId = parseInt(req.params.organizationId);
+      if (isNaN(organizationId)) {
+        return res.status(400).json({ message: "Invalid organization ID" });
+      }
+
+      const companies = await storage.getOverseasCompanies(organizationId);
+      
+      const csvHeaders = [
+        'ID', '회사명', '유형', '본사 위치', '지역', '운용자산규모(AUM)', '주주 현황', '웹사이트', '설명', '생성일'
+      ];
+      
+      const csvRows = companies.map(company => [
+        company.id,
+        `"${company.name || ''}"`,
+        `"${company.type || ''}"`,
+        `"${company.hqLocation || ''}"`,
+        `"${company.area || ''}"`,
+        company.aum || '',
+        `"${company.shareholderStatus || ''}"`,
+        `"${company.website || ''}"`,
+        `"${company.description || ''}"`,
+        company.createdAt ? new Date(company.createdAt).toLocaleDateString('ko-KR') : ''
+      ]);
+      
+      const csvContent = [
+        csvHeaders.join(','),
+        ...csvRows.map(row => row.join(','))
+      ].join('\n');
+      
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('Content-Disposition', `attachment; filename="overseas_companies_org_${organizationId}.csv"`);
+      res.send('\uFEFF' + csvContent);
+    } catch (error) {
+      console.error('Error exporting overseas companies CSV:', error);
+      res.status(500).json({ message: "Failed to export overseas companies CSV", error });
+    }
+  });
+
   app.get("/api/admin/export-securities-firms-csv/:organizationId", async (req, res) => {
     try {
       const organizationId = parseInt(req.params.organizationId);
