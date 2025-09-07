@@ -789,7 +789,7 @@ export default function Admin() {
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => handleExportFundsCsv(1)}
+                    onClick={() => handleExportCompaniesCsv(1)}
                     disabled={isDownloading}
                     className="flex items-center gap-2 text-xs"
                   >
