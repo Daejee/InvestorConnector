@@ -349,6 +349,14 @@ export const insertCompanySchema = createInsertSchema(companies).omit({
   aum: z.string().optional().default("0"), // AUM을 선택사항으로, 기본값 "0"
   type: z.string().optional(), // Type을 선택사항으로
   hqLocation: z.string().optional(), // HQ Location을 선택사항으로
+  establishedDate: z.string().optional().nullable().transform(val => {
+    if (!val || val === "" || val === "N/A") return null;
+    return val;
+  }), // 설립일자를 선택사항으로, N/A 처리
+  fundManagerCount: z.union([z.number(), z.string(), z.null()]).optional().nullable().transform(val => {
+    if (val === null || val === undefined || val === '' || val === 'N/A') return null;
+    return typeof val === 'string' ? parseInt(val) : val;
+  }), // 펀드 매니저수 변환
 });
 
 export const insertOverseasCompanySchema = createInsertSchema(overseasCompanies).omit({
