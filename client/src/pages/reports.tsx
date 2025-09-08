@@ -411,6 +411,176 @@ export default function Reports() {
     }
   };
 
+  // Export investor personal report to PDF
+  const exportInvestorReport = async (report: any) => {
+    const tempDiv = document.createElement('div');
+    tempDiv.style.position = 'absolute';
+    tempDiv.style.left = '-9999px';
+    tempDiv.style.top = '-9999px';
+    tempDiv.style.width = '800px';
+    tempDiv.style.backgroundColor = 'white';
+    tempDiv.style.padding = '40px';
+    tempDiv.style.fontFamily = 'Malgun Gothic, sans-serif';
+
+    const investorData = report.investor;
+    const formattedDate = format(new Date(), 'yyyy년 MM월 dd일');
+
+    tempDiv.innerHTML = `
+      <div style="max-width: 800px; margin: 0 auto; background: white; font-family: 'Malgun Gothic', sans-serif;">
+        <!-- Header with gradient background -->
+        <div style="background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%); padding: 30px; color: white; margin-bottom: 30px; border-radius: 8px;">
+          <div style="display: flex; align-items: center; margin-bottom: 10px;">
+            <div style="width: 24px; height: 24px; background: white; border-radius: 50%; margin-right: 12px; display: flex; align-items: center; justify-content: center;">
+              <span style="color: #3B82F6; font-weight: bold; font-size: 14px;">👤</span>
+            </div>
+            <h1 style="margin: 0; font-size: 24px; font-weight: bold;">투자자 인적사항 보고서</h1>
+          </div>
+          <div style="font-size: 14px; opacity: 0.9;">
+            생성일: ${formattedDate} | 보고서 대상: ${investorData.name}
+          </div>
+        </div>
+
+        <!-- Personal Information Section -->
+        <div style="background: #F8FAFC; padding: 30px; border-radius: 8px; border-left: 4px solid #3B82F6; margin-bottom: 30px;">
+          <h2 style="color: #1E293B; font-size: 20px; font-weight: bold; margin: 0 0 20px 0;">📋 인적사항</h2>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div style="background: white; padding: 15px; border-radius: 6px; border: 1px solid #E2E8F0;">
+              <div style="color: #64748B; font-size: 12px; font-weight: 500; margin-bottom: 5px;">이름:</div>
+              <div style="color: #0F172A; font-size: 14px; font-weight: 600;">${investorData.name}</div>
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 6px; border: 1px solid #E2E8F0;">
+              <div style="color: #64748B; font-size: 12px; font-weight: 500; margin-bottom: 5px;">이메일:</div>
+              <div style="color: #0F172A; font-size: 14px;">${investorData.email || 'N/A'}</div>
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 6px; border: 1px solid #E2E8F0;">
+              <div style="color: #64748B; font-size: 12px; font-weight: 500; margin-bottom: 5px;">전화:</div>
+              <div style="color: #0F172A; font-size: 14px;">${investorData.phone || 'N/A'}</div>
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 6px; border: 1px solid #E2E8F0;">
+              <div style="color: #64748B; font-size: 12px; font-weight: 500; margin-bottom: 5px;">소속기관:</div>
+              <div style="color: #0F172A; font-size: 14px; font-weight: 600;">${investorData.company}</div>
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 6px; border: 1px solid #E2E8F0;">
+              <div style="color: #64748B; font-size: 12px; font-weight: 500; margin-bottom: 5px;">직책:</div>
+              <div style="color: #0F172A; font-size: 14px;">${investorData.position || 'N/A'}</div>
+            </div>
+            
+            <div style="background: white; padding: 15px; border-radius: 6px; border: 1px solid #E2E8F0;">
+              <div style="color: #64748B; font-size: 12px; font-weight: 500; margin-bottom: 5px;">직급:</div>
+              <div style="color: #0F172A; font-size: 14px; font-weight: 600;">${investorData.positionType || 'PM'}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Professional Information Section -->
+        ${(investorData as any).totalExperience || (investorData as any).managedFundAum || (investorData as any).numberOfManagedFunds || (investorData as any).totalAssets ? `
+        <div style="background: #F0F9FF; padding: 30px; border-radius: 8px; border-left: 4px solid #0EA5E9; margin-bottom: 30px;">
+          <h2 style="color: #1E293B; font-size: 20px; font-weight: bold; margin: 0 0 20px 0;">💼 운용 정보</h2>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            ${(investorData as any).totalExperience ? `
+            <div style="background: white; padding: 15px; border-radius: 6px; border: 1px solid #BAE6FD;">
+              <div style="color: #0369A1; font-size: 12px; font-weight: 500; margin-bottom: 5px;">총 운용경력:</div>
+              <div style="color: #0F172A; font-size: 14px; font-weight: 600;">${(investorData as any).totalExperience}</div>
+            </div>
+            ` : ''}
+            
+            ${(investorData as any).currentCompanyExperience ? `
+            <div style="background: white; padding: 15px; border-radius: 6px; border: 1px solid #BAE6FD;">
+              <div style="color: #0369A1; font-size: 12px; font-weight: 500; margin-bottom: 5px;">현회사 운용경력:</div>
+              <div style="color: #0F172A; font-size: 14px; font-weight: 600;">${(investorData as any).currentCompanyExperience}</div>
+            </div>
+            ` : ''}
+            
+            ${(investorData as any).managedFundAum ? `
+            <div style="background: white; padding: 15px; border-radius: 6px; border: 1px solid #BAE6FD;">
+              <div style="color: #0369A1; font-size: 12px; font-weight: 500; margin-bottom: 5px;">운영자산:</div>
+              <div style="color: #0F172A; font-size: 14px; font-weight: 600;">${parseFloat((investorData as any).managedFundAum).toLocaleString('ko-KR')} 백만원</div>
+            </div>
+            ` : ''}
+            
+            ${(investorData as any).numberOfManagedFunds ? `
+            <div style="background: white; padding: 15px; border-radius: 6px; border: 1px solid #BAE6FD;">
+              <div style="color: #0369A1; font-size: 12px; font-weight: 500; margin-bottom: 5px;">운용펀드수:</div>
+              <div style="color: #0F172A; font-size: 14px; font-weight: 600;">${(investorData as any).numberOfManagedFunds}개</div>
+            </div>
+            ` : ''}
+            
+            ${(investorData as any).totalAssets ? `
+            <div style="background: white; padding: 15px; border-radius: 6px; border: 1px solid #BAE6FD;">
+              <div style="color: #0369A1; font-size: 12px; font-weight: 500; margin-bottom: 5px;">설정원본:</div>
+              <div style="color: #0F172A; font-size: 14px; font-weight: 600;">${parseFloat((investorData as any).totalAssets).toLocaleString('ko-KR')} 백만원</div>
+            </div>
+            ` : ''}
+          </div>
+        </div>
+        ` : ''}
+
+        <!-- Additional Information Section -->
+        ${investorData.specialty?.length > 0 || investorData.note ? `
+        <div style="background: #F0FDF4; padding: 30px; border-radius: 8px; border-left: 4px solid #10B981; margin-bottom: 20px;">
+          <h2 style="color: #1E293B; font-size: 20px; font-weight: bold; margin: 0 0 20px 0;">📈 추가 정보</h2>
+          
+          ${investorData.specialty?.length > 0 ? `
+          <div style="margin-bottom: 20px;">
+            <div style="color: #059669; font-size: 12px; font-weight: 500; margin-bottom: 10px;">전문분야:</div>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+              ${investorData.specialty.map((spec: string) => `
+                <span style="background: #DCFCE7; color: #166534; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 500;">${spec}</span>
+              `).join('')}
+            </div>
+          </div>
+          ` : ''}
+          
+          ${investorData.note ? `
+          <div style="background: white; padding: 15px; border-radius: 6px; border: 1px solid #BBF7D0;">
+            <div style="color: #059669; font-size: 12px; font-weight: 500; margin-bottom: 5px;">메모:</div>
+            <div style="color: #0F172A; font-size: 14px; line-height: 1.5;">${investorData.note}</div>
+          </div>
+          ` : ''}
+        </div>
+        ` : ''}
+
+        <!-- Footer -->
+        <div style="text-align: center; padding: 20px; border-top: 1px solid #E2E8F0; color: #64748B; font-size: 12px;">
+          <div style="margin-bottom: 5px;">IR CRM - 투자자 관계 관리 시스템</div>
+          <div>© ${new Date().getFullYear()} All rights reserved.</div>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(tempDiv);
+
+    try {
+      const canvas = await html2canvas(tempDiv, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: 'white',
+        width: 800,
+        height: tempDiv.scrollHeight
+      });
+
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgData = canvas.toDataURL('image/png');
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+
+      const fileName = `investor_report_${investorData.name}_${format(new Date(), "yyyy-MM-dd")}.pdf`;
+      pdf.save(fileName);
+
+    } finally {
+      document.body.removeChild(tempDiv);
+    }
+  };
+
   return (
     <div>
       <div className="mb-8">
@@ -432,10 +602,22 @@ export default function Reports() {
         <TabsContent value="investor-reports" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center">
-                <Users className="mr-2 h-5 w-5" />
-                투자자 인적사항 보고서
-              </CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center">
+                  <Users className="mr-2 h-5 w-5" />
+                  투자자 인적사항 보고서
+                </CardTitle>
+                {investorReport && (
+                  <Button
+                    onClick={() => exportInvestorReport(investorReport)}
+                    className="flex items-center space-x-2"
+                    variant="outline"
+                  >
+                    <Download className="h-4 w-4" />
+                    <span>PDF 다운로드</span>
+                  </Button>
+                )}
+              </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
