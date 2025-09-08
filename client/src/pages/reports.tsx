@@ -507,6 +507,46 @@ export default function Reports() {
                           <span className="text-sm font-medium text-gray-500">언어:</span>
                           <p className="text-sm text-gray-900">{investorReport.investor.language || "Korean"}</p>
                         </div>
+                        
+                        {/* Portfolio Management Fields */}
+                        {investorReport.investor.totalExperience && (
+                          <div>
+                            <span className="text-sm font-medium text-gray-500">총 운용경력:</span>
+                            <p className="text-sm text-gray-900">{investorReport.investor.totalExperience}</p>
+                          </div>
+                        )}
+                        
+                        {investorReport.investor.currentCompanyExperience && (
+                          <div>
+                            <span className="text-sm font-medium text-gray-500">현회사 운용경력:</span>
+                            <p className="text-sm text-gray-900">{investorReport.investor.currentCompanyExperience}</p>
+                          </div>
+                        )}
+                        
+                        {investorReport.investor.managedFundAum && (
+                          <div>
+                            <span className="text-sm font-medium text-gray-500">운용펀드 AUM:</span>
+                            <p className="text-sm text-gray-900">
+                              {parseFloat(investorReport.investor.managedFundAum).toLocaleString('ko-KR')} 백만원
+                            </p>
+                          </div>
+                        )}
+                        
+                        {investorReport.investor.numberOfManagedFunds && (
+                          <div>
+                            <span className="text-sm font-medium text-gray-500">운용펀드수:</span>
+                            <p className="text-sm text-gray-900">{investorReport.investor.numberOfManagedFunds}개</p>
+                          </div>
+                        )}
+                        
+                        {investorReport.investor.totalAssets && (
+                          <div>
+                            <span className="text-sm font-medium text-gray-500">설정원본:</span>
+                            <p className="text-sm text-gray-900">
+                              {parseFloat(investorReport.investor.totalAssets).toLocaleString('ko-KR')} 백만원
+                            </p>
+                          </div>
+                        )}
                       </div>
 
                       {investorReport.investor.specialty.length > 0 && (
