@@ -413,218 +413,117 @@ export default function Reports() {
 
   // Export investor personal report to PDF
   const exportInvestorReport = async (report: any) => {
-    const tempDiv = document.createElement('div');
-    tempDiv.style.position = 'absolute';
-    tempDiv.style.left = '-9999px';
-    tempDiv.style.top = '-9999px';
-    tempDiv.style.width = '800px';
-    tempDiv.style.backgroundColor = 'white';
-    tempDiv.style.padding = '40px';
-    tempDiv.style.fontFamily = 'Malgun Gothic, sans-serif';
-
-    const investorData = report.investor;
-    const formattedDate = format(new Date(), 'yyyy년 MM월 dd일');
-
-    tempDiv.innerHTML = `
-      <div style="max-width: 800px; margin: 0 auto; background: white; font-family: 'Malgun Gothic', sans-serif;">
-        <!-- Header with gradient background -->
-        <div style="background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%); padding: 30px; color: white; margin-bottom: 30px; border-radius: 8px;">
-          <div style="display: flex; align-items: center; margin-bottom: 10px;">
-            <div style="width: 24px; height: 24px; background: white; border-radius: 50%; margin-right: 12px; display: flex; align-items: center; justify-content: center;">
-              <span style="color: #3B82F6; font-weight: bold; font-size: 14px;">👤</span>
-            </div>
-            <h1 style="margin: 0; font-size: 24px; font-weight: bold;">투자자 인적사항 보고서</h1>
-          </div>
-          <div style="font-size: 14px; opacity: 0.9;">
-            생성일: ${formattedDate} | 보고서 대상: ${investorData.name}
-          </div>
-        </div>
-
-        <!-- Personal Information Section -->
-        <div style="background: #F8FAFC; padding: 30px; border-radius: 8px; border-left: 4px solid #3B82F6; margin-bottom: 30px;">
-          <h2 style="color: #1E293B; font-size: 20px; font-weight: bold; margin: 0 0 20px 0;">📋 인적사항</h2>
-          
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-            <div style="background: white; padding: 15px; border-radius: 6px; border: 1px solid #E2E8F0;">
-              <div style="color: #64748B; font-size: 12px; font-weight: 500; margin-bottom: 5px;">이름:</div>
-              <div style="color: #0F172A; font-size: 14px; font-weight: 600;">${investorData.name}</div>
-            </div>
-            
-            <div style="background: white; padding: 15px; border-radius: 6px; border: 1px solid #E2E8F0;">
-              <div style="color: #64748B; font-size: 12px; font-weight: 500; margin-bottom: 5px;">이메일:</div>
-              <div style="color: #0F172A; font-size: 14px;">${investorData.email || 'N/A'}</div>
-            </div>
-            
-            <div style="background: white; padding: 15px; border-radius: 6px; border: 1px solid #E2E8F0;">
-              <div style="color: #64748B; font-size: 12px; font-weight: 500; margin-bottom: 5px;">전화:</div>
-              <div style="color: #0F172A; font-size: 14px;">${investorData.phone || 'N/A'}</div>
-            </div>
-            
-            <div style="background: white; padding: 15px; border-radius: 6px; border: 1px solid #E2E8F0;">
-              <div style="color: #64748B; font-size: 12px; font-weight: 500; margin-bottom: 5px;">소속기관:</div>
-              <div style="color: #0F172A; font-size: 14px; font-weight: 600;">${investorData.company}</div>
-            </div>
-            
-            <div style="background: white; padding: 15px; border-radius: 6px; border: 1px solid #E2E8F0;">
-              <div style="color: #64748B; font-size: 12px; font-weight: 500; margin-bottom: 5px;">직책:</div>
-              <div style="color: #0F172A; font-size: 14px;">${investorData.position || 'N/A'}</div>
-            </div>
-            
-            <div style="background: white; padding: 15px; border-radius: 6px; border: 1px solid #E2E8F0;">
-              <div style="color: #64748B; font-size: 12px; font-weight: 500; margin-bottom: 5px;">직급:</div>
-              <div style="color: #0F172A; font-size: 14px; font-weight: 600;">${investorData.positionType || 'PM'}</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Professional Information Section -->
-        ${(investorData as any).totalExperience || (investorData as any).managedFundAum || (investorData as any).numberOfManagedFunds || (investorData as any).totalAssets ? `
-        <div style="background: #F0F9FF; padding: 30px; border-radius: 8px; border-left: 4px solid #0EA5E9; margin-bottom: 30px;">
-          <h2 style="color: #1E293B; font-size: 20px; font-weight: bold; margin: 0 0 20px 0;">💼 운용 정보</h2>
-          
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-            ${(investorData as any).totalExperience ? `
-            <div style="background: white; padding: 15px; border-radius: 6px; border: 1px solid #BAE6FD;">
-              <div style="color: #0369A1; font-size: 12px; font-weight: 500; margin-bottom: 5px;">총 운용경력:</div>
-              <div style="color: #0F172A; font-size: 14px; font-weight: 600;">${(investorData as any).totalExperience}</div>
-            </div>
-            ` : ''}
-            
-            ${(investorData as any).currentCompanyExperience ? `
-            <div style="background: white; padding: 15px; border-radius: 6px; border: 1px solid #BAE6FD;">
-              <div style="color: #0369A1; font-size: 12px; font-weight: 500; margin-bottom: 5px;">현회사 운용경력:</div>
-              <div style="color: #0F172A; font-size: 14px; font-weight: 600;">${(investorData as any).currentCompanyExperience}</div>
-            </div>
-            ` : ''}
-            
-            ${(investorData as any).managedFundAum ? `
-            <div style="background: white; padding: 15px; border-radius: 6px; border: 1px solid #BAE6FD;">
-              <div style="color: #0369A1; font-size: 12px; font-weight: 500; margin-bottom: 5px;">운영자산:</div>
-              <div style="color: #0F172A; font-size: 14px; font-weight: 600;">${parseFloat((investorData as any).managedFundAum).toLocaleString('ko-KR')} 백만원</div>
-            </div>
-            ` : ''}
-            
-            ${(investorData as any).numberOfManagedFunds ? `
-            <div style="background: white; padding: 15px; border-radius: 6px; border: 1px solid #BAE6FD;">
-              <div style="color: #0369A1; font-size: 12px; font-weight: 500; margin-bottom: 5px;">운용펀드수:</div>
-              <div style="color: #0F172A; font-size: 14px; font-weight: 600;">${(investorData as any).numberOfManagedFunds}개</div>
-            </div>
-            ` : ''}
-            
-            ${(investorData as any).totalAssets ? `
-            <div style="background: white; padding: 15px; border-radius: 6px; border: 1px solid #BAE6FD;">
-              <div style="color: #0369A1; font-size: 12px; font-weight: 500; margin-bottom: 5px;">설정원본:</div>
-              <div style="color: #0F172A; font-size: 14px; font-weight: 600;">${parseFloat((investorData as any).totalAssets).toLocaleString('ko-KR')} 백만원</div>
-            </div>
-            ` : ''}
-          </div>
-        </div>
-        ` : ''}
-
-        <!-- Meeting History Section -->
-        ${report.meetings && report.meetings.length > 0 ? `
-        <div style="background: #FEF3C7; padding: 30px; border-radius: 8px; border-left: 4px solid #F59E0B; margin-bottom: 30px;">
-          <h2 style="color: #1E293B; font-size: 20px; font-weight: bold; margin: 0 0 20px 0;">📅 미팅 이력</h2>
-          
-          <div style="background: white; border-radius: 8px; overflow: hidden; border: 1px solid #FCD34D;">
-            <div style="background: #FFFBEB; padding: 15px; border-bottom: 1px solid #FCD34D; font-weight: 600; color: #92400E; font-size: 12px;">
-              <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 10px; align-items: center;">
-                <div>제목</div>
-                <div>날짜</div>
-                <div>시간</div>
-                <div>장소</div>
-                <div>상태</div>
-              </div>
-            </div>
-            ${report.meetings.slice(0, 10).map((meeting: any) => {
-              const meetingDate = new Date(meeting.scheduledDate);
-              const formattedDate = meetingDate.toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' });
-              const formattedTime = meetingDate.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
-              const statusColor = meeting.status === 'completed' ? '#10B981' : meeting.status === 'scheduled' ? '#3B82F6' : '#6B7280';
-              const statusBg = meeting.status === 'completed' ? '#DCFCE7' : meeting.status === 'scheduled' ? '#DBEAFE' : '#F3F4F6';
-              const statusText = meeting.status === 'completed' ? '완료' : meeting.status === 'scheduled' ? '예정' : meeting.status;
-              
-              return `
-              <div style="padding: 12px 15px; border-bottom: 1px solid #FEF3C7; font-size: 13px;">
-                <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 10px; align-items: center;">
-                  <div style="color: #0F172A; font-weight: 500;">${meeting.title || '미팅'}</div>
-                  <div style="color: #374151;">${formattedDate}</div>
-                  <div style="color: #374151;">${formattedTime}</div>
-                  <div style="color: #374151;">${meeting.location || '-'}</div>
-                  <div>
-                    <span style="background: ${statusBg}; color: ${statusColor}; padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: 500;">${statusText}</span>
-                  </div>
-                </div>
-                ${meeting.description ? `
-                <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #FEF3C7;">
-                  <div style="color: #6B7280; font-size: 11px; margin-bottom: 4px;">미팅 내용:</div>
-                  <div style="color: #374151; font-size: 12px; line-height: 1.4;">${meeting.description.length > 100 ? meeting.description.substring(0, 100) + '...' : meeting.description}</div>
-                </div>
-                ` : ''}
-              </div>
-              `;
-            }).join('')}
-            ${report.meetings.length > 10 ? `
-            <div style="padding: 12px 15px; text-align: center; color: #6B7280; font-size: 12px; font-style: italic;">
-              총 ${report.meetings.length}개 미팅 중 최근 10개 표시
-            </div>
-            ` : ''}
-          </div>
-          
-          <!-- Meeting Summary -->
-          <div style="margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
-            <div style="background: white; padding: 15px; border-radius: 6px; text-align: center; border: 1px solid #FCD34D;">
-              <div style="color: #D97706; font-size: 20px; font-weight: bold;">${report.meetings.length}</div>
-              <div style="color: #92400E; font-size: 12px; font-weight: 500;">총 미팅 수</div>
-            </div>
-            <div style="background: white; padding: 15px; border-radius: 6px; text-align: center; border: 1px solid #FCD34D;">
-              <div style="color: #10B981; font-size: 20px; font-weight: bold;">${report.meetings.filter((m: any) => m.status === 'completed').length}</div>
-              <div style="color: #92400E; font-size: 12px; font-weight: 500;">완료된 미팅</div>
-            </div>
-            <div style="background: white; padding: 15px; border-radius: 6px; text-align: center; border: 1px solid #FCD34D;">
-              <div style="color: #3B82F6; font-size: 20px; font-weight: bold;">${report.meetings.filter((m: any) => m.status === 'scheduled').length}</div>
-              <div style="color: #92400E; font-size: 12px; font-weight: 500;">예정된 미팅</div>
-            </div>
-          </div>
-        </div>
-        ` : ''}
-
-        <!-- Additional Information Section -->
-        ${investorData.specialty?.length > 0 || investorData.note ? `
-        <div style="background: #F0FDF4; padding: 30px; border-radius: 8px; border-left: 4px solid #10B981; margin-bottom: 20px;">
-          <h2 style="color: #1E293B; font-size: 20px; font-weight: bold; margin: 0 0 20px 0;">📈 추가 정보</h2>
-          
-          ${investorData.specialty?.length > 0 ? `
-          <div style="margin-bottom: 20px;">
-            <div style="color: #059669; font-size: 12px; font-weight: 500; margin-bottom: 10px;">전문분야:</div>
-            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-              ${investorData.specialty.map((spec: string) => `
-                <span style="background: #DCFCE7; color: #166534; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 500;">${spec}</span>
-              `).join('')}
-            </div>
-          </div>
-          ` : ''}
-          
-          ${investorData.note ? `
-          <div style="background: white; padding: 15px; border-radius: 6px; border: 1px solid #BBF7D0;">
-            <div style="color: #059669; font-size: 12px; font-weight: 500; margin-bottom: 5px;">메모:</div>
-            <div style="color: #0F172A; font-size: 14px; line-height: 1.5;">${investorData.note}</div>
-          </div>
-          ` : ''}
-        </div>
-        ` : ''}
-
-        <!-- Footer -->
-        <div style="text-align: center; padding: 20px; border-top: 1px solid #E2E8F0; color: #64748B; font-size: 12px;">
-          <div style="margin-bottom: 5px;">IR CRM - 투자자 관계 관리 시스템</div>
-          <div>© ${new Date().getFullYear()} All rights reserved.</div>
-        </div>
-      </div>
-    `;
-
-    document.body.appendChild(tempDiv);
-
     try {
+      console.log('🚀 PDF 내보내기 시작:', report.investor.name);
+      
+      const investorData = report.investor;
+      const formattedDate = format(new Date(), 'yyyy년 MM월 dd일');
+      
+      console.log('📊 투자자 데이터:', investorData);
+      console.log('📅 미팅 데이터:', report.meetings);
+
+      // Create simple HTML without complex template literals
+      const tempDiv = document.createElement('div');
+      tempDiv.style.position = 'absolute';
+      tempDiv.style.left = '-9999px';
+      tempDiv.style.top = '-9999px';
+      tempDiv.style.width = '800px';
+      tempDiv.style.backgroundColor = 'white';
+      tempDiv.style.padding = '40px';
+      tempDiv.style.fontFamily = 'Malgun Gothic, sans-serif';
+
+      // Build HTML content step by step
+      let htmlContent = '<div style="max-width: 800px; margin: 0 auto; background: white; font-family: Malgun Gothic, sans-serif;">';
+      
+      // Header
+      htmlContent += '<div style="background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%); padding: 30px; color: white; margin-bottom: 30px; border-radius: 8px;">';
+      htmlContent += '<h1 style="margin: 0; font-size: 24px; font-weight: bold;">👤 투자자 인적사항 보고서</h1>';
+      htmlContent += '<div style="font-size: 14px; opacity: 0.9; margin-top: 10px;">생성일: ' + formattedDate + ' | 보고서 대상: ' + investorData.name + '</div>';
+      htmlContent += '</div>';
+      
+      // Personal Information
+      htmlContent += '<div style="background: #F8FAFC; padding: 30px; border-radius: 8px; border-left: 4px solid #3B82F6; margin-bottom: 30px;">';
+      htmlContent += '<h2 style="color: #1E293B; font-size: 20px; font-weight: bold; margin: 0 0 20px 0;">📋 인적사항</h2>';
+      htmlContent += '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">';
+      
+      const personalFields = [
+        { label: '이름', value: investorData.name },
+        { label: '이메일', value: investorData.email || 'N/A' },
+        { label: '전화', value: investorData.phone || 'N/A' },
+        { label: '소속기관', value: investorData.company },
+        { label: '직책', value: investorData.position || 'N/A' },
+        { label: '직급', value: investorData.positionType || 'PM' }
+      ];
+      
+      personalFields.forEach(field => {
+        htmlContent += '<div style="background: white; padding: 15px; border-radius: 6px; border: 1px solid #E2E8F0;">';
+        htmlContent += '<div style="color: #64748B; font-size: 12px; font-weight: 500; margin-bottom: 5px;">' + field.label + ':</div>';
+        htmlContent += '<div style="color: #0F172A; font-size: 14px; font-weight: 600;">' + field.value + '</div>';
+        htmlContent += '</div>';
+      });
+      
+      htmlContent += '</div></div>';
+      
+      // Meeting Summary if meetings exist
+      if (report.meetings && report.meetings.length > 0) {
+        htmlContent += '<div style="background: #FEF3C7; padding: 30px; border-radius: 8px; border-left: 4px solid #F59E0B; margin-bottom: 30px;">';
+        htmlContent += '<h2 style="color: #1E293B; font-size: 20px; font-weight: bold; margin: 0 0 20px 0;">📅 미팅 이력</h2>';
+        
+        // Meeting stats
+        const totalMeetings = report.meetings.length;
+        const completedMeetings = report.meetings.filter((m: any) => m.status === 'completed').length;
+        const scheduledMeetings = report.meetings.filter((m: any) => m.status === 'scheduled').length;
+        
+        htmlContent += '<div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 20px;">';
+        htmlContent += '<div style="background: white; padding: 15px; border-radius: 6px; text-align: center; border: 1px solid #FCD34D;">';
+        htmlContent += '<div style="color: #D97706; font-size: 20px; font-weight: bold;">' + totalMeetings + '</div>';
+        htmlContent += '<div style="color: #92400E; font-size: 12px; font-weight: 500;">총 미팅 수</div>';
+        htmlContent += '</div>';
+        htmlContent += '<div style="background: white; padding: 15px; border-radius: 6px; text-align: center; border: 1px solid #FCD34D;">';
+        htmlContent += '<div style="color: #10B981; font-size: 20px; font-weight: bold;">' + completedMeetings + '</div>';
+        htmlContent += '<div style="color: #92400E; font-size: 12px; font-weight: 500;">완료된 미팅</div>';
+        htmlContent += '</div>';
+        htmlContent += '<div style="background: white; padding: 15px; border-radius: 6px; text-align: center; border: 1px solid #FCD34D;">';
+        htmlContent += '<div style="color: #3B82F6; font-size: 20px; font-weight: bold;">' + scheduledMeetings + '</div>';
+        htmlContent += '<div style="color: #92400E; font-size: 12px; font-weight: 500;">예정된 미팅</div>';
+        htmlContent += '</div>';
+        htmlContent += '</div>';
+        
+        // Recent meetings list (simplified)
+        if (report.meetings.length > 0) {
+          htmlContent += '<div style="background: white; border-radius: 8px; padding: 15px; border: 1px solid #FCD34D;">';
+          htmlContent += '<div style="color: #92400E; font-size: 14px; font-weight: 600; margin-bottom: 10px;">최근 미팅 (최대 5개)</div>';
+          
+          report.meetings.slice(0, 5).forEach((meeting: any) => {
+            const meetingDate = new Date(meeting.scheduledDate);
+            const dateStr = meetingDate.toLocaleDateString('ko-KR');
+            const statusText = meeting.status === 'completed' ? '완료' : meeting.status === 'scheduled' ? '예정' : meeting.status;
+            
+            htmlContent += '<div style="padding: 8px 0; border-bottom: 1px solid #FEF3C7;">';
+            htmlContent += '<div style="font-size: 13px; font-weight: 500;">' + (meeting.title || '미팅') + '</div>';
+            htmlContent += '<div style="font-size: 11px; color: #6B7280;">' + dateStr + ' | ' + statusText + '</div>';
+            htmlContent += '</div>';
+          });
+          
+          htmlContent += '</div>';
+        }
+        
+        htmlContent += '</div>';
+      }
+      
+      // Footer
+      htmlContent += '<div style="text-align: center; padding: 20px; border-top: 1px solid #E2E8F0; color: #64748B; font-size: 12px;">';
+      htmlContent += '<div>IR CRM - 투자자 관계 관리 시스템</div>';
+      htmlContent += '<div>© ' + new Date().getFullYear() + ' All rights reserved.</div>';
+      htmlContent += '</div>';
+      
+      htmlContent += '</div>';
+      
+      tempDiv.innerHTML = htmlContent;
+      document.body.appendChild(tempDiv);
+
+      console.log('📄 HTML 생성 완료, canvas 변환 시작...');
+
       const canvas = await html2canvas(tempDiv, {
         scale: 2,
         useCORS: true,
@@ -634,6 +533,8 @@ export default function Reports() {
         height: tempDiv.scrollHeight
       });
 
+      console.log('🖼️ Canvas 생성 완료, PDF 생성 시작...');
+
       const pdf = new jsPDF('p', 'mm', 'a4');
       const imgData = canvas.toDataURL('image/png');
       const pdfWidth = pdf.internal.pageSize.getWidth();
@@ -642,10 +543,17 @@ export default function Reports() {
       pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
 
       const fileName = `investor_report_${investorData.name}_${format(new Date(), "yyyy-MM-dd")}.pdf`;
+      console.log('💾 PDF 저장 시작:', fileName);
+      
       pdf.save(fileName);
+      
+      console.log('✅ PDF 다운로드 완료!');
 
-    } finally {
       document.body.removeChild(tempDiv);
+
+    } catch (error) {
+      console.error('❌ PDF 생성 중 오류:', error);
+      alert('PDF 생성 중 오류가 발생했습니다: ' + error);
     }
   };
 
