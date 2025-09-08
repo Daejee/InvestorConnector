@@ -382,7 +382,7 @@ export default function InvestorTable({ investors, isLoading, apiBasePath = "/ap
               </th>
             )}
             <th className="px-1 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider w-[12%]">
-              {renderSortButton('totalAssets', 'AUM')}
+              {renderSortButton('totalAssets', '운영자산(백만원)')}
             </th>
             {!isOverseas && (
               <>

@@ -517,7 +517,7 @@ export default function Reports() {
                         
                         {(investorReport.investor as any).managedFundAum && (
                           <div>
-                            <span className="text-sm font-medium text-gray-500">운용펀드 AUM:</span>
+                            <span className="text-sm font-medium text-gray-500">운영자산:</span>
                             <p className="text-sm text-gray-900">
                               {parseFloat((investorReport.investor as any).managedFundAum).toLocaleString('ko-KR')} 백만원
                             </p>
