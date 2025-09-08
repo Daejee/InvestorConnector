@@ -488,7 +488,7 @@ export default function Reports() {
                         <div>
                           <span className="text-sm font-medium text-gray-500">직급:</span>
                           <div className="text-sm text-gray-900">
-                            {investorReport.investor.positionType || "N/A"}
+                            {investorReport.investor.positionType || "PM"}
                             {investorReport.investor.positionType === "Buyside Analyst" && investorReport.investor.specialty.length > 0 && (
                               <div className="mt-1">
                                 <span className="text-xs text-gray-500">담당섹터: </span>
@@ -499,51 +499,43 @@ export default function Reports() {
                             )}
                           </div>
                         </div>
-                        <div>
-                          <span className="text-sm font-medium text-gray-500">국가:</span>
-                          <p className="text-sm text-gray-900">{investorReport.investor.country || "Korea"}</p>
-                        </div>
-                        <div>
-                          <span className="text-sm font-medium text-gray-500">언어:</span>
-                          <p className="text-sm text-gray-900">{investorReport.investor.language || "Korean"}</p>
-                        </div>
                         
                         {/* Portfolio Management Fields */}
-                        {investorReport.investor.totalExperience && (
+                        {(investorReport.investor as any).totalExperience && (
                           <div>
                             <span className="text-sm font-medium text-gray-500">총 운용경력:</span>
-                            <p className="text-sm text-gray-900">{investorReport.investor.totalExperience}</p>
+                            <p className="text-sm text-gray-900">{(investorReport.investor as any).totalExperience}</p>
                           </div>
                         )}
                         
-                        {investorReport.investor.currentCompanyExperience && (
+                        {(investorReport.investor as any).currentCompanyExperience && (
                           <div>
                             <span className="text-sm font-medium text-gray-500">현회사 운용경력:</span>
-                            <p className="text-sm text-gray-900">{investorReport.investor.currentCompanyExperience}</p>
+                            <p className="text-sm text-gray-900">{(investorReport.investor as any).currentCompanyExperience}</p>
                           </div>
                         )}
                         
-                        {investorReport.investor.managedFundAum && (
+                        {(investorReport.investor as any).managedFundAum && (
                           <div>
                             <span className="text-sm font-medium text-gray-500">운용펀드 AUM:</span>
                             <p className="text-sm text-gray-900">
-                              {parseFloat(investorReport.investor.managedFundAum).toLocaleString('ko-KR')} 백만원
+                              {parseFloat((investorReport.investor as any).managedFundAum).toLocaleString('ko-KR')} 백만원
                             </p>
                           </div>
                         )}
                         
-                        {investorReport.investor.numberOfManagedFunds && (
+                        {(investorReport.investor as any).numberOfManagedFunds && (
                           <div>
                             <span className="text-sm font-medium text-gray-500">운용펀드수:</span>
-                            <p className="text-sm text-gray-900">{investorReport.investor.numberOfManagedFunds}개</p>
+                            <p className="text-sm text-gray-900">{(investorReport.investor as any).numberOfManagedFunds}개</p>
                           </div>
                         )}
                         
-                        {investorReport.investor.totalAssets && (
+                        {(investorReport.investor as any).totalAssets && (
                           <div>
                             <span className="text-sm font-medium text-gray-500">설정원본:</span>
                             <p className="text-sm text-gray-900">
-                              {parseFloat(investorReport.investor.totalAssets).toLocaleString('ko-KR')} 백만원
+                              {parseFloat((investorReport.investor as any).totalAssets).toLocaleString('ko-KR')} 백만원
                             </p>
                           </div>
                         )}
