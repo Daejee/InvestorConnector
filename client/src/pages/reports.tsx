@@ -521,6 +521,74 @@ export default function Reports() {
         </div>
         ` : ''}
 
+        <!-- Meeting History Section -->
+        ${report.meetings && report.meetings.length > 0 ? `
+        <div style="background: #FEF3C7; padding: 30px; border-radius: 8px; border-left: 4px solid #F59E0B; margin-bottom: 30px;">
+          <h2 style="color: #1E293B; font-size: 20px; font-weight: bold; margin: 0 0 20px 0;">📅 미팅 이력</h2>
+          
+          <div style="background: white; border-radius: 8px; overflow: hidden; border: 1px solid #FCD34D;">
+            <div style="background: #FFFBEB; padding: 15px; border-bottom: 1px solid #FCD34D; font-weight: 600; color: #92400E; font-size: 12px;">
+              <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 10px; align-items: center;">
+                <div>제목</div>
+                <div>날짜</div>
+                <div>시간</div>
+                <div>장소</div>
+                <div>상태</div>
+              </div>
+            </div>
+            ${report.meetings.slice(0, 10).map((meeting: any) => {
+              const meetingDate = new Date(meeting.scheduledDate);
+              const formattedDate = meetingDate.toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' });
+              const formattedTime = meetingDate.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+              const statusColor = meeting.status === 'completed' ? '#10B981' : meeting.status === 'scheduled' ? '#3B82F6' : '#6B7280';
+              const statusBg = meeting.status === 'completed' ? '#DCFCE7' : meeting.status === 'scheduled' ? '#DBEAFE' : '#F3F4F6';
+              const statusText = meeting.status === 'completed' ? '완료' : meeting.status === 'scheduled' ? '예정' : meeting.status;
+              
+              return `
+              <div style="padding: 12px 15px; border-bottom: 1px solid #FEF3C7; font-size: 13px;">
+                <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 10px; align-items: center;">
+                  <div style="color: #0F172A; font-weight: 500;">${meeting.title || '미팅'}</div>
+                  <div style="color: #374151;">${formattedDate}</div>
+                  <div style="color: #374151;">${formattedTime}</div>
+                  <div style="color: #374151;">${meeting.location || '-'}</div>
+                  <div>
+                    <span style="background: ${statusBg}; color: ${statusColor}; padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: 500;">${statusText}</span>
+                  </div>
+                </div>
+                ${meeting.description ? `
+                <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #FEF3C7;">
+                  <div style="color: #6B7280; font-size: 11px; margin-bottom: 4px;">미팅 내용:</div>
+                  <div style="color: #374151; font-size: 12px; line-height: 1.4;">${meeting.description.length > 100 ? meeting.description.substring(0, 100) + '...' : meeting.description}</div>
+                </div>
+                ` : ''}
+              </div>
+              `;
+            }).join('')}
+            ${report.meetings.length > 10 ? `
+            <div style="padding: 12px 15px; text-align: center; color: #6B7280; font-size: 12px; font-style: italic;">
+              총 ${report.meetings.length}개 미팅 중 최근 10개 표시
+            </div>
+            ` : ''}
+          </div>
+          
+          <!-- Meeting Summary -->
+          <div style="margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+            <div style="background: white; padding: 15px; border-radius: 6px; text-align: center; border: 1px solid #FCD34D;">
+              <div style="color: #D97706; font-size: 20px; font-weight: bold;">${report.meetings.length}</div>
+              <div style="color: #92400E; font-size: 12px; font-weight: 500;">총 미팅 수</div>
+            </div>
+            <div style="background: white; padding: 15px; border-radius: 6px; text-align: center; border: 1px solid #FCD34D;">
+              <div style="color: #10B981; font-size: 20px; font-weight: bold;">${report.meetings.filter((m: any) => m.status === 'completed').length}</div>
+              <div style="color: #92400E; font-size: 12px; font-weight: 500;">완료된 미팅</div>
+            </div>
+            <div style="background: white; padding: 15px; border-radius: 6px; text-align: center; border: 1px solid #FCD34D;">
+              <div style="color: #3B82F6; font-size: 20px; font-weight: bold;">${report.meetings.filter((m: any) => m.status === 'scheduled').length}</div>
+              <div style="color: #92400E; font-size: 12px; font-weight: 500;">예정된 미팅</div>
+            </div>
+          </div>
+        </div>
+        ` : ''}
+
         <!-- Additional Information Section -->
         ${investorData.specialty?.length > 0 || investorData.note ? `
         <div style="background: #F0FDF4; padding: 30px; border-radius: 8px; border-left: 4px solid #10B981; margin-bottom: 20px;">
