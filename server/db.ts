@@ -16,4 +16,19 @@ export const pool = new Pool({
   connectionTimeoutMillis: 30000,
 });
 
+// Add proper error handling to prevent uncaught exceptions
+pool.on('error', (err) => {
+  console.error('Database pool error:', err);
+  // Don't exit the process, just log the error
+  // The pool will automatically reconnect on the next query
+});
+
+pool.on('connect', () => {
+  console.log('Database pool connected');
+});
+
+pool.on('remove', () => {
+  console.log('Database connection removed from pool');
+});
+
 export const db = drizzle({ client: pool, schema });
