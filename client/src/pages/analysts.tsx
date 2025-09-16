@@ -37,6 +37,9 @@ export default function Analysts() {
     mutationFn: async (id: number) => {
       const response = await fetch(`/api/analysts/${id}`, {
         method: "DELETE",
+        headers: {
+          'X-Organization-Id': organizationId?.toString() || '1',
+        },
       });
       if (!response.ok) throw new Error("Failed to delete analyst");
       return response.json();

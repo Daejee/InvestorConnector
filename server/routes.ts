@@ -84,15 +84,16 @@ async function extractOrganizationId(req: any): Promise<number> {
     path: req.path,
     headers: {
       'x-organization-id': req.headers['x-organization-id'],
-      'x-organization': req.headers['x-organization']
+      'x-organization': req.headers['x-organization'],
+      'referer': req.headers.referer
     },
     query: req.query
   });
   
-  // Check header: X-Organization-Id (from frontend)
+  // Check header: X-Organization-Id (from frontend) - PRIORITY 1
   if (req.headers['x-organization-id']) {
     const orgId = parseInt(req.headers['x-organization-id']);
-    if (!isNaN(orgId)) {
+    if (!isNaN(orgId) && orgId > 0) {
       console.log('✅ Using organization ID from X-Organization-Id header:', orgId);
       return orgId;
     }
@@ -100,7 +101,18 @@ async function extractOrganizationId(req: any): Promise<number> {
   
   const domainMapping = await fetchDomainMapping();
   
-  // Check URL path: /org/samsung/investors
+  // Check referer header for organization context (for CSV uploads from org pages)
+  if (req.headers.referer) {
+    const referrerMatch = req.headers.referer.match(/\/org\/([^\/]+)/);
+    if (referrerMatch) {
+      const domain = referrerMatch[1];
+      const mappedOrgId = domainMapping[domain] || 1;
+      console.log('🔄 Using organization ID from Referer header:', { domain, mappedOrgId, referer: req.headers.referer });
+      return mappedOrgId;
+    }
+  }
+  
+  // Check URL path: /org/samsung/investors (less likely for API calls)
   const orgFromPath = req.path.match(/^\/org\/([^\/]+)/);
   if (orgFromPath) {
     const domain = orgFromPath[1];
@@ -123,8 +135,14 @@ async function extractOrganizationId(req: any): Promise<number> {
     return mappedOrgId;
   }
   
-  // Default to organization 1
+  // Default to organization 1 with detailed warning
   console.log('⚠️ Defaulting to organization ID 1 - no valid source found');
+  console.log('⚠️ Missing organization context for:', { 
+    path: req.path, 
+    method: req.method,
+    hasXOrgId: !!req.headers['x-organization-id'],
+    referer: req.headers.referer
+  });
   return 1;
 }
 
@@ -3991,7 +4009,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/admin/export-users-csv", async (req, res) => {
     try {
-      const users = await storage.getUsers();
+      const organizationId = await extractOrganizationId(req);
+      const users = await storage.getUsers(organizationId);
       
       const csvHeaders = [
         'ID', '이름', '이메일', '조직ID', '생성일'
@@ -4021,7 +4040,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/admin/export-overseas-investors-csv", async (req, res) => {
     try {
-      const investors = await storage.getOverseasInvestors();
+      const organizationId = await extractOrganizationId(req);
+      const investors = await storage.getOverseasInvestors(organizationId);
       
       const csvHeaders = [
         'ID', '이름', '이메일', '전화번호', '회사', '펀드', '직책', '전문분야', '국가', '언어'
