@@ -35,6 +35,8 @@ import DefaultLogin from "@/pages/login-default";
 import SamsungLogin from "@/pages/login-samsung";
 import LoginLG from "@/pages/login-lg";
 import NotFound from "@/pages/not-found";
+import BestirHome from "@/pages/bestir-home";
+import Academy from "@/pages/academy";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -116,13 +118,6 @@ function OrganizationAwareSwitch() {
       
       {/* Organization-specific login pages - demo handled in Router */}
       
-      {/* Root path clears auth and redirects to login */}
-      <Route path="/" component={() => { 
-        // Clear all authentication data
-        localStorage.clear();
-        window.location.href = '/login/default'; 
-        return null; 
-      }} />
       <Route path="/investors" component={() => { window.location.href = '/org/default/investors'; return null; }} />
       <Route path="/overseas-investors" component={() => { window.location.href = '/org/default/overseas-investors'; return null; }} />
       <Route path="/analysts" component={() => { window.location.href = '/org/default/analysts'; return null; }} />
@@ -154,26 +149,37 @@ function OrganizationAwareSwitch() {
 
 function Router() {
   return (
-    <OrganizationProvider>
-      <Switch>
-        {/* Demo login page */}
-        <Route path="/login/demo" component={DemoLogin} />
-        
-        {/* Login pages without layout */}
-        <Route path="/login/default" component={DefaultLogin} />
-        <Route path="/login/default.com" component={DefaultLogin} />
-        <Route path="/login/samsung" component={SamsungLogin} />
-        <Route path="/login/lg" component={LoginLG} />
-        <Route path="/login/LG" component={LoginLG} />
-        
-        {/* All other routes with layout */}
-        <Route>
-          <Layout>
-            <OrganizationAwareSwitch />
-          </Layout>
-        </Route>
-      </Switch>
-    </OrganizationProvider>
+    <Switch>
+      {/* BESTIR Homepage - standalone without layout */}
+      <Route path="/" component={BestirHome} />
+      
+      {/* Academy page - standalone without layout */}
+      <Route path="/academy" component={Academy} />
+      
+      {/* Organization-based application */}
+      <Route>
+        <OrganizationProvider>
+          <Switch>
+            {/* Demo login page */}
+            <Route path="/login/demo" component={DemoLogin} />
+            
+            {/* Login pages without layout */}
+            <Route path="/login/default" component={DefaultLogin} />
+            <Route path="/login/default.com" component={DefaultLogin} />
+            <Route path="/login/samsung" component={SamsungLogin} />
+            <Route path="/login/lg" component={LoginLG} />
+            <Route path="/login/LG" component={LoginLG} />
+            
+            {/* All other routes with layout */}
+            <Route>
+              <Layout>
+                <OrganizationAwareSwitch />
+              </Layout>
+            </Route>
+          </Switch>
+        </OrganizationProvider>
+      </Route>
+    </Switch>
   );
 }
 
