@@ -26,7 +26,13 @@ export default function BestirHome() {
           </Link>
           
           {/* BESTIR Academy Link */}
-          <Link href="/academy" data-testid="link-academy">
+          <a 
+            href="https://best-ir.teachable.com" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            data-testid="link-academy"
+            className="block"
+          >
             <Button 
               variant="outline" 
               size="lg" 
@@ -34,7 +40,7 @@ export default function BestirHome() {
             >
               IR ACADEMY
             </Button>
-          </Link>
+          </a>
         </div>
         
         {/* Footer */}
